@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.32">
+
+  <meta name="author" content="Department of Biostatistics, Vanderbilt University Medical Center">
+  <title>BIOS6301 · Student Materials – Resampling Methods</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #24292e;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #24292e; } /* Normal */
+    code span.al { color: #ff5555; font-weight: bold; } /* Alert */
+    code span.an { color: #6a737d; } /* Annotation */
+    code span.at { color: #d73a49; } /* Attribute */
+    code span.bn { color: #005cc5; } /* BaseN */
+    code span.bu { color: #d73a49; } /* BuiltIn */
+    code span.cf { color: #d73a49; } /* ControlFlow */
+    code span.ch { color: #032f62; } /* Char */
+    code span.cn { color: #005cc5; } /* Constant */
+    code span.co { color: #6a737d; } /* Comment */
+    code span.cv { color: #6a737d; } /* CommentVar */
+    code span.do { color: #6a737d; } /* Documentation */
+    code span.dt { color: #d73a49; } /* DataType */
+    code span.dv { color: #005cc5; } /* DecVal */
+    code span.er { color: #ff5555; text-decoration: underline; } /* Error */
+    code span.ex { color: #d73a49; font-weight: bold; } /* Extension */
+    code span.fl { color: #005cc5; } /* Float */
+    code span.fu { color: #6f42c1; } /* Function */
+    code span.im { color: #032f62; } /* Import */
+    code span.in { color: #6a737d; } /* Information */
+    code span.kw { color: #d73a49; } /* Keyword */
+    code span.op { color: #24292e; } /* Operator */
+    code span.ot { color: #6f42c1; } /* Other */
+    code span.pp { color: #d73a49; } /* Preprocessor */
+    code span.re { color: #6a737d; } /* RegionMarker */
+    code span.sc { color: #005cc5; } /* SpecialChar */
+    code span.ss { color: #032f62; } /* SpecialString */
+    code span.st { color: #032f62; } /* String */
+    code span.va { color: #e36209; } /* Variable */
+    code span.vs { color: #032f62; } /* VerbatimString */
+    code span.wa { color: #ff5555; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-2c1b5f745a11cfad616ebade4a4a7d24.css">
+  <link rel="stylesheet" href="../../slides.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+  <script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+  <link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">Resampling Methods</h1>
+  <p class="subtitle">BIOS 6301 · Introduction to Statistical Computing</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Department of Biostatistics, Vanderbilt University Medical Center 
+</div>
+</div>
+</div>
+
+  <p class="date">Invalid Date</p>
+</section>
+<section id="where-we-are" class="slide level2 smaller">
+<h2>Where we are</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Course arc</th>
+<th style="text-align: right;">Sessions</th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Setup and workflow</td>
+<td style="text-align: right;">0–2</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Data foundations</td>
+<td style="text-align: right;">3–8</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Modern tools</td>
+<td style="text-align: right;">9–10</td>
+<td></td>
+</tr>
+<tr class="even">
+<td>R programming</td>
+<td style="text-align: right;">11–13</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><strong>Statistical computing</strong></td>
+<td style="text-align: right;"><strong>14–16</strong></td>
+<td><strong>← today</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Today’s deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.</p>
+</section>
+<section id="what-you-will-be-able-to-do" class="slide level2 smaller">
+<h2>What you will be able to do</h2>
+<div class="smaller">
+<p><span class="objective-num">1</span> <strong>Explain</strong> what sampling <em>with</em> and <em>without</em> replacement each estimate, and why one line of code separates them.</p>
+<p><span class="objective-num">2</span> <strong>Write</strong> a bootstrap by hand — resample, recompute, collect — and report a bootstrap standard error.</p>
+<p><span class="objective-num">3</span> <strong>Construct</strong> percentile and basic bootstrap intervals, and say what each assumes.</p>
+<p><span class="objective-num">4</span> <strong>Name</strong> four situations where the bootstrap fails, and recognise one from its output.</p>
+<p><span class="objective-num">5</span> <strong>Build</strong> a permutation null distribution, and compute a <em>p</em>-value that is never exactly zero.</p>
+<p><span class="objective-num">6</span> <strong>Choose</strong> the correct resampling unit for clustered or longitudinal data — and show what goes wrong when you do not.</p>
+</div>
+</section>
+<section id="roadmap-for-today" class="slide level2 smaller">
+<h2>Roadmap for today</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 64%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Block</th>
+<th>Minutes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>One argument apart</td>
+<td>10</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>The bootstrap, by hand</td>
+<td>25</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>When the bootstrap fails</td>
+<td>10</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Permutation and exchangeability</td>
+<td>20</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td><strong>Choosing the resampling unit</strong></td>
+<td>20</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Cross-validation, and closing the course</td>
+<td>15</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p><strong>Block 5 is the one to protect.</strong> If the room is running slow, compress block 3 and the <code>boot</code> pointers — not block 5.</p>
+</div>
+</section>
+<section>
+<section id="one-argument-apart" class="title-slide slide level1 section-divider center">
+<h1>1 · One argument apart</h1>
+
+</section>
+<section id="the-whole-session-in-one-table" class="slide level2 smaller">
+<h2>The whole session, in one table</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 44%">
+<col style="width: 38%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Resample</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Bootstrap</strong></td>
+<td><em>with</em> replacement, from the observed data</td>
+<td>the <strong>sampling distribution</strong> of a statistic</td>
+</tr>
+<tr class="even">
+<td><strong>Permutation</strong></td>
+<td><em>without</em> replacement — a reshuffle of labels</td>
+<td>the <strong>null distribution</strong> under exchangeability</td>
+</tr>
+</tbody>
+</table>
+<div class="fragment">
+<p>Which decides, for the rest of your career, which one you reach for:</p>
+<div class="smaller">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>You want</th>
+<th>Use</th>
+<th>You get</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A standard error</td>
+<td>Bootstrap</td>
+<td><code>sd()</code> of the resampled statistics</td>
+</tr>
+<tr class="even">
+<td>A confidence interval</td>
+<td>Bootstrap</td>
+<td>quantiles, or a reflection of them</td>
+</tr>
+<tr class="odd">
+<td>A <em>p</em>-value</td>
+<td>Permutation</td>
+<td>how often chance beats what you saw</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-important callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>The bootstrap answers <strong>“how variable is my estimate?”</strong> Permutation answers <strong>“could chance alone have produced this?”</strong></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-same-line-of-code-twice" class="slide level2 smaller">
+<h2>The same line of code, twice</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a>sbp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">150</span>, <span class="dv">142</span>, <span class="dv">168</span>, <span class="dv">131</span>, <span class="dv">155</span>)</span>
+<span id="cb1-2"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb1-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(sbp, <span class="at">replace =</span> <span class="cn">TRUE</span>)   <span class="co"># bootstrap: some values twice, some not at all</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 150 131 150 142 155</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(sbp)                   <span class="co"># permutation: same values, new order</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 168 142 131 150 155</code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<ul>
+<li><strong>With replacement</strong> the multiset changes — that is what generates variability between resamples.</li>
+<li><strong>Without replacement</strong> the multiset is identical every time. Only the <em>pairing</em> with something else — a label, an arm, a time — changes.</li>
+</ul>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p><code>sample(x)</code> with no other arguments is a permutation of <code>x</code>. You have been writing permutations since Session 14 without calling them that.</p>
+</div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="the-bootstrap-by-hand" class="title-slide slide level1 section-divider center">
+<h1>2 · The bootstrap, by hand</h1>
+
+</section>
+<section id="why-it-works-at-all" class="slide level2 smaller">
+<h2>Why it works at all</h2>
+<p>The thing you want is a property of the <strong>population</strong>: the standard deviation of your estimator across repeated samples from it.</p>
+<div class="fragment">
+<p>You do not have the population. You have one sample — which is your best available estimate of it.</p>
+</div>
+<div class="fragment">
+<div class="callout callout-important callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p><strong>The plug-in principle.</strong> Wherever the formula says <em>population</em>, substitute the <em>empirical distribution of your sample</em>, and compute.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<p>So: resample from your data exactly as nature sampled from the population — same size <em>n</em>, drawn with replacement — and watch how the statistic moves.</p>
+</div>
+</div>
+</section>
+<section id="resample-recompute-collect" class="slide level2 smaller">
+<h2>Resample, recompute, collect</h2>
+<div class="cell" data-reveal="true" data-fig-width="10" data-layout-align="center">
+<div class="cell-output-display">
+<div>
+<p></p><figure class=""><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  D["&lt;b&gt;your data&lt;/b&gt;&lt;br/&gt;n = 60"] --&gt; R["&lt;b&gt;resample&lt;/b&gt;&lt;br/&gt;n = 60,&lt;br/&gt;with replacement"]
+  R --&gt; S["&lt;b&gt;recompute&lt;/b&gt;&lt;br/&gt;the statistic"]
+  S --&gt; C["&lt;b&gt;collect&lt;/b&gt;&lt;br/&gt;one number"]
+  C -.-&gt;|"B = 2000 times"| R
+  C --&gt; H["&lt;b&gt;bootstrap&lt;br/&gt;distribution&lt;/b&gt;"]
+  style D fill:#f4efe4,stroke:#CFAE70
+  style R fill:#CFAE70,stroke:#8a7448,color:#fff
+  style S fill:#CFAE70,stroke:#8a7448,color:#fff
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<p>Three lines of code, and none of them are new. <code>sample()</code> is Session 14, indexing a data frame by a vector of row numbers is Session 4, and <code>replicate()</code> is a functional from Session 13.</p>
+</div>
+</div>
+</section>
+<section id="the-statistic-as-a-function" class="slide level2 smaller">
+<h2>The statistic, as a function</h2>
+<p>We want the <strong>difference in median</strong> 12-week SBP between arms. There is no convenient formula for its standard error — which is exactly when the bootstrap earns its keep.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Difference in median sbp_12, Treatment minus Placebo.</span></span>
+<span id="cb5-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Takes a data frame with `arm` and `sbp_12`; returns one number.</span></span>
+<span id="cb5-3"><a aria-hidden="true" tabindex="-1"></a>med_diff <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
+<span id="cb5-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.data.frame</span>(data), <span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"arm"</span>, <span class="st">"sbp_12"</span>) <span class="sc">%in%</span> <span class="fu">names</span>(data)))</span>
+<span id="cb5-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">median</span>(data<span class="sc">$</span>sbp_12[data<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"Treatment"</span>]) <span class="sc">-</span></span>
+<span id="cb5-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">median</span>(data<span class="sc">$</span>sbp_12[data<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"Placebo"</span>])</span>
+<span id="cb5-7"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-8"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a aria-hidden="true" tabindex="-1"></a>obs_med <span class="ot">&lt;-</span> <span class="fu">med_diff</span>(trial)</span>
+<span id="cb5-10"><a aria-hidden="true" tabindex="-1"></a>obs_med</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -8</code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<p>Statistic first, resampling second. If the function is wrong, 2000 resamples make it wrong 2000 times.</p>
+</div>
+</div>
+</section>
+<section id="the-bootstrap-in-three-lines" class="slide level2 smaller">
+<h2>The bootstrap, in three lines</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">14</span>)</span>
+<span id="cb7-2"><a aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">2000</span></span>
+<span id="cb7-3"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a aria-hidden="true" tabindex="-1"></a>boot_med <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
+<span id="cb7-5"><a aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(trial), <span class="at">replace =</span> <span class="cn">TRUE</span>)   <span class="co"># 60 row numbers, with repeats</span></span>
+<span id="cb7-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">med_diff</span>(trial[idx, ])</span>
+<span id="cb7-7"><a aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb7-8"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(boot_med)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> num [1:2000] -3 -11.5 -5 -7 -11 -2 -9 -7.5 -12.5 -8 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">round</span>(boot_med, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  -3.0 -11.5  -5.0  -7.0 -11.0  -2.0</code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<div title="The tidyverse way — same thing">
+<div class="callout callout-note callout-titled callout-style-simple">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>The tidyverse way — same thing</strong></p>
+</div>
+<div class="callout-content">
+<div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a aria-hidden="true" tabindex="-1"></a>purrr<span class="sc">::</span><span class="fu">map_dbl</span>(<span class="dv">1</span><span class="sc">:</span>B, \(i) <span class="fu">med_diff</span>(dplyr<span class="sc">::</span><span class="fu">slice_sample</span>(trial, <span class="at">prop =</span> <span class="dv">1</span>,</span>
+<span id="cb11-2"><a aria-hidden="true" tabindex="-1"></a>                                                      <span class="at">replace =</span> <span class="cn">TRUE</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="what-came-back" class="slide level2 smaller">
+<h2>What came back</h2>
+
+<img data-src="slides_files/figure-revealjs/fig-boot-med-1.png" width="864" class="r-stretch quarto-figure-center" id="fig-boot-med"><p class="caption">
+Figure&nbsp;1: Bootstrap distribution of the difference in median SBP at 12 weeks.
+</p><div class="smaller">
+<p>Centred near the observed value. Ragged, because a median of 30 integers can only land on so many values.</p>
+</div>
+</section>
+<section id="the-bootstrap-standard-error" class="slide level2 smaller">
+<h2>The bootstrap standard error</h2>
+<p>The standard deviation of the resampled statistics <strong>is</strong> the estimated standard error. That is the whole definition.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a aria-hidden="true" tabindex="-1"></a>se_boot <span class="ot">&lt;-</span> <span class="fu">sd</span>(boot_med)</span>
+<span id="cb12-2"><a aria-hidden="true" tabindex="-1"></a>se_boot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4.541405</code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(boot_med) <span class="sc">-</span> obs_med    <span class="co"># bootstrap estimate of bias</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -1.80875</code></pre>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<p>A small bias estimate is reassuring. A large one is a signal to stop and think — not a licence to subtract it, which usually inflates variance more than it removes bias.</p>
+</div>
+</div>
+</section>
+<section id="percentile-and-basic-intervals" class="slide level2 smaller">
+<h2>Percentile and basic intervals</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a aria-hidden="true" tabindex="-1"></a>perc <span class="ot">&lt;-</span> <span class="fu">quantile</span>(boot_med, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))              <span class="co"># percentile</span></span>
+<span id="cb16-2"><a aria-hidden="true" tabindex="-1"></a>basic <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> obs_med <span class="sc">-</span> <span class="fu">quantile</span>(boot_med, <span class="fu">c</span>(<span class="fl">0.975</span>, <span class="fl">0.025</span>))  <span class="co"># basic</span></span>
+<span id="cb16-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">percentile =</span> perc, <span class="at">basic =</span> <span class="fu">unname</span>(basic))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           2.5% 97.5%
+percentile  -19    -2
+basic       -14     3</code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Interval</th>
+<th>Rule</th>
+<th>Assumes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Percentile</strong></td>
+<td>the 2.5th and 97.5th percentiles of the resamples</td>
+<td>the bootstrap distribution is roughly the sampling distribution</td>
+</tr>
+<tr class="even">
+<td><strong>Basic</strong></td>
+<td>reflect those percentiles through the observed value</td>
+<td>the <em>shape</em> is right, the <em>centre</em> may be off</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-warning callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>Here they disagree — the basic interval reaches across zero and the percentile interval does not. That disagreement is <strong>information</strong>, not a nuisance.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="check-it-where-you-know-the-answer" class="slide level2 smaller">
+<h2>Check it where you know the answer</h2>
+<p>The bootstrap is most trustworthy when you have first watched it reproduce a result you can verify.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a aria-hidden="true" tabindex="-1"></a>mean_diff <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
+<span id="cb18-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(data<span class="sc">$</span>sbp_12[data<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"Treatment"</span>]) <span class="sc">-</span></span>
+<span id="cb18-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(data<span class="sc">$</span>sbp_12[data<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"Placebo"</span>])</span>
+<span id="cb18-4"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-5"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">17</span>)</span>
+<span id="cb18-7"><a aria-hidden="true" tabindex="-1"></a>boot_mean <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, <span class="fu">mean_diff</span>(trial[<span class="fu">sample</span>(<span class="fu">nrow</span>(trial), <span class="at">replace =</span> <span class="cn">TRUE</span>), ]))</span>
+<span id="cb18-8"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">boot_se =</span> <span class="fu">sd</span>(boot_mean),</span>
+<span id="cb18-10"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">welch_se =</span> <span class="fu">t.test</span>(sbp_12 <span class="sc">~</span> arm, <span class="at">data =</span> trial)<span class="sc">$</span>stderr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> boot_se welch_se 
+3.517361 3.571884 </code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<p>Two decimal places apart. Now go back and believe the median result, which has no formula to check against.</p>
+</div>
+</div>
+</section>
+<section id="how-many-resamples" class="slide level2 smaller">
+<h2>How many resamples?</h2>
+<p>More resamples do <strong>not</strong> improve the estimate. They reduce the <em>Monte Carlo noise</em> in your report of it.</p>
+<div class="smaller">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Purpose</th>
+<th><em>B</em></th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Standard error</td>
+<td>1,000–2,000</td>
+<td>The SD stabilises quickly</td>
+</tr>
+<tr class="even">
+<td>Confidence interval</td>
+<td>≥ 10,000</td>
+<td>Tail quantiles are estimated from the tail</td>
+</tr>
+<tr class="odd">
+<td>A number going in a paper</td>
+<td>10,000+</td>
+<td>It must not change on re-render</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a aria-hidden="true" tabindex="-1"></a>boot_se_once <span class="ot">&lt;-</span> <span class="cf">function</span>(b) {</span>
+<span id="cb20-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">sd</span>(<span class="fu">replicate</span>(b, <span class="fu">med_diff</span>(trial[<span class="fu">sample</span>(<span class="fu">nrow</span>(trial), <span class="at">replace =</span> <span class="cn">TRUE</span>), ])))</span>
+<span id="cb20-3"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-4"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">101</span>)</span>
+<span id="cb20-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">replicate</span>(<span class="dv">6</span>, <span class="fu">boot_se_once</span>(<span class="dv">500</span>)), <span class="dv">3</span>)   <span class="co"># six runs, same data, B = 500</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4.550 4.712 4.808 4.618 4.616 4.537</code></pre>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="when-the-bootstrap-fails" class="title-slide slide level1 section-divider center">
+<h1>3 · When the bootstrap fails</h1>
+
+</section>
+<section id="four-ways-it-breaks" class="slide level2 smaller">
+<h2>Four ways it breaks</h2>
+<div style="font-size:0.9em">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>What goes wrong</th>
+<th>Symptom</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Small <em>n</em></strong></td>
+<td>The empirical distribution is a poor stand-in; only <em>n<sup>n</sup></em> distinct resamples exist</td>
+<td>Chunky, lumpy bootstrap distribution</td>
+</tr>
+<tr class="even">
+<td><strong>Extremes</strong> — max, min, range</td>
+<td>The extreme of a resample is drawn from a handful of values</td>
+<td>A distribution with visible spikes</td>
+</tr>
+<tr class="odd">
+<td><strong>Heavy tails</strong> — infinite variance</td>
+<td>There is no sampling distribution to estimate</td>
+<td>Intervals that grow with <em>B</em>; wild resamples</td>
+</tr>
+<tr class="even">
+<td><strong>Dependence</strong> — clustered, longitudinal, time series</td>
+<td>Resampling rows destroys the dependence you needed to keep</td>
+<td>Standard errors that are <strong>too small</strong>, confidently</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="fragment">
+<div class="callout callout-warning callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>Only the last one is silent. The other three announce themselves in a histogram you should have plotted anyway.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-maximum-bootstrapped" class="slide level2 smaller">
+<h2>The maximum, bootstrapped</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">18</span>)</span>
+<span id="cb22-2"><a aria-hidden="true" tabindex="-1"></a>boot_max <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, <span class="fu">max</span>(trial<span class="sc">$</span>sbp_0[<span class="fu">sample</span>(<span class="fu">nrow</span>(trial), <span class="at">replace =</span> <span class="cn">TRUE</span>)]))</span>
+<span id="cb22-3"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(<span class="fu">unique</span>(boot_max))                <span class="co"># distinct values across 2000 resamples</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 7</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(boot_max <span class="sc">==</span> <span class="fu">max</span>(trial<span class="sc">$</span>sbp_0))      <span class="co"># how often the resample max is THE max</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.634</code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<p>The resampled maximum can never exceed the observed maximum, and it equals it whenever the largest patient is drawn at all — probability 1 − (1 − 1/<em>n</em>)<sup><em>n</em></sup> ≈ 0.63.</p>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-important callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>The bootstrap distribution of a maximum is a spike at the observed value with a short left tail. It is not a sampling distribution. <strong>No amount of <em>B</em> fixes it.</strong></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="two-packages-you-should-know-exist" class="slide level2 smaller">
+<h2>Two packages you should know exist</h2>
+<p>Not installed here — this is a pointer, not a demonstration.</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># boot: the classical implementation. Statistic takes (data, indices).</span></span>
+<span id="cb26-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(boot)</span>
+<span id="cb26-3"><a aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">boot</span>(trial, <span class="at">statistic =</span> <span class="cf">function</span>(data, i) <span class="fu">med_diff</span>(data[i, ]), <span class="at">R =</span> <span class="dv">10000</span>)</span>
+<span id="cb26-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">boot.ci</span>(b, <span class="at">type =</span> <span class="fu">c</span>(<span class="st">"perc"</span>, <span class="st">"basic"</span>, <span class="st">"bca"</span>))</span>
+<span id="cb26-5"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-6"><a aria-hidden="true" tabindex="-1"></a><span class="co"># rsample: tidymodels. Resamples as a tibble of splits.</span></span>
+<span id="cb26-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rsample)</span>
+<span id="cb26-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">bootstraps</span>(trial, <span class="at">times =</span> <span class="dv">1000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="fragment">
+<div class="smaller">
+<p><code>boot.ci()</code> gives you <strong>BCa</strong> intervals — bias-corrected and accelerated — which adjust for both the bias and the skewness we saw two slides ago. That is the single best reason to use the package rather than your own loop.</p>
+</div>
+</div>
+</section></section>
+<section>
+<section id="permutation-and-exchangeability" class="title-slide slide level1 section-divider center">
+<h1>4 · Permutation and exchangeability</h1>
+
+</section>
+<section id="the-logic" class="slide level2 smaller">
+<h2>The logic</h2>
+<p><strong>Null hypothesis:</strong> the treatment label carries no information about the outcome.</p>
+<div class="fragment">
+<p>If that is true, then each patient’s outcome would have been the same whichever label they received. The labels are <strong>exchangeable</strong> — any reassignment of the 30 Treatment labels among the 60 patients was equally likely.</p>
+</div>
+<div class="fragment">
+<div class="smaller">
+<p>So: reassign them, thousands of times, and each time compute the statistic. That set of numbers is the <strong>null distribution</strong> — not assumed, not looked up in a table, but constructed from your own data.</p>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-important callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>In a randomised trial this is not a modelling assumption. It is a description of what the randomisation actually did.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="shuffle-the-labels" class="slide level2 smaller">
+<h2>Shuffle the labels</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a aria-hidden="true" tabindex="-1"></a>obs_mean <span class="ot">&lt;-</span> <span class="fu">mean_diff</span>(trial)</span>
+<span id="cb27-2"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">19</span>)</span>
+<span id="cb27-4"><a aria-hidden="true" tabindex="-1"></a>P <span class="ot">&lt;-</span> <span class="dv">999</span></span>
+<span id="cb27-5"><a aria-hidden="true" tabindex="-1"></a>perm_stat <span class="ot">&lt;-</span> <span class="fu">replicate</span>(P, {</span>
+<span id="cb27-6"><a aria-hidden="true" tabindex="-1"></a>  shuffled <span class="ot">&lt;-</span> <span class="fu">sample</span>(trial<span class="sc">$</span>arm)                 <span class="co"># permutation, not a bootstrap</span></span>
+<span id="cb27-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(trial<span class="sc">$</span>sbp_12[shuffled <span class="sc">==</span> <span class="st">"Treatment"</span>]) <span class="sc">-</span></span>
+<span id="cb27-8"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">mean</span>(trial<span class="sc">$</span>sbp_12[shuffled <span class="sc">==</span> <span class="st">"Placebo"</span>])</span>
+<span id="cb27-9"><a aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb27-10"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-11"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">observed =</span> obs_mean, <span class="at">perm_mean =</span> <span class="fu">mean</span>(perm_stat), <span class="at">perm_sd =</span> <span class="fu">sd</span>(perm_stat))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    observed    perm_mean      perm_sd 
+-12.43333333   0.05789122   3.82457944 </code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<p>Note what is <strong>not</strong> shuffled: <code>sbp_12</code> never moves. Only its label does. Shuffling both, or shuffling the outcome instead, gives the same answer here — and stops being equivalent the moment you have a covariate.</p>
+</div>
+</div>
+</section>
+<section id="the-null-distribution" class="slide level2 smaller">
+<h2>The null distribution</h2>
+
+<img data-src="slides_files/figure-revealjs/fig-perm-1.png" width="864" class="r-stretch quarto-figure-center" id="fig-perm"><p class="caption">
+Figure&nbsp;2: Permutation null distribution of the mean difference, with the observed value.
+</p><div class="smaller">
+<p>Centred at zero <strong>by construction</strong>. The <em>p</em>-value is the proportion of this histogram at least as extreme as the line.</p>
+</div>
+</section>
+<section id="exact-or-monte-carlo" class="slide level2 smaller">
+<h2>Exact, or Monte Carlo?</h2>
+<p>With 4 patients per arm there are only <code>choose(8, 4)</code> = <strong>70</strong> possible label assignments. You can enumerate <strong>all</strong> of them:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a aria-hidden="true" tabindex="-1"></a>small <span class="ot">&lt;-</span> trial[<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="dv">31</span><span class="sc">:</span><span class="dv">34</span>), <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"sbp_12"</span>)]</span>
+<span id="cb29-2"><a aria-hidden="true" tabindex="-1"></a>obs_small <span class="ot">&lt;-</span> <span class="fu">mean_diff</span>(small)</span>
+<span id="cb29-3"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a aria-hidden="true" tabindex="-1"></a>combos <span class="ot">&lt;-</span> <span class="fu">combn</span>(<span class="dv">8</span>, <span class="dv">4</span>)                    <span class="co"># every way to choose 4 "Treatment"</span></span>
+<span id="cb29-5"><a aria-hidden="true" tabindex="-1"></a>exact <span class="ot">&lt;-</span> <span class="fu">apply</span>(combos, <span class="dv">2</span>, <span class="cf">function</span>(k) <span class="fu">mean</span>(small<span class="sc">$</span>sbp_12[k]) <span class="sc">-</span></span>
+<span id="cb29-6"><a aria-hidden="true" tabindex="-1"></a>                                      <span class="fu">mean</span>(small<span class="sc">$</span>sbp_12[<span class="sc">-</span>k]))</span>
+<span id="cb29-7"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ncol</span>(combos)                             <span class="co"># the entire reference set</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 70</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">mean</span>(<span class="fu">abs</span>(exact) <span class="sc">&gt;=</span> <span class="fu">abs</span>(obs_small)), <span class="dv">4</span>)    <span class="co"># exact two-sided p-value</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.0571</code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<p>With 30 per arm there are <code>choose(60, 30)</code> ≈ 1.2 × 10<sup>17</sup>. So you sample from them instead — that is all “Monte Carlo permutation” means.</p>
+</div>
+</div>
+</section>
+<section id="a-permutation-p-value-is-never-zero" class="slide level2 smaller">
+<h2>A permutation <em>p</em>-value is never zero</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a aria-hidden="true" tabindex="-1"></a>n_extreme <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">abs</span>(perm_stat) <span class="sc">&gt;=</span> <span class="fu">abs</span>(obs_mean))</span>
+<span id="cb33-2"><a aria-hidden="true" tabindex="-1"></a>n_extreme                                        <span class="co"># out of 999</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">wrong =</span> n_extreme <span class="sc">/</span> P,</span>
+<span id="cb35-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">right =</span> (n_extreme <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> (P <span class="sc">+</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>wrong right 
+0.000 0.001 </code></pre>
+</div>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<p>The observed arrangement <strong>is</strong> one of the possible arrangements. Counting it in both numerator and denominator is not a fudge to avoid zero — it is the correct count.</p>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-warning callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>Report <code>p &lt; 0.001</code>, or increase <em>P</em>. Never <code>p = 0</code>.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="what-permutation-does-not-give-you" class="slide level2 smaller">
+<h2>What permutation does not give you</h2>
+<div class="columns">
+<div class="column" style="width:49%;">
+<h3 id="it-gives">It gives</h3>
+<ul>
+<li>A valid <em>p</em>-value with no distributional assumption</li>
+<li>Exact validity when the randomisation was real</li>
+<li>Freedom to use any statistic you like</li>
+</ul>
+</div><div class="column" style="width:49%;">
+<h3 id="it-does-not-give">It does not give</h3>
+<ul>
+<li>A confidence interval</li>
+<li>An effect size</li>
+<li>Protection against confounding</li>
+<li>A test of “equal means” specifically</li>
+</ul>
+</div></div>
+<div class="fragment">
+<div class="smaller">
+<p>The last one is subtle. The null being tested is that the two label groups have the <strong>same distribution</strong>. A significant result may be a difference in spread or shape, not in centre.</p>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>Which is why the two halves of today go together: permutation for the <em>p</em>-value, bootstrap for the interval.</p>
+</div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="choosing-the-resampling-unit" class="title-slide slide level1 section-divider center">
+<h1>5 · Choosing the resampling unit</h1>
+
+</section>
+<section id="the-same-cohort-three-visits-each" class="slide level2 smaller">
+<h2>The same cohort, three visits each</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial_long, <span class="dv">7</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    id     arm week sbp
+1 P001 Placebo    4 158
+2 P001 Placebo    8 155
+3 P001 Placebo   12 154
+4 P002 Placebo    4 146
+5 P002 Placebo    8 152
+6 P002 Placebo   12 145
+7 P003 Placebo    4 131</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">rows =</span> <span class="fu">nrow</span>(trial_long), <span class="at">patients =</span> <span class="fu">length</span>(<span class="fu">unique</span>(trial_long<span class="sc">$</span>id)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    rows patients 
+     180       60 </code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a>diff_long <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
+<span id="cb41-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(data<span class="sc">$</span>sbp[data<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"Treatment"</span>]) <span class="sc">-</span> <span class="fu">mean</span>(data<span class="sc">$</span>sbp[data<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"Placebo"</span>])</span>
+<span id="cb41-3"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb41-4"><a aria-hidden="true" tabindex="-1"></a>obs_long <span class="ot">&lt;-</span> <span class="fu">diff_long</span>(trial_long)</span>
+<span id="cb41-5"><a aria-hidden="true" tabindex="-1"></a>obs_long</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -7.1</code></pre>
+</div>
+</div>
+<div class="smaller">
+<p>180 rows. <strong>60 patients.</strong> Hold on to that distinction — the rest of this block is about which number is the sample size.</p>
+</div>
+</div>
+</section>
+<section id="the-naive-row-bootstrap" class="slide level2 smaller">
+<h2>The naive row bootstrap</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">21</span>)</span>
+<span id="cb43-2"><a aria-hidden="true" tabindex="-1"></a>boot_row <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
+<span id="cb43-3"><a aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(trial_long), <span class="at">replace =</span> <span class="cn">TRUE</span>)   <span class="co"># 180 rows, independently</span></span>
+<span id="cb43-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">diff_long</span>(trial_long[idx, ])</span>
+<span id="cb43-5"><a aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb43-6"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">estimate =</span> obs_long, <span class="at">se =</span> <span class="fu">sd</span>(boot_row))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> estimate        se 
+-7.100000  1.878739 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">quantile</span>(boot_row, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>)), <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> 2.5% 97.5% 
+-10.7  -3.4 </code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<p>Perfectly reasonable code. Runs without complaint. Produces a clean, symmetric histogram. The interval comfortably excludes zero.</p>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-warning callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>It is wrong, and nothing on this slide tells you so.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="the-cluster-bootstrap" class="slide level2 smaller">
+<h2>The cluster bootstrap</h2>
+<p>Resample <strong>patients</strong>, and take all of each patient’s rows with them.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a>ids <span class="ot">&lt;-</span> <span class="fu">unique</span>(trial_long<span class="sc">$</span>id)</span>
+<span id="cb47-2"><a aria-hidden="true" tabindex="-1"></a>rows_by_id <span class="ot">&lt;-</span> <span class="fu">split</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(trial_long)), trial_long<span class="sc">$</span>id)   <span class="co"># id -&gt; row numbers</span></span>
+<span id="cb47-3"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">22</span>)</span>
+<span id="cb47-5"><a aria-hidden="true" tabindex="-1"></a>boot_clu <span class="ot">&lt;-</span> <span class="fu">replicate</span>(B, {</span>
+<span id="cb47-6"><a aria-hidden="true" tabindex="-1"></a>  picked <span class="ot">&lt;-</span> <span class="fu">sample</span>(ids, <span class="at">replace =</span> <span class="cn">TRUE</span>)              <span class="co"># 60 patients, with repeats</span></span>
+<span id="cb47-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">diff_long</span>(trial_long[<span class="fu">unlist</span>(rows_by_id[picked]), ])</span>
+<span id="cb47-8"><a aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb47-9"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">row_se =</span> <span class="fu">sd</span>(boot_row), <span class="at">cluster_se =</span> <span class="fu">sd</span>(boot_clu),</span>
+<span id="cb47-11"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">ratio =</span> <span class="fu">sd</span>(boot_clu) <span class="sc">/</span> <span class="fu">sd</span>(boot_row))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    row_se cluster_se      ratio 
+  1.878739   3.222562   1.715279 </code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<p>The honest standard error is <strong>1.7 times</strong> the naive one. Every interval built on the naive number is 40% too narrow.</p>
+</div>
+</div>
+</section>
+<section id="side-by-side" class="slide level2 smaller">
+<h2>Side by side</h2>
+
+<img data-src="slides_files/figure-revealjs/fig-unit-1.png" width="864" class="r-stretch quarto-figure-center" id="fig-unit"><p class="caption">
+Figure&nbsp;3: Bootstrap distributions of the same estimate under two resampling schemes.
+</p><div class="smaller">
+<p>Same data, same estimate, same statistic function. Only the <strong>unit</strong> changed.</p>
+</div>
+</section>
+<section id="why-how-much-is-a-visit-worth" class="slide level2 smaller">
+<h2>Why: how much is a visit worth?</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a aria-hidden="true" tabindex="-1"></a>between <span class="ot">&lt;-</span> <span class="fu">var</span>(<span class="fu">tapply</span>(trial_long<span class="sc">$</span>sbp, trial_long<span class="sc">$</span>id, mean))</span>
+<span id="cb49-2"><a aria-hidden="true" tabindex="-1"></a>within  <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">tapply</span>(trial_long<span class="sc">$</span>sbp, trial_long<span class="sc">$</span>id, var))</span>
+<span id="cb49-3"><a aria-hidden="true" tabindex="-1"></a>icc <span class="ot">&lt;-</span> between <span class="sc">/</span> (between <span class="sc">+</span> within)</span>
+<span id="cb49-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">icc =</span> icc, <span class="at">design_effect =</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">3</span> <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> icc, <span class="at">inflation =</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> icc))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          icc design_effect     inflation 
+     0.914293      2.828586      1.681840 </code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<p>With an intra-class correlation near 0.9, three visits carry barely more information than one. The <strong>design effect</strong> 1 + (<em>m</em> − 1)ρ says how many independent observations your <em>n</em> × <em>m</em> rows are actually worth — and its square root is exactly the factor the cluster bootstrap recovered.</p>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>The bootstrap found that number without being told the formula. That is the point of the method.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="permuting-at-the-wrong-level-too" class="slide level2 smaller">
+<h2>Permuting at the wrong level, too</h2>
+<p>The same mistake, in the other half of the session:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a aria-hidden="true" tabindex="-1"></a>arm_by_id <span class="ot">&lt;-</span> trial_long<span class="sc">$</span>arm[<span class="fu">match</span>(ids, trial_long<span class="sc">$</span>id)]</span>
+<span id="cb51-2"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">32</span>)</span>
+<span id="cb51-4"><a aria-hidden="true" tabindex="-1"></a>p_rows <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">999</span>, {</span>
+<span id="cb51-5"><a aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> <span class="fu">sample</span>(trial_long<span class="sc">$</span>arm)                    <span class="co"># shuffles visits, not patients</span></span>
+<span id="cb51-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(trial_long<span class="sc">$</span>sbp[s <span class="sc">==</span> <span class="st">"Treatment"</span>]) <span class="sc">-</span> <span class="fu">mean</span>(trial_long<span class="sc">$</span>sbp[s <span class="sc">==</span> <span class="st">"Placebo"</span>])</span>
+<span id="cb51-7"><a aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb51-8"><a aria-hidden="true" tabindex="-1"></a>p_pats <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="dv">999</span>, {</span>
+<span id="cb51-9"><a aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">sample</span>(arm_by_id), <span class="at">each =</span> <span class="dv">3</span>)          <span class="co"># shuffles patients (rows sorted by id)</span></span>
+<span id="cb51-10"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(trial_long<span class="sc">$</span>sbp[s <span class="sc">==</span> <span class="st">"Treatment"</span>]) <span class="sc">-</span> <span class="fu">mean</span>(trial_long<span class="sc">$</span>sbp[s <span class="sc">==</span> <span class="st">"Placebo"</span>])</span>
+<span id="cb51-11"><a aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb51-12"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-13"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">p_row_unit =</span> (<span class="fu">sum</span>(<span class="fu">abs</span>(p_rows) <span class="sc">&gt;=</span> <span class="fu">abs</span>(obs_long)) <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">1000</span>,</span>
+<span id="cb51-14"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">p_patient_unit =</span> (<span class="fu">sum</span>(<span class="fu">abs</span>(p_pats) <span class="sc">&gt;=</span> <span class="fu">abs</span>(obs_long)) <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">1000</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    p_row_unit p_patient_unit 
+         0.001          0.034 </code></pre>
+</div>
+</div>
+<div class="smaller">
+<p>An order of magnitude apart. <strong>Randomisation happened to patients</strong>, so the permutation must too.</p>
+</div>
+</section>
+<section id="the-rule" class="slide level2 smaller">
+<h2>The rule</h2>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Resample the unit that was independently sampled — the unit that was randomised.</strong></p>
+</div>
+<div class="callout-content">
+
+</div>
+</div>
+</div>
+<div class="fragment">
+<div style="font-size:0.92em">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Design</th>
+<th>Rows</th>
+<th>Resample</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Simple random sample</td>
+<td>Patients</td>
+<td>Patients</td>
+</tr>
+<tr class="even">
+<td>Repeated measures</td>
+<td>Patient-visits</td>
+<td><strong>Patients</strong></td>
+</tr>
+<tr class="odd">
+<td>Cluster-randomised trial</td>
+<td>Patients</td>
+<td><strong>Clinics</strong></td>
+</tr>
+<tr class="even">
+<td>Multi-site trial, site-stratified</td>
+<td>Patients</td>
+<td>Patients, <strong>within site</strong></td>
+</tr>
+<tr class="odd">
+<td>Matched pairs / crossover</td>
+<td>Observations</td>
+<td><strong>Pairs</strong></td>
+</tr>
+<tr class="even">
+<td>Time series</td>
+<td>Time points</td>
+<td><strong>Blocks</strong> of consecutive points</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<p>Before you write <code>sample()</code>, answer one question in prose: <em>what did this study draw at random?</em></p>
+</div>
+</div>
+</section></section>
+<section>
+<section id="cross-validation-and-closing-the-course" class="title-slide slide level1 section-divider center">
+<h1>6 · Cross-validation, and closing the course</h1>
+
+</section>
+<section id="the-same-idea-aimed-at-prediction" class="slide level2 smaller">
+<h2>The same idea, aimed at prediction</h2>
+<p>Fitting and evaluating on the same data is the statistical equivalent of marking your own homework.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">55</span>)</span>
+<span id="cb53-2"><a aria-hidden="true" tabindex="-1"></a>noise <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">matrix</span>(<span class="fu">rnorm</span>(n <span class="sc">*</span> <span class="dv">12</span>), <span class="at">nrow =</span> n))   <span class="co"># 12 pure-noise predictors</span></span>
+<span id="cb53-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(noise) <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"z%02d"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>)</span>
+<span id="cb53-4"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">cbind</span>(trial[, <span class="fu">c</span>(<span class="st">"sbp_12"</span>, <span class="st">"sbp_0"</span>, <span class="st">"age"</span>, <span class="st">"weight_kg"</span>)], noise)</span>
+<span id="cb53-5"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-6"><a aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp_12 <span class="sc">~</span> ., <span class="at">data =</span> d)</span>
+<span id="cb53-7"><a aria-hidden="true" tabindex="-1"></a>rmse_in <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>(<span class="fu">residuals</span>(fit)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb53-8"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">56</span>)</span>
+<span id="cb53-10"><a aria-hidden="true" tabindex="-1"></a>fold <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="at">length.out =</span> n))</span>
+<span id="cb53-11"><a aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">numeric</span>(n)</span>
+<span id="cb53-12"><a aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) {</span>
+<span id="cb53-13"><a aria-hidden="true" tabindex="-1"></a>  m <span class="ot">&lt;-</span> <span class="fu">lm</span>(sbp_12 <span class="sc">~</span> ., <span class="at">data =</span> d[fold <span class="sc">!=</span> k, ])</span>
+<span id="cb53-14"><a aria-hidden="true" tabindex="-1"></a>  pred[fold <span class="sc">==</span> k] <span class="ot">&lt;-</span> <span class="fu">predict</span>(m, <span class="at">newdata =</span> d[fold <span class="sc">==</span> k, ])</span>
+<span id="cb53-15"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb53-16"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb53-17"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">in_sample_rmse =</span> rmse_in, <span class="at">cv_rmse =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((d<span class="sc">$</span>sbp_12 <span class="sc">-</span> pred)<span class="sc">^</span><span class="dv">2</span>))), <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>in_sample_rmse        cv_rmse 
+          8.19          11.10 </code></pre>
+</div>
+</div>
+</section>
+<section id="summary" class="slide level2 smaller">
+<h2>Summary</h2>
+<ul>
+<li>Bootstrap, permutation, and cross-validation answer different questions.</li>
+<li>The resampling unit must preserve the design’s dependence structure.</li>
+<li>Permutation validity rests on exchangeability under the null.</li>
+<li>Preprocessing learned outside a training fold leaks information.</li>
+<li>Finite resampling adds Monte Carlo variability that should be recorded.</li>
+</ul>
+<div class="fragment">
+<p><strong>Next connection:</strong> Session 16 reserves time for strings, regular expressions, and practical needs observed during the course.</p>
+
+
+</div>
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p>BIOS 6301 · Session 15 · Resampling Methods</p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1280,
+
+        height: 720,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+
+    <script>
+
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+
+      // slide changes (different for each slide format).
+
+      (function () {
+
+        // dispatch for htmlwidgets
+
+        function fireSlideEnter() {
+
+          const event = window.document.createEvent("Event");
+
+          event.initEvent("slideenter", true, true);
+
+          window.document.dispatchEvent(event);
+
+        }
+
+    
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+
+          fireSlideEnter();
+
+    
+
+          // dispatch for shiny
+
+          if (window.jQuery) {
+
+            if (previousSlide) {
+
+              window.jQuery(previousSlide).trigger("hidden");
+
+            }
+
+            if (currentSlide) {
+
+              window.jQuery(currentSlide).trigger("shown");
+
+            }
+
+          }
+
+        }
+
+    
+
+        // hookup for slidy
+
+        if (window.w3c_slidy) {
+
+          window.w3c_slidy.add_observer(function (slide_num) {
+
+            // slide_num starts at position 1
+
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+
+          });
+
+        }
+
+    
+
+      })();
+
+    </script>
+
+    
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

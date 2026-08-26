@@ -1,0 +1,41 @@
+---
+title: "Session 5 lab: data import"
+format: html
+---
+
+```{r}
+source_table <- data.frame(
+  id = c("P01", "P02", "P03", "P04", "P05"),
+  visit_date = c("2026-01-03", "01/04/2026", "2026-01-05",
+                 "2026-02-30", "2026-01-07"),
+  marker = c("4.1", ".", "6.2", "not measured", "6.5")
+)
+csv_path <- tempfile(fileext = ".csv")
+write.csv(source_table, csv_path, row.names = FALSE)
+```
+
+Documented rules: `.` and `not measured` mean missing marker. Dates are intended
+to be ISO `YYYY-MM-DD`; the non-ISO and impossible values require review.
+
+## 1. Import contract and audit
+
+```{r}
+# Import, then check dimensions, names, types, IDs, key, and missingness.
+```
+
+## 2. Diagnose and clean
+
+```{r}
+# Preserve raw text; create parsed marker and date columns.
+```
+
+## 3. Export and round-trip check
+
+```{r}
+# Write temporary CSV and RDS files, read them back, and compare classes.
+```
+
+## 4. Interpretation
+
+List the records requiring source clarification and explain why.
+

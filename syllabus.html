@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>BIOS6301: Introduction to Statistical Computing – BIOS6301 · Student Materials</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-4e2c5c4aecfc97ea02a5a87656b3d99a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">BIOS6301 · Student Materials</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Start</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./syllabus.html" aria-current="page"> 
+<span class="menu-text">Syllabus</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-setup--workflow" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Setup &amp; workflow</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-setup--workflow">    
+        <li>
+    <a class="dropdown-item" href="./course/session00/index.html">
+ <span class="dropdown-text">0 · Setup</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./course/session01/index.html">
+ <span class="dropdown-text">1 · Reproducible R</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./course/session02/index.html">
+ <span class="dropdown-text">2 · Git and GitHub</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-data-foundations" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Data foundations</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-data-foundations">    
+        <li>
+    <a class="dropdown-item" href="./course/session03/index.html">
+ <span class="dropdown-text">3 · Objects</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./course/session04/index.html">
+ <span class="dropdown-text">4 · Structures and base R</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./course/session05/index.html">
+ <span class="dropdown-text">5 · Data import</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./course/session06/index.html">
+ <span class="dropdown-text">6 · Tidyverse</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./course/session07/index.html">
+ <span class="dropdown-text">7 · Joins and reshaping</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./course/session08/index.html">
+ <span class="dropdown-text">8 · Visualization</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-modern-tools" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Modern tools</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-modern-tools">    
+        <li>
+    <a class="dropdown-item" href="./course/session09/index.html">
+ <span class="dropdown-text">9 · Positron and Copilot</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./course/session10/index.html">
+ <span class="dropdown-text">10 · Python for R users</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-r-programming" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">R programming</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-r-programming">    
+        <li>
+    <a class="dropdown-item" href="./course/session11/index.html">
+ <span class="dropdown-text">11 · Control and functions</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./course/session12/index.html">
+ <span class="dropdown-text">12 · Debugging</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./course/session13/index.html">
+ <span class="dropdown-text">13 · Iteration and speed</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-statistical-computing" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Statistical computing</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-statistical-computing">    
+        <li>
+    <a class="dropdown-item" href="./course/session14/index.html">
+ <span class="dropdown-text">14 · Simulation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./course/session15/index.html">
+ <span class="dropdown-text">15 · Resampling</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./course/session16/index.html">
+ <span class="dropdown-text">16 · Selected topics</span></a>
+  </li>  
+    </ul>
+  </li>
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#course-information" id="toc-course-information" class="nav-link active" data-scroll-target="#course-information">Course information</a></li>
+  <li><a href="#course-description" id="toc-course-description" class="nav-link" data-scroll-target="#course-description">Course description</a>
+  <ul class="collapse">
+  <li><a href="#what-this-course-is-not" id="toc-what-this-course-is-not" class="nav-link" data-scroll-target="#what-this-course-is-not">What this course is not</a></li>
+  </ul></li>
+  <li><a href="#prerequisites" id="toc-prerequisites" class="nav-link" data-scroll-target="#prerequisites">Prerequisites</a></li>
+  <li><a href="#learning-objectives" id="toc-learning-objectives" class="nav-link" data-scroll-target="#learning-objectives">Learning objectives</a></li>
+  <li><a href="#course-organization" id="toc-course-organization" class="nav-link" data-scroll-target="#course-organization">Course organization</a>
+  <ul class="collapse">
+  <li><a href="#instructor-managed-materials" id="toc-instructor-managed-materials" class="nav-link" data-scroll-target="#instructor-managed-materials">Instructor-managed materials</a></li>
+  <li><a href="#student-work" id="toc-student-work" class="nav-link" data-scroll-target="#student-work">Student work</a></li>
+  </ul></li>
+  <li><a href="#software" id="toc-software" class="nav-link" data-scroll-target="#software">Software</a></li>
+  <li><a href="#class-topics" id="toc-class-topics" class="nav-link" data-scroll-target="#class-topics">Class topics</a></li>
+  <li><a href="#base-r-and-tidyverse-policy" id="toc-base-r-and-tidyverse-policy" class="nav-link" data-scroll-target="#base-r-and-tidyverse-policy">Base R and tidyverse policy</a></li>
+  <li><a href="#ai-assisted-coding-policy" id="toc-ai-assisted-coding-policy" class="nav-link" data-scroll-target="#ai-assisted-coding-policy">AI-assisted coding policy</a>
+  <ul class="collapse">
+  <li><a href="#before-session-9" id="toc-before-session-9" class="nav-link" data-scroll-target="#before-session-9">Before Session 9</a></li>
+  <li><a href="#after-session-9" id="toc-after-session-9" class="nav-link" data-scroll-target="#after-session-9">After Session 9</a></li>
+  <li><a href="#required-disclosure" id="toc-required-disclosure" class="nav-link" data-scroll-target="#required-disclosure">Required disclosure</a></li>
+  </ul></li>
+  <li><a href="#assessment" id="toc-assessment" class="nav-link" data-scroll-target="#assessment">Assessment</a></li>
+  <li><a href="#expectations-for-submitted-work" id="toc-expectations-for-submitted-work" class="nav-link" data-scroll-target="#expectations-for-submitted-work">Expectations for submitted work</a></li>
+  <li><a href="#course-communication-and-support" id="toc-course-communication-and-support" class="nav-link" data-scroll-target="#course-communication-and-support">Course communication and support</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">BIOS6301: Introduction to Statistical Computing</h1>
+<p class="subtitle lead">Course syllabus · Draft for instructor review</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="course-information" class="level2">
+<h2 class="anchored" data-anchor-id="course-information">Course information</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Item</th>
+<th>Information</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Course</td>
+<td>BIOS6301: Introduction to Statistical Computing</td>
+</tr>
+<tr class="even">
+<td>Audience</td>
+<td>First-year graduate students in Biostatistics</td>
+</tr>
+<tr class="odd">
+<td>Primary language</td>
+<td>R</td>
+</tr>
+<tr class="even">
+<td>Additional language</td>
+<td>One introductory session on Python for R users</td>
+</tr>
+<tr class="odd">
+<td>Instructor</td>
+<td>Shilin Zhao · <code>shilin.zhao.1@vumc.org</code></td>
+</tr>
+<tr class="even">
+<td>Teaching assistant</td>
+<td>Zongyue Teng · <code>zongyue.teng@Vanderbilt.Edu</code></td>
+</tr>
+<tr class="odd">
+<td>Class schedule</td>
+<td>Mondays, August 31–December 7, 2026, 2:00–4:00 PM; no class during Thanksgiving week</td>
+</tr>
+<tr class="even">
+<td>Classroom</td>
+<td>Room 11105</td>
+</tr>
+<tr class="odd">
+<td>Number of class meetings</td>
+<td>14</td>
+</tr>
+<tr class="even">
+<td>Office hours</td>
+<td><strong>TBD</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Sessions in this syllabus are instructional units rather than calendar weeks. Some class meetings therefore contain two related instructional units. Guided laboratory work is incorporated as appropriate and supported by separate lab materials.</p>
+</section>
+<section id="course-description" class="level2">
+<h2 class="anchored" data-anchor-id="course-description">Course description</h2>
+<p>This course introduces statistical computing as part of responsible biostatistical practice. The emphasis is not only on obtaining an answer, but on creating an analysis that another person can inspect, reproduce, verify, and modify.</p>
+<p>This is a working introduction to the computing used in statistical practice. By the end, students should be able to take a data file, validate and reshape it, produce effective statistical figures, write and debug R code, and run a simulation study within a reproducible project.</p>
+<p>Students will learn R through both base-R and tidyverse approaches. They may use either style when both express the same analysis clearly, although some exercises will target a particular tool for learning purposes. The course also introduces reproducible reports with Quarto, version control with Git and GitHub, statistical graphics, reliable programming, simulation, resampling, responsible AI-assisted coding, and a short introduction to Python.</p>
+<section id="what-this-course-is-not" class="level3">
+<h3 class="anchored" data-anchor-id="what-this-course-is-not">What this course is not</h3>
+<p>This is not a replacement for a statistical-theory or methods course. Means, t-tests, confidence intervals, and related methods provide material to compute with; their full statistical justification belongs elsewhere in the graduate curriculum. This course focuses on implementing, checking, reproducing, and communicating statistical computations.</p>
+</section>
+</section>
+<section id="prerequisites" class="level2">
+<h2 class="anchored" data-anchor-id="prerequisites">Prerequisites</h2>
+<p>Introductory statistics or permission of the instructor is expected. No prior programming experience is required. Session 0 is designed to ensure that every student begins the first class with a working computing environment.</p>
+</section>
+<section id="learning-objectives" class="level2">
+<h2 class="anchored" data-anchor-id="learning-objectives">Learning objectives</h2>
+<p>By the end of the course, students should be able to:</p>
+<ol type="1">
+<li>Organize a statistical analysis as a reproducible project using R, Quarto, relative paths, and version control.</li>
+<li>Inspect R objects and predict the consequences of type, coercion, indexing, missingness, and data structure choices.</li>
+<li>Import data and perform systematic checks of dimensions, identifiers, column types, ranges, dates, and missing-value encodings.</li>
+<li>Manipulate rectangular data using both base-R and tidyverse approaches and select a clear style for a given task.</li>
+<li>Reshape and join data while stating the unit of observation, identifying keys, predicting row counts, and checking join relationships.</li>
+<li>Construct and critique statistical graphics using base graphics and ggplot2.</li>
+<li>Write functions and control-flow code with explicit inputs, outputs, and edge- case behavior.</li>
+<li>Diagnose errors, validate inputs, test important behavior, and recognize common numerical-computing problems.</li>
+<li>Choose appropriately among vectorized operations, loops, base-R functionals, and purrr mappings.</li>
+<li>Design and interpret simulation and resampling studies.</li>
+<li>Use the course-approved AI coding assistant transparently and verify suggested code rather than treating generated code as evidence of correctness.</li>
+</ol>
+</section>
+<section id="course-organization" class="level2">
+<h2 class="anchored" data-anchor-id="course-organization">Course organization</h2>
+<section id="instructor-managed-materials" class="level3">
+<h3 class="anchored" data-anchor-id="instructor-managed-materials">Instructor-managed materials</h3>
+<p>Course source, examples, slides, and lab starters are distributed through the <code>BIOS6301-materials</code> repository. Files under <code>course/</code> are instructor-managed and should not be edited by students.</p>
+</section>
+<section id="student-work" class="level3">
+<h3 class="anchored" data-anchor-id="student-work">Student work</h3>
+<p>Each student will create a private course repository following the instructions provided in Session 2. Lab and homework starters should be copied from <code>course/</code> to the corresponding location under <code>work/</code> before editing.</p>
+<p>The usual update sequence is:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> fetch upstream</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> merge upstream/main</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push origin main</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Students should save and commit their own work before merging course updates. No credentials, protected information, restricted research data, or other sensitive information may be committed to a course repository.</p>
+</section>
+</section>
+<section id="software" class="level2">
+<h2 class="anchored" data-anchor-id="software">Software</h2>
+<p>The primary course environment consists of:</p>
+<ul>
+<li>R;</li>
+<li>RStudio during the foundational portion of the course;</li>
+<li>Quarto for reproducible reports and presentations;</li>
+<li>Git and GitHub for version control and submission workflow;</li>
+<li>selected tidyverse packages;</li>
+<li>Positron beginning in Session 9;</li>
+<li>GitHub Copilot beginning in Session 9 under the policy below; and</li>
+<li>Python, NumPy, pandas, and notebook-based computing for the introductory Python session.</li>
+</ul>
+<p>Course examples use synthetic or unrestricted teaching data. Students must not enter protected, identifiable, or restricted data into course repositories or public AI services.</p>
+</section>
+<section id="class-topics" class="level2">
+<h2 class="anchored" data-anchor-id="class-topics">Class topics</h2>
+<p>The instructor may adjust pacing in response to student preparation and the academic calendar. Session 0 is completed independently before the first class. Instructional sessions are units of content rather than calendar weeks, and two related units may be completed during one class meeting.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 39%">
+<col style="width: 30%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Session</th>
+<th>Topic</th>
+<th>Core content</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0</td>
+<td>Setup and orientation</td>
+<td>Install and verify R, RStudio, Quarto, and Git; distinguish console from source; open a project; render the diagnostic document</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td>Reproducible statistical workflow</td>
+<td>RStudio workbench; <code>.R</code> scripts; R Markdown structure and knitr options; Quarto-specific syntax; project paths; source versus generated output; clean-session rendering</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td>Git and GitHub</td>
+<td>Working tree, staging, commits, history, remotes, pull/push, <code>.gitignore</code>, and safe beginner recovery</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td>R objects</td>
+<td>Vectors, types, coercion, recycling, indexing, missing values, and factors</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td>Data structures and base-R data handling</td>
+<td>Lists, matrices, data frames, <code>[</code>, <code>[[</code>, <code>$</code>, base-R subsetting, transformation, and summaries</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5</td>
+<td>Getting data into R</td>
+<td>Delimited and other files; base and readr import; import validation; missing-value codes; dates; export formats</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">6</td>
+<td>Tidyverse foundations</td>
+<td>Tibbles, pipes, <code>filter()</code>, <code>select()</code>, <code>mutate()</code>, <code>arrange()</code>, <code>summarise()</code>, and grouped operations</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7</td>
+<td>Joins and reshaping</td>
+<td>Observation units, keys, join relationships, duplicate-key problems, wide/long data, and base/tidyverse comparisons</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">—</td>
+<td><strong>Midterm examination</strong></td>
+<td>Practical assessment of the reproducible data workflow through Session 7; AI assistance is not permitted; exact timing and format <strong>TBD</strong></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td>Statistical visualization</td>
+<td>Base graphics and ggplot2; distributions, comparisons, uncertainty, facets, accessible design, and figure export</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td>Positron and AI-assisted coding</td>
+<td>Positron projects and interface; comparison with RStudio; GitHub Copilot completion; accepting and rejecting suggestions; verification, privacy, and disclosure</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td>Python introduction for R users</td>
+<td>Python/R comparison; basic syntax; NumPy; pandas; notebooks in Positron; translation of a familiar R analysis</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td>Conditions, control flow, and functions</td>
+<td>Scalar conditions; <code>if</code>, <code>else if</code>, and <code>else</code>; function arguments, defaults, return values, scope, input validation, and refactoring</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">12</td>
+<td>Debugging and reliable programming</td>
+<td>Errors, warnings, tracebacks, debugging tools, defensive checks, testing, and floating-point accuracy</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">13</td>
+<td>Iteration, vectorization, and functionals</td>
+<td><code>for</code> and <code>while</code>; preallocation; vectorized operations; <code>apply</code>; <code>lapply()</code> and <code>vapply()</code>; purrr; output contracts; timing and measurement</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">14</td>
+<td>Random-number generation and simulation</td>
+<td>Distribution functions; seeds; sampling; simulation-study design; Type I error; power; Monte Carlo error</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td>Resampling methods</td>
+<td>Bootstrap confidence intervals; permutation tests; cross-validation logic; resampling units; data leakage</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">16</td>
+<td>Selected Practical Topics in R</td>
+<td>Strings and regular expressions, plus additional practical R topics selected according to student needs and available time</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="base-r-and-tidyverse-policy" class="level2">
+<h2 class="anchored" data-anchor-id="base-r-and-tidyverse-policy">Base R and tidyverse policy</h2>
+<p>The course treats base R and tidyverse as two useful approaches within the same R language. Students are not required to adopt one dialect exclusively.</p>
+<p>Unless an exercise explicitly targets a particular method, students may choose the approach that makes the analysis easiest to read and verify. Evaluation will focus on:</p>
+<ul>
+<li>correctness of the result;</li>
+<li>clarity of the data and statistical meaning;</li>
+<li>explicit handling of missing values and edge cases;</li>
+<li>validation of important assumptions and intermediate results; and</li>
+<li>reproducibility and readability.</li>
+</ul>
+<p>Students should nevertheless learn to read both styles and occasionally verify an important result using a second approach.</p>
+</section>
+<section id="ai-assisted-coding-policy" class="level2">
+<h2 class="anchored" data-anchor-id="ai-assisted-coding-policy">AI-assisted coding policy</h2>
+<section id="before-session-9" class="level3">
+<h3 class="anchored" data-anchor-id="before-session-9">Before Session 9</h3>
+<p>AI-generated code is not permitted in submitted course work before the completion of Session 9. This period establishes an independent foundation in R, data handling, reproducibility, and visualization. The midterm examination is completed without AI assistance.</p>
+</section>
+<section id="after-session-9" class="level3">
+<h3 class="anchored" data-anchor-id="after-session-9">After Session 9</h3>
+<p>After the Positron and AI-assisted coding session, GitHub Copilot is permitted for homework and laboratory work unless an assignment is explicitly designated as unaided. Permission for homework does not automatically extend to later exams. The policy for each examination will be stated separately.</p>
+<p>Students using Copilot must:</p>
+<ol type="1">
+<li>Understand and be able to explain every submitted line.</li>
+<li>Check that suggested code answers the stated statistical question.</li>
+<li>Verify data dimensions, inclusion rules, missing-value behavior, grouping, join relationships, and important numerical results.</li>
+<li>Correct, test, or reject inappropriate suggestions.</li>
+<li>Include the required AI-use disclosure.</li>
+<li>Never provide Copilot with protected health information, restricted research data, credentials, private keys, or confidential material.</li>
+</ol>
+<p>Unless the instructor gives explicit permission, other generative-AI coding tools are not part of the course-approved workflow.</p>
+</section>
+<section id="required-disclosure" class="level3">
+<h3 class="anchored" data-anchor-id="required-disclosure">Required disclosure</h3>
+<p>Each submitted assignment after Session 9 should include one of the following:</p>
+<pre class="text"><code>AI use: None.</code></pre>
+<p>or a concise description such as:</p>
+<pre class="text"><code>AI use: I used GitHub Copilot to suggest the group-summary code. I corrected its
+missing-value handling and verified the group counts independently.</code></pre>
+<p>Disclosure does not transfer responsibility to the tool. Students remain responsible for the correctness, interpretation, and provenance of their work.</p>
+</section>
+</section>
+<section id="assessment" class="level2">
+<h2 class="anchored" data-anchor-id="assessment">Assessment</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Component</th>
+<th style="text-align: right;">Weight</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Homework</td>
+<td style="text-align: right;">40%</td>
+</tr>
+<tr class="even">
+<td>Midterm examination</td>
+<td style="text-align: right;">25%</td>
+</tr>
+<tr class="odd">
+<td>Final project</td>
+<td style="text-align: right;">35%</td>
+</tr>
+</tbody>
+</table>
+<p>The setup diagnostic and laboratory activities are required but are not graded separately. The midterm covers material through Session 7 and does not permit AI assistance. Detailed instructions and rubrics will be provided with each assignment and the final project.</p>
+</section>
+<section id="expectations-for-submitted-work" class="level2">
+<h2 class="anchored" data-anchor-id="expectations-for-submitted-work">Expectations for submitted work</h2>
+<p>Submitted work should render from the supplied project, include appropriate data and result checks, contain no credentials or restricted data, and include an AI-use disclosure when required. Statistical meaning, reproducibility, and communication are part of the assessment.</p>
+</section>
+<section id="course-communication-and-support" class="level2">
+<h2 class="anchored" data-anchor-id="course-communication-and-support">Course communication and support</h2>
+<p>Students should ask for help early when software installation, Git state, file paths, or rendering prevents progress. A useful technical help request includes:</p>
+<ol type="1">
+<li>the operating system and relevant software version;</li>
+<li>the command or action attempted;</li>
+<li>the complete error or warning as text; and</li>
+<li>a minimal synthetic example when code is involved.</li>
+</ol>
+<p>Screenshots may supplement an error message but should not replace the text of the message.</p>
+<p>Students are encouraged to discuss ideas and debugging strategies with classmates, but submitted code and explanations must be their own. When substantial help is received from another person, that collaboration should be acknowledged briefly in the submission.</p>
+<p>The early sessions, especially Git, may feel unusually difficult. Installation, paths, and version-control states create friction for experienced analysts as well as beginners. Difficulty during these sessions is not evidence of an inability to program. Read error messages carefully and ask for help before a technical problem blocks the statistical work.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

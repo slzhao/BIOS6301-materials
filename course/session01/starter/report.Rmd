@@ -1,0 +1,37 @@
+---
+title: "Synthetic clinic summary in R Markdown"
+output:
+  html_document:
+    toc: true
+---
+
+## Question
+
+Write one sentence explaining what this report summarizes.
+
+## Setup
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("analysis.R")
+```
+
+## Summary
+
+```{r clinic-summary, echo=FALSE}
+data.frame(
+  statistic = c("Number of records", "Mean age", "Median marker"),
+  value = c(n_records, mean_age, median_marker)
+)
+```
+
+## Report
+
+Replace the bracketed text with inline R expressions:
+
+> The dataset contains [number] records. Mean age is [number] years and median
+> marker value is [number].
+
+## Check
+
+Add one R chunk that displays the structure of `clinic`.

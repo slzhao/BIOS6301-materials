@@ -1,0 +1,50 @@
+---
+title: "Session 9 lab: Copilot review"
+format: html
+---
+
+```{r}
+visit <- data.frame(
+  id = rep(sprintf("P%02d", 1:8), each = 2),
+  arm = rep(rep(c("control", "treated"), each = 4), each = 2),
+  week = rep(c(0, 4), 8),
+  marker = c(4.1, 4.3, 4.8, NA, 5.0, 5.2, 4.5, 4.7,
+             5.2, 4.6, 5.8, 5.0, 6.1, NA, 5.5, 4.9)
+)
+```
+
+## Statistical request
+
+At week 4, report total `n`, observed `n`, mean marker, and SD by randomized
+arm. Do not remove missing rows before counting total `n`.
+
+## First candidate
+
+Ask Copilot to suggest code below the comment. If unavailable, begin with this
+candidate:
+
+```r
+visit |>
+  dplyr::filter(week == 4, !is.na(marker)) |>
+  dplyr::summarise(n = dplyr::n(), mean = mean(marker), sd = sd(marker), .by = arm)
+```
+
+Explain what is correct and incorrect about the candidate.
+
+## Corrected analysis
+
+```{r}
+#| eval: false
+# Add corrected dplyr or base-R code.
+```
+
+## Independent verification
+
+```{r}
+# Verify total and observed counts using a different, simple approach.
+```
+
+## AI disclosure
+
+Replace this sentence with the required disclosure.
+
