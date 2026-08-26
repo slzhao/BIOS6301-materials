@@ -1943,7 +1943,7 @@
     "href": "course/session02/lab.html#one-time-remote-check",
     "title": "Session 2 guided lab",
     "section": "One-time remote check",
-    "text": "One-time remote check\nOpen RStudio’s Terminal tab and run this read-only check:\ngit remote -v\nThe intended result is:\norigin    your private BIOS6301 repository\nupstream  the instructor BIOS6301-materials repository\nIf both names already point to the correct places, do not reconfigure them.\n\n\n\n\n\n\nOne-time setup recipe, if the remotes are not configured\n\n\n\n\n\nRun this only with the instructor or TA. Replace the placeholder with the URL of your empty private repository.\ngit remote rename origin upstream\ngit remote add origin YOUR_PRIVATE_REPOSITORY_URL\ngit push -u origin main\nThese lines establish the course’s two-remotes arrangement. They are a supplied setup recipe, not commands you are expected to memorize."
+    "text": "One-time remote check\nOpen RStudio’s Terminal tab and run this read-only check:\ngit remote -v\nThe intended result is:\norigin    your private BIOS6301 repository\nupstream  the instructor BIOS6301-materials repository\nIf both names already point to the correct places, do not reconfigure them.\n\n\n\n\n\n\nOne-time setup recipe, if the remotes are not configured\n\n\n\n\n\nRun this only with the instructor or TA. Replace the username placeholder with your GitHub username. Use the plain HTTPS URL—without Markdown brackets or parentheses.\ngit remote rename origin upstream\ngit remote add origin https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git\ngit push -u origin main\nThese lines establish the course’s two-remotes arrangement. They are a supplied setup recipe, not commands you are expected to memorize. The first push may open a GitHub browser sign-in through Git Credential Manager or GitHub CLI. Complete authentication in the browser. If the terminal requests a GitHub password, cancel and ask for help; do not enter your account password."
   },
   {
     "objectID": "course/session02/lab.html#checkpoint-1-read-the-git-pane",
@@ -1985,7 +1985,7 @@
     "href": "course/session02/lab.html#checkpoint-6-push-the-recorded-history",
     "title": "Session 2 guided lab",
     "section": "Checkpoint 6: Push the recorded history",
-    "text": "Checkpoint 6: Push the recorded history\n\nConfirm that the Git pane is empty.\nOpen History and reread the three messages.\nClick Push.\nRead the result and confirm that the push succeeded.\nOpen your private GitHub repository and locate the three commits.\n\nIf the push is rejected, do not force push. Preserve the local work and ask the instructor or TA to help identify which remote contains additional commits."
+    "text": "Checkpoint 6: Push the recorded history\n\nConfirm that the Git pane is empty.\nOpen History and reread the three messages.\nClick Push.\nIf GitHub opens in a browser, complete sign-in and two-factor authentication there, then return to RStudio.\nRead the result and confirm that the push succeeded.\nOpen your private GitHub repository and locate the three commits.\n\nIf the push is rejected, do not force push. Preserve the local work and ask the instructor or TA to help identify which remote contains additional commits."
   },
   {
     "objectID": "course/session02/lab.html#course-update-recipe",
@@ -2037,18 +2037,18 @@
     "text": "3. Verify RStudio integration\nIn RStudio, open Tools → Global Options → Git/SVN and confirm that a Git executable is detected. Then open the root BIOS6301-materials.Rproj in your course clone and confirm that the Git tab appears."
   },
   {
-    "objectID": "course/session02/preclass.html#prepare-github-access",
-    "href": "course/session02/preclass.html#prepare-github-access",
+    "objectID": "course/session02/preclass.html#prepare-https-browser-authentication",
+    "href": "course/session02/preclass.html#prepare-https-browser-authentication",
     "title": "Before Session 2: Git setup",
-    "section": "4. Prepare GitHub access",
-    "text": "4. Prepare GitHub access\nSign in to the GitHub account approved for the course. Follow the course or institutional authentication instructions. Credentials and access tokens must be treated like passwords and must never be saved in an R script, Quarto document, or repository."
+    "section": "4. Prepare HTTPS browser authentication",
+    "text": "4. Prepare HTTPS browser authentication\nThis course uses HTTPS repository URLs. GitHub does not accept your account password for Git pushes. We use a credential helper that opens GitHub in a browser and then stores the resulting credential securely.\n\nWindows\nCurrent Git for Windows includes Git Credential Manager. Verify it in the RStudio Terminal:\ngit credential-manager --version\nIf the command is unavailable, update Git for Windows using the official installer and accept its default Git Credential Manager option.\n\n\nmacOS or Linux\nUse Git Credential Manager if it is already provided by your system. Otherwise, install GitHub CLI and run:\ngh auth login\nChoose GitHub.com, HTTPS, Yes when asked to authenticate Git, and Login with a web browser. Do not create or paste a personal access token for this course setup.\nSign in to the GitHub account approved for the course. Never save a credential in an R script, Quarto document, repository, or remote URL."
   },
   {
     "objectID": "course/session02/preclass.html#create-an-empty-private-repository",
     "href": "course/session02/preclass.html#create-an-empty-private-repository",
     "title": "Before Session 2: Git setup",
     "section": "5. Create an empty private repository",
-    "text": "5. Create an empty private repository\nOn GitHub, create a private repository such as BIOS6301-mywork. Do not add a README, .gitignore, or license. We will connect the existing course clone to this empty repository during class so that its original history is preserved.\nHave the private repository URL available, but do not paste credentials into the URL or any course file.\nDo not initialize a repository inside work/; the course clone is already the repository."
+    "text": "5. Create an empty private repository\nOn GitHub, create a private repository such as BIOS6301-mywork. Do not add a README, .gitignore, or license. We will connect the existing course clone to this empty repository during class so that its original history is preserved.\nHave its HTTPS URL available. It should have this form, without brackets or parentheses:\nhttps://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git\nDo not paste credentials into the URL or any course file.\nDo not initialize a repository inside work/; the course clone is already the repository."
   },
   {
     "objectID": "course/session02/preclass.html#submit-the-check",
@@ -2307,7 +2307,7 @@
     "href": "course/session00/index.html#install-in-this-order",
     "title": "Session 0: Setup and orientation",
     "section": "Install in this order",
-    "text": "Install in this order\nUse only the official links below. You do not need to install any R packages, GitHub Desktop, or a separate Git graphical interface.\n\n1. Install R\nR is the program that performs the calculations. Choose your operating system from the official R download page:\n\nWindows: Download R for Windows\nmacOS: Download R for macOS\n\nAccept the standard installation options. If R is already installed, you do not need to reinstall it merely to complete this diagnostic.\n\n\n2. Install RStudio Desktop\nRStudio is the interface we will use during the opening sessions. Download the free, open-source edition from the official RStudio Desktop download page.\nInstall R before RStudio. Then start RStudio once and confirm that the Console opens without an error.\n\n\n3. Verify Quarto\nQuarto turns a source document containing prose and R code into an HTML report. First try the rendering exercise below. If RStudio cannot render a .qmd file, use the official Quarto installation page and then restart RStudio.\n\n\n4. Install Git using the course recommendation\nGit records versions of analytical source files. We will use command-line Git through RStudio’s Terminal tab; we will not require GitHub Desktop.\n\nWindows\n\nDownload Git for Windows.\nChoose the standard 64-bit installer unless you know that your computer uses Windows on ARM.\nAccept the installer defaults.\nCompletely close and reopen RStudio after installation.\n\n\n\nmacOS\n\nOpen Terminal.\nRun:\ngit --version\nIf macOS offers to install the Command Line Developer Tools, accept the installation. If no prompt appears and Git is unavailable, run:\nxcode-select --install\n\nSee the official Git installation instructions for macOS.\n\n\nLinux\nUse the Git package supplied by your Linux distribution. See the official Git installation page.\n\n\n\n5. Verify Git inside RStudio\nAfter restarting RStudio, select Tools → Terminal → New Terminal and run:\ngit --version\nA successful result begins with git version. You do not need to create a GitHub account or configure GitHub authentication yet; that will happen before Session 2.\n\n\n\n\n\n\nIf your computer requires administrator approval\n\n\n\nDo not download an installer from an unofficial mirror. Submit the error or permission message and contact the course TA while there is still time to resolve the installation."
+    "text": "Install in this order\nUse only the official links below. You do not need to install any R packages, GitHub Desktop, or a separate Git graphical interface.\n\n1. Install R\nR is the program that performs the calculations. Choose your operating system from the official R download page:\n\nWindows: Download R for Windows\nmacOS: Download R for macOS\n\nAccept the standard installation options. If R is already installed, you do not need to reinstall it merely to complete this diagnostic.\n\n\n2. Install RStudio Desktop\nRStudio is the interface we will use during the opening sessions. Download the free, open-source edition from the official RStudio Desktop download page.\nInstall R before RStudio. Then start RStudio once and confirm that the Console opens without an error.\n\n\n3. Verify Quarto\nQuarto turns a source document containing prose and R code into an HTML report. First try the rendering exercise below. If RStudio cannot render a .qmd file, use the official Quarto installation page and then restart RStudio.\n\n\n4. Install Git using the course recommendation\nGit records versions of analytical source files. We will use command-line Git through RStudio’s Terminal tab; we will not require GitHub Desktop.\n\nWindows\n\nDownload Git for Windows.\nChoose the standard 64-bit installer unless you know that your computer uses Windows on ARM.\nAccept the installer defaults, including Git Credential Manager. It will provide browser-based GitHub authentication later in the course.\nCompletely close and reopen RStudio after installation.\n\n\n\nmacOS\n\nOpen Terminal.\nRun:\ngit --version\nIf macOS offers to install the Command Line Developer Tools, accept the installation. If no prompt appears and Git is unavailable, run:\nxcode-select --install\n\nSee the official Git installation instructions for macOS.\n\n\nLinux\nUse the Git package supplied by your Linux distribution. See the official Git installation page.\n\n\n\n5. Verify Git inside RStudio\nAfter restarting RStudio, select Tools → Terminal → New Terminal and run:\ngit --version\nA successful result begins with git version. You do not need to create a GitHub account or configure GitHub authentication yet; that will happen before Session 2.\n\n\n\n\n\n\nIf your computer requires administrator approval\n\n\n\nDo not download an installer from an unofficial mirror. Submit the error or permission message and contact the course TA while there is still time to resolve the installation."
   },
   {
     "objectID": "course/session00/index.html#part-1-verify-r",
@@ -2744,6 +2744,13 @@
     "text": "Git and GitHub are different\n\n\n\nGit\nGitHub\n\n\n\n\nRecords history on the computer\nStores a remote copy of commits\n\n\nWorks without a network\nRequires network and authentication\n\n\nCreates commits\nReceives commits when you push\n\n\nLets you inspect changes\nSupports sharing and backup\n\n\n\nA commit exists before it is pushed."
   },
   {
+    "objectID": "course/session02/slides.html#authentication-choice-for-this-course",
+    "href": "course/session02/slides.html#authentication-choice-for-this-course",
+    "title": "Version Control in RStudio",
+    "section": "Authentication choice for this course",
+    "text": "Authentication choice for this course\nWe use HTTPS with browser-based authentication:\n\nRepository URLs begin with https://github.com/.\nThe first private Push may open GitHub in a browser.\nSign in and complete two-factor authentication in the browser.\nGit Credential Manager or GitHub CLI stores the resulting credential.\n\n\n\n\n\n\n\nWarning\n\n\nDo not enter your ordinary GitHub account password in a terminal prompt. GitHub does not accept account passwords for Git operations.\n\n\n\nSSH keys and manually created personal access tokens are outside this session."
+  },
+  {
     "objectID": "course/session02/slides.html#the-loop-to-practice",
     "href": "course/session02/slides.html#the-loop-to-practice",
     "title": "Version Control in RStudio",
@@ -2923,7 +2930,7 @@
     "href": "course/session02/slides.html#sources-and-next-step",
     "title": "Version Control in RStudio",
     "section": "Sources and next step",
-    "text": "Sources and next step\n\nRStudio version-control interface\nRStudio Git keyboard shortcuts\nHappy Git and GitHub for the useR\nGitHub authentication documentation\n\nNext: use the RStudio interface to create and inspect three small commits in the guided lab."
+    "text": "Sources and next step\n\nRStudio version-control interface\nRStudio Git keyboard shortcuts\nHappy Git and GitHub for the useR\nGitHub HTTPS credential guidance\n\nNext: use the RStudio interface to create and inspect three small commits in the guided lab."
   },
   {
     "objectID": "course/session03/index.html",

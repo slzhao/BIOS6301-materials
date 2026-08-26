@@ -254,7 +254,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#verify-git" id="toc-verify-git" class="nav-link active" data-scroll-target="#verify-git">1. Verify Git</a></li>
   <li><a href="#configure-your-identity" id="toc-configure-your-identity" class="nav-link" data-scroll-target="#configure-your-identity">2. Configure your identity</a></li>
   <li><a href="#verify-rstudio-integration" id="toc-verify-rstudio-integration" class="nav-link" data-scroll-target="#verify-rstudio-integration">3. Verify RStudio integration</a></li>
-  <li><a href="#prepare-github-access" id="toc-prepare-github-access" class="nav-link" data-scroll-target="#prepare-github-access">4. Prepare GitHub access</a></li>
+  <li><a href="#prepare-https-browser-authentication" id="toc-prepare-https-browser-authentication" class="nav-link" data-scroll-target="#prepare-https-browser-authentication">4. Prepare HTTPS browser authentication</a>
+  <ul class="collapse">
+  <li><a href="#windows" id="toc-windows" class="nav-link" data-scroll-target="#windows">Windows</a></li>
+  <li><a href="#macos-or-linux" id="toc-macos-or-linux" class="nav-link" data-scroll-target="#macos-or-linux">macOS or Linux</a></li>
+  </ul></li>
   <li><a href="#create-an-empty-private-repository" id="toc-create-an-empty-private-repository" class="nav-link" data-scroll-target="#create-an-empty-private-repository">5. Create an empty private repository</a></li>
   <li><a href="#submit-the-check" id="toc-submit-the-check" class="nav-link" data-scroll-target="#submit-the-check">6. Submit the check</a></li>
   </ul>
@@ -303,22 +307,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="verify-rstudio-integration">3. Verify RStudio integration</h2>
 <p>In RStudio, open <strong>Tools → Global Options → Git/SVN</strong> and confirm that a Git executable is detected. Then open the root <code>BIOS6301-materials.Rproj</code> in your course clone and confirm that the <strong>Git</strong> tab appears.</p>
 </section>
-<section id="prepare-github-access" class="level2">
-<h2 class="anchored" data-anchor-id="prepare-github-access">4. Prepare GitHub access</h2>
-<p>Sign in to the GitHub account approved for the course. Follow the course or institutional authentication instructions. Credentials and access tokens must be treated like passwords and must never be saved in an R script, Quarto document, or repository.</p>
+<section id="prepare-https-browser-authentication" class="level2">
+<h2 class="anchored" data-anchor-id="prepare-https-browser-authentication">4. Prepare HTTPS browser authentication</h2>
+<p>This course uses HTTPS repository URLs. GitHub does <strong>not</strong> accept your account password for Git pushes. We use a credential helper that opens GitHub in a browser and then stores the resulting credential securely.</p>
+<section id="windows" class="level3">
+<h3 class="anchored" data-anchor-id="windows">Windows</h3>
+<p>Current Git for Windows includes Git Credential Manager. Verify it in the RStudio Terminal:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> credential-manager <span class="at">--version</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>If the command is unavailable, update Git for Windows using the official installer and accept its default Git Credential Manager option.</p>
+</section>
+<section id="macos-or-linux" class="level3">
+<h3 class="anchored" data-anchor-id="macos-or-linux">macOS or Linux</h3>
+<p>Use Git Credential Manager if it is already provided by your system. Otherwise, install <a href="https://cli.github.com/">GitHub CLI</a> and run:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> auth login</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Choose <strong>GitHub.com</strong>, <strong>HTTPS</strong>, <strong>Yes</strong> when asked to authenticate Git, and <strong>Login with a web browser</strong>. Do not create or paste a personal access token for this course setup.</p>
+<p>Sign in to the GitHub account approved for the course. Never save a credential in an R script, Quarto document, repository, or remote URL.</p>
+</section>
 </section>
 <section id="create-an-empty-private-repository" class="level2">
 <h2 class="anchored" data-anchor-id="create-an-empty-private-repository">5. Create an empty private repository</h2>
 <p>On GitHub, create a private repository such as <code>BIOS6301-mywork</code>. Do not add a README, <code>.gitignore</code>, or license. We will connect the existing course clone to this empty repository during class so that its original history is preserved.</p>
-<p>Have the private repository URL available, but do not paste credentials into the URL or any course file.</p>
+<p>Have its HTTPS URL available. It should have this form, without brackets or parentheses:</p>
+<pre class="text"><code>https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git</code></pre>
+<p>Do not paste credentials into the URL or any course file.</p>
 <p>Do not initialize a repository inside <code>work/</code>; the course clone is already the repository.</p>
 </section>
 <section id="submit-the-check" class="level2">
 <h2 class="anchored" data-anchor-id="submit-the-check">6. Submit the check</h2>
 <p>Submit the output from:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> <span class="at">--version</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config user.name</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config user.email</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> <span class="at">--version</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config user.name</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config user.email</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>You may obscure part of the email address in a public discussion post.</p>
 
 
