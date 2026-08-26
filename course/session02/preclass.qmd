@@ -38,12 +38,39 @@ In RStudio, open **Tools → Global Options → Git/SVN** and confirm that a Git
 executable is detected. Then open the root `BIOS6301-materials.Rproj` in your
 course clone and confirm that the **Git** tab appears.
 
-## 4. Prepare GitHub access
+## 4. Prepare HTTPS browser authentication
 
-Sign in to the GitHub account approved for the course. Follow the course or
-institutional authentication instructions. Credentials and access tokens must be
-treated like passwords and must never be saved in an R script, Quarto document, or
-repository.
+This course uses HTTPS repository URLs. GitHub does **not** accept your account
+password for Git pushes. We use a credential helper that opens GitHub in a
+browser and then stores the resulting credential securely.
+
+### Windows
+
+Current Git for Windows includes Git Credential Manager. Verify it in the
+RStudio Terminal:
+
+```bash
+git credential-manager --version
+```
+
+If the command is unavailable, update Git for Windows using the official
+installer and accept its default Git Credential Manager option.
+
+### macOS or Linux
+
+Use Git Credential Manager if it is already provided by your system. Otherwise,
+install [GitHub CLI](https://cli.github.com/) and run:
+
+```bash
+gh auth login
+```
+
+Choose **GitHub.com**, **HTTPS**, **Yes** when asked to authenticate Git, and
+**Login with a web browser**. Do not create or paste a personal access token for
+this course setup.
+
+Sign in to the GitHub account approved for the course. Never save a credential
+in an R script, Quarto document, repository, or remote URL.
 
 ## 5. Create an empty private repository
 
@@ -51,8 +78,14 @@ On GitHub, create a private repository such as `BIOS6301-mywork`. Do not add a
 README, `.gitignore`, or license. We will connect the existing course clone to
 this empty repository during class so that its original history is preserved.
 
-Have the private repository URL available, but do not paste credentials into the
-URL or any course file.
+Have its HTTPS URL available. It should have this form, without brackets or
+parentheses:
+
+```text
+https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git
+```
+
+Do not paste credentials into the URL or any course file.
 
 Do not initialize a repository inside `work/`; the course clone is already the
 repository.

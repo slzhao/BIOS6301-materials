@@ -46,17 +46,21 @@ If both names already point to the correct places, do not reconfigure them.
 ::: {.callout-note collapse="true"}
 ## One-time setup recipe, if the remotes are not configured
 
-Run this only with the instructor or TA. Replace the placeholder with the URL of
-your empty private repository.
+Run this only with the instructor or TA. Replace the username placeholder with
+your GitHub username. Use the plain HTTPS URL—without Markdown brackets or
+parentheses.
 
 ```bash
 git remote rename origin upstream
-git remote add origin YOUR_PRIVATE_REPOSITORY_URL
+git remote add origin https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git
 git push -u origin main
 ```
 
 These lines establish the course's two-remotes arrangement. They are a supplied
-setup recipe, not commands you are expected to memorize.
+setup recipe, not commands you are expected to memorize. The first push may open
+a GitHub browser sign-in through Git Credential Manager or GitHub CLI. Complete
+authentication in the browser. If the terminal requests a GitHub password,
+cancel and ask for help; do not enter your account password.
 :::
 
 ## Checkpoint 1: Read the Git pane
@@ -137,8 +141,10 @@ to its committed state.
 1. Confirm that the Git pane is empty.
 2. Open History and reread the three messages.
 3. Click **Push**.
-4. Read the result and confirm that the push succeeded.
-5. Open your private GitHub repository and locate the three commits.
+4. If GitHub opens in a browser, complete sign-in and two-factor authentication
+   there, then return to RStudio.
+5. Read the result and confirm that the push succeeded.
+6. Open your private GitHub repository and locate the three commits.
 
 If the push is rejected, do not force push. Preserve the local work and ask the
 instructor or TA to help identify which remote contains additional commits.
