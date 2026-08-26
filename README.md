@@ -1,8 +1,12 @@
 # BIOS6301 student materials
 
-The [online course site](https://slzhao.github.io/BIOS6301-materials/) is for
-reading. This repository provides the corresponding Quarto source, R code,
-synthetic data, and lab starters.
+## Start here: online course site
+
+### [Open the BIOS6301 online course site](https://slzhao.github.io/BIOS6301-materials/)
+
+The website is the **primary source for course reading**. This GitHub repository
+provides the corresponding Quarto source, R code, synthetic data, and lab
+starters.
 
 After cloning, open `BIOS6301-materials.Rproj` so that RStudio uses the repository
 root as the working context.
