@@ -1,0 +1,705 @@
+---
+title: "Selected Practical Topics in R"
+subtitle: "Current focus: Strings and Regular Expressions · BIOS 6301"
+author: "Department of Biostatistics, Vanderbilt University Medical Center"
+date: "Session 16"
+date-format: "[Session 16]"
+format:
+  revealjs:
+    theme: simple
+    css: ../../slides.css
+    slide-number: c/t
+    show-slide-number: all
+    incremental: false
+    width: 1280
+    height: 720
+    fig-align: center
+    code-line-numbers: false
+    highlight-style: github
+    footer: "BIOS 6301 · Session 16 · Selected Practical Topics in R"
+    navigation-mode: linear
+execute:
+  enabled: true
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(dplyr)
+library(knitr)
+options(width = 76)
+
+# Synthetic teaching data for BIOS 6301. Not real patients.
+set.seed(6301)
+n <- 60
+trial <- data.frame(
+  id        = sprintf("P%03d", 1:n),
+  arm       = rep(c("Placebo", "Treatment"), each = n / 2),
+  site      = sample(1:4, n, replace = TRUE),
+  age       = round(rnorm(n, 61, 9)),
+  sex       = sample(c("F", "M"), n, replace = TRUE),
+  weight_kg = round(rnorm(n, 82, 15), 1),
+  sbp_0     = round(rnorm(n, 148, 14)),
+  stringsAsFactors = FALSE
+)
+trial$sbp_12 <- round(trial$sbp_0 -
+  ifelse(trial$arm == "Treatment", rnorm(n, 14, 8), rnorm(n, 3, 8)))
+
+# ---------------------------------------------------------------------------
+# Added for this session: the four free-text columns as they arrive from the
+# EHR extract. Nothing here is a number yet. What is deliberately broken:
+#   dose_raw    drug name, dose, unit and frequency in one field; inconsistent
+#               spacing and case; one row with no number at all
+#   icd_raw     ICD-10 codes with and without the decimal point, mixed case,
+#               leading whitespace, and one row that is a word not a code
+#   mrn_raw     the same MRN written four ways, with and without zero padding
+#   comorb_raw  free-text comorbidities, mixed separators, synonyms, one
+#               negation ("no HTN") and one substring trap ("mild asthma")
+# ---------------------------------------------------------------------------
+dose_pool <- c(
+  "10 mg BID", "2.5mg daily", " 20 MG bid ", "lisinopril 10 mg PO QD",
+  "5mg q.d.", "Amlodipine 2.5 mg BID", "40 mg  daily", "one tablet daily",
+  "12.5 mg QHS", "100mcg daily", "10 mg  bid", "HCTZ 25 mg daily"
+)
+icd_pool <- c("I10", "E11.9", "i10", "E119", " I10 ", "Z79.899", "N18.3",
+              "HTN", "I10.", "e11.9")
+mrn_pool <- c("MRN 0012345", "12345", "mrn-0012345", "0012345", "MRN#12345",
+              "MRN 0098761", "98761", "0098761")
+comorb_pool <- c("HTN; T2DM", "hypertension, CKD stage 3", "HTN | DM2 | CKD",
+                 "mild asthma; HTN", "NIDDM; htn", "no HTN; T2DM",
+                 "prior MI; HTN", "none", "HTN;T2DM;CKD")
+
+trial$dose_raw   <- sample(dose_pool,   n, replace = TRUE)
+trial$icd_raw    <- sample(icd_pool,    n, replace = TRUE)
+trial$mrn_raw    <- sample(mrn_pool,    n, replace = TRUE)
+trial$comorb_raw <- sample(comorb_pool, n, replace = TRUE)
+
+# Short vectors for the live demos, so slide output stays readable.
+dose   <- c("10 mg BID", "2.5mg daily", " 20 MG bid ",
+            "lisinopril 10 mg PO QD", "5mg q.d.", "one tablet daily")
+icd    <- c("I10", "E11.9", "i10", "E119", " I10 ", "Z79.899", "HTN")
+mrn    <- c("MRN 0012345", "12345", "mrn-0012345", "0012345", "MRN#12345")
+comorb <- c("HTN; T2DM", "hypertension, CKD stage 3", "HTN | DM2 | CKD",
+            "mild asthma; HTN", "prior MI; HTN", "no HTN; T2DM", "none")
+```
+
+## Where we are {.smaller}
+
+| Course arc | Sessions | |
+|---|---:|---|
+| Setup and workflow | 0–2 |  |
+| Data foundations | 3–8 |  |
+| Modern tools | 9–10 |  |
+| R programming | 11–13 |  |
+| **Statistical computing** | **14–16** | **← today** |
+
+Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
+
+
+## What you will be able to do {.smaller}
+
+::: {.smaller}
+[1]{.objective-num} **Use** the seven `stringr` verbs, and recognise their base R
+equivalents in inherited code.
+
+[2]{.objective-num} **Explain** the double-backslash problem and write patterns
+that survive it.
+
+[3]{.objective-num} **Build** a regex from character classes, quantifiers,
+anchors, groups, and alternation.
+
+[4]{.objective-num} **Predict** greedy versus lazy matching, and pull values out
+with capture groups.
+
+[5]{.objective-num} **Extract** structured values — dose, ICD-10, MRN — from
+clinical free text.
+
+[6]{.objective-num} **Test** a pattern against known-bad cases before trusting
+it.
+
+[7]{.objective-num} **Package** a cleaning rule as a validated function applied
+across columns.
+:::
+
+
+## Roadmap for today
+
+| | Block | Minutes |
+|---|---|---|
+| 1 | Text is data, and it arrives broken | 8 |
+| 2 | Seven verbs, two dialects | 18 |
+| 3 | Escaping and the double backslash | 8 |
+| 4 | Regex proper | 28 |
+| 5 | Clinical free text, end to end | 16 |
+| 6 | Testing a pattern, and making it a function | 8 |
+| 7 | Practice and summary | 4 |
+
+: {tbl-colwidths="[6,64,30]"}
+
+. . .
+
+**This is the most practice-dependent session in the course.** Nobody has ever
+learned regex from slides. Today is vocabulary; the lab is where it becomes a
+skill.
+
+
+# 1 · Text is data, and it arrives broken {.section-divider}
+
+## The column that will not be a number {.smaller}
+
+Six rows of a real-shaped `dose` field from an EHR extract:
+
+```{r}
+#| label: dose-show
+dose
+```
+
+. . .
+
+```{r}
+#| label: dose-numeric
+#| warning: true
+as.numeric(dose)
+```
+
+. . .
+
+::: {.callout-important appearance="simple"}
+The dose is in there. It is just wrapped in a drug name, a unit, a frequency, and
+somebody's spacebar.
+:::
+
+
+## Two dialects, one job {.smaller}
+
+::: {style="font-size:0.84em"}
+| Task | `stringr` | Base R |
+|---|---|---|
+| Is the pattern there? | `str_detect(x, p)` | `grepl(p, x)` |
+| Which elements? | `str_which(x, p)` | `grep(p, x)` |
+| Keep the matches | `str_subset(x, p)` | `grep(p, x, value = TRUE)` |
+| Pull the match out | `str_extract(x, p)` | `regmatches(x, regexpr(p, x))` |
+| Replace the first | `str_replace(x, p, r)` | `sub(p, r, x)` |
+| Replace all | `str_replace_all(x, p, r)` | `gsub(p, r, x)` |
+| Split on a pattern | `str_split(x, p)` | `strsplit(x, p)` |
+| Characters by position | `str_sub(x, 1, 3)` | `substr(x, 1, 3)` |
+| Strip outer whitespace | `str_trim(x)` | `trimws(x)` |
+| Pad to a fixed width | `str_pad(x, 7, pad = "0")` | `formatC(x, width = 7, flag = "0")` |
+| How long is it? | `str_length(x)` | `nchar(x)` |
+| Glue pieces together | `str_c(a, b)` | `paste0(a, b)` |
+:::
+
+
+# 2 · Seven verbs, two dialects {.section-divider}
+
+## Detect: is the pattern there? {.smaller}
+
+```r
+# stringr
+str_detect(dose, "mg")
+str_subset(dose, "BID")
+```
+
+```{r}
+#| label: detect
+# the base R way
+grepl("mg", dose)
+grep("BID", dose, ignore.case = TRUE, value = TRUE)
+```
+
+. . .
+
+::: {.smaller}
+`grepl()` returns a **logical vector the same length as the input** — so it goes
+straight into `subset()`, `filter()`, or `[`. `grep()` returns positions, or the
+matching values with `value = TRUE`.
+:::
+
+
+## Extract: pull the match out {.smaller}
+
+```r
+# stringr
+str_extract(dose, "[0-9.]+")
+```
+
+```{r}
+#| label: extract-bad
+# the base R way, and it has a trap
+m <- regexpr("[0-9.]+", dose)
+regmatches(dose, m)
+```
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+Six strings in, **five** out. `regmatches()` drops non-matches instead of
+returning `NA`, so the result no longer lines up with your data frame.
+:::
+
+```{r}
+#| label: extract-good
+out <- rep(NA_character_, length(dose))
+out[m > 0] <- regmatches(dose, m)
+as.numeric(out)
+```
+
+
+## Replace: first, or all {.smaller}
+
+```r
+# stringr
+str_replace(dose, " +", " ")       # first run of spaces only
+str_replace_all(dose, " +", " ")   # every run
+```
+
+```{r}
+#| label: replace
+# the base R way
+sub(" +", " ", dose)
+gsub(" +", " ", dose)
+```
+
+. . .
+
+::: {.smaller}
+`sub()` is `str_replace()`. `gsub()` is `str_replace_all()`. The **`g` is for
+global**, and forgetting it is the most common string bug in R.
+:::
+
+
+## Split: one field into many {.smaller}
+
+```r
+# stringr
+str_split(comorb, " *[;,|] *")
+```
+
+```{r}
+#| label: split
+# the base R way — note what comes back
+parts <- strsplit(comorb, " *[;,|] *")
+parts[1:3]
+lengths(parts)
+```
+
+
+## Slice, trim, pad {.smaller}
+
+```r
+# stringr
+str_sub(icd, 1, 1)                  # the ICD-10 chapter letter
+str_trim(icd)
+str_pad(c("12345", "7"), 7, pad = "0")
+```
+
+```{r}
+#| label: slice
+# the base R way
+substr(icd, 1, 1)
+trimws(icd)
+sprintf("%07d", as.integer(c("12345", "7")))
+```
+
+. . .
+
+::: {.callout-note appearance="simple"}
+`formatC(x, width = 7, flag = "0")` pads with **spaces** when `x` is character.
+`sprintf("%07d", ...)` on an integer is the reliable base idiom.
+:::
+
+
+# 3 · Escaping and the double backslash {.section-divider}
+
+## The double-backslash problem {.smaller}
+
+The regex for "a digit" is `\d`. But R will not let you type that.
+
+```{r}
+#| label: backslash
+#| error: true
+p <- "\d+"
+```
+
+. . .
+
+```{r}
+#| label: backslash2
+p <- "\\d+"
+p            # what R stores, shown as source
+cat(p)       # what the regex engine actually receives
+nchar(p)
+```
+
+
+## What has to be escaped {.smaller}
+
+::: {style="font-size:0.86em"}
+| You want to match | Write in R | Because |
+|---|---|---|
+| any digit | `"\\d"` | `\d` is a regex class |
+| whitespace | `"\\s"` | `\s` is a regex class |
+| a word character | `"\\w"` | letters, digits, `_` |
+| a literal dot | `"\\."` | bare `.` means *any character* |
+| a literal `(` | `"\\("` | bare `(` opens a group |
+| a literal `[` | `"\\["` | bare `[` opens a class |
+| a literal backslash | `"\\\\"` | two layers, two doublings |
+:::
+
+. . .
+
+```{r}
+#| label: dot
+c(grepl(".", "no dot here"),
+  grepl("\\.", "no dot here"),
+  grepl(".", "no dot here", fixed = TRUE))
+```
+
+
+## Raw strings {.smaller}
+
+R 4.0 added a syntax that turns off the backslash doubling entirely.
+
+```{r}
+#| label: raw
+r"(\d+\s*mg)"          # a raw string: what you see is what R stores
+grepl(r"(\d+)", dose)
+```
+
+. . .
+
+::: {.smaller}
+`r"(...)"` — the delimiter is `r"(` and `)"`. If your pattern contains `)"`, use
+`r"[...]"` or `r"{...}"` instead.
+:::
+
+. . .
+
+::: {.callout-tip appearance="simple"}
+Copy a pattern from regex101 into `r"( )"` and it works unchanged. That is the
+whole reason to know this exists.
+:::
+
+
+# 4 · Regex proper {.section-divider}
+
+## A pattern is a description of a set of strings {.smaller}
+
+Read this out loud, left to right:
+
+```r
+"^[A-Z][0-9]{2}(\\.[0-9]{1,4})?$"
+```
+
+::: {style="font-size:0.9em"}
+| Piece | Means |
+|---|---|
+| `^` | start of the string — nothing before this |
+| `[A-Z]` | exactly one capital letter |
+| `[0-9]{2}` | exactly two digits |
+| `(...)` | a group, so the `?` applies to the whole thing |
+| `\\.` | a literal dot |
+| `[0-9]{1,4}` | one to four digits |
+| `?` | the group is optional |
+| `$` | end of the string — nothing after this |
+:::
+
+. . .
+
+That is a valid ICD-10 code: **`I10`**, **`E11.9`**, **`Z79.899`**.
+
+
+## Character classes {.smaller}
+
+::: {style="font-size:0.86em"}
+| Class | Matches | Note |
+|---|---|---|
+| `[abc]` | one of `a`, `b`, `c` | |
+| `[a-z]` `[A-Z]` `[0-9]` | a range | |
+| `[^0-9]` | anything **except** a digit | `^` inside `[ ]` means "not" |
+| `\\d` `\\w` `\\s` | digit · word character · whitespace | |
+| `\\D` `\\W` `\\S` | the negations | capital = "not" |
+| `.` | any single character | except newline |
+| `[[:alpha:]]` `[[:punct:]]` | POSIX classes | portable, verbose |
+:::
+
+. . .
+
+```{r}
+#| label: classes
+gsub("[^0-9]", "", mrn)      # keep only the digits
+```
+
+
+## Quantifiers {.smaller}
+
+::: {style="font-size:0.86em"}
+| Quantifier | Means | Example |
+|---|---|---|
+| `*` | zero or more | `"mg *"` |
+| `+` | one or more | `"[0-9]+"` |
+| `?` | zero or one | `"\\.?"` |
+| `{n}` | exactly *n* | `"[0-9]{2}"` |
+| `{n,}` | *n* or more | `"[0-9]{3,}"` |
+| `{n,m}` | between *n* and *m* | `"[0-9]{1,4}"` |
+:::
+
+. . .
+
+```{r}
+#| label: quant
+v <- c("E11", "E11.9", "E11.90", "E1", "")
+rbind(strict  = grepl("^[A-Z][0-9]{2}$", v),
+      relaxed = grepl("^[A-Z][0-9]{2}\\.?[0-9]*$", v))
+```
+
+
+## Anchors and boundaries {.smaller}
+
+```{r}
+#| label: anchors
+# unanchored: "is it in there anywhere?"
+grepl("[0-9]{3}", c("P001", "site 1004 visit", "P01"))
+# anchored: "is that the whole string?"
+grepl("^P[0-9]{3}$", c("P001", "site 1004 visit", "P01"))
+```
+
+. . .
+
+`\\b` is a **word boundary** — the edge between a word character and anything
+else.
+
+```{r}
+#| label: boundary
+rbind(loose = grepl("MI", comorb, ignore.case = TRUE),
+      tight = grepl("\\bMI\\b", comorb, ignore.case = TRUE))
+```
+
+
+## Alternation and groups {.smaller}
+
+`|` means **or**. Parentheses control what it applies to.
+
+```{r}
+#| label: alternation
+grepl("BID|TID|daily", dose, ignore.case = TRUE)
+```
+
+. . .
+
+```{r}
+#| label: grouping
+# the parentheses matter
+v <- c("HTN", "HTN x", "x hypertension")
+rbind(grouped   = grepl("^(HTN|hypertension)$", v),
+      ungrouped = grepl("^HTN|hypertension$",   v))
+```
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+`^HTN|hypertension$` means *"starts with HTN"* **or** *"ends with
+hypertension"* — almost never what was intended.
+:::
+
+
+## Capture groups {.smaller}
+
+Parentheses do a second job: they **remember** what they matched.
+
+```{r}
+#| label: capture
+m <- regexec("([0-9.]+) *(mg|mcg)\\b", dose, ignore.case = TRUE)
+regmatches(dose, m)[1:3]
+```
+
+. . .
+
+::: {.smaller}
+Element 1 of each result is the whole match; elements 2 and 3 are the two
+groups. The `stringr` equivalent is `str_match(dose, ...)`, which returns a
+matrix — one column per group — and keeps non-matches as `NA`.
+:::
+
+
+## The card to keep {.smaller}
+
+::: {style="font-size:0.78em"}
+| | | | |
+|---|---|---|---|
+| `^` | start | `\\d` | digit |
+| `$` | end | `\\w` | word character |
+| `.` | any character | `\\s` | whitespace |
+| `*` | 0 or more | `\\b` | word boundary |
+| `+` | 1 or more | `[abc]` | one of these |
+| `?` | 0 or 1 | `[^abc]` | none of these |
+| `{n,m}` | between n and m | `(...)` | group and capture |
+| `*?` `+?` | lazy versions | `(?:...)` | group only |
+| <code>&#124;</code> | or | `\\1` | backreference |
+:::
+
+. . .
+
+::: {.callout-tip appearance="simple"}
+Nine rows. That is the whole language for everything you will do this year.
+:::
+
+
+# 5 · Clinical free text, end to end {.section-divider}
+
+## Five steps, every time {.smaller}
+
+```{mermaid}
+%%| echo: false
+%%| fig-width: 10
+flowchart LR
+  A["<b>1 · Look</b><br/>table() the<br/>raw values"] --> B["<b>2 · Normalise</b><br/>case, whitespace,<br/>separators"]
+  B --> C["<b>3 · Extract</b><br/>pattern with<br/>capture groups"]
+  C --> D["<b>4 · Convert</b><br/>to number,<br/>factor, date"]
+  D --> E["<b>5 · Validate</b><br/>count the NAs<br/>you created"]
+  style A fill:#f4efe4,stroke:#CFAE70
+  style B fill:#f4efe4,stroke:#CFAE70
+  style D fill:#f4efe4,stroke:#CFAE70
+  style C fill:#CFAE70,stroke:#8a7448,color:#fff
+  style E fill:#CFAE70,stroke:#8a7448,color:#fff
+```
+
+. . .
+
+::: {.smaller}
+Step 1 is the one people skip, and step 5 is the one that catches the mistake
+step 1 would have prevented.
+:::
+
+
+## Dose strings {.smaller}
+
+```{r}
+#| label: dose-look
+sort(table(trial$dose_raw), decreasing = TRUE)[1:6]
+```
+
+. . .
+
+```{r}
+#| label: dose-extract
+d <- tolower(trimws(gsub(" +", " ", trial$dose_raw)))     # normalise
+m <- regexec("([0-9.]+) ?mg\\b", d)                       # extract
+mg <- vapply(regmatches(d, m),
+             function(p) if (length(p)) as.numeric(p[2]) else NA_real_,
+             numeric(1))
+c(n = length(mg), missing = sum(is.na(mg)), median = median(mg, na.rm = TRUE))
+```
+
+
+## ICD-10 codes {.smaller}
+
+```{r}
+#| label: icd
+icd
+norm  <- sub("\\.$", "", toupper(trimws(icd)))    # normalise
+valid <- grepl("^[A-Z][0-9][0-9A-Z](\\.[0-9A-Z]{1,4})?$", norm)
+data.frame(raw = icd, norm, valid)
+```
+
+. . .
+
+::: {.smaller}
+`E119` fails — and it should. Some extracts drop the decimal point, and
+**`E119` is not a code**; it is `E11.9` with information removed.
+:::
+
+
+## What a regex is bad at {.smaller}
+
+::: {.smaller}
+| Problem | Why regex is wrong | Use instead |
+|---|---|---|
+| Nested or paired structure | It cannot count depth | A parser |
+| Dates in mixed formats | The hard part is *meaning*, not shape | `lubridate` — session 5 |
+| "Not X" in a clinical note | Negation is language, not syntax | A human, or clinical NLP |
+| A fixed, known string | Slower and can misfire | `==`, `%in%`, `fixed = TRUE` |
+| A fixed-width field | Position is simpler and safer | `substr()` |
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+Every row here is a case where the regex **appears to work** on your data and
+fails on somebody else's.
+:::
+
+
+# 6 · Testing a pattern, and making it a function {.section-divider}
+
+## Never trust a pattern you have not tried to break {.smaller}
+
+```r
+# stringr: highlights every match, in the Viewer
+str_view(dose, "[0-9.]+ ?mg")
+```
+
+. . .
+
+::: {.smaller}
+- **regex101.com** — paste the pattern and the strings; it explains every token
+  and shows what each group captured. Set the flavour to **PCRE**.
+- Build the pattern against a vector that contains **the cases that should
+  fail**, not only the ones that should pass.
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+A pattern tested only on strings that match is not tested.
+:::
+
+
+## The test-case habit {.smaller}
+
+```{r}
+#| label: fn
+# Return the milligram dose from a free-text prescription string, or NA.
+extract_dose_mg <- function(x) {
+  stopifnot(is.character(x))
+  x <- tolower(trimws(gsub(" +", " ", x)))
+  m <- regexec("([0-9.]+) ?mg\\b", x)
+  vapply(regmatches(x, m),
+         function(p) if (length(p)) as.numeric(p[2]) else NA_real_,
+         numeric(1))
+}
+
+stopifnot(
+  identical(extract_dose_mg("10 mg BID"),        10),
+  identical(extract_dose_mg("2.5mg daily"),      2.5),
+  identical(extract_dose_mg("one tablet daily"), NA_real_),
+  identical(extract_dose_mg("100mcg daily"),     NA_real_)
+)
+```
+
+
+## Flexible practical block {.smaller}
+
+Reserve the final 15–20 minutes for one recurring need identified during the course—for example, a difficult factor, date, import, help-page, or package-use problem.
+
+::: {.question}
+What small R problem has cost several students time, and can we reduce it to one reproducible example?
+:::
+
+
+## Summary {.smaller}
+
+- Start with literal string operations; add regex only when the rule is patterned.
+- R string escaping and regex escaping are separate layers.
+- Anchors distinguish finding a pattern from validating a complete value.
+- Test near misses and missing values, not only examples that should match.
+- Turn a validated pattern into reusable, documented code.
+
+. . .
+
+**Next connection:** Use the remaining class time for the practical R issue selected from student needs.
+

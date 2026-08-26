@@ -1,0 +1,53 @@
+---
+title: "Session 4 guided lab"
+subtitle: "Build and check an analysis table with base R"
+---
+
+::: {.callout-note}
+**Suggested use:** complete the seven core tasks first. Additional practice
+extends the same base-R table into reshaping, metadata matching, nested objects,
+and stronger checks; unfinished items may be completed independently.
+:::
+
+Copy `starter/base-data-lab.qmd` to `work/session04/`.
+
+## Tasks
+
+1. State the unit of observation and verify that `(id, week)` is unique.
+2. Compare `visit["marker"]`, `visit[["marker"]]`, and `visit$marker` using
+   `class()`, `typeof()`, and `length()`.
+3. Select week-4 observations without removing rows that have missing markers.
+4. Add `observed` and `change_from_baseline` without overwriting supplied columns.
+5. Produce an arm-specific summary with total `n`, observed `n`, mean, and SD.
+6. Construct a participant-by-week marker matrix and preserve two dimensions when
+   selecting one week.
+7. Add at least three checks for properties required by the analysis.
+
+## Additional practice: reshape and validate with base R
+
+1. Use base `reshape()` to create one row per participant with separate baseline
+   and week-4 marker columns. Verify six rows and one row per ID.
+2. Reshape that object back to long form, order by ID and week, and compare its
+   marker values with the original table.
+3. Create a participant metadata table containing ID, site, and enrollment age.
+   Match or merge it onto `week4` while preserving exactly six analysis rows.
+4. Identify IDs present in only one input before merging. Add a deliberate extra
+   metadata ID and demonstrate that it does not create an analysis row.
+5. Store the raw data, week-4 data, summary, and marker matrix in a named list.
+   Extract the summary both with `[` and `[[`; explain the difference in result
+   structure.
+6. Select one row and one matrix column using `drop = FALSE`; write checks showing
+   that both results remain two-dimensional.
+7. Write a compact `audit_visit()` function that stops for duplicate `(id, week)`
+   keys, unexpected weeks, or missing IDs, and run it on a deliberately broken copy.
+
+### Independent-practice check
+
+The long-to-wide-to-long round trip should preserve IDs, weeks, and marker values
+after sorting. The deliberate metadata-only ID must be reported but must not alter
+the week-4 analysis population.
+
+## Exit evidence
+
+Render the row/key statement, structure comparisons, analysis table, summary,
+matrix dimensions, and checks.

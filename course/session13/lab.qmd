@@ -1,0 +1,52 @@
+---
+title: "Session 13 guided lab"
+subtitle: "Apply one summary across many simulated datasets"
+---
+
+Copy `starter/iteration-lab.qmd` to `work/session13/`.
+
+::: {.callout-note}
+**Suggested use:** Tasks 1–7 are the core iteration route. Additional practice
+compares row-wise work, lists of unequal objects, multiple arguments, contract
+failures, and measurement. The instructor may select a subset during lab; any
+remaining tasks are suitable for independent practice.
+:::
+
+## Tasks
+
+1. Write `one_summary()` for one numeric vector and test it independently.
+2. Apply it across columns with a preallocated loop.
+3. Apply it with `vapply()` and verify equal names, types, and values.
+4. Optional: apply it with `purrr::map_dbl()`.
+5. Demonstrate why `apply()` is risky after adding a character column.
+6. Compare a growing loop with a preallocated loop on a larger input using
+   `system.time()`; verify equivalent output first.
+7. Recommend one implementation based on contract, readability, and evidence.
+
+## Additional practice: choose an iteration tool deliberately
+
+1. Generate a numeric matrix and calculate its row means twice: first with a
+   correctly preallocated loop and then with a vectorized base R function.
+2. Create a named list containing numeric vectors of unequal lengths. Use both
+   `lapply()` and `vapply()` to calculate one mean per element.
+3. Replace one list element with a character vector. Record how `lapply()` and
+   `vapply()` reveal the broken input contract differently.
+4. Store paired vectors of scenario means and standard deviations. Use
+   `Map()` or `mapply()` to generate one simulated sample per scenario.
+5. Reproduce the same simulated samples with a loop. Control the random-number
+   stream so that you can verify equality before comparing the implementations.
+6. On a larger matrix, compare a loop, `apply()`, and `rowMeans()` across at
+   least five timing repetitions. Check numerical equivalence first.
+7. Record the size of the input and outputs with `object.size()`. Explain why
+   “fastest” alone is not a sufficient recommendation.
+8. Make a short decision table: task shape, output contract, recommended tool,
+   and one tool you would avoid for that task.
+
+### Independent-practice check
+
+Your recommendation should separate semantic guarantees from speed. Include
+the equality checks that justify every timing comparison.
+
+## Exit evidence
+
+Include all implementations, equality checks, timing context, and recommendation.

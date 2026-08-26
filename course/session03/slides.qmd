@@ -1,0 +1,900 @@
+---
+title: "R Objects: Vectors, Types, and Coercion"
+subtitle: "BIOS 6301 · Introduction to Statistical Computing"
+author: "Department of Biostatistics, Vanderbilt University Medical Center"
+date: "Session 3"
+date-format: "[Session 3]"
+format:
+  revealjs:
+    theme: simple
+    css: ../../slides.css
+    slide-number: c/t
+    show-slide-number: all
+    incremental: false
+    width: 1280
+    height: 720
+    fig-align: center
+    code-line-numbers: false
+    highlight-style: github
+    footer: "BIOS 6301 · Session 3 · R Objects"
+    navigation-mode: linear
+execute:
+  enabled: true
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+set.seed(6301)
+# Synthetic teaching data. A 60-patient two-arm trial, held as parallel
+# vectors -- a data frame is a list of vectors, and that container arrives
+# in session 4. Two columns are deliberately messy, exactly as they would
+# arrive from a CRF export.
+n_pat  <- 60
+id     <- sprintf("P%03d", 1:n_pat)
+arm    <- rep(c("Placebo", "Treatment"), each = 30)
+age    <- round(rnorm(n_pat, 61, 9))
+sex    <- sample(c("F", "M"), n_pat, replace = TRUE)
+sbp_0  <- round(rnorm(n_pat, 148, 14))
+sbp_12 <- round(sbp_0 -
+  ifelse(arm == "Treatment", rnorm(n_pat, 14, 8), rnorm(n_pat, 3, 8)))
+
+# Creatinine as exported: a character column, because three cells hold the
+# text "NA" and two hold a below-limit-of-detection marker.
+creat_raw <- as.character(round(rnorm(n_pat, 0.95, 0.25), 2))
+creat_raw[c(7, 23, 41)] <- "NA"
+creat_raw[c(12, 55)]    <- "<0.30"
+
+# Weight as exported: the source system codes "not recorded" as -99.
+weight_kg <- round(rnorm(n_pat, 82, 15), 1)
+weight_kg[c(3, 19, 44, 58)] <- -99
+```
+
+## Where we are {.smaller}
+
+| Course arc | Sessions | |
+|---|---:|---|
+| Setup and workflow | 0–2 |  |
+| **Data foundations** | **3–8** | **← today** |
+| Modern tools | 9–10 |  |
+| R programming | 11–13 |  |
+| Statistical computing | 14–16 |  |
+
+Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
+
+
+## What you will be able to do {.smaller}
+
+::: {.smaller}
+[1]{.objective-num} **Name** the four atomic vector types and inspect any object
+with `class()`, `typeof()`, and `str()`.
+
+[2]{.objective-num} **Distinguish** `NA`, `NaN`, `Inf`, and `NULL`, and predict
+how each propagates.
+
+[3]{.objective-num} **Predict** the type of a coerced vector, and explain how one
+stray `"NA"` turns a numeric column into text.
+
+[4]{.objective-num} **Subset** a vector by position, negation, logical condition,
+and name — and say what `x[NA]` returns.
+
+[5]{.objective-num} **Recognise** recycling, including the case where it produces
+a wrong answer silently.
+
+[6]{.objective-num} **Write** a vectorized conditional with `ifelse()`, and
+explain why it is not `if`.
+
+[7]{.objective-num} **Diagnose** a sentinel value such as `-99` before it reaches
+a mean.
+:::
+
+
+## Roadmap for today
+
+| | Block | Minutes |
+|---|---|---|
+| 1 | Everything is a vector | 15 |
+| 2 | `NA`, `NaN`, `Inf` — three kinds of nothing | 10 |
+| 3 | **Coercion**, and the silent wrong answer | 20 |
+| 4 | Names and indexing | 20 |
+| 5 | **Recycling** | 10 |
+| 6 | Vectorized conditionals: `ifelse()` | 15 |
+
+: {tbl-colwidths="[6,64,30]"}
+
+. . .
+
+**In lab this session** you clean two genuinely broken columns. Blocks 3 and 5 are
+the ones that make that possible.
+
+
+# 1 · Everything is a vector {.section-divider}
+
+## There are no scalars {.smaller}
+
+R has no single-number type. `42` is a **vector of length one**.
+
+```{r}
+#| label: no-scalars
+length(42)
+length("hello")
+x <- c(4, 9, 16)
+sqrt(x)
+```
+
+. . .
+
+::: {.callout-important appearance="simple"}
+`sqrt(x)` did not loop. **The function applied to the whole vector at once.**
+That is what "vectorized" means, and it is why R code for data analysis contains
+so few loops.
+:::
+
+
+## Four types you will actually use {.smaller}
+
+::: {style="font-size:0.9em"}
+| Type | Looks like | `typeof()` | Holds |
+|---|---|---|---|
+| **logical** | `TRUE`, `FALSE`, `NA` | `"logical"` | Conditions, flags, filters |
+| **integer** | `1L`, `1:10` | `"integer"` | Counts, indices, IDs |
+| **double** | `1`, `3.14`, `1e-8` | `"double"` | Everything measured |
+| **character** | `"F"`, `"P001"` | `"character"` | Labels, IDs, free text |
+:::
+
+. . .
+
+```{r}
+#| label: four-types
+c(typeof(TRUE), typeof(1L), typeof(1), typeof("F"))
+```
+
+. . .
+
+::: {.smaller}
+There are two more — `complex` and `raw`. You will not meet them this term.
+:::
+
+
+## Integer or double? {.smaller}
+
+```{r}
+#| label: int-dbl
+typeof(3)
+typeof(3L)
+typeof(1:3)
+```
+
+. . .
+
+```{r}
+#| label: int-overflow
+#| warning: true
+.Machine$integer.max + 1L
+```
+
+. . .
+
+::: {.callout-note appearance="simple"}
+**Use doubles.** Write `3`, not `3L`. Integers matter in three places: memory for
+very large data, `1:n` sequences, and reading someone else's code.
+:::
+
+
+## Three questions, three functions {.smaller}
+
+::: {style="font-size:0.92em"}
+| Question | Function | Answers with |
+|---|---|---|
+| What do functions think this is? | `class()` | `"numeric"`, `"character"`, `"data.frame"` |
+| What is it *made of*? | `typeof()` | `"double"`, `"integer"`, `"list"` |
+| What is actually in it? | `str()` | Type, length, and the first few values |
+:::
+
+. . .
+
+```{r}
+#| label: three-q
+class(sbp_0); typeof(sbp_0)
+str(creat_raw)
+```
+
+
+# 2 · Three kinds of nothing {.section-divider}
+
+## `NA`, `NaN`, `Inf`, `NULL` {.smaller}
+
+::: {style="font-size:0.88em"}
+| | Means | Comes from | Test with |
+|---|---|---|---|
+| `NA` | **Not available** — a value exists, we do not know it | Missing data | `is.na()` |
+| `NaN` | **Not a number** — the arithmetic is undefined | `0/0`, `log(-1)` | `is.nan()` |
+| `Inf` | **Infinite** — too big, or divided by zero | `1/0`, `exp(1000)` | `is.infinite()` |
+| `NULL` | **Nothing at all** — length zero, not a value | An empty result | `is.null()` |
+:::
+
+. . .
+
+```{r}
+#| label: nothings
+c(1 / 0, -1 / 0, 0 / 0)
+length(NA); length(NULL)
+```
+
+
+## `NA` is contagious {.smaller}
+
+```{r}
+#| label: na-contagious
+creat <- as.numeric(creat_raw)
+mean(creat)
+```
+
+. . .
+
+```{r}
+#| label: na-rm
+mean(creat, na.rm = TRUE)
+sum(is.na(creat))
+```
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+`na.rm = TRUE` is not a fix. It is a **decision** — to analyse a different set of
+patients than the one you enrolled. Report how many you dropped.
+:::
+
+
+## `NA == NA` is not `TRUE` {.smaller}
+
+```{r}
+#| label: na-eq
+NA == NA
+creat[7] == NA
+```
+
+. . .
+
+Two unknown values. Are they equal? **Unknowable.** So R returns `NA`.
+
+```{r}
+#| label: is-na
+is.na(creat[7])
+```
+
+. . .
+
+```{r}
+#| label: na-logic
+NA & FALSE
+NA | TRUE
+```
+
+
+# 3 · Coercion {.section-divider}
+
+## One vector, one type {.smaller}
+
+An atomic vector holds **one type**. Combine types and R does not complain — it
+picks the type that can hold everything.
+
+```{=html}
+<style>
+.reveal .coercion-arrow pre.mermaid { width: 100%; }
+.reveal .coercion-arrow svg {
+  max-width: none !important;
+  width: 100% !important;
+  height: auto !important;
+}
+</style>
+```
+
+::: {.coercion-arrow}
+```{mermaid}
+%%| echo: false
+%%| fig-width: 10
+flowchart LR
+  L["<b>logical</b><br/>TRUE FALSE"] --> I["<b>integer</b><br/>1L 2L"]
+  I --> D["<b>double</b><br/>1.5 3.14"]
+  D --> C["<b>character</b><br/>&quot;a&quot; &quot;1.5&quot;"]
+  style L fill:#f4efe4,stroke:#CFAE70
+  style I fill:#f4efe4,stroke:#CFAE70
+  style D fill:#CFAE70,stroke:#8a7448,color:#fff
+  style C fill:#CFAE70,stroke:#8a7448,color:#fff
+```
+:::
+
+. . .
+
+::: {.smaller}
+Coercion runs **left to right only**. One character element and the whole vector
+is character. There is no way back that R will find for you.
+:::
+
+
+## `c(1, 2, "3")` {.smaller}
+
+```{r}
+#| label: coerce-c
+c(1, 2, "3")
+```
+
+. . .
+
+```{r}
+#| label: coerce-c2
+typeof(c(TRUE, 1L))
+typeof(c(1L, 1.5))
+typeof(c(1.5, "a"))
+```
+
+. . .
+
+::: {.callout-important appearance="simple"}
+**No error. No warning. No message.** The quotes in the output are the only
+evidence anything happened.
+:::
+
+
+## Where this actually bites {.smaller}
+
+Three cells in a creatinine column hold the text `"NA"`. Two hold `"<0.30"`.
+
+```{r}
+#| label: bites
+str(creat_raw)
+creat_raw[c(7, 12)]
+```
+
+. . .
+
+```{r}
+#| label: bites-mean
+#| warning: true
+mean(creat_raw)
+```
+
+. . .
+
+```{r}
+#| label: bites-cmp
+sum(creat_raw > 1.2)
+```
+
+. . .
+
+::: {.smaller}
+Nine patients have a creatinine above 1.2. The count says **fourteen**: as text,
+both `"NA"` and `"<0.30"` sort above `"1.2"`.
+:::
+
+
+## `as.numeric()` and what it costs {.smaller}
+
+```{r}
+#| label: as-num
+#| warning: true
+creat <- as.numeric(creat_raw)
+sum(is.na(creat))
+```
+
+. . .
+
+::: {.smaller}
+R warned. But look at the count: **five** `NA`s, from three `"NA"` cells and two
+`"<0.30"` cells. The warning does not say which.
+:::
+
+. . .
+
+```{r}
+#| label: as-num-check
+creat_raw[is.na(creat)]
+```
+
+::: {.callout-tip appearance="simple"}
+After every coercion: **print the values that became `NA`.** One line, and it
+turns a warning into information.
+:::
+
+
+## The one coercion that is a gift {.smaller}
+
+`TRUE` is 1 and `FALSE` is 0, so arithmetic on logicals is counting.
+
+```{r}
+#| label: logical-arith
+sum(arm == "Treatment")
+mean(sex == "F")
+```
+
+. . .
+
+```{r}
+#| label: logical-arith2
+sum(is.na(creat))
+round(100 * mean(sbp_0 > 140), 1)
+```
+
+. . .
+
+::: {.smaller}
+`sum()` of a logical is **how many**. `mean()` of a logical is **what
+proportion**. You will use both constantly.
+:::
+
+
+## Sentinel values {.smaller}
+
+The source system codes "not recorded" as `-99`.
+
+```{r}
+#| label: sentinel
+mean(weight_kg)
+```
+
+. . .
+
+```{r}
+#| label: sentinel-fix
+range(weight_kg)
+weight_kg[weight_kg == -99] <- NA
+mean(weight_kg, na.rm = TRUE)
+```
+
+. . .
+
+::: {.callout-important appearance="simple"}
+The first number is a plausible adult weight. **It is wrong, and nothing warned
+you.** No coercion, no error, no `NA` — a valid mean of invalid numbers.
+:::
+
+
+# 4 · Names and indexing {.section-divider}
+
+## Names {.smaller}
+
+A vector's elements can carry names, and names are a way to index.
+
+```{r}
+#| label: names
+sbp <- c(P001 = 152, P002 = 138, P003 = 161, P004 = 144)
+names(sbp)
+sbp["P003"]
+```
+
+. . .
+
+```{r}
+#| label: names2
+sbp[c("P001", "P004")]
+sbp["P999"]
+```
+
+. . .
+
+::: {.smaller}
+A name that does not exist gives `NA`, not an error. **Silent again.**
+:::
+
+
+## Four ways to subset {.smaller}
+
+::: {style="font-size:0.88em"}
+| By | Looks like | Returns |
+|---|---|---|
+| **Position** | `x[c(1, 3)]` | Elements 1 and 3 |
+| **Negation** | `x[-1]` | Everything except element 1 |
+| **Logical** | `x[x > 140]` | Elements where the condition is `TRUE` |
+| **Name** | `x["P003"]` | The element called `P003` |
+:::
+
+. . .
+
+::: {.smaller}
+One operator, `[`, and four meanings, decided by **what type you put inside it**.
+:::
+
+
+## Position, and negation {.smaller}
+
+```{r}
+#| label: idx-pos
+sbp_0[1:3]
+sbp_0[c(1, 60)]
+```
+
+. . .
+
+```{r}
+#| label: idx-neg
+length(sbp_0[-1])
+length(sbp_0[-(1:10)])
+```
+
+. . .
+
+```{r}
+#| label: idx-neg-bad
+#| error: true
+sbp_0[c(-1, 2)]
+```
+
+
+## The workhorse: logical subsetting {.smaller}
+
+```{r}
+#| label: idx-logi
+high <- sbp_0 > 160
+head(high, 8)
+length(sbp_0[high])
+```
+
+. . .
+
+```{r}
+#| label: idx-logi2
+mean(sbp_12[arm == "Treatment"])
+mean(sbp_12[arm == "Placebo"])
+```
+
+. . .
+
+::: {.smaller}
+`arm == "Treatment"` is a **logical vector of length 60**, used as a mask over a
+different vector of length 60. This one line is the base-R equivalent of
+`filter()` plus `summarise()`.
+:::
+
+
+## `x[NA]`, `x[FALSE]`, `x[0]` {.smaller}
+
+```{r}
+#| label: idx-weird
+x <- c(a = 10, b = 20, c = 30)
+x[NA]
+x[FALSE]
+```
+
+. . .
+
+```{r}
+#| label: idx-weird2
+x[0]
+x[10]
+```
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+`x[NA]` returns **three** `NA`s — the logical `NA` is *recycled* to length 3.
+`x[FALSE]` returns nothing at all. These are different failures with very
+different symptoms.
+:::
+
+
+## Subsetting on the left of `<-` {.smaller}
+
+```{r}
+#| label: subassign
+w <- c(78.2, -99, 91.5, -99, 84.0)
+w[w == -99] <- NA
+w
+```
+
+. . .
+
+```{r}
+#| label: subassign2
+sbp_flag <- rep("normal", 5)
+sbp_flag[c(152, 138, 161, 144, 130) > 140] <- "high"
+sbp_flag
+```
+
+. . .
+
+::: {.smaller}
+The same four ways of subsetting work on the left-hand side. This is how you
+repair a column **in place**.
+:::
+
+
+## `which()` {.smaller}
+
+`which()` converts a logical vector into **positions**.
+
+```{r}
+#| label: which
+which(sbp_0 > 175)
+id[which(sbp_0 > 175)]
+```
+
+. . .
+
+```{r}
+#| label: which2
+which.max(sbp_0)
+id[which.max(sbp_0)]
+```
+
+. . .
+
+::: {.smaller}
+`which()` silently **drops** `NA`s. That is convenient, and it is a difference
+from logical subsetting you must know about.
+:::
+
+
+## `%in%`: the one that never returns `NA` {.smaller}
+
+```{r}
+#| label: in-op
+c(1, NA, 3) == 1
+c(1, NA, 3) %in% 1
+```
+
+. . .
+
+```{r}
+#| label: in-op2
+sites <- c("VUMC", "MCV", "typo", NA)
+sites %in% c("VUMC", "MCV")
+```
+
+. . .
+
+::: {.callout-tip appearance="simple"}
+Use `%in%` for set membership, `==` for a single comparison. `%in%` always
+returns `TRUE` or `FALSE` — never `NA` — which makes it safe inside `[`.
+:::
+
+
+# 5 · Recycling {.section-divider}
+
+## The rule {.smaller}
+
+When two vectors have different lengths, R **repeats the shorter one** to match.
+
+```{r}
+#| label: recycle
+c(10, 20, 30) + 1
+sbp_0[1:4] * 2
+```
+
+. . .
+
+::: {.smaller}
+You have been relying on this since your first line of R. `x * 2` is a length-60
+vector plus a length-**one** vector, recycled sixty times.
+:::
+
+. . .
+
+```{r}
+#| label: recycle2
+c(1, 2, 3, 4) + c(10, 20)
+```
+
+
+## When it divides evenly, R says nothing {.smaller}
+
+Two arms, sixty patients. You want a per-arm baseline correction.
+
+```{r}
+#| label: recycle-bad
+correction <- c(2, 5)             # Placebo, Treatment
+adjusted <- sbp_0 - correction
+adjusted[1:6]
+```
+
+. . .
+
+::: {.smaller}
+Intended: subtract 2 from the 30 placebo patients, 5 from the 30 treatment
+patients. Actual: **alternating** 2, 5, 2, 5 down all sixty rows.
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+60 is a multiple of 2, so **no warning**. Every patient got a number. Half of
+them got the wrong one.
+:::
+
+
+## When it does not, R warns {.smaller}
+
+```{r}
+#| label: recycle-warn
+#| warning: true
+c(1, 2, 3) + c(10, 20)
+```
+
+. . .
+
+::: {.smaller}
+`longer object length is not a multiple of shorter object length` — a warning,
+not an error. **The result is still returned and assigned.**
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+This warning is one of the most valuable messages R produces. If you have
+`warning: false` in your YAML and have never read your warnings once, you will
+never see it.
+:::
+
+
+# 6 · Vectorized conditionals {.section-divider}
+
+## `ifelse()` is a function. `if` is not. {.smaller}
+
+::: {style="font-size:0.9em"}
+| | `ifelse(test, yes, no)` | `if (cond) ... else ...` |
+|---|---|---|
+| Is a | **vectorized function** | **control-flow keyword** |
+| Test length | Any — one answer per element | **Exactly one** `TRUE` or `FALSE` |
+| Returns | A vector as long as `test` | Whatever the chosen branch returns |
+| Used for | Deriving a variable from a column | Choosing what a *script* does |
+| Taught in | **Today** | **Session 11** |
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+They look alike, share four letters, and do unrelated jobs. Today we use
+`ifelse()`. `if` does not appear on any slide in this session.
+:::
+
+
+## `ifelse()` {.smaller}
+
+```{r}
+#| label: ifelse-1
+bp_group <- ifelse(sbp_0 > 140, "high", "normal")
+head(bp_group, 6)
+table(bp_group)
+```
+
+. . .
+
+```{r}
+#| label: ifelse-2
+adjusted <- sbp_0 - ifelse(arm == "Treatment", 5, 2)
+adjusted[c(1, 2, 31, 32)]
+```
+
+. . .
+
+::: {.smaller}
+The second line is the recycling bug from block 5, **fixed** — because the
+condition is length 60, so the answer is length 60.
+:::
+
+
+## Three ways `ifelse()` surprises you {.smaller}
+
+```{r}
+#| label: ifelse-gotcha1
+ifelse(c(TRUE, FALSE, NA), "yes", "no")
+```
+
+. . .
+
+```{r}
+#| label: ifelse-gotcha2
+ifelse(c(TRUE, FALSE), c(1, 2, 3), 0)
+```
+
+. . .
+
+```{r}
+#| label: ifelse-gotcha3
+ifelse(c(FALSE, TRUE), 1, "x")
+```
+
+. . .
+
+::: {.smaller}
+`NA` in the test gives `NA` out · the result is as long as the **test**, not the
+branches · and the branches are **coerced to one type**.
+:::
+
+
+## Borrowed — session 6: `if_else()` {.smaller}
+
+```r
+library(dplyr)
+
+# Errors instead of coercing:
+if_else(c(TRUE, FALSE), 1, "x")
+#> Error: Can't combine `true` <double> and `false` <character>.
+
+# Errors instead of truncating:
+if_else(c(TRUE, FALSE), c(1, 2, 3), 0)
+#> Error: `true` must have size 2, not size 3.
+
+# And gives you somewhere to put the missing values:
+if_else(c(TRUE, FALSE, NA), 1, 0, missing = -1)
+#> [1]  1  0 -1
+```
+
+::: {.callout-note appearance="simple"}
+`dplyr::if_else()` is `ifelse()` with the three surprises turned into errors.
+You meet dplyr properly in **session 6** — this is here so you recognise it.
+:::
+
+
+## Borrowed — session 6: `case_when()` {.smaller}
+
+```r
+# Conditions are checked top to bottom; first match wins.
+bp_group <- case_when(
+  is.na(sbp_0)  ~ "missing",
+  sbp_0 >= 160  ~ "stage 2",
+  sbp_0 >= 140  ~ "stage 1",
+  sbp_0 >= 130  ~ "elevated",
+  .default      = "normal"
+)
+```
+
+. . .
+
+::: {.smaller}
+**The base R way**
+
+```r
+bp_group <- rep("normal", length(sbp_0))
+bp_group[sbp_0 >= 130] <- "elevated"
+bp_group[sbp_0 >= 140] <- "stage 1"
+bp_group[sbp_0 >= 160] <- "stage 2"
+bp_group[is.na(sbp_0)] <- "missing"
+```
+:::
+
+
+# 7 · Where this leaves you {.section-divider}
+
+## Everything today was a silent wrong answer {.smaller}
+
+Session 1: **the two ways an analysis fails.** It won't run — annoying, honest. It
+runs and is wrong — dangerous.
+
+::: {style="font-size:0.86em"}
+| Today's bug | What R said | What you got |
+|---|---|---|
+| `c(1, 2, "3")` | Nothing | A character vector |
+| `creat_raw > 1.2` | Nothing | 14 patients above 1.2. There are 9 |
+| `"<0.30"` coerced | A warning you will skim | Two patients silently missing |
+| `mean(weight_kg)` with `-99` | Nothing | A plausible, wrong mean |
+| `sbp_0 - c(2, 5)` | Nothing | Half the cohort mis-adjusted |
+| `x["P999"]` | Nothing | `NA` where you expected a value |
+| `ifelse(cond, 1, "x")` | Nothing | Numbers turned into text |
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+Seven bugs. **One warning between them.** This is why `class()`, `str()`,
+`range()`, and `length()` are habits and not commands.
+:::
+
+
+## Summary {.smaller}
+
+- Atomic vectors have one type and R coerces toward a common type.
+- `NA` propagates; test it with `is.na()` rather than equality.
+- Logical indexing expresses inclusion rules directly.
+- Recycling can return plausible results without an error.
+- `ifelse()` is vectorized classification; scalar control flow arrives in Session 11.
+
+. . .
+
+**Next connection:** Session 4 combines vectors into matrices, lists, factors, and data frames.
+

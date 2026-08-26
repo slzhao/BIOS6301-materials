@@ -1,0 +1,546 @@
+---
+title: "Version Control in RStudio"
+subtitle: "BIOS 6301 · Introduction to Statistical Computing"
+author: "Department of Biostatistics, Vanderbilt University Medical Center"
+date: "Session 2"
+date-format: "[Session 2]"
+format:
+  revealjs:
+    theme: simple
+    css: ../../slides.css
+    slide-number: c/t
+    show-slide-number: all
+    incremental: false
+    width: 1280
+    height: 720
+    fig-align: center
+    code-line-numbers: false
+    highlight-style: github
+    footer: "BIOS 6301 · Session 2 · Version Control in RStudio"
+    navigation-mode: linear
+execute:
+  enabled: false
+---
+
+## The question behind this session {.smaller}
+
+::: {.question}
+Six weeks from now, can you identify **which version** of an analysis produced
+Table 1—and explain what changed immediately before it?
+:::
+
+. . .
+
+Git is useful because it turns analytical changes into an inspectable history.
+
+It is not primarily a homework-upload tool.
+
+
+## What you will be able to do {.smaller}
+
+[1]{.objective-num} **Read** the RStudio Git pane as a view of repository state.
+
+[2]{.objective-num} **Review** a change before selecting it for a commit.
+
+[3]{.objective-num} **Complete** the edit → diff → stage → commit workflow using
+RStudio buttons.
+
+[4]{.objective-num} **Synchronize** a private repository and receive course
+updates without editing instructor-managed files.
+
+[5]{.objective-num} **Stop safely** when a conflict or destructive choice appears.
+
+
+## A 90-minute route
+
+| Block | Purpose | Minutes |
+|---|---|---:|
+| Why version control | Connect Git to reproducible analysis | 10 |
+| RStudio Git pane | Locate and interpret the interface | 15 |
+| The state model | Working, staged, committed, remote | 15 |
+| Everyday workflow | Demonstrate one complete cycle | 25 |
+| Repository boundaries | Ignore rules, large data, privacy | 10 |
+| Origin and upstream | Explain the course synchronization model | 8 |
+| Safe recovery | Unstage, revert, rejection, conflict | 7 |
+
+
+# 1 · Find Git inside the project {.section-divider}
+
+## Git belongs to the project {.smaller}
+
+Open the course repository through its root project file:
+
+```text
+BIOS6301-mywork/
+├── BIOS6301-materials.Rproj   ← open this
+├── course/                    ← instructor-managed
+├── work/                      ← your analyses and answers
+└── .git/                      ← repository history
+```
+
+Do not create another Git repository or another RStudio project inside
+`work/session02-git-lab/`.
+
+
+## Where the Git interface appears {.smaller}
+
+![](images/rstudio-vcs-pane-labeled.png){fig-alt="RStudio interface with the Git menu and Git tab highlighted in the upper-right pane" width="91%"}
+
+<small>Official RStudio interface image: [Posit RStudio User Guide](https://docs.posit.co/ide/user/ide/guide/tools/version-control.html).</small>
+
+
+## If the Git tab is missing
+
+Check these in order:
+
+1. Is the **course root project** open?
+2. Was Git installed before RStudio was restarted?
+3. Does **Tools → Global Options → Git/SVN** show a Git executable?
+4. Is this folder actually the course repository?
+
+Do not click “initialize a new repository” as a troubleshooting experiment.
+
+
+## The Git tab is a status display {.smaller}
+
+![](images/git-tab.png){fig-alt="RStudio Git tab with Diff, Commit, Pull, Push, History, branch controls, status symbols, file paths, and staging checkboxes" width="92%"}
+
+| Part | Question it answers |
+|---|---|
+| **Status** | What happened to this file? |
+| **Path** | Which file is affected? |
+| **Staged checkbox** | Is it selected for the next commit? |
+| **Diff** | What lines changed? |
+
+
+## Read the pane before clicking {.smaller}
+
+For each listed file, ask:
+
+1. Did I intend to change or create it?
+2. Is it source, data, configuration, or generated output?
+3. Should it be part of the next meaningful change?
+
+::: {.callout-tip}
+A Git pane containing an unexpected file is a reason to inspect—not a reason to
+check every box.
+:::
+
+
+# 2 · Understand the states {.section-divider}
+
+## One file can occupy several states
+
+```{mermaid}
+flowchart LR
+  W["Working files<br/>saved edits"] -->|select with checkbox| S["Staged changes<br/>next snapshot"]
+  S -->|Commit| C["Commit history<br/>recorded locally"]
+  C -->|Push| O["origin/main<br/>private GitHub copy"]
+  O -->|Pull| C
+```
+
+The buttons make more sense after the states make sense.
+
+
+## A checkbox changes selection, not the file {.smaller}
+
+Checking **Staged** means:
+
+> Include the current version of this change in the next commit.
+
+It does not:
+
+- save the file;
+- commit the change;
+- upload anything to GitHub; or
+- change the statistical result.
+
+Unchecking the box removes the change from the next commit but preserves the
+working edit.
+
+
+## Why have a staging step? {.smaller}
+
+Suppose the Git pane shows:
+
+```text
+M  work/hw1/analysis.qmd
+M  work/hw1/README.md
+?  work/hw1/debug-notes.txt
+```
+
+The analysis and interpretation belong together. The temporary debugging notes
+do not.
+
+Staging lets one commit express **one coherent analytical idea**.
+
+
+## A commit is a documented checkpoint {.smaller}
+
+Good messages complete the sentence:
+
+> This commit will …
+
+| Weak | Informative |
+|---|---|
+| `changes` | `Calculate mean outcome` |
+| `update` | `Document missing-value rule` |
+| `final` | `Add interpretation of treatment difference` |
+
+Commit after a small result renders and its checks pass.
+
+
+## Git and GitHub are different {.smaller}
+
+| Git | GitHub |
+|---|---|
+| Records history on the computer | Stores a remote copy of commits |
+| Works without a network | Requires network and authentication |
+| Creates commits | Receives commits when you push |
+| Lets you inspect changes | Supports sharing and backup |
+
+A commit exists before it is pushed.
+
+
+# 3 · The everyday RStudio workflow {.section-divider}
+
+## The loop to practice
+
+::: {.workflow}
+save → refresh → diff → stage → commit → push
+:::
+
+Before starting new work on a second computer:
+
+::: {.workflow}
+pull → edit → save → review → commit → push
+:::
+
+
+## Step 0 · Begin from a known state {.smaller}
+
+1. Open the repository-root RStudio project.
+2. Open the **Git** tab.
+3. Click **Refresh** if needed.
+4. Confirm that you understand every listed file.
+
+An empty file list means the working tree matches the current commit.
+
+
+## Step 1 · Edit, save, and render
+
+Edit `work/session02-git-lab/analysis/report.qmd`.
+
+Then:
+
+1. Save the source.
+2. Render it.
+3. Check the result.
+4. Return to the Git tab.
+
+Git records files; it cannot record an unsaved editor buffer.
+
+
+## Step 2 · Inspect the changed file {.smaller}
+
+Select the file and click **Diff**, or click **Commit** to open Review Changes.
+
+![](images/git-commit-pane.png){fig-alt="RStudio Review Changes window showing file selection, staging checkboxes, a commit-message box, and a line-by-line diff" width="77%"}
+
+<small>Official RStudio interface image: [Posit RStudio User Guide](https://docs.posit.co/ide/user/ide/guide/tools/version-control.html).</small>
+
+
+## Read a diff as a scientific reviewer {.smaller}
+
+For an analysis change, verify:
+
+- the intended rows changed;
+- no data inclusion rule changed accidentally;
+- missing-value handling remains explicit;
+- no credential or local path appeared; and
+- the interpretation matches the calculation.
+
+“The file changed” is less useful than “these lines changed for this reason.”
+
+
+## Step 3 · Select the next checkpoint
+
+In **Review Changes**:
+
+1. Select one file.
+2. Read its diff.
+3. Check **Staged** only if it belongs in this checkpoint.
+4. Repeat for any logically related file.
+
+Use the **Staged** and **Unstaged** views to confirm the boundary.
+
+
+## Step 4 · Commit the selected idea
+
+1. Write a short message describing the analytical change.
+2. Read the staged diff once more.
+3. Click **Commit**.
+4. Read the result message rather than closing it automatically.
+
+The file list should now show only changes that were not included.
+
+
+## Step 5 · Inspect history
+
+Click the **History** clock in the Git tab or the **History** tab in Review
+Changes.
+
+For each commit, students should be able to see:
+
+- the message;
+- author and time;
+- identifier; and
+- files and lines changed.
+
+History is evidence, not a list of backup filenames.
+
+
+## Step 6 · Pull and push deliberately {.smaller}
+
+For the student's private remote, `origin`:
+
+| Button | Direction | Safe question |
+|---|---|---|
+| **Pull** ↓ | GitHub → computer | Does GitHub contain commits missing here? |
+| **Push** ↑ | computer → GitHub | Have I committed and reviewed what I intend to share? |
+
+Pull before working on another computer. Push after a meaningful commit.
+
+
+## One complete example {.smaller}
+
+| Moment | RStudio evidence | Decision |
+|---|---|---|
+| Before edit | Git pane empty | Safe starting point |
+| After save | `report.qmd` listed as modified | Inspect it |
+| After render | HTML absent because ignored | Keep generated output out |
+| After stage | Checkbox selected | Include source in next commit |
+| After commit | File disappears; history grows | Checkpoint recorded |
+| After push | Push reports success | Private remote updated |
+
+
+# 4 · Decide what belongs in history {.section-divider}
+
+## Source and generated output are different {.smaller}
+
+| Usually commit | Usually ignore |
+|---|---|
+| `.R`, `.Rmd`, `.qmd` source | rendered HTML and cache folders |
+| small synthetic teaching data | replaceable intermediate data |
+| README and data dictionary | `.Rhistory`, `.RData`, `.Rproj.user/` |
+| configuration safe to share | `.Renviron`, tokens, credentials |
+
+The exact rule depends on whether a file is necessary, safe, and reasonably
+sized—not merely on its extension.
+
+
+## `.gitignore` is a visibility rule
+
+The Session 2 starter includes:
+
+```text
+.Rhistory
+.RData
+.Rproj.user/
+*_cache/
+*_files/
+.Renviron
+```
+
+Ignored files stay on the computer but disappear from ordinary Git selection.
+
+
+## Large or restricted data may live elsewhere {.smaller}
+
+An analysis can use an explicit data root:
+
+```r
+data_root <- Sys.getenv("BIOS6301_DATA")
+input_file <- file.path(data_root, "large_teaching_data.csv")
+stopifnot(file.exists(input_file))
+```
+
+Commit the code and data instructions—not credentials or restricted data.
+
+Absolute paths can be appropriate on managed storage, but keep machine-specific
+values outside shared source.
+
+
+## Keep the repository out of sync folders
+
+Do not place the working Git repository inside:
+
+- OneDrive;
+- Box Drive;
+- Dropbox; or
+- another automatic file-synchronization folder.
+
+Use GitHub for repository synchronization. Use approved storage for large data.
+
+
+# 5 · Two remotes in this course {.section-divider}
+
+## `origin` and `upstream` have different owners
+
+```{mermaid}
+flowchart LR
+  U["upstream<br/>BIOS6301-materials<br/>instructor-managed"] -->|course update recipe| L["student computer<br/>course + work"]
+  L -->|RStudio Push| O["origin<br/>student private repository"]
+  O -->|RStudio Pull| L
+```
+
+- `origin` is the student's private backup and submission history.
+- `upstream` is the instructor's published course material.
+
+
+## Why the Pull button is not the course update {.smaller}
+
+After setup, RStudio's **Pull** button follows the student's current branch on
+`origin`.
+
+Course updates come from the separate `upstream` repository. Therefore:
+
+1. Commit student work under `work/`.
+2. Run the supplied **course update recipe** in RStudio Terminal.
+3. Inspect the Git pane.
+4. Push the combined history to `origin`.
+
+
+## Ownership prevents most conflicts {.smaller}
+
+```text
+course/   instructor-managed: read and copy, but do not edit
+work/     student-managed: edit, commit, and submit
+```
+
+When both sides edit different paths, an upstream update normally merges without
+a conflict.
+
+Always commit student work before requesting course updates.
+
+
+# 6 · Stop safely when state is unexpected {.section-divider}
+
+## Start with the visible state {.smaller}
+
+| What you see | First response |
+|---|---|
+| Unwanted file is checked | Uncheck **Staged** |
+| Unwanted edit is not checked | Inspect Diff; keep it unless certain |
+| Wrong file was committed | Stop and ask before rewriting history |
+| Push is rejected | Pull, inspect, and resolve; do not force push |
+| Conflict status appears | Preserve files and resolve deliberately |
+
+Do not use destructive recovery because an error message suggested urgency.
+
+
+## Unstage is safe; Revert discards work {.smaller}
+
+In Review Changes:
+
+- **Uncheck Staged**: removes the change from the next commit; edit remains.
+- **Revert**: discards the uncommitted edit from the working file.
+
+::: {.callout-warning}
+Read the diff before Revert. Uncommitted discarded text may not be recoverable.
+:::
+
+
+## A rejected push is protection
+
+A rejected push usually means the remote has commits missing from this computer.
+
+Safe response:
+
+1. Do not force push.
+2. Confirm local work is committed.
+3. Pull from the intended remote.
+4. Read the result.
+5. Resolve any conflict, then push again.
+
+
+## A conflict is a request for a decision {.smaller}
+
+Git may place both versions in the file:
+
+```markdown
+<<<<<<< HEAD
+## Table 1: baseline characteristics
+=======
+## Baseline characteristics by arm
+>>>>>>> upstream/main
+```
+
+1. Open the file and decide what the final text should be.
+2. Delete all three marker lines.
+3. Save and render.
+4. Select the resolved file in the Git pane and commit.
+
+
+## Security is part of the workflow
+
+Never commit:
+
+- passwords or access tokens;
+- `.Renviron` containing secrets;
+- protected health information;
+- restricted research data; or
+- private keys.
+
+If sensitive information is committed, deleting the visible line is not enough;
+contact the instructor or security support immediately.
+
+
+## Reference only · buttons and commands {.smaller}
+
+| RStudio action | Command-line equivalent |
+|---|---|
+| View repository state | `git status` |
+| View unstaged changes | `git diff` |
+| Check **Staged** | `git add <file>` |
+| Uncheck **Staged** | `git restore --staged <file>` |
+| Click **Commit** | `git commit` |
+| Click **Pull** | `git pull` |
+| Click **Push** | `git push` |
+| Open **History** | `git log` |
+
+Understanding the left column is today's requirement. The right column is a
+translation reference.
+
+
+## Summary {.smaller}
+
+- The Git pane shows files that differ from the current commit.
+- Diff review is part of statistical quality control.
+- Staging selects one coherent change; committing records it locally.
+- Pull and Push synchronize the student's private `origin`.
+- Course updates use the supplied `upstream` recipe.
+- Unexpected or destructive states are reasons to stop and inspect.
+
+
+## Exit check
+
+Without using a command, explain:
+
+1. What changes when you check **Staged**?
+2. What changes when you click **Commit**?
+3. Why can a commit exist before GitHub receives it?
+4. Why does this course need both `origin` and `upstream`?
+5. When should you stop and ask for help?
+
+
+## Sources and next step {.smaller}
+
+- [RStudio version-control interface](https://docs.posit.co/ide/user/ide/guide/tools/version-control.html)
+- [RStudio Git keyboard shortcuts](https://docs.posit.co/ide/user/ide/reference/shortcuts.html#git-svn)
+- [Happy Git and GitHub for the useR](https://happygitwithr.com/)
+- [GitHub authentication documentation](https://docs.github.com/en/authentication)
+
+**Next:** use the RStudio interface to create and inspect three small commits in
+the guided lab.
+

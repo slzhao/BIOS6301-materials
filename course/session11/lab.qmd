@@ -1,0 +1,50 @@
+---
+title: "Session 11 guided lab"
+subtitle: "Refactor repeated summaries"
+---
+
+::: {.callout-note}
+**Suggested use:** tasks 1–6 are the core function-refactoring route. Additional
+practice develops a second function family with explicit contracts, stable return
+types, iteration, and tests. Unfinished tasks may be completed independently.
+:::
+
+Copy `starter/functions-lab.qmd` to `work/session11/`.
+
+## Tasks
+
+1. Complete `safe_mean()` so it validates numeric input, returns `NA_real_` for
+   an all-missing vector, and otherwise returns the mean of observed values.
+2. Use a preallocated `for` loop to apply it to every marker column.
+3. Write `classify_change()` with explicit behavior for missing change values.
+4. Test both functions on ordinary, empty, all-missing, and invalid inputs.
+5. Refactor the repeated baseline/follow-up code into `change_summary()`.
+6. Optional: express the column iteration using `vapply()`.
+
+## Additional practice: design functions from contracts
+
+1. Write `safe_weighted_mean(x, w)` with checks for numeric inputs, equal lengths,
+   nonnegative weights, paired missingness, and positive observed total weight.
+2. Decide and document whether a missing value in either `x` or `w` removes the
+   pair or produces a missing result; encode that choice in an argument.
+3. Test ordinary, unequal-length, negative-weight, all-missing, zero-weight, and
+   partially missing inputs.
+4. Write `marker_profile(data)` that applies `safe_mean()` to numeric columns only
+   and returns a data frame with variable name, observed `n`, missing `n`, mean,
+   and SD.
+5. Apply `marker_profile()` to the complete marker table and to arm-specific
+   tables stored in a named list. Verify stable column names and types.
+6. Refactor one function so validation and calculation are visibly separated.
+   Explain why this makes failures easier to diagnose.
+7. Demonstrate that your functions do not depend on or modify a global object by
+   changing the global data and rerunning a test with explicit inputs.
+
+### Independent-practice check
+
+Every function must have a stated input/output contract, predictable missing-value
+behavior, and at least one test that is expected to fail.
+
+## Exit evidence
+
+Render the function definitions, compact tests, results, and one paragraph about
+the input/output contract of `change_summary()`.

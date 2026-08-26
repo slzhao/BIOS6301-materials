@@ -1,0 +1,55 @@
+---
+title: "Session 6 guided lab"
+subtitle: "Build and audit an analysis table"
+---
+
+::: {.callout-note}
+**Suggested use:** tasks 1–7 are the core analysis-table route. Additional
+practice repeats important transformations in a second dialect and adds
+missingness, ordering, and longitudinal checks; unfinished items may be completed
+after lab.
+:::
+
+Copy `starter/dplyr-lab.qmd` to `work/session06/`.
+
+## Tasks
+
+1. Confirm that one row represents one participant-visit and that the proposed
+   key `(id, week)` is unique.
+2. Define the week-4 analysis population in one sentence, then implement it.
+3. Create observed/missing flags and a clinically named marker category.
+4. Produce one row per arm with total `n`, observed `n`, mean, SD, and proportion
+   observed.
+5. Center marker values within arm without changing the row count.
+6. Solve using either dplyr or base R, then verify the arm-specific observed counts
+   using the other dialect.
+7. Explain the unit of observation for every output table.
+
+## Additional practice: interrogate the pipeline
+
+1. Recreate the complete week-4 analysis table in the dialect you did not use for
+   the core route. Compare row order, names, classes, and values—not only printed
+   output.
+2. Produce a missingness table by arm and week with total rows, observed marker
+   rows, missing rows, and proportion observed.
+3. Within each arm, rank week-4 participants by observed marker while placing
+   missing values last. Verify that ranking does not remove participants.
+4. Starting from the two-visit table, calculate baseline, week-4 marker, and
+   change for every participant. Retain participants whose week-4 value is missing.
+5. Produce a participant-level change summary by arm and distinguish enrolled
+   `n` from complete-change `n`.
+6. Demonstrate the grouping state after `group_by()`/`summarise()` and after a
+   `.by` summary. Explicitly remove grouping before a downstream operation.
+7. Add checks that every participant has at most one baseline and one week-4 row,
+   the participant-level output has one row per ID, and no filtering changed the
+   randomized-arm counts.
+
+### Independent-practice check
+
+The base-R and dplyr week-4 tables should be equivalent after deliberate sorting.
+The participant-level table must retain all six IDs, including IDs without a
+complete change.
+
+## Exit evidence
+
+Render the code, validation checks, table, cross-dialect verification, and prose.

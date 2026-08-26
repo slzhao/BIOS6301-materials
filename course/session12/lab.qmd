@@ -1,0 +1,59 @@
+---
+title: "Session 12 guided lab"
+subtitle: "Repair and protect a risk-ratio function"
+---
+
+::: {.callout-note}
+**Suggested use:** tasks 1–7 are the core debugging route. Additional practice
+uses a second broken statistical function so students repeat reproduction,
+localization, repair, and regression testing independently.
+:::
+
+Copy `starter/debugging-lab.qmd` to `work/session12/`.
+
+## Tasks
+
+1. Reproduce every supplied failure before editing the function.
+2. Use the error message, `traceback()`, and intermediate objects to identify each
+   broken assumption.
+3. Repair the calculation without silently dropping observations.
+4. Add checks for type, length, missingness policy, and a zero denominator.
+5. Add at least four compact tests: ordinary, missing, boundary, and invalid input.
+6. Replace one fragile equality check with a tolerance-aware comparison.
+7. Write a five-line synthetic reprex of the original failure.
+
+## Additional practice: debug a confidence interval
+
+Start with this deliberately fragile function:
+
+```r
+mean_ci <- function(x, level = 0.95) {
+  estimate <- mean(x, na.rm = TRUE)
+  se <- sd(x, na.rm = TRUE) / sqrt(length(x))
+  estimate + c(-1, 1) * qnorm(1 - (1 - level) / 2) * se
+}
+```
+
+1. Reproduce its behavior for complete data, partially missing data, one observed
+   value, all-missing data, character input, and invalid confidence levels.
+2. Identify separately the denominator bug, distributional assumption, undefined
+   cases, and missing validation.
+3. Repair the function using observed `n` and a t critical value. Return a named
+   object containing estimate, lower, upper, and observed `n`.
+4. Decide which inputs should error, return missing, or warn. Explain those choices
+   before implementing them.
+5. Add regression tests for every original failure and a tolerance-aware test
+   against a hand calculation.
+6. Use `tryCatch()` once to convert an expected invalid-input error into a compact
+   test result without suppressing unexpected errors globally.
+7. Create a minimal reprex containing only the function, one failing input, and
+   the expected behavior.
+
+### Independent-practice check
+
+For partially missing data, the interval must use the number of observed values.
+For fewer than two observed values, the function must not report a finite interval.
+
+## Exit evidence
+
+Render the original symptoms, diagnosis, repaired function, tests, and reprex.

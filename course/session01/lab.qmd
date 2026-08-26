@@ -1,0 +1,127 @@
+---
+title: "Session 1 guided lab"
+subtitle: "Build a report that survives a fresh session"
+---
+
+::: {.callout-note}
+**Suggested use:** complete the core checkpoints first. The instructor may choose
+some or all of the additional practice during the scheduled lab. Anything not
+finished is designed for independent practice afterward.
+:::
+
+## Goal
+
+Use the RStudio workbench to run a saved `.R` script, knit an R Markdown report,
+and render a Quarto report whose numbers can be regenerated from saved source
+and the supplied synthetic data.
+
+## Start from the repository
+
+Do not edit `course/session01/starter/`. Copy that complete folder to
+`work/session01-lab/`, then work only in the copy.
+
+Your private repository should contain:
+
+```text
+work/session01-lab/
+├── session01-lab.Rproj
+├── analysis.R
+├── report.Rmd
+├── report.qmd
+└── data/
+    └── clinic_summary.csv
+```
+
+## Checkpoint 1: Establish the project
+
+1. Open `work/session01-lab/session01-lab.Rproj`.
+2. Locate the Source, Console, Environment, and Output panes.
+3. Confirm that the three source files and `data/clinic_summary.csv` are present.
+4. Run `2 + 2` in the Console, then explain why that command is not yet part of
+   the saved analysis.
+
+## Checkpoint 2: Run the `.R` script
+
+Open `analysis.R`. Use {{< kbd Ctrl-Enter >}} to run it one section at a time.
+Then restart R and use **Source** to run the complete saved script.
+
+Confirm that these objects appear in the Environment pane:
+
+`clinic`, `n_records`, `mean_age`, and `median_marker`.
+
+## Checkpoint 3: Knit the R Markdown report
+
+Open `report.Rmd` and identify:
+
+1. The YAML header and its `output:` key
+2. Markdown prose
+3. The setup and summary R chunks
+4. The chunk labels and classic knitr options in the `{r ...}` headers
+5. Inline R expressions
+
+Complete the calculations and use the **Knit** button to produce HTML. Set the
+summary chunk to `echo=FALSE`. Explain why the calculations still appear even
+though the source code is hidden.
+
+## Checkpoint 4: Apply the model in Quarto
+
+Open `report.qmd`. Identify what is unchanged from R Markdown, then complete its
+Quarto-specific syntax:
+
+- `format: html` in YAML
+- `#| label: ...` and `#| echo: false` at the top of a code cell
+- the **Render** button
+
+Use inline R to insert `n_records`, `mean_age`, and `median_marker`. Do not type
+copies of the calculated numbers manually.
+
+## Checkpoint 5: Verify reproducibility
+
+1. Restart R.
+2. Confirm that the Environment pane is empty.
+3. Source `analysis.R`, knit `report.Rmd`, and render `report.qmd`.
+4. Explain which files are source and which HTML files are generated output.
+
+## Controlled error
+
+Temporarily change the data path to an incorrect filename. Render, read the error,
+repair the path, and render successfully again.
+
+## Additional practice: extend the workflow
+
+1. Add comments and three `stopifnot()` input checks to `analysis.R`, then source
+   it after restarting R.
+2. In `report.Rmd`, test `echo=FALSE`, `eval=FALSE`, and `include=FALSE` in three
+   small chunks. Record whether each chunk runs and whether code and results are
+   displayed.
+3. Add a setup chunk to `report.Rmd` using `knitr::opts_chunk$set()` for at least
+   two document-wide defaults. Override one default in an individual chunk.
+4. In `report.qmd`, express the same selected behaviors with Quarto `#|` cell
+   options. Identify the spelling and value-style differences from R Markdown.
+5. Add a table with one row per `group`, reporting total `n`, mean age, and mean
+   marker. Generate the values from code rather than typing them.
+6. Add a participant-level figure comparing marker values between groups. Give
+   it an informative title, axes, and a one-sentence interpretation.
+7. Read the CSV a second way using a single, explicitly defined absolute
+   `data_root`. Verify that the resulting object equals the relative-path import,
+   and document when each path strategy is appropriate.
+8. Restart R and produce all outputs from beginning to end. Record any hidden
+   dependency you discovered and how you removed it.
+
+### Independent-practice check
+
+The `.R`, `.Rmd`, and `.qmd` files should agree numerically. A reader should be
+able to identify every input location and regenerate every table and figure
+without preparatory console commands.
+
+## Exit evidence
+
+Show the instructor or TA:
+
+- The project folder
+- The `.R` script and a successful complete Source run
+- The `.Rmd` source and knitted HTML
+- The `.qmd` source
+- The Quarto-rendered HTML
+- The three calculated values
+- A successful render after restarting R

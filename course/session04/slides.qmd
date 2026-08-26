@@ -1,0 +1,803 @@
+---
+title: "Data Structures and Base-R Data Handling"
+subtitle: "BIOS 6301 · Introduction to Statistical Computing"
+author: "Department of Biostatistics, Vanderbilt University Medical Center"
+date: "Session 4"
+date-format: "[Session 4]"
+format:
+  revealjs:
+    theme: simple
+    css: ../../slides.css
+    slide-number: c/t
+    show-slide-number: all
+    incremental: false
+    width: 1280
+    height: 720
+    fig-align: center
+    code-line-numbers: false
+    highlight-style: github
+    footer: "BIOS 6301 · Session 4 · Data structures and base-R data handling"
+    navigation-mode: linear
+execute:
+  enabled: true
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(knitr)
+set.seed(6301)
+
+# Synthetic teaching data. A two-arm hypertension trial, 60 patients, invented
+# for this deck — no real patients, no real site names in the clinical sense.
+# Deliberately imperfect: `dose_mg` arrives from the CRF as *text*, `grade` has
+# a level nobody was assigned, and three 12-week measurements are missing.
+n <- 60
+trial <- data.frame(
+  id    = sprintf("P%03d", 1:n),
+  arm   = rep(c("Placebo", "Treatment"), each = n / 2),
+  site  = sample(c("VUMC", "Meharry", "Regional"), n, replace = TRUE),
+  sex   = sample(c("F", "M"), n, replace = TRUE),
+  age   = round(rnorm(n, 61, 9)),
+  sbp_0 = round(rnorm(n, 148, 14)),
+  stringsAsFactors = FALSE
+)
+trial$sbp_6 <- round(trial$sbp_0 -
+  ifelse(trial$arm == "Treatment", rnorm(n, 9, 7), rnorm(n, 2, 7)))
+trial$sbp_12 <- round(trial$sbp_0 -
+  ifelse(trial$arm == "Treatment", rnorm(n, 14, 8), rnorm(n, 3, 8)))
+trial$sbp_12[c(7, 23, 41)] <- NA
+trial$dose_mg <- ifelse(trial$arm == "Treatment",
+  sample(c("5", "10", "20", "40"), n, replace = TRUE), "0")
+trial$grade <- factor(
+  sample(c("mild", "moderate", "severe"), n, replace = TRUE,
+         prob = c(0.5, 0.35, 0.15)),
+  levels = c("mild", "moderate", "severe", "life-threatening")
+)
+
+# Repeated SBP measurements as a matrix, for the matrix block.
+sbp <- as.matrix(trial[, c("sbp_0", "sbp_6", "sbp_12")])
+rownames(sbp) <- trial$id
+```
+
+## Where we are {.smaller}
+
+| Course arc | Sessions | |
+|---|---:|---|
+| Setup and workflow | 0–2 |  |
+| **Data foundations** | **3–8** | **← today** |
+| Modern tools | 9–10 |  |
+| R programming | 11–13 |  |
+| Statistical computing | 14–16 |  |
+
+Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
+
+
+## What you will be able to do {.smaller}
+
+::: {.smaller}
+[1]{.objective-num} **Distinguish** the four containers — vector, matrix, list,
+data frame — and say which one a given object is.
+
+[2]{.objective-num} **Index** a data frame by row, by column, and by both, and
+predict the class of what comes back.
+
+[3]{.objective-num} **Choose** correctly between `[`, `[[`, and `$`.
+
+[4]{.objective-num} **Explain** what a factor actually is, and never again write
+`as.numeric(as.factor(x))`.
+
+[5]{.objective-num} **Use** `subset()`, `transform()`, and `order()` to filter,
+derive, and sort.
+
+[6]{.objective-num} **Compute** grouped summaries with `tapply()` and
+`aggregate()`.
+
+[7]{.objective-num} **Inspect** any new data frame with `str()` before trusting
+a single number from it.
+:::
+
+
+## Roadmap for today
+
+| | Block | Minutes |
+|---|---|---|
+| 1 | Four containers: matrix, list, data frame | 20 |
+| 2 | Factors, and the catastrophe | 15 |
+| 3 | Indexing a data frame: `[`, `[[`, `$` | 20 |
+| 4 | Three base verbs: `subset`, `transform`, `order` | 15 |
+| 5 | Split–apply–combine: `tapply`, `aggregate` | 15 |
+| 6 | Inspection discipline | 5 |
+
+: {tbl-colwidths="[6,64,30]"}
+
+. . .
+
+Every example uses one 60-patient synthetic trial. **It is deliberately
+imperfect** — that is where the teaching is.
+
+
+# 1 · Four containers {.section-divider}
+
+## Two questions, four answers {.smaller}
+
+Every R data structure answers two questions: **how many dimensions**, and
+**must everything be the same type?**
+
+::: {style="font-size:0.92em"}
+| | One type only | Mixed types allowed |
+|---|---|---|
+| **1 dimension** | `vector` | `list` |
+| **2 dimensions** | `matrix` | `data.frame` |
+:::
+
+. . .
+
+::: {.smaller}
+- A **matrix** is a vector with a `dim` attribute. Nothing more.
+- A **data frame** is a list of equal-length columns. Nothing more.
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+Those two sentences are the whole session. Everything else follows from them.
+:::
+
+
+## A matrix is a vector with a shape {.smaller}
+
+```{r}
+#| label: matrix-build
+sbp <- as.matrix(trial[, c("sbp_0", "sbp_6", "sbp_12")])
+rownames(sbp) <- trial$id
+dim(sbp)
+sbp[1:3, ]
+```
+
+. . .
+
+```{r}
+#| label: matrix-summaries
+round(colMeans(sbp, na.rm = TRUE), 1)
+```
+
+
+## Matrices are strict about type {.smaller}
+
+Ask for a character column and a numeric column in the same matrix:
+
+```{r}
+#| label: matrix-coerce
+as.matrix(trial[, c("id", "age")])[1:3, ]
+```
+
+. . .
+
+The ages are now `"57"`, `"63"`, `"55"` — **text**. Coercion, exactly as in
+session 3, silently.
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+This is why clinical data lives in data frames. One identifier column would turn
+your entire dataset into strings.
+:::
+
+
+## Lists hold anything {.smaller}
+
+```{r}
+#| label: list-build
+result <- list(
+  study = "SBP-12",
+  n     = nrow(trial),
+  arms  = c("Placebo", "Treatment"),
+  sbp_0 = trial$sbp_0
+)
+str(result)
+```
+
+. . .
+
+::: {.smaller}
+Different types, different lengths, all in one object. Every model object in R —
+everything `lm()` or `t.test()` gives you back — **is a list**.
+:::
+
+
+## `[` and `[[` on a list {.smaller}
+
+```{r}
+#| label: list-bracket
+class(result["n"])
+class(result[["n"]])
+```
+
+. . .
+
+::: {.smaller}
+| Notation | Gives you | Think |
+|---|---|---|
+| `result["n"]` | a **list** of length 1 | a smaller version of the same thing |
+| `result[["n"]]` | the **value** inside | reach in and take it out |
+| `result$n` | the value inside | `[[` with less typing |
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+The pigeonholes: `[` gives you a pigeonhole, `[[` gives you what is *in* the
+pigeonhole. `[` on a list always returns a list.
+:::
+
+
+## A data frame is a list of columns {.smaller}
+
+```{r}
+#| label: df-is-list
+length(trial)
+nrow(trial)
+class(trial[[2]])
+```
+
+. . .
+
+::: {.smaller}
+`length()` on a data frame counts **columns**, because a data frame *is* a list
+and its elements are its columns. It just happens to enforce that all of them
+have the same length.
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+Consequence: everything you just learned about `[` versus `[[` on lists applies
+unchanged to data frame columns.
+:::
+
+
+# 2 · Factors {.section-divider}
+
+## A factor is integers wearing labels {.smaller}
+
+```{r}
+#| label: factor-guts
+head(trial$grade, 4)
+levels(trial$grade)
+head(as.integer(trial$grade), 4)
+```
+
+. . .
+
+::: {.smaller}
+Stored as `3 3 1 3`. Displayed as `severe severe mild severe`. The labels live in
+the `levels` attribute, and R looks them up when it prints.
+:::
+
+
+## The levels are the point {.smaller}
+
+```{r}
+#| label: factor-levels
+table(trial$grade)
+```
+
+. . .
+
+Nobody was `life-threatening`. The level is still there — **and that is
+correct**. The study protocol defined four grades; your sample happened to
+contain three.
+
+. . .
+
+```{r}
+#| label: factor-drop
+table(droplevels(trial$grade))
+```
+
+
+## The catastrophe {.smaller}
+
+`dose_mg` came off the CRF as text. Somebody needs it numeric.
+
+```{r}
+#| label: catastrophe
+wrong <- as.numeric(as.factor(trial$dose_mg))
+data.frame(text = trial$dose_mg, wrong = wrong)[31:36, ]
+```
+
+. . .
+
+::: {.callout-important appearance="simple"}
+40 mg became **4**. 20 mg became **3**. 5 mg became **5**, which is right by
+accident and makes it harder to spot.
+:::
+
+
+## How bad, quantitatively {.smaller}
+
+```{r}
+#| label: catastrophe-mean
+mean(as.numeric(as.factor(trial$dose_mg)))   # wrong
+mean(as.numeric(as.character(trial$dose_mg))) # right
+```
+
+. . .
+
+::: {.callout-tip appearance="simple"}
+## The fix
+`as.numeric(as.character(x))` — go back to the text, *then* to the number.
+Better still: never let it become a factor.
+:::
+
+. . .
+
+::: {.smaller}
+And check afterwards. `as.numeric()` on genuinely non-numeric text gives `NA`
+with a warning — so `sum(is.na(x))` before and after tells you whether the
+conversion lost anything.
+:::
+
+
+## Where factors come from now {.smaller}
+
+::: {style="font-size:0.9em"}
+| Source | Factors? |
+|---|---|
+| `data.frame(...)` in R ≥ 4.0 | **No.** Character stays character |
+| `read.csv()` in R ≥ 4.0 | **No** |
+| Anything written before 2020 | **Probably yes** — `stringsAsFactors` defaulted to `TRUE` |
+| `haven::read_dta()`, `read_sav()` | Labelled columns; factor-adjacent |
+| `factor()`, `cut()`, `table()` | Yes, by construction |
+:::
+
+. . .
+
+::: {.smaller}
+R 4.0.0 (April 2020) changed the default. **Inherited scripts predate it** — and
+they were written with the old behaviour assumed.
+:::
+
+
+# 3 · Indexing a data frame {.section-divider}
+
+## Rows first, then columns {.smaller}
+
+```{r}
+#| label: df-ij
+trial[1:3, c("id", "arm", "sbp_12")]
+```
+
+. . .
+
+```{r}
+#| label: df-ij-blank
+trial[trial$age > 80, c("id", "age")]
+```
+
+. . .
+
+::: {.smaller}
+`df[i, j]` — **i is rows, j is columns**, and the comma is not optional. A blank
+means "all of them".
+:::
+
+
+## Four ways to ask for a column {.smaller}
+
+```{r}
+#| label: four-ways
+class(trial$age)
+class(trial[["age"]])
+class(trial[, "age"])
+class(trial["age"])
+```
+
+. . .
+
+::: {.smaller}
+Three hand you a **vector**. The fourth hands you a **one-column data frame** —
+`[` with a single argument is list indexing, and `[` on a list returns a list.
+:::
+
+. . .
+
+```{r}
+#| label: four-ways-cost
+#| warning: true
+mean(trial["age"])
+```
+
+
+## The `drop` surprise {.smaller}
+
+```{r}
+#| label: drop-surprise
+class(trial[, c("age", "sbp_0")])
+class(trial[, "age"])
+```
+
+. . .
+
+Same notation, **different class**, because the result had one column.
+
+. . .
+
+```{r}
+#| label: drop-fix
+class(trial[, "age", drop = FALSE])
+```
+
+
+## `$` is convenient, and slightly dangerous {.smaller}
+
+```{r}
+#| label: dollar-partial
+head(trial$ag, 3)
+```
+
+. . .
+
+There is no column called `ag`. **`$` partially matched it to `age`.**
+
+. . .
+
+```{r}
+#| label: dollar-null
+trial$sbp
+```
+
+::: {.smaller}
+Ambiguous — `sbp_0`, `sbp_6`, `sbp_12` — so you get `NULL`, silently. And `NULL`
+propagates: `mean(trial$sbp)` is `NA`, not an error.
+:::
+
+
+## Selecting rows by condition {.smaller}
+
+```{r}
+#| label: rows-cond
+low <- trial[trial$sbp_12 < 120, c("id", "arm", "sbp_12")]
+nrow(low)
+head(low, 4)
+```
+
+. . .
+
+::: {.smaller}
+The condition is a **logical vector of length 60**, and `[` keeps the rows where
+it is `TRUE`. Exactly session 3's logical indexing, applied to the row position.
+:::
+
+
+## The `NA` row trap {.smaller}
+
+```{r}
+#| label: na-rows
+trial[trial$sbp_12 < 120, c("id", "sbp_12")][1:4, ]
+```
+
+. . .
+
+Three patients have a missing `sbp_12`. `NA < 120` is `NA`, not `FALSE` — and
+**`[` returns a row of `NA`s for every `NA` in the index.**
+
+. . .
+
+```{r}
+#| label: na-rows-fix
+nrow(trial[trial$sbp_12 < 120, ])
+nrow(trial[which(trial$sbp_12 < 120), ])
+```
+
+
+# 4 · Three base verbs {.section-divider}
+
+## `subset()` {.smaller}
+
+```{r}
+#| label: subset-basic
+subset(trial, arm == "Treatment" & age > 70,
+       select = c(id, age, sbp_12))
+```
+
+. . .
+
+::: {.smaller}
+Columns unquoted, rows as a plain condition, and **`NA` rows dropped for you**.
+Compare the alternative:
+:::
+
+```r
+trial[which(trial$arm == "Treatment" & trial$age > 70), c("id", "age", "sbp_12")]
+```
+
+
+## `subset()`'s two hazards {.smaller}
+
+```{r}
+#| label: subset-eq
+#| warning: true
+nrow(subset(trial, arm = "Treatment"))
+```
+
+. . .
+
+One `=` instead of `==`. A warning, and **all 60 rows back**.
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+`subset()` is a convenience for interactive work. In a script that matters, `[`
+with an explicit condition is more predictable — R's own documentation says so.
+:::
+
+
+```{r}
+#| label: transform
+trial <- transform(trial,
+  change = sbp_12 - sbp_0,
+  responder = sbp_12 < 130
+)
+head(trial[, c("id", "sbp_0", "sbp_12", "change", "responder")], 3)
+```
+
+. . .
+
+::: {.smaller}
+The equivalent, and what you will see far more often:
+:::
+
+```r
+trial$change <- trial$sbp_12 - trial$sbp_0
+trial$responder <- trial$sbp_12 < 130
+```
+
+
+## Sorting with `order()` {.smaller}
+
+```{r}
+#| label: order-basic
+head(trial[order(trial$sbp_12), c("id", "arm", "sbp_12")], 4)
+```
+
+. . .
+
+```{r}
+#| label: order-multi
+head(trial[order(trial$arm, -trial$sbp_0), c("id", "arm", "sbp_0")], 3)
+```
+
+::: {.smaller}
+`order()` returns **positions**, which you then use to index. Multiple keys sort
+in the order given; negate a numeric key to reverse it.
+:::
+
+
+## `sort`, `order`, `rank` {.smaller}
+
+```{r}
+#| label: sort-order-rank
+x <- c(30, 10, 20)
+sort(x)
+order(x)
+rank(x)
+```
+
+. . .
+
+::: {style="font-size:0.9em"}
+| Function | Returns | Read as |
+|---|---|---|
+| `sort(x)` | the values, rearranged | "give me the sorted values" |
+| `order(x)` | positions, in sorted order | "where do I find them" |
+| `rank(x)` | each value's position when sorted | "what place did each come in" |
+:::
+
+
+# 5 · Split–apply–combine {.section-divider}
+
+## The pattern {.smaller}
+
+```{mermaid}
+%%| echo: false
+%%| fig-width: 10
+flowchart LR
+  D["<b>trial</b><br/>60 rows"] --> S1["Placebo<br/>30 rows"]
+  D --> S2["Treatment<br/>30 rows"]
+  S1 --> A1["mean(sbp_12)"]
+  S2 --> A2["mean(sbp_12)"]
+  A1 --> C["<b>result</b><br/>2 rows"]
+  A2 --> C
+  style D fill:#f4efe4,stroke:#CFAE70
+  style C fill:#CFAE70,stroke:#8a7448,color:#fff
+```
+
+. . .
+
+::: {.smaller}
+**Split** the data by a grouping variable · **apply** a summary to each piece ·
+**combine** the answers into one table. Almost every table in almost every paper
+is this.
+:::
+
+
+## `tapply()` {.smaller}
+
+```{r}
+#| label: tapply-na
+tapply(trial$sbp_12, trial$arm, mean)
+```
+
+. . .
+
+Three missing values, so both means are `NA`. The `NA` is **information**, not an
+obstacle:
+
+```{r}
+#| label: tapply-narm
+tapply(trial$sbp_12, trial$arm, mean, na.rm = TRUE)
+```
+
+. . .
+
+```{r}
+#| label: tapply-two
+round(tapply(trial$sbp_12, list(trial$arm, trial$sex), mean, na.rm = TRUE), 1)
+```
+
+
+## `aggregate()`: the formula interface {.smaller}
+
+```{r}
+#| label: agg-basic
+aggregate(sbp_12 ~ arm, data = trial, FUN = mean)
+```
+
+. . .
+
+```{r}
+#| label: agg-multi
+aggregate(cbind(sbp_0, sbp_12) ~ arm + sex, data = trial, FUN = mean)
+```
+
+::: {.smaller}
+Read `~` as **"by"**. Left of it: what to summarise. Right of it: what to group
+by. `+` on the right adds grouping variables; `cbind()` on the left adds
+outcomes.
+:::
+
+
+## `aggregate()` drops rows quietly {.smaller}
+
+```{r}
+#| label: agg-count
+aggregate(sbp_12 ~ arm, data = trial, FUN = length)
+```
+
+. . .
+
+**28 and 29, not 30 and 30.** The formula interface defaults to
+`na.action = na.omit` — rows with a missing outcome vanish before `FUN` runs.
+
+. . .
+
+```{r}
+#| label: agg-napass
+aggregate(sbp_12 ~ arm, data = trial, FUN = mean,
+          na.rm = TRUE, na.action = na.pass)
+```
+
+
+## Counting: `table()` and friends {.smaller}
+
+```{r}
+#| label: table-two
+table(trial$arm, trial$grade)
+```
+
+. . .
+
+```{r}
+#| label: prop-table
+round(prop.table(table(trial$arm, trial$sex), margin = 1), 2)
+```
+
+::: {.smaller}
+`margin = 1` gives row proportions, `2` gives columns, and omitting it divides by
+the grand total. **Getting the margin wrong is the most common table error in
+submitted work.**
+:::
+
+
+## You are learning the pattern, not the syntax {.smaller}
+
+```{r}
+#| label: base-way
+aggregate(sbp_12 ~ arm, data = trial, FUN = mean, na.rm = TRUE)
+```
+
+. . .
+
+The same question in session 6 — **not executed here, you have not been taught
+it**:
+
+```r
+trial |>
+  group_by(arm) |>
+  summarise(sbp_12 = mean(sbp_12, na.rm = TRUE))
+```
+
+. . .
+
+::: {.callout-important appearance="simple"}
+Split, apply, combine. The syntax changes in session 6. **The idea does not.**
+:::
+
+
+# 6 · Inspection discipline {.section-divider}
+
+## `str()` first, always {.smaller}
+
+```{r}
+#| label: str-trial
+str(trial[, c("id", "arm", "age", "sbp_12", "dose_mg", "grade")])
+```
+
+::: {.smaller}
+Six columns, six lines. Name, **type**, and the first few values — everything you
+need to know whether your next line will work.
+:::
+
+
+## Five checks on any new data frame {.smaller}
+
+```{r}
+#| label: five-checks
+dim(trial)
+colSums(is.na(trial[, c("age", "sbp_0", "sbp_12", "dose_mg")]))
+```
+
+. . .
+
+::: {.smaller}
+1. `str()` — types, and are they what you expected
+2. `dim()` — is the row count the number of patients you were promised
+3. `summary()` — impossible minima and maxima
+4. `table()` on every categorical column, with `useNA = "ifany"`
+5. `colSums(is.na(...))` — where the holes are, before anyone asks
+:::
+
+
+## When it goes wrong {.smaller}
+
+::: {style="font-size:0.82em"}
+| Symptom | Cause | Fix |
+|---|---|---|
+| `argument is not numeric or logical: returning NA` | `df["x"]` where you wanted `df[["x"]]` | Use `$` or `[[` |
+| Rows of `NA` with rownames like `NA.1` | `NA` in a logical row index | `which()`, or `subset()` |
+| `undefined columns selected` | Row/column arguments swapped | Rows first, then columns |
+| `incorrect number of dimensions` | `[i, j]` on a vector or a list | Check `str()`; it is not 2-d |
+| Numbers become small integers | `as.numeric(as.factor(x))` | `as.numeric(as.character(x))` |
+| Filter returns 0 rows for no reason | Column name typo → `$` gave `NULL` | `names(df)`, then `[[` |
+| Grouped `n` smaller than expected | `aggregate()` dropped `NA` rows | Add a `FUN = length` check |
+:::
+
+
+## Summary {.smaller}
+
+- Choose a container whose contract matches the operation.
+- A data frame is a list of equal-length columns; a matrix has one type.
+- `[` preserves a container while `[[` extracts one component.
+- State row meaning and keys before subsetting or summarizing.
+- Every grouped summary needs denominators and checks.
+
+. . .
+
+**Next connection:** Session 5 begins with files and asks whether the imported data frame matches the study.
+

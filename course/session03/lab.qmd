@@ -1,0 +1,60 @@
+---
+title: "Session 3 guided lab"
+subtitle: "Diagnose a contaminated clinical vector"
+---
+
+::: {.callout-note}
+**Suggested use:** tasks 1–7 are the core route. The additional route provides a
+second pass through coercion, indexing, lists, factors, and validation and may be
+completed independently after lab.
+:::
+
+## Goal
+
+Repair and summarize a small synthetic clinical dataset without silently changing
+its meaning.
+
+## Start
+
+Copy `course/session03/starter/objects-lab.qmd` to `work/session03/`, open the
+copy, and render it once before editing.
+
+## Tasks
+
+1. Use `str()`, `typeof()`, `class()`, and `length()` to inspect every object.
+2. Identify why `dose_mg` is character and list every nonnumeric entry.
+3. Convert the documented sentinel `"not measured"` to `NA`, then convert safely.
+4. Select complete treated-group doses using base R.
+5. Create `arm` as a factor with `control` as its reference level.
+6. Report the number missing and the mean observed dose; write one sentence
+   explaining what `na.rm = TRUE` does.
+7. Optional: express task 4 with `dplyr::filter()` and verify the same patient IDs.
+
+## Additional practice: object behavior under pressure
+
+1. Predict the type and values of `c(dose_clean, "pending")`, then run it and
+   explain the coercion.
+2. Give `dose_clean` patient-ID names. Retrieve the treated doses once by integer
+   positions, once by names, and once by a logical vector; verify identical values.
+3. Create a named list `patient_record` holding one ID, arm, and dose. Compare
+   `patient_record["dose"]` with `patient_record[["dose"]]` using `str()`.
+4. Extend a copy of `dose_mg` with the sentinels `""` and `"unknown"`. Write one
+   explicit cleaning rule that maps all documented sentinels to missing without
+   changing the original vector.
+5. Construct a data frame containing `patient_id`, factor `arm`, original dose,
+   and numeric dose. Verify equal column lengths and unique IDs.
+6. Calculate observed dose summaries by arm while retaining the number missing in
+   each arm. State the row unit of the summary.
+7. Drop the treated level from a subset, use `droplevels()`, and explain why the
+   original factor and subset may legitimately have different level sets.
+
+### Independent-practice check
+
+Your report should demonstrate, with output, when `[ ]` preserves a container,
+when `[[ ]]` extracts an element, and when coercion changes values indirectly by
+changing their type.
+
+## Exit evidence
+
+Your rendered report must include the diagnostic values, repaired vector, selected
+IDs, factor levels, numerical summary, and interpretation.

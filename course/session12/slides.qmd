@@ -1,0 +1,1029 @@
+---
+title: "Debugging and Reliable Code"
+subtitle: "BIOS 6301 · Introduction to Statistical Computing"
+author: "Department of Biostatistics, Vanderbilt University Medical Center"
+date: "Session 12"
+date-format: "[Session 12]"
+format:
+  revealjs:
+    theme: simple
+    css: ../../slides.css
+    slide-number: c/t
+    show-slide-number: all
+    incremental: false
+    width: 1280
+    height: 720
+    fig-align: center
+    code-line-numbers: false
+    highlight-style: github
+    footer: "BIOS 6301 · Session 12 · Debugging and Reliable Code"
+    navigation-mode: linear
+execute:
+  enabled: true
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+# Synthetic teaching data for BIOS 6301. Not real patients.
+set.seed(6301)
+n <- 60
+trial <- data.frame(
+  id        = sprintf("P%03d", 1:n),
+  arm       = rep(c("Placebo", "Treatment"), each = n / 2),
+  site      = sample(1:4, n, replace = TRUE),
+  age       = round(rnorm(n, 61, 9)),
+  sex       = sample(c("F", "M"), n, replace = TRUE),
+  weight_kg = round(rnorm(n, 82, 15), 1),
+  sbp_0     = round(rnorm(n, 148, 14)),
+  stringsAsFactors = FALSE
+)
+trial$sbp_12 <- round(trial$sbp_0 -
+  ifelse(trial$arm == "Treatment", rnorm(n, 14, 8), rnorm(n, 3, 8)))
+
+# Added for this session: the derived outcome every demo summarises.
+trial$change <- trial$sbp_12 - trial$sbp_0
+
+# A copy carrying the defects a real extract arrives with. Same object as
+# session 11, with one column added. What is broken, deliberately:
+#   sbp_12    three missing 12-week outcomes (P007, P023, P048)
+#   weight_kg one weight recorded as the sentinel -99 (P012)
+#   creat_raw creatinine as *character*, carrying "NA" and a "<0.30" limit-of-
+#             detection string, which is how the lab's export actually arrives
+trial_raw <- trial
+trial_raw$sbp_12[c(7, 23, 48)] <- NA
+trial_raw$weight_kg[12] <- -99
+trial_raw$change <- trial_raw$sbp_12 - trial_raw$sbp_0
+trial_raw$creat_raw <- as.character(round(rnorm(n, 0.95, 0.22), 2))
+trial_raw$creat_raw[c(4, 31)] <- "NA"
+trial_raw$creat_raw[19] <- "<0.30"
+
+theme_set(theme_minimal(base_size = 15))
+```
+
+## Where we are {.smaller}
+
+| Course arc | Sessions | |
+|---|---:|---|
+| Setup and workflow | 0–2 |  |
+| Data foundations | 3–8 |  |
+| Modern tools | 9–10 |  |
+| **R programming** | **11–13** | **← today** |
+| Statistical computing | 14–16 |  |
+
+Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
+
+
+## What you will be able to do {.smaller}
+
+::: {.smaller}
+[1]{.objective-num} **Read** an R error or warning and say which of the three
+conditions it is and where it came from.
+
+[2]{.objective-num} **Isolate** a minimal failing example from a script that does
+not work.
+
+[3]{.objective-num} **Use** `traceback()`, `browser()`, and `debug()` to find a
+bug rather than guessing at it.
+
+[4]{.objective-num} **Write** code that fails fast, using guard clauses,
+`stopifnot()`, and small tests.
+
+[5]{.objective-num} **Explain** why `0.1 + 0.2 != 0.3`, and compare numbers
+correctly.
+
+[6]{.objective-num} **Justify** why `suppressWarnings()` is almost never the
+right fix.
+
+[7]{.objective-num} **Post** a reprex that somebody can actually answer.
+:::
+
+
+## Roadmap for today
+
+| | Block | Minutes |
+|---|---|---|
+| 1 | What the machine is telling you | 12 |
+| 2 | Isolating a minimal failing example | 18 |
+| 3 | `traceback()`, `browser()`, `debug()` | 22 |
+| 4 | Fail fast: assertions and small tests | 14 |
+| 5 | Floating point | 20 |
+| 6 | `suppressWarnings()`, naming, and the reprex | 12 |
+
+: {tbl-colwidths="[6,64,30]"}
+
+. . .
+
+**In lab this week** you fix five genuinely broken functions — one for each way
+code goes wrong.
+
+
+# 1 · What the machine is telling you {.section-divider}
+
+## Two kinds of broken {.smaller}
+
+::: columns
+::: {.column width="48%"}
+### It stops
+
+```
+Error in sum(x) :
+  invalid 'type' (character) of argument
+```
+
+**Loud.** You know instantly. The location is roughly right. The worst case is
+that you lose an hour.
+:::
+
+::: {.column width="48%"}
+### It finishes
+
+```
+[1] -7.88
+```
+
+**Silent.** A number, correctly formatted, plausible, and wrong. Nothing on
+screen distinguishes it from the right answer.
+:::
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+Almost everything in this session is aimed at the second column. The first column
+is a nuisance; the second column is how analyses get retracted.
+:::
+
+
+## The three conditions {.smaller}
+
+R has exactly three, and they differ in **what happens next**:
+
+```{r}
+#| label: three-conditions
+#| warning: true
+#| message: true
+#| error: true
+check_dose <- function(mg) {
+  message("checking ", length(mg), " doses")   # 1. carries on
+  if (any(mg > 100)) warning("dose above 100 mg")  # 2. carries on
+  if (any(mg < 0)) stop("negative dose")            # 3. stops here
+  invisible(TRUE)
+}
+
+check_dose(c(10, 120, -5))
+```
+
+. . .
+
+::: {.smaller}
+| Condition | Execution | Goes to | Use it for |
+|---|---|---|---|
+| `message()` | continues | stderr | Progress, and what you did |
+| `warning()` | continues | stderr, often **deferred** | "This is probably not what you meant" |
+| `stop()` | **halts** | stderr | "I cannot produce a correct answer" |
+:::
+
+
+## Anatomy of an error message {.smaller}
+
+```{r}
+#| label: anatomy
+#| warning: true
+#| error: true
+mean(trial_raw$creat_raw)
+sum(trial_raw$creat_raw)
+```
+
+. . .
+
+::: {.smaller}
+```
+Error in sum(trial_raw$creat_raw) : invalid 'type' (character) of argument
+        └──────── where ────────┘   └──────────── what ─────────────────┘
+```
+
+- **`Error in`** names the call that raised it — *not necessarily the call that is
+  wrong*.
+- **The text after the colon** is R's vocabulary, and it is small. `invalid
+  'type'`, `object not found`, `subscript out of bounds`, `non-numeric argument`,
+  `argument of length zero`. You will learn all of them this term.
+:::
+
+
+## Warnings are the ones that cost you {.smaller}
+
+```{r}
+#| label: coercion-warning
+#| warning: true
+creat <- as.numeric(trial_raw$creat_raw)
+mean(creat)
+```
+
+. . .
+
+```{r}
+#| label: coercion-diagnose
+sum(is.na(creat))
+trial_raw$creat_raw[is.na(creat)]
+```
+
+. . .
+
+::: {.callout-important appearance="simple"}
+The warning told you the truth: three values could not be read. Two are genuinely
+missing. **One is a real measurement** — a below-limit-of-detection result — and
+you have just silently deleted it.
+:::
+
+
+## Where it stops is not where it broke {.smaller}
+
+```{r}
+#| label: distance
+#| error: true
+# Mean change in SBP, for a subgroup, rounded for the table.
+mean_change <- function(data) summarise_change(data$change)
+summarise_change <- function(x) round(pooled_mean(x), 1)
+pooled_mean <- function(x) sum(x) / length(x)
+
+site_3 <- subset(trial_raw, site == 3)
+site_3$change <- as.character(site_3$change)  # ← the actual bug, 3 lines up
+
+mean_change(site_3)
+```
+
+. . .
+
+::: {.smaller}
+The error names `sum(x)`. `sum()` is three function calls away from the mistake
+and did nothing wrong. **The distance between the symptom and the cause is what
+makes debugging hard** — and it is what `traceback()` exists to close.
+:::
+
+
+# 2 · Isolating a minimal failing example {.section-divider}
+
+## The procedure {.smaller}
+
+The most valuable debugging skill, and the one nobody teaches:
+
+::: {.incremental}
+1. **Reproduce it.** From a clean session. If you cannot make it fail on demand,
+   you cannot tell when you have fixed it.
+2. **Cut the data down.** 60 rows → 6 rows → 1 row. Does it still fail?
+3. **Cut the code down.** Delete a step. Still fails? Delete another.
+4. **Keep cutting until removing anything makes the bug disappear.** What is left
+   is the bug.
+:::
+
+. . .
+
+::: {.callout-tip appearance="simple"}
+Most of the time you never reach step 4. The bug becomes obvious somewhere in
+step 3, and you never find out how small the example could have been.
+:::
+
+
+## Cut the data down {.smaller}
+
+Start from the failure, and make the input smaller:
+
+```{r}
+#| label: cut-data
+#| error: true
+mean_change(site_3)                 # 11 rows — fails
+mean_change(site_3[1:3, ])          # 3 rows  — still fails
+mean_change(site_3[1, ])            # 1 row   — still fails
+```
+
+. . .
+
+```{r}
+#| label: cut-data-2
+#| error: true
+pooled_mean(site_3$change[1])       # drop the wrappers entirely
+site_3$change[1]                    # look at the value itself
+```
+
+. . .
+
+::: {.smaller}
+One row still fails, so the bug is **not** about missingness, not about the
+subgroup, and not about `n`. It is about a single value — and the quotes on the
+last line are the answer.
+:::
+
+
+## Cut the code down {.smaller}
+
+The other direction: keep the data, delete the pipeline.
+
+```r
+# what you have — and it fails somewhere
+report <- trial |>
+  filter(!is.na(sbp_12), site %in% c(2, 3)) |>
+  mutate(change = sbp_12 - sbp_0,
+         responder = change <= -10,
+         band = cut(age, breaks = quantile(age, c(0, .5, 1)))) |>
+  group_by(arm, band) |>
+  summarise(n = n(), pct = 100 * mean(responder), .groups = "drop")
+```
+
+. . .
+
+```r
+# run it one verb at a time and look at the result of each
+step1 <- trial |> filter(!is.na(sbp_12), site %in% c(2, 3))
+nrow(step1)                                  # 0? then the filter is the bug
+step2 <- step1 |> mutate(change = sbp_12 - sbp_0)
+summary(step2$change)                        # all NA? then the mutate is
+```
+
+. . .
+
+::: {.callout-note appearance="simple"}
+A pipeline is unusually hard to debug precisely because the intermediate results
+have no names. Breaking it apart is not a failure of style — it is the technique.
+:::
+
+
+## Bisection, and what it buys you {.smaller}
+
+When you have no hypothesis at all, **halve it**:
+
+::: {.smaller}
+- Comment out the bottom half of the script. Does it still fail?
+- No → the bug is in the half you removed. Yes → it is in the half you kept.
+- Repeat. Two hundred lines becomes eight in about five steps.
+:::
+
+. . .
+
+::: {.smaller}
+The same move works on **history** rather than on code — `git bisect` finds the
+commit that introduced a bug by the same halving. Your session 2 habit of small
+commits is what makes it possible.
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+The minimal example you end up with is not a by-product. It is the **test** you
+add so the bug cannot come back, and the **reprex** you post if you still need
+help.
+:::
+
+
+# 3 · `traceback()`, `browser()`, `debug()` {.section-divider}
+
+## `traceback()` {.smaller}
+
+Run it **immediately** after an error. It prints the call stack as it was when R
+gave up:
+
+```r
+> mean_change(site_3)
+Error in sum(x) : invalid 'type' (character) of argument
+
+> traceback()
+3: pooled_mean(x)
+2: summarise_change(data$change)
+1: mean_change(site_3)
+```
+
+. . .
+
+::: {.smaller}
+**Read it from the bottom up.** Line 1 is what *you* typed. Line 3 is the last
+thing R was doing. The bug is somewhere on the way down.
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+`traceback()` shows the *most recent* error only, and only after a real error at
+the console. It has nothing to say inside a rendering document.
+:::
+
+
+## Reading a stack {.smaller}
+
+```{mermaid}
+%%| echo: false
+%%| fig-width: 9
+flowchart TD
+  A["<b>1:</b> mean_change(site_3)<br/><i>what you typed</i>"] --> B["<b>2:</b> summarise_change(x)<br/><i>x is data$change —<br/>already character</i>"]
+  B --> C["<b>3:</b> pooled_mean(x)"]
+  C --> D["<b>sum(x)</b><br/>error raised here"]
+  style A fill:#f4efe4,stroke:#CFAE70
+  style B fill:#CFAE70,stroke:#8a7448,color:#fff
+  style D fill:#e8d7d7,stroke:#a05252
+```
+
+::: {.smaller}
+The error is raised at the bottom. The **cause** entered at the top. `traceback()`
+gives you the path between them, which is the thing you cannot get any other way.
+:::
+
+
+## `browser()` {.smaller}
+
+`traceback()` tells you *where*. `browser()` lets you *look*.
+
+```r
+pooled_mean <- function(x) {
+  browser()            # ← execution pauses here, with x available
+  sum(x) / length(x)
+}
+
+mean_change(site_3)
+```
+
+. . .
+
+```
+Called from: pooled_mean(x)
+Browse[1]> str(x)
+ chr [1:11] "-2" "-14" "-25" "-9" ...
+Browse[1]> class(x)
+[1] "character"
+Browse[1]> Q
+```
+
+. . .
+
+::: {.smaller}
+Inside the browser you are in a **normal R console**, sitting inside the paused
+function. Every object in that frame is real and inspectable.
+:::
+
+
+## The browser commands {.smaller}
+
+::: {style="font-size:0.92em"}
+| Key | Does | You want it when |
+|---|---|---|
+| `n` | **next** — run this line, stop at the next | Walking through the body |
+| `s` | **step in** — descend into the call on this line | The suspect is the function being called |
+| `f` | **finish** — run to the end of this loop or function | You stepped in by mistake |
+| `c` | **continue** — resume until the next `browser()` or the end | You have seen enough |
+| `Q` | **quit** — abandon it, back to the console | Almost always, at the end |
+| `where` | print the stack from here | You have lost track of how deep you are |
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+A variable called `n`, `s`, `c`, `f` or `Q` cannot be printed by typing its name
+— the browser reads it as a command. Use `print(n)`.
+:::
+
+
+## `debug()`, `debugonce()`, and breakpoints {.smaller}
+
+When you cannot edit the function — it is in a package, or it is 300 lines away:
+
+```r
+debugonce(pooled_mean)   # browse the next call, then forget about it
+mean_change(site_3)
+
+debug(pooled_mean)       # browse EVERY call until you stop it
+undebug(pooled_mean)     # ...which you must remember to do
+```
+
+. . .
+
+::: {.smaller}
+| | Edit the file? | Persists? |
+|---|---|---|
+| `browser()` in the body | yes | until you delete it |
+| **`debugonce(f)`** | **no** | **one call — the safe default** |
+| `debug(f)` | no | until `undebug(f)` |
+| RStudio breakpoint | no (stored by the IDE) | until you click it off |
+:::
+
+
+## `options(error = recover)` {.smaller}
+
+The heavy tool. On **any** error, R offers you every frame in the stack and drops
+you into the one you choose:
+
+```r
+options(error = recover)
+
+mean_change(site_3)
+```
+
+```
+Error in sum(x) : invalid 'type' (character) of argument
+
+Enter a frame number, or 0 to exit
+
+1: mean_change(site_3)
+2: summarise_change(data$change)
+3: pooled_mean(x)
+
+Selection: 2
+Called from: summarise_change(data$change)
+Browse[1]> str(data$change)
+ chr [1:11] "-2" "-14" "-25" ...
+```
+
+. . .
+
+::: {.smaller}
+Turn it off with `options(error = NULL)`. **Never set it in a script or a `.qmd`.**
+:::
+
+
+## Which tool, when {.smaller}
+
+::: {style="font-size:0.88em"}
+| Situation | Reach for |
+|---|---|
+| An error, and you do not know which function raised it | `traceback()` |
+| You know the function, and want to see its arguments | `browser()` or `debugonce()` |
+| The function is in a package | `debugonce(pkg::f)` |
+| No error, but the answer is wrong | `browser()` + the minimal example |
+| An error you cannot reproduce cheaply | `options(error = recover)` |
+| A warning and you want to know where from | `options(warn = 2)`, then `traceback()` |
+| Anything at all, and you are in a hurry | `print()` and `str()` |
+:::
+
+. . .
+
+::: {.callout-tip appearance="simple"}
+The last row is not a joke. Well-placed `print()` calls solve most bugs, and there
+is no shame in them.
+:::
+
+
+# 4 · Fail fast, fail loud {.section-divider}
+
+## Fail fast, fail loud {.smaller}
+
+Session 11 gave you guard clauses. The argument is worth restating in this
+session's terms:
+
+::: {.smaller}
+- A function that **stops** costs you ten minutes.
+- A function that returns a **plausible wrong number** costs you a paper.
+:::
+
+. . .
+
+```{r}
+#| label: fail-fast
+#| error: true
+# Responder rate: percentage of patients with a fall of at least 10 mmHg.
+responder_rate <- function(change) {
+  stopifnot(is.numeric(change))
+  if (length(change) > 0 && all(is.na(change))) {
+    stop("change is entirely missing", call. = FALSE)
+  }
+
+  n_obs <- sum(!is.na(change))
+  100 * sum(change <= -10, na.rm = TRUE) / n_obs
+}
+
+responder_rate(as.character(trial$change))
+```
+
+
+## `stopifnot()` outside a function {.smaller}
+
+Assertions are not only for functions. Put them in the **analysis** where an
+assumption is made:
+
+```{r}
+#| label: inline-assertions
+#| error: true
+# One row per patient is assumed by every summary below.
+stopifnot(!anyDuplicated(trial$id))
+
+# The join in session 7 must not have created rows.
+stopifnot(nrow(trial) == 60)
+
+# Change must be derived, never imported.
+stopifnot(all(trial$change == trial$sbp_12 - trial$sbp_0))
+
+# And the one that actually fails:
+stopifnot("no outcome may be missing" = !anyNA(trial_raw$sbp_12))
+```
+
+. . .
+
+::: {.smaller}
+Each line is a sentence you would otherwise have written as a comment — except
+this one is **checked every time the document renders**.
+:::
+
+
+## Make the check permanent {.smaller}
+
+You already built a minimal failing example. **Do not throw it away.**
+
+```{r}
+#| label: assertion-tests
+# Known answers, worked out by hand, checked on every render.
+stopifnot(
+  "empty input gives NaN, not an error" =
+    is.nan(responder_rate(numeric(0))),
+  "a single responder gives 100" =
+    responder_rate(-12) == 100,
+  "a single non-responder gives 0" =
+    responder_rate(-2) == 0,
+  "missing values are excluded from the denominator" =
+    responder_rate(c(-12, NA)) == 100
+)
+cat("all checks passed\n")
+```
+
+. . .
+
+::: {.smaller}
+Four lines, and the fourth is the one the lab's broken version fails. A test is
+just **an example with a known answer**, written down.
+:::
+
+
+## `testthat`, in one slide {.smaller}
+
+When the project is big enough to want real tests:
+
+```r
+library(testthat)
+
+test_that("responder_rate handles missingness", {
+  expect_equal(responder_rate(-12), 100)
+  expect_equal(responder_rate(c(-12, NA)), 100)
+  expect_error(responder_rate("a"), "is.numeric")
+  expect_true(is.nan(responder_rate(numeric(0))))
+})
+```
+
+. . .
+
+::: {.smaller}
+| | Does |
+|---|---|
+| `expect_equal(x, y)` | Equal **within tolerance** — the right choice for numbers |
+| `expect_identical(x, y)` | Exactly equal, type included |
+| `expect_error(f(), "text")` | The call fails, with a message matching `"text"` |
+| `expect_warning()`, `expect_true()` | As they read |
+:::
+
+::: {.callout-note appearance="simple"}
+Not installed on the course machines and not required here. Use
+`stopifnot()` — the idea is identical, and it is what the previous slide runs.
+:::
+
+
+# 5 · Floating point {.section-divider}
+
+## The slide that ruins everyone's afternoon {.smaller}
+
+```{r}
+#| label: fp-first
+0.1 + 0.2 == 0.3
+```
+
+. . .
+
+```{r}
+#| label: fp-second
+0.1 + 0.2 - 0.3
+```
+
+. . .
+
+```{r}
+#| label: fp-third
+print(0.1, digits = 22)
+```
+
+. . .
+
+::: {.smaller}
+R has not made a mistake. **`0.1` is not 0.1** — it is the closest number to 0.1
+that a 64-bit double can represent, and that number is slightly too big.
+:::
+
+
+## Binary cannot write one tenth {.smaller}
+
+In base 10, ⅓ needs infinitely many digits: 0.3333…
+
+::: {.smaller}
+In base 2, **one tenth** needs infinitely many digits:
+`0.0001100110011001100…`
+:::
+
+. . .
+
+::: {.smaller}
+A double gets 53 bits for the value. So R stores the closest 53-bit truncation,
+which is off by about 1 part in 10^16^.
+:::
+
+. . .
+
+```{r}
+#| label: fp-representable
+0.5 + 0.25 == 0.75    # exact: halves and quarters ARE representable
+1 - 0.9 == 0.1        # not exact
+0.3 - 0.1 == 0.2      # not exact
+```
+
+. . .
+
+::: {.callout-note appearance="simple"}
+Integers up to 2^53^ are exact. Halves, quarters, eighths are exact. **Tenths are
+not** — and clinical data is measured in tenths.
+:::
+
+
+## Machine epsilon {.smaller}
+
+```{r}
+#| label: fp-eps
+.Machine$double.eps
+```
+
+. . .
+
+::: {.smaller}
+The **smallest** `e` such that `1 + e != 1`. It is the width of the gap between
+representable numbers near 1 — and it is the unit in which "close enough" is
+measured.
+:::
+
+```{r}
+#| label: fp-eps-2
+1 + .Machine$double.eps == 1
+1 + .Machine$double.eps / 2 == 1
+```
+
+. . .
+
+::: {.smaller}
+The gap **scales with magnitude**. Near 1 it is 2 × 10^-16^; near 10^6^ it is
+about 10^-10^; near 10^-6^ it is far smaller. Absolute tolerances that work for
+one scale are wrong for another — which is why `all.equal()` defaults to a
+*relative* one.
+:::
+
+
+## `all.equal()`, and the trap in it {.smaller}
+
+```{r}
+#| label: fp-allequal
+all.equal(0.1 + 0.2, 0.3)
+isTRUE(all.equal(0.1 + 0.2, 0.3))
+```
+
+. . .
+
+```{r}
+#| label: fp-allequal-trap
+all.equal(1, 2)          # NOT FALSE — a character description
+```
+
+. . .
+
+::: {.callout-important appearance="simple"}
+`all.equal()` returns `TRUE` **or a description of the difference**. A non-empty
+string is truthy enough to break an `if`. Always wrap it: `isTRUE(all.equal(x, y))`.
+:::
+
+. . .
+
+::: {.smaller}
+Or compare by hand, when you know the scale you care about:
+
+```{r}
+#| label: fp-tolerance
+abs((0.1 + 0.2) - 0.3) < 1e-8
+```
+:::
+
+
+## It is not only `==` {.smaller}
+
+```{r}
+#| label: fp-seq
+schedule <- seq(0.1, 1.0, by = 0.1)   # titration steps, as a fraction
+which(schedule == 0.3)                 # integer(0) — no such step
+```
+
+. . .
+
+```{r}
+#| label: fp-accumulate
+# Session 13's loop, accumulating a total dose.
+total <- 0
+for (i in 1:10) total <- total + 0.1
+total == 1
+print(total, digits = 18)
+```
+
+. . .
+
+::: {.smaller}
+`==` was never the risk on its own. **Any equality test hidden inside something
+else** carries it: `which()`, `match()`, `%in%`, `switch()`, a lookup table
+keyed on a decimal, `duplicated()`, and a `while` loop that stops "when the total
+reaches 1".
+:::
+
+
+## Integer overflow {.smaller}
+
+```{r}
+#| label: fp-intmax
+.Machine$integer.max
+```
+
+. . .
+
+```{r}
+#| label: fp-overflow
+#| warning: true
+x <- 2147483647L
+x + 1L
+```
+
+. . .
+
+```{r}
+#| label: fp-overflow-double
+x + 1        # a double: no overflow, but no longer exact either
+```
+
+. . .
+
+::: {.smaller}
+R's integers are 32-bit and stop at about 2.1 billion. Doubles carry on, but
+above 2^53^ they cannot represent every whole number — so a count can start
+*skipping*.
+:::
+
+
+## Why likelihoods are computed on the log scale {.smaller}
+
+```{r}
+#| label: fp-underflow
+big <- rnorm(400, mean = 148, sd = 14)
+
+prod(dnorm(big, 148, 14))        # the likelihood, directly
+log(prod(dnorm(big, 148, 14)))   # ...and its log
+```
+
+. . .
+
+```{r}
+#| label: fp-logsum
+sum(dnorm(big, 148, 14, log = TRUE))   # the same quantity, computed properly
+```
+
+. . .
+
+::: {.smaller}
+The true value is about 10^-705^. The smallest positive double is about
+10^-308^, so the product **underflows to exactly zero** — and `log(0)` is `-Inf`.
+Summing logs never leaves the representable range.
+:::
+
+
+## The floating-point rules {.smaller}
+
+::: {style="font-size:0.88em"}
+| Rule | |
+|---|---|
+| **Never `==` on computed doubles** | `isTRUE(all.equal(x, y))`, or `abs(x - y) < tol` |
+| **`==` is fine on integers and strings** | `id == "P003"`, `site == 3L` |
+| **No floating-point keys, indices, or counters** | Use integers, derive the decimal |
+| **Identifiers are character** | Not numeric. `colClasses` at import |
+| **Likelihoods and probabilities live on the log scale** | `dnorm(..., log = TRUE)`, then `sum()` |
+| **`round()` is for display** | It does not make a number exact |
+| **Report at the precision you measured** | Not at the precision R prints |
+:::
+
+
+# 6 · Habits that prevent debugging {.section-divider}
+
+## `suppressWarnings()` {.smaller}
+
+```{r}
+#| label: suppress
+#| warning: true
+creat <- suppressWarnings(as.numeric(trial_raw$creat_raw))
+mean(creat, na.rm = TRUE)
+```
+
+. . .
+
+::: {.smaller}
+This runs cleanly, produces a number, and has **silently deleted a real
+measurement**. The warning was the only thing standing between you and that
+result.
+:::
+
+. . .
+
+::: {.smaller}
+It has exactly one legitimate use: a warning you have **read, diagnosed, and
+decided is not a problem** — with a comment saying so.
+
+```r
+# Sites 1-4 only; `site` is a factor with an unused level 5 from the CRF,
+# which as.integer() warns about. Checked: no patient has site 5.
+site_num <- suppressWarnings(as.integer(as.character(trial$site)))
+```
+:::
+
+
+## Names and comments that debug for you {.smaller}
+
+```r
+# what you cannot debug
+x <- d[d$g == 1, ]
+y <- mean(x$v, na.rm = TRUE)
+z <- y * 0.1
+```
+
+. . .
+
+```r
+# what you can
+site_3 <- subset(trial, site == 3)
+mean_weight_kg <- mean(site_3$weight_kg, na.rm = TRUE)
+
+# Dose is 0.1 mg per kg of body weight (protocol v2, section 4.3).
+mean_dose_mg <- mean_weight_kg * 0.1
+```
+
+. . .
+
+::: {.smaller}
+The second version cannot have a unit bug hiding in it, because the units are in
+the names. The comment answers the question a reader would otherwise have to ask
+you — and **"why 0.1" is not answerable from the code**.
+:::
+
+
+## How to write a reprex {.smaller}
+
+A **rep**roducible **ex**ample. Four requirements, and they are not negotiable:
+
+::: {.smaller}
+1. **Self-contained** — runs in a fresh session. Every `library()` included.
+2. **Minimal** — block 2's procedure. Not your script.
+3. **Data included** — `dput(head(x))`, or a tiny made-up frame. Never
+   "my data looks like this".
+4. **The actual output** — the real error text, copied, not described.
+:::
+
+. . .
+
+```r
+library(dplyr)
+
+d <- data.frame(id = c("P001", "P002"), sbp = c("148", "152"))
+
+d |> summarise(mean_sbp = mean(sbp))
+#> Warning: argument is not numeric or logical: returning NA
+#>   mean_sbp
+#> 1       NA
+```
+
+. . .
+
+::: {.smaller}
+`reprex::reprex()` runs your clipboard in a clean session and formats it exactly
+like this. **Most reprexes never get posted** — you find the bug while building
+one.
+:::
+
+
+## Summary {.smaller}
+
+- Reproduce the failure before editing the code.
+- Reduce the data and code until the first broken assumption is visible.
+- Use the call stack, browser, and breakpoints to inspect state deliberately.
+- Assertions and small tests preserve a repair after today.
+- Finite-precision arithmetic requires tolerance-aware reasoning.
+
+. . .
+
+**Next connection:** Session 13 asks how to repeat a correct operation clearly and efficiently.
+

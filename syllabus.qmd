@@ -1,0 +1,200 @@
+---
+title: "BIOS6301: Introduction to Statistical Computing"
+subtitle: "Course syllabus · Draft for instructor review"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-copy: true
+---
+
+## Course information
+
+| Item | Information |
+|------------------------------------|------------------------------------|
+| Course | BIOS6301: Introduction to Statistical Computing |
+| Audience | First-year graduate students in Biostatistics |
+| Primary language | R |
+| Additional language | One introductory session on Python for R users |
+| Instructor | Shilin Zhao · `shilin.zhao.1@vumc.org` |
+| Teaching assistant | Zongyue Teng · `zongyue.teng@Vanderbilt.Edu` |
+| Class schedule | Mondays, August 31–December 7, 2026, 2:00–4:00 PM; no class during Thanksgiving week |
+| Classroom | Room 11105 |
+| Number of class meetings | 14 |
+| Office hours | **TBD** |
+
+Sessions in this syllabus are instructional units rather than calendar weeks. Some class meetings therefore contain two related instructional units. Guided laboratory work is incorporated as appropriate and supported by separate lab materials.
+
+## Course description
+
+This course introduces statistical computing as part of responsible biostatistical practice. The emphasis is not only on obtaining an answer, but on creating an analysis that another person can inspect, reproduce, verify, and modify.
+
+This is a working introduction to the computing used in statistical practice. By the end, students should be able to take a data file, validate and reshape it, produce effective statistical figures, write and debug R code, and run a simulation study within a reproducible project.
+
+Students will learn R through both base-R and tidyverse approaches. They may use either style when both express the same analysis clearly, although some exercises will target a particular tool for learning purposes. The course also introduces reproducible reports with Quarto, version control with Git and GitHub, statistical graphics, reliable programming, simulation, resampling, responsible AI-assisted coding, and a short introduction to Python.
+
+### What this course is not
+
+This is not a replacement for a statistical-theory or methods course. Means, t-tests, confidence intervals, and related methods provide material to compute with; their full statistical justification belongs elsewhere in the graduate curriculum. This course focuses on implementing, checking, reproducing, and communicating statistical computations.
+
+## Prerequisites
+
+Introductory statistics or permission of the instructor is expected. No prior programming experience is required. Session 0 is designed to ensure that every student begins the first class with a working computing environment.
+
+## Learning objectives
+
+By the end of the course, students should be able to:
+
+1.  Organize a statistical analysis as a reproducible project using R, Quarto, relative paths, and version control.
+2.  Inspect R objects and predict the consequences of type, coercion, indexing, missingness, and data structure choices.
+3.  Import data and perform systematic checks of dimensions, identifiers, column types, ranges, dates, and missing-value encodings.
+4.  Manipulate rectangular data using both base-R and tidyverse approaches and select a clear style for a given task.
+5.  Reshape and join data while stating the unit of observation, identifying keys, predicting row counts, and checking join relationships.
+6.  Construct and critique statistical graphics using base graphics and ggplot2.
+7.  Write functions and control-flow code with explicit inputs, outputs, and edge- case behavior.
+8.  Diagnose errors, validate inputs, test important behavior, and recognize common numerical-computing problems.
+9.  Choose appropriately among vectorized operations, loops, base-R functionals, and purrr mappings.
+10. Design and interpret simulation and resampling studies.
+11. Use the course-approved AI coding assistant transparently and verify suggested code rather than treating generated code as evidence of correctness.
+
+## Course organization
+
+### Instructor-managed materials
+
+Course source, examples, slides, and lab starters are distributed through the `BIOS6301-materials` repository. Files under `course/` are instructor-managed and should not be edited by students.
+
+### Student work
+
+Each student will create a private course repository following the instructions provided in Session 2. Lab and homework starters should be copied from `course/` to the corresponding location under `work/` before editing.
+
+The usual update sequence is:
+
+``` bash
+git status
+git fetch upstream
+git merge upstream/main
+git push origin main
+```
+
+Students should save and commit their own work before merging course updates. No credentials, protected information, restricted research data, or other sensitive information may be committed to a course repository.
+
+## Software
+
+The primary course environment consists of:
+
+-   R;
+-   RStudio during the foundational portion of the course;
+-   Quarto for reproducible reports and presentations;
+-   Git and GitHub for version control and submission workflow;
+-   selected tidyverse packages;
+-   Positron beginning in Session 9;
+-   GitHub Copilot beginning in Session 9 under the policy below; and
+-   Python, NumPy, pandas, and notebook-based computing for the introductory Python session.
+
+Course examples use synthetic or unrestricted teaching data. Students must not enter protected, identifiable, or restricted data into course repositories or public AI services.
+
+## Class topics
+
+The instructor may adjust pacing in response to student preparation and the academic calendar. Session 0 is completed independently before the first class. Instructional sessions are units of content rather than calendar weeks, and two related units may be completed during one class meeting.
+
+| Session | Topic | Core content |
+|----------------------------:|----------------------|----------------------|
+| 0 | Setup and orientation | Install and verify R, RStudio, Quarto, and Git; distinguish console from source; open a project; render the diagnostic document |
+| 1 | Reproducible statistical workflow | RStudio workbench; `.R` scripts; R Markdown structure and knitr options; Quarto-specific syntax; project paths; source versus generated output; clean-session rendering |
+| 2 | Git and GitHub | Working tree, staging, commits, history, remotes, pull/push, `.gitignore`, and safe beginner recovery |
+| 3 | R objects | Vectors, types, coercion, recycling, indexing, missing values, and factors |
+| 4 | Data structures and base-R data handling | Lists, matrices, data frames, `[`, `[[`, `$`, base-R subsetting, transformation, and summaries |
+| 5 | Getting data into R | Delimited and other files; base and readr import; import validation; missing-value codes; dates; export formats |
+| 6 | Tidyverse foundations | Tibbles, pipes, `filter()`, `select()`, `mutate()`, `arrange()`, `summarise()`, and grouped operations |
+| 7 | Joins and reshaping | Observation units, keys, join relationships, duplicate-key problems, wide/long data, and base/tidyverse comparisons |
+| — | **Midterm examination** | Practical assessment of the reproducible data workflow through Session 7; AI assistance is not permitted; exact timing and format **TBD** |
+| 8 | Statistical visualization | Base graphics and ggplot2; distributions, comparisons, uncertainty, facets, accessible design, and figure export |
+| 9 | Positron and AI-assisted coding | Positron projects and interface; comparison with RStudio; GitHub Copilot completion; accepting and rejecting suggestions; verification, privacy, and disclosure |
+| 10 | Python introduction for R users | Python/R comparison; basic syntax; NumPy; pandas; notebooks in Positron; translation of a familiar R analysis |
+| 11 | Conditions, control flow, and functions | Scalar conditions; `if`, `else if`, and `else`; function arguments, defaults, return values, scope, input validation, and refactoring |
+| 12 | Debugging and reliable programming | Errors, warnings, tracebacks, debugging tools, defensive checks, testing, and floating-point accuracy |
+| 13 | Iteration, vectorization, and functionals | `for` and `while`; preallocation; vectorized operations; `apply`; `lapply()` and `vapply()`; purrr; output contracts; timing and measurement |
+| 14 | Random-number generation and simulation | Distribution functions; seeds; sampling; simulation-study design; Type I error; power; Monte Carlo error |
+| 15 | Resampling methods | Bootstrap confidence intervals; permutation tests; cross-validation logic; resampling units; data leakage |
+| 16 | Selected Practical Topics in R | Strings and regular expressions, plus additional practical R topics selected according to student needs and available time |
+
+## Base R and tidyverse policy
+
+The course treats base R and tidyverse as two useful approaches within the same R language. Students are not required to adopt one dialect exclusively.
+
+Unless an exercise explicitly targets a particular method, students may choose the approach that makes the analysis easiest to read and verify. Evaluation will focus on:
+
+-   correctness of the result;
+-   clarity of the data and statistical meaning;
+-   explicit handling of missing values and edge cases;
+-   validation of important assumptions and intermediate results; and
+-   reproducibility and readability.
+
+Students should nevertheless learn to read both styles and occasionally verify an important result using a second approach.
+
+## AI-assisted coding policy
+
+### Before Session 9
+
+AI-generated code is not permitted in submitted course work before the completion of Session 9. This period establishes an independent foundation in R, data handling, reproducibility, and visualization. The midterm examination is completed without AI assistance.
+
+### After Session 9
+
+After the Positron and AI-assisted coding session, GitHub Copilot is permitted for homework and laboratory work unless an assignment is explicitly designated as unaided. Permission for homework does not automatically extend to later exams. The policy for each examination will be stated separately.
+
+Students using Copilot must:
+
+1.  Understand and be able to explain every submitted line.
+2.  Check that suggested code answers the stated statistical question.
+3.  Verify data dimensions, inclusion rules, missing-value behavior, grouping, join relationships, and important numerical results.
+4.  Correct, test, or reject inappropriate suggestions.
+5.  Include the required AI-use disclosure.
+6.  Never provide Copilot with protected health information, restricted research data, credentials, private keys, or confidential material.
+
+Unless the instructor gives explicit permission, other generative-AI coding tools are not part of the course-approved workflow.
+
+### Required disclosure
+
+Each submitted assignment after Session 9 should include one of the following:
+
+``` text
+AI use: None.
+```
+
+or a concise description such as:
+
+``` text
+AI use: I used GitHub Copilot to suggest the group-summary code. I corrected its
+missing-value handling and verified the group counts independently.
+```
+
+Disclosure does not transfer responsibility to the tool. Students remain responsible for the correctness, interpretation, and provenance of their work.
+
+## Assessment
+
+| Component           | Weight |
+|---------------------|-------:|
+| Homework            |    40% |
+| Midterm examination |    25% |
+| Final project       |    35% |
+
+The setup diagnostic and laboratory activities are required but are not graded separately. The midterm covers material through Session 7 and does not permit AI assistance. Detailed instructions and rubrics will be provided with each assignment and the final project.
+
+## Expectations for submitted work
+
+Submitted work should render from the supplied project, include appropriate data and result checks, contain no credentials or restricted data, and include an AI-use disclosure when required. Statistical meaning, reproducibility, and communication are part of the assessment.
+
+## Course communication and support
+
+Students should ask for help early when software installation, Git state, file paths, or rendering prevents progress. A useful technical help request includes:
+
+1.  the operating system and relevant software version;
+2.  the command or action attempted;
+3.  the complete error or warning as text; and
+4.  a minimal synthetic example when code is involved.
+
+Screenshots may supplement an error message but should not replace the text of the message.
+
+Students are encouraged to discuss ideas and debugging strategies with classmates, but submitted code and explanations must be their own. When substantial help is received from another person, that collaboration should be acknowledged briefly in the submission.
+
+The early sessions, especially Git, may feel unusually difficult. Installation, paths, and version-control states create friction for experienced analysts as well as beginners. Difficulty during these sessions is not evidence of an inability to program. Read error messages carefully and ask for help before a technical problem blocks the statistical work.

@@ -1,0 +1,56 @@
+---
+title: "Session 15 guided lab"
+subtitle: "Use the correct resampling world"
+---
+
+Copy `starter/resampling-lab.qmd` to `work/session15/`.
+
+::: {.callout-note}
+**Suggested use:** Tasks 1–7 are the core resampling route. Additional practice
+examines Monte Carlo stability, an exact small-sample permutation distribution,
+repeated folds, and stratification. The instructor may stop after any complete
+comparison; remaining tasks can be completed independently.
+:::
+
+## Tasks
+
+1. Estimate the treated-control mean difference and a participant-level bootstrap
+   percentile interval.
+2. Perform a two-sided permutation test with an adjusted Monte Carlo p-value.
+3. Report the number of resamples and Monte Carlo uncertainty/precision evidence.
+4. Build five reproducible folds for a simple prediction problem.
+5. Fit preprocessing and the model using training data only; calculate held-out
+   squared error for every participant.
+6. Create one deliberately leaky CV version, compare it with the valid version,
+   and explain why the leaky estimate is not acceptable even if similar here.
+7. For a repeated-measures extension, state the correct resampling/splitting unit.
+
+## Additional practice: assess resampling stability
+
+1. Report bootstrap bias and bootstrap SE in addition to the percentile
+   interval. Compare the bootstrap SE with an ordinary model-based SE.
+2. Repeat the bootstrap with three documented seeds. Compare the interval
+   endpoints and explain why they are not identical.
+3. On a small balanced subset, enumerate every possible treatment assignment
+   and calculate the exact two-sided permutation p-value.
+4. For the full dataset, estimate the permutation p-value at several increasing
+   resample counts and report the corresponding Monte Carlo SE.
+5. Construct stratified five-fold assignments. Verify that every participant
+   appears in exactly one assessment fold and inspect arm counts by fold.
+6. Repeat cross-validation under at least 10 fold-assignment seeds and summarize
+   the distribution of RMSE rather than reporting only one favorable split.
+7. Across the same seeds, compare valid fold-specific preprocessing with a
+   deliberately global, leaky version. Explain the result even if the two RMSEs
+   happen to be very similar.
+8. Create a decision table connecting bootstrap, permutation, and
+   cross-validation to their target, resampling unit, and main validity check.
+
+### Independent-practice check
+
+Keep seeds and resampling units explicit. In cross-validation, verify that every
+participant contributes exactly one held-out prediction per repetition.
+
+## Exit evidence
+
+Render all three analyses with explicit resampling units, assumptions, seeds,
+validation checks, and a short comparison of their scientific targets.

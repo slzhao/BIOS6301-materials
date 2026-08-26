@@ -1,0 +1,54 @@
+---
+title: "Session 10 guided lab"
+subtitle: "Translate one R analysis into Python"
+---
+
+::: {.callout-note}
+**Suggested use:** tasks 1–9 are the core R-to-Python translation. Additional
+practice extends the same analysis with copying, reshaping, functions, exports,
+and equivalence checks and may be completed independently.
+:::
+
+Copy `starter/python-intro.py` to `work/session10/` and open the copy in Positron.
+
+## Tasks
+
+1. Select the course Python interpreter and run the setup cell.
+2. Inspect the DataFrame shape, column types, head, key uniqueness, and missingness.
+3. Select week-4 rows without dropping missing markers.
+4. Produce total `n`, observed `n`, mean, and SD by arm with pandas.
+5. Verify total and observed counts using a second simple Python expression.
+6. Compare the pandas output with the supplied R reference values.
+7. Create one clearly labelled diagnostic plot.
+8. Restart the interpreter and run every cell in order.
+9. Add the required AI-use disclosure as a final comment.
+
+## Additional practice: complete a second translation
+
+1. Create `week4_safe` using `.loc[...].copy()`. Modify a new column and explain
+   why an explicit copy makes the intent clearer than a chained assignment.
+2. Reshape baseline and week-4 marker into one row per participant, then calculate
+   change while retaining participants with missing week-4 values.
+3. Write `summarize_week(data, week)` that validates required columns and returns
+   total `n`, observed `n`, mean, and SD by arm.
+4. Test the function on the supplied data, an absent week, and a copy in which one
+   arm is entirely missing at week 4.
+5. Reproduce the participant-level change calculation in R or compare it with
+   supplied R reference values. Use an explicit numerical tolerance.
+6. Export the participant-level table to CSV, read it back with pandas, and compare
+   dimensions, key uniqueness, missingness, and numeric values.
+7. Create a second diagnostic figure showing baseline versus follow-up with an
+   identity line and arm-specific encodings.
+8. Restart the interpreter and run all cells in order. Record one Python state or
+   indexing mistake that the clean run exposed.
+
+### Independent-practice check
+
+The participant table must have one row per ID and preserve both missing week-4
+values. The function must retain total group size when all marker values are
+missing.
+
+## Exit evidence
+
+Submit the completed `.py` file and a short text or Quarto note containing the
+comparison, missing-value explanation, and disclosure.

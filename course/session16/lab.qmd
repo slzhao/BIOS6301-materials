@@ -1,0 +1,55 @@
+---
+title: "Session 16 guided lab"
+subtitle: "Parse synthetic medication instructions"
+---
+
+Copy `starter/strings-lab.qmd` to `work/session16/`.
+
+::: {.callout-note}
+**Suggested use:** Tasks 1–7 are the core string-processing route. Additional
+practice extends the same synthetic medication problem to units, routes,
+frequencies, field-level tests, and an auditable review queue. The instructor
+may select representative cases and leave the rest for independent practice.
+:::
+
+## Tasks
+
+1. Normalize case and non-semantic whitespace while preserving the original text.
+2. Detect metformin mentions and distinguish missing documentation from an explicit
+   “none” statement.
+3. Extract numeric dose and units, handling commas in numbers.
+4. Extract frequency from `qd`, `daily`, `bid`, and `twice daily` using one
+   documented mapping.
+5. Create at least five pattern tests, including two near misses.
+6. Compare a base R and stringr implementation for one extraction.
+7. List records that need manual review rather than forcing a parsed value.
+
+## Additional practice: build a small auditable parser
+
+1. Extend dose extraction to `g`, `mg`, and `mcg`, and convert every recognized
+   dose to milligrams while retaining the original value and unit.
+2. Extract oral and intravenous routes from `PO`, `oral`, `IV`, and
+   `intravenous` using a documented mapping.
+3. Extend the frequency mapping to `qd`/`daily`, `bid`/`twice daily`, and
+   `tid`/`three times daily`. Represent `PRN` separately rather than treating it
+   as a fixed daily frequency.
+4. Add near-miss examples and use word boundaries so that a string such as
+   `metformina` is not classified as metformin.
+5. Create at least 12 test strings with expected values for multiple parsed
+   fields. Report failures by field rather than with one overall pass flag.
+6. Verify that base R and `stringr` produce equivalent metformin-detection
+   results for all test strings.
+7. Create a categorical `review_reason` such as missing dose, missing route,
+   missing frequency, missing documentation, or multiple problems.
+8. Summarize the number of records by parse status and review reason, then write
+   two limitations that require clinical or domain review.
+
+### Independent-practice check
+
+Every derived field should be traceable to the preserved original text. An
+uncertain record belongs in the review queue; do not force it into a convenient
+category merely to eliminate missing values.
+
+## Exit evidence
+
+Render the original and parsed fields, tests, review list, and limitations.

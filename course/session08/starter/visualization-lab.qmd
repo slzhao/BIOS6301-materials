@@ -1,0 +1,42 @@
+---
+title: "Session 8 lab: visualization"
+format: html
+---
+
+```{r}
+set.seed(6301)
+participant <- data.frame(
+  id = sprintf("P%02d", 1:40),
+  arm = rep(c("control", "treated"), each = 20),
+  baseline = rnorm(40, 5, 1.1)
+)
+participant$followup <- participant$baseline +
+  ifelse(participant$arm == "treated", -0.8, -0.1) + rnorm(40, 0, 0.7)
+participant$change <- participant$followup - participant$baseline
+```
+
+## Question and observation unit
+
+Write them here.
+
+## Base R diagnostic
+
+```{r}
+# Show participant-level change by arm.
+```
+
+## ggplot2 figure
+
+```{r}
+#| eval: false
+# Build a layered figure and assign it to p.
+```
+
+## Export, caption, and revision
+
+```{r}
+#| eval: false
+# ggsave(..., width = , height = , units = "in", dpi = 300)
+```
+
+Write the caption, misleading choice diagnosis, and revision note here.

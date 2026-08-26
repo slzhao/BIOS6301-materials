@@ -1,0 +1,40 @@
+---
+title: "Session 15 lab: resampling"
+format: html
+---
+
+```{r}
+set.seed(6301)
+n_per_arm <- 25
+study <- data.frame(
+  id = sprintf("P%03d", 1:(2 * n_per_arm)),
+  arm = rep(c("control", "treated"), each = n_per_arm),
+  age = round(rnorm(2 * n_per_arm, 55, 11)),
+  baseline = rnorm(2 * n_per_arm, 5, 1)
+)
+study$outcome <- 1 + 0.04 * study$age + 0.5 * study$baseline +
+  ifelse(study$arm == "treated", -0.7, 0) + rnorm(nrow(study), 0, 1)
+```
+
+## 1. Bootstrap interval
+
+```{r}
+# Resample participants within arm and store mean differences.
+```
+
+## 2. Permutation test
+
+```{r}
+# Shuffle labels under the null and calculate an adjusted two-sided p-value.
+```
+
+## 3. Five-fold cross-validation
+
+```{r}
+# Predict outcome from age and baseline. Standardize within each training fold.
+```
+
+## 4. Targets and assumptions
+
+Explain what each procedure estimates and identify the resampling unit for a
+participant with repeated visits.

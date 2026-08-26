@@ -1,0 +1,884 @@
+---
+title: "Conditions and Functions"
+subtitle: "BIOS 6301 · Introduction to Statistical Computing"
+author: "Department of Biostatistics, Vanderbilt University Medical Center"
+date: "Session 11"
+date-format: "[Session 11]"
+format:
+  revealjs:
+    theme: simple
+    css: ../../slides.css
+    slide-number: c/t
+    show-slide-number: all
+    incremental: false
+    width: 1280
+    height: 720
+    fig-align: center
+    code-line-numbers: false
+    highlight-style: github
+    footer: "BIOS 6301 · Session 11 · Conditions and Functions"
+    navigation-mode: linear
+execute:
+  enabled: true
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+# Synthetic teaching data for BIOS 6301. Not real patients.
+set.seed(6301)
+n <- 60
+trial <- data.frame(
+  id        = sprintf("P%03d", 1:n),
+  arm       = rep(c("Placebo", "Treatment"), each = n / 2),
+  site      = sample(1:4, n, replace = TRUE),
+  age       = round(rnorm(n, 61, 9)),
+  sex       = sample(c("F", "M"), n, replace = TRUE),
+  weight_kg = round(rnorm(n, 82, 15), 1),
+  sbp_0     = round(rnorm(n, 148, 14)),
+  stringsAsFactors = FALSE
+)
+trial$sbp_12 <- round(trial$sbp_0 -
+  ifelse(trial$arm == "Treatment", rnorm(n, 14, 8), rnorm(n, 3, 8)))
+
+# Added for this session: the derived outcome the refactoring demo summarises.
+trial$change <- trial$sbp_12 - trial$sbp_0
+
+# A copy carrying the two defects a real extract arrives with, used for the
+# validation demos. What is broken, deliberately:
+#   sbp_12    three missing 12-week outcomes (P007, P023, P048)
+#   weight_kg one weight recorded as the sentinel -99 (P012)
+trial_raw <- trial
+trial_raw$sbp_12[c(7, 23, 48)] <- NA
+trial_raw$weight_kg[12] <- -99
+trial_raw$change <- trial_raw$sbp_12 - trial_raw$sbp_0
+
+theme_set(theme_minimal(base_size = 15))
+```
+
+## Where we are {.smaller}
+
+| Course arc | Sessions | |
+|---|---:|---|
+| Setup and workflow | 0–2 |  |
+| Data foundations | 3–8 |  |
+| Modern tools | 9–10 |  |
+| **R programming** | **11–13** | **← today** |
+| Statistical computing | 14–16 |  |
+
+Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
+
+
+## What you will be able to do {.smaller}
+
+::: {.smaller}
+[1]{.objective-num} **Distinguish** `if` from `ifelse()` and say which one a
+given problem needs.
+
+[2]{.objective-num} **Write** a function with arguments, defaults, and a return
+value.
+
+[3]{.objective-num} **Explain** where R looks for a name, and why a function that
+reads a global variable is not reproducible.
+
+[4]{.objective-num} **Validate** inputs with `stopifnot()`, `stop()`, and guard
+clauses.
+
+[5]{.objective-num} **Write** a function that takes a data frame and a column
+name.
+
+[6]{.objective-num} **Refactor** a copy-pasted script into functions and verify
+the output is unchanged.
+:::
+
+
+## Roadmap for today
+
+| | Block | Minutes |
+|---|---|---|
+| 1 | The block you have written four times | 8 |
+| 2 | `if` is control flow, not `ifelse()` | 12 |
+| 3 | Writing functions | 25 |
+| 4 | Lexical scoping, and globals | 12 |
+| 5 | Input validation | 12 |
+| 6 | Functions that take data frames | 10 |
+| 7 | Refactoring a script, and house style | 12 |
+
+: {tbl-colwidths="[6,64,30]"}
+
+. . .
+
+**In lab this week** you refactor a working but repetitive script. Today is the
+material you need for it.
+
+
+# 1 · The block you have written four times {.section-divider}
+
+## Look at what you have been doing {.smaller}
+
+```r
+# session 6 — baseline SBP by arm
+trial |> group_by(arm) |>
+  summarise(n = n(), mean = mean(sbp_0), sd = sd(sbp_0))
+
+# session 7 — the same, after the join
+trial |> group_by(arm) |>
+  summarise(n = n(), mean = mean(sbp_12), sd = sd(sbp_12))
+
+# session 8 — weight, to annotate the figure
+trial |> group_by(arm) |>
+  summarise(n = n(), mean = mean(weight_kg), sd = sd(weight_kg))
+
+# coursework — age, for the baseline table
+trial |> group_by(arm) |>
+  summarise(n = n(), mean = mean(age), sd = sd(age))
+```
+
+. . .
+
+Four blocks. **One name differs.**
+
+
+## What copy-paste actually costs {.smaller}
+
+::: {style="font-size:0.88em"}
+| Cost | What it looks like in a week |
+|---|---|
+| **Reading** | A reader has to diff four blocks to find the one word that differs |
+| **Changing** | The data gains missing values. You need `na.rm = TRUE` in four places, and you will find three |
+| **Naming** | The block has no name, so you cannot say what it does, reuse it, or check it |
+| **Divergence** | One copy already rounds to two digits and the others do not. Nobody decided that |
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+Duplication is not an aesthetic problem. It is the mechanism by which two parts of
+one analysis come to disagree.
+:::
+
+. . .
+
+By the end of today that block is one line:
+
+```r
+summarise_by_arm(trial, sbp_0)
+```
+
+
+# 2 · `if` is control flow, not `ifelse()` {.section-divider}
+
+## Closing a loop from session 3 {.smaller}
+
+::: {style="font-size:0.9em"}
+| | `ifelse(test, yes, no)` | `if (cond) ... else ...` |
+|---|---|---|
+| Is a | **vectorized function** | **control-flow keyword** |
+| Test length | Any — one answer per element | **Exactly one** `TRUE` or `FALSE` |
+| Returns | A vector as long as `test` | Whatever the chosen branch returns |
+| Used for | Deriving a variable from a column | Choosing what a *script* does |
+| Taught in | Session 3 | **Today** |
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+**`ifelse()` derives a variable. `if` decides what the program does.**
+:::
+
+
+## `if`, `else if`, `else` {.smaller}
+
+`if` takes **one** `TRUE` or `FALSE` and picks a branch.
+
+```{r}
+#| label: if-basic
+n_missing <- sum(is.na(trial_raw$sbp_12))
+
+if (n_missing == 0) {
+  "complete outcome data"
+} else if (n_missing < 5) {
+  "a few missing — a complete-case summary is defensible"
+} else {
+  "too much missing outcome data to summarise naively"
+}
+```
+
+. . .
+
+::: {.smaller}
+- The condition is a **single** logical value. Here, `n_missing == 0`.
+- `else` must sit on the same line as the closing `}`, or R decides the `if` has
+  ended.
+- Braces are optional for one-line bodies. Use them anyway.
+:::
+
+
+## The error you will actually hit {.smaller}
+
+```{r}
+#| label: if-error
+#| error: true
+if (trial$sbp_0 > 140) "high" else "normal"
+```
+
+. . .
+
+`trial$sbp_0` has length `r nrow(trial)`. `if` wanted length **one**.
+
+. . .
+
+Two neighbours worth recognising:
+
+```{r}
+#| label: if-error-2
+#| error: true
+if (NA > 1) "yes" else "no"
+```
+
+```{r}
+#| label: if-error-3
+#| error: true
+sbp <- numeric(0)          # a filter that matched nobody
+if (sbp > 140) "high"
+```
+
+
+## Which one do I want? {.smaller}
+
+::: {style="font-size:0.92em"}
+| The question you are asking | The tool |
+|---|---|
+| "What value does **each patient** get?" | `ifelse()`, `if_else()`, `case_when()` |
+| "What should **this script** do next?" | `if` / `else if` / `else` |
+:::
+
+. . .
+
+And `if` is an expression, so it returns a value:
+
+```{r}
+#| label: if-value
+label <- if (n_missing > 0) "complete-case" else "all randomised"
+label
+```
+
+. . .
+
+::: {.callout-tip appearance="simple"}
+If the answer has one value per row, it is not a job for `if`. Not ever.
+:::
+
+
+# 3 · Writing functions {.section-divider}
+
+## A function is three things {.smaller}
+
+```{r}
+#| label: anatomy
+#| results: hold
+sbp_summary <- function(x, digits = 1) {
+  round(c(n = length(x), mean = mean(x), sd = sd(x)), digits)
+}
+
+formals(sbp_summary)
+body(sbp_summary)
+environment(sbp_summary)
+```
+
+::: {.smaller}
+**Formals** — the arguments it accepts, and their defaults ·
+**body** — the code it runs · **environment** — where it looks for names it does
+not define itself.
+:::
+
+
+## Your first function, from your own code {.smaller}
+
+The duplicated block, in one place:
+
+```{r}
+#| label: first-function
+# Return n, mean, and SD of a numeric vector, rounded.
+sbp_summary <- function(x, digits = 1) {
+  round(c(n = length(x), mean = mean(x), sd = sd(x)), digits)
+}
+
+sbp_summary(trial$sbp_0)
+sbp_summary(trial$sbp_12)
+sbp_summary(trial$weight_kg, digits = 2)
+```
+
+. . .
+
+::: {.smaller}
+Three calls, one definition. The **name** now says what the block does, which the
+block itself never did.
+:::
+
+
+## Arguments and defaults {.smaller}
+
+```{r}
+#| label: defaults
+# n counts non-missing values, so the reported n matches the mean.
+sbp_summary <- function(x, digits = 1, na_rm = TRUE) {
+  round(c(
+    n    = sum(!is.na(x)),
+    mean = mean(x, na.rm = na_rm),
+    sd   = sd(x, na.rm = na_rm)
+  ), digits)
+}
+
+sbp_summary(trial_raw$sbp_12)
+sbp_summary(trial_raw$sbp_12, na_rm = FALSE)
+```
+
+::: {.smaller}
+A default is what the argument is **when the caller says nothing**. Choose the
+safe, common case — then let the caller override it.
+:::
+
+
+## How R matches arguments {.smaller}
+
+Three ways, tried in this order: **exact name**, then **partial name**, then
+**position**.
+
+```{r}
+#| label: matching
+sbp_summary(trial$sbp_0, 2)                 # position
+sbp_summary(digits = 2, x = trial$sbp_0)    # exact name — order stops mattering
+```
+
+. . .
+
+Partial matching works, and is a trap:
+
+```{r}
+#| label: matching-error
+#| error: true
+report <- function(x, na_rm = FALSE, names = TRUE) "ok"
+report(1, n = TRUE)
+```
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+**House rule:** data argument by position, everything else by full name. Partial
+names break the day somebody adds an argument.
+:::
+
+
+## Return values, and the implicit return {.smaller}
+
+A function returns the value of its **last evaluated expression**.
+
+```{r}
+#| label: returns
+mean_sbp   <- function(x) mean(x)          # implicit return
+mean_sbp_2 <- function(x) return(mean(x))  # identical, more typing
+mean_sbp_3 <- function(x) { m <- mean(x) } # returns m, invisibly
+
+mean_sbp(trial$sbp_0)
+mean_sbp_3(trial$sbp_0)      # prints nothing
+print(mean_sbp_3(trial$sbp_0))
+```
+
+. . .
+
+::: {.callout-note appearance="simple"}
+Use `return()` for an **early exit**. For the value at the end, let it fall out.
+:::
+
+
+## What happens inside stays inside {.smaller}
+
+```{r}
+#| label: locals
+centre_sbp <- function(x) {
+  offset <- mean(x)      # local: created on the call, destroyed after
+  x - offset
+}
+
+centred <- centre_sbp(trial$sbp_0)
+round(head(centred, 4), 1)
+exists("offset")
+```
+
+. . .
+
+::: {.smaller}
+Every call gets a **fresh environment**. Locals cannot leak into your workspace,
+and two calls cannot interfere with each other.
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+`<<-` writes to the enclosing environment and defeats all of this. You will meet
+it in inherited code. Do not write it.
+:::
+
+
+## `...` and `invisible()` {.smaller}
+
+`...` collects arguments you did not name and passes them on:
+
+```{r}
+#| label: dots
+mean_sbp <- function(x, ...) mean(x, ...)
+
+mean_sbp(trial_raw$sbp_12)
+mean_sbp(trial_raw$sbp_12, na.rm = TRUE)
+```
+
+. . .
+
+`invisible()` returns a value without printing it:
+
+```{r}
+#| label: invisible-demo
+report_n <- function(data) {
+  cat("n =", nrow(data), "\n")
+  invisible(nrow(data))
+}
+
+report_n(trial)          # prints the message, not the value
+n_rows <- report_n(trial)
+n_rows
+```
+
+
+# 4 · Lexical scoping, and globals {.section-divider}
+
+## Where R looks for a name {.smaller}
+
+```{mermaid}
+%%| echo: false
+%%| fig-width: 12
+flowchart LR
+  L["<b>1. Inside the call</b><br/>locals and arguments"] --> D["<b>2. Where the function<br/>was DEFINED</b><br/>usually the global env"]
+  D --> P["<b>3. Attached packages</b><br/>dplyr, ggplot2, …"]
+  P --> B["<b>4. base</b>"]
+  B --> E["Error:<br/>object not found"]
+  style L fill:#CFAE70,stroke:#8a7448,color:#fff
+  style D fill:#CFAE70,stroke:#8a7448,color:#fff
+  style E fill:#f4efe4,stroke:#CFAE70
+```
+
+. . .
+
+::: {.callout-important appearance="simple"}
+Step 2 is **where the function was written**, not where it was called from. That
+is what "lexical" means.
+:::
+
+
+## The global that vanishes {.smaller}
+
+```{r}
+#| label: scope-works
+threshold <- 140
+
+is_high <- function(sbp) sbp > threshold   # threshold is not an argument
+
+sum(is_high(trial$sbp_0))
+```
+
+. . .
+
+It works. Now restart R — or hand the script to a colleague:
+
+```{r}
+#| label: scope-breaks
+#| error: true
+rm(threshold)
+sum(is_high(trial$sbp_0))
+```
+
+. . .
+
+::: {.smaller}
+This is the honest failure. It is annoying, and it tells you immediately.
+:::
+
+
+## The global that is stale {.smaller}
+
+```{r}
+#| label: scope-silent
+threshold <- 140
+sum(is_high(trial$sbp_0))
+```
+
+. . .
+
+Fifty lines further down the document, somebody — possibly you, last Tuesday —
+writes:
+
+```{r}
+#| label: scope-silent-2
+threshold <- 160        # for the sensitivity analysis
+sum(is_high(trial$sbp_0))
+```
+
+. . .
+
+::: {.callout-important appearance="simple"}
+No error. No warning. A different number, and the function looks untouched.
+:::
+
+
+## Everything comes in through an argument {.smaller}
+
+```{r}
+#| label: scope-fixed
+# Flag patients above a systolic threshold. Threshold is an argument so the
+# result depends only on what the caller passed.
+is_high <- function(sbp, threshold = 140) {
+  sbp > threshold
+}
+
+sum(is_high(trial$sbp_0))
+sum(is_high(trial$sbp_0, threshold = 160))
+```
+
+. . .
+
+::: {.callout-note appearance="simple"}
+**The rule:** a function's return value should depend only on its arguments.
+Nothing else.
+:::
+
+. . .
+
+::: {.smaller}
+The sensitivity analysis is now a second *call*, visible on the page, instead of a
+reassignment fifty lines away.
+:::
+
+
+# 5 · Input validation {.section-divider}
+
+## Fail loudly, or be wrong quietly {.smaller}
+
+```{r}
+#| label: silent-wrong
+mean_weight <- function(weight_kg) mean(weight_kg)
+
+mean_weight(trial_raw$weight_kg)   # one weight is recorded as -99
+mean_weight(trial$weight_kg)       # the same cohort, repaired
+```
+
+. . .
+
+::: {.smaller}
+`r round(mean(trial_raw$weight_kg), 1)` kg against
+`r round(mean(trial$weight_kg), 1)` kg. Both are plausible. Only one is right, and
+the function had no opinion about which.
+:::
+
+. . .
+
+::: {.callout-important}
+A function that fails loudly on bad input is safer than one that returns a
+plausible wrong answer.
+:::
+
+
+## `stopifnot()` {.smaller}
+
+```{r}
+#| label: stopifnot-demo
+#| error: true
+sbp_summary <- function(x, digits = 1) {
+  stopifnot(is.numeric(x), length(x) > 0, digits >= 0)
+
+  round(c(n = sum(!is.na(x)), mean = mean(x, na.rm = TRUE)), digits)
+}
+
+sbp_summary(trial$arm)
+```
+
+. . .
+
+Name the checks and you choose the message:
+
+```{r}
+#| label: stopifnot-named
+#| error: true
+sbp_summary <- function(x, digits = 1) {
+  stopifnot(
+    "x must be a numeric vector" = is.numeric(x),
+    "digits must not be negative" = digits >= 0
+  )
+  round(mean(x, na.rm = TRUE), digits)
+}
+
+sbp_summary(trial$arm)
+```
+
+
+## `stop()` and guard clauses {.smaller}
+
+```{r}
+#| label: guard-clause
+#| error: true
+# Mean weight, refusing sentinel codes. Site 3 used -99 for "not recorded",
+# and averaging those understates the mean by about 3 kg.
+mean_weight <- function(weight_kg) {
+  if (any(weight_kg < 20, na.rm = TRUE)) {
+    stop("weight_kg contains values below 20: check for sentinel codes",
+         call. = FALSE)
+  }
+  mean(weight_kg, na.rm = TRUE)
+}
+
+mean_weight(trial_raw$weight_kg)
+```
+
+. . .
+
+::: {.smaller}
+A **guard clause** is a check at the top that exits early. It keeps the happy path
+unindented and the failure cases visible.
+:::
+
+
+## How much validation is enough {.smaller}
+
+::: {style="font-size:0.9em"}
+| Check | Because |
+|---|---|
+| **Type and shape** | `is.numeric()`, `is.data.frame()`, `length()`, column names present |
+| **Values that cannot be real** | Negative weights, ages over 120, proportions above 1 |
+| **What your code silently assumes** | Sorted rows, one row per patient, non-empty groups |
+:::
+
+. . .
+
+::: {.smaller}
+Do not re-check what R already checks. `mean("a")` errors on its own.
+:::
+
+. . .
+
+::: {.callout-tip appearance="simple"}
+Rule of thumb: validate what a **collaborator's file** could plausibly get wrong.
+Two or three checks is usually right.
+:::
+
+
+# 6 · Functions that take data frames {.section-divider}
+
+## Data argument first {.smaller}
+
+When the column names are fixed, nothing special is needed:
+
+```{r}
+#| label: df-function
+# Add change from baseline. Fails if the two SBP columns are absent, because
+# mutate() would otherwise create a column full of nothing useful.
+add_change <- function(data) {
+  stopifnot(is.data.frame(data),
+            all(c("sbp_0", "sbp_12") %in% names(data)))
+
+  data |> mutate(change = sbp_12 - sbp_0)
+}
+
+trial_raw |> add_change() |> summarise(mean_change = mean(change, na.rm = TRUE))
+```
+
+. . .
+
+::: {.smaller}
+**Data first**, so the function drops into a pipeline like any dplyr verb.
+:::
+
+
+## The wrinkle: `{{ var }}` {.smaller}
+
+When the **column itself** is the argument, dplyr needs to be told:
+
+```{r}
+#| label: tidyeval
+summarise_by_arm <- function(data, outcome) {
+  data |>
+    group_by(arm) |>
+    summarise(
+      n    = sum(!is.na({{ outcome }})),
+      mean = round(mean({{ outcome }}, na.rm = TRUE), 1)
+    )
+}
+
+summarise_by_arm(trial_raw, sbp_12)
+summarise_by_arm(trial_raw, weight_kg)
+```
+
+::: {.smaller}
+```r
+# the base R way — no tidy evaluation involved
+tapply(trial_raw$sbp_12, trial_raw$arm, mean, na.rm = TRUE)
+```
+:::
+
+
+## Without `{{ }}`: two failures {.smaller}
+
+```{r}
+#| label: tidyeval-fail
+#| error: true
+bad_summary <- function(data, outcome) {
+  data |> group_by(arm) |> summarise(mean = mean(outcome))
+}
+
+bad_summary(trial, sbp_0)
+```
+
+. . .
+
+Now the same call, with a stray object in the workspace:
+
+```{r}
+#| label: tidyeval-silent
+sbp_0 <- c(1000, 2000)      # left over from something else entirely
+bad_summary(trial, sbp_0)
+```
+
+```{r}
+#| label: tidyeval-cleanup
+#| include: false
+rm(sbp_0)
+```
+
+
+# 7 · Refactoring, and house style {.section-divider}
+
+## Before: the script we all wrote {.smaller}
+
+```r
+# baseline
+tab_0 <- trial |> group_by(arm) |>
+  summarise(n = n(), mean = round(mean(sbp_0), 1), sd = round(sd(sbp_0), 1))
+
+# 12 weeks
+tab_12 <- trial |> group_by(arm) |>
+  summarise(n = n(), mean = round(mean(sbp_12), 1), sd = round(sd(sbp_12), 1))
+
+# change — and this one has NAs, so it needs na.rm
+tab_ch <- trial |> group_by(arm) |>
+  summarise(n = n(), mean = round(mean(change, na.rm = TRUE), 1),
+            sd = round(sd(change), 1))     # <- na.rm missing here
+
+ggplot(trial, aes(arm, sbp_0)) + geom_boxplot() + labs(y = "SBP baseline")
+ggplot(trial, aes(arm, sbp_12)) + geom_boxplot() + labs(y = "SBP 12 wk")
+ggplot(trial, aes(arm, change)) + geom_boxplot() + labs(y = "Change")
+```
+
+. . .
+
+::: {.smaller}
+Six blocks, two shapes, **one bug** — and `n` is wrong in the third block for the
+same reason.
+:::
+
+
+## After: three functions {.smaller}
+
+```{r}
+#| label: refactor
+#| results: hold
+# n counts patients contributing to the mean, not patients randomised.
+summarise_by_arm <- function(data, outcome, digits = 1) {
+  stopifnot(is.data.frame(data), "arm" %in% names(data))
+
+  data |>
+    group_by(arm) |>
+    summarise(
+      n    = sum(!is.na({{ outcome }})),
+      mean = round(mean({{ outcome }}, na.rm = TRUE), digits),
+      sd   = round(sd({{ outcome }}, na.rm = TRUE), digits)
+    )
+}
+
+# One boxplot of an outcome by arm, labelled for a clinical reader.
+plot_by_arm <- function(data, outcome, y_label) {
+  ggplot(data, aes(arm, {{ outcome }}, fill = arm)) +
+    geom_boxplot(alpha = 0.7, width = 0.5) +
+    labs(x = NULL, y = y_label) +
+    theme(legend.position = "none")
+}
+
+summarise_by_arm(trial_raw, change)
+```
+
+
+## Verify the refactor {.smaller}
+
+A refactor that changes the output is not a refactor. **Check.**
+
+```{r}
+#| label: verify
+old <- trial |>
+  group_by(arm) |>
+  summarise(n = sum(!is.na(sbp_0)),
+            mean = round(mean(sbp_0), 1),
+            sd = round(sd(sbp_0), 1))
+
+new <- summarise_by_arm(trial, sbp_0)
+
+identical(old, new)
+all.equal(old, new)
+```
+
+. . .
+
+::: {.smaller}
+`identical()` is exact and unforgiving. `all.equal()` tolerates floating-point
+difference — which is why it is the right one for numbers. Both in session 12.
+:::
+
+
+## House style for functions {.smaller}
+
+::: {style="font-size:0.88em"}
+| Rule | In practice |
+|---|---|
+| **Verbs for functions, nouns for objects** | `summarise_by_arm()`, not `arm_summary()` |
+| **`snake_case`, no exceptions** | `plot_by_arm`, not `plotByArm` |
+| **One job per function** | If the name needs "and", it is two functions |
+| **About 30 lines** | Longer means it is doing more than one thing |
+| **Data argument first** | So it pipes |
+| **Validate inputs** | Two or three checks, at the top |
+| **One line above saying what it does** | What it takes, what it returns |
+| **Comments say *why*** | The code already says what |
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+All of this is in `style-guide.md`, §7. **Code quality is graded on it.**
+:::
+
+
+## Summary {.smaller}
+
+- `if` controls one decision; vectorized conditionals classify many values.
+- A function is an interface: arguments in, one predictable result out.
+- Local objects and explicit arguments avoid stale global dependencies.
+- Guard clauses turn silent wrong answers into informative failures.
+- Refactoring is complete only after the new result matches a trusted result.
+
+. . .
+
+**Next connection:** Session 12 applies these interfaces to debugging and reliable code.
+

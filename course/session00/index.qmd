@@ -1,0 +1,162 @@
+---
+title: "Session 0: Setup and orientation"
+subtitle: "Required self-study diagnostic"
+---
+
+Session 0 is completed before the first class. Its purpose is to find installation
+problems early, not to test prior programming knowledge.
+
+## Learning goals
+
+After completing the diagnostic, you should be able to:
+
+- Start RStudio and identify the console and source editor.
+- Run an R expression and save instructions in a source file.
+- Open an RStudio project.
+- Create and render a Quarto document to HTML.
+- Locate the source file and the rendered output.
+- Copy an error message when asking for help.
+
+## Install in this order
+
+Use only the official links below. You do not need to install any R packages,
+GitHub Desktop, or a separate Git graphical interface.
+
+### 1. Install R
+
+R is the program that performs the calculations. Choose your operating system
+from the official [R download page](https://cran.r-project.org/):
+
+- **Windows:** [Download R for Windows](https://cran.r-project.org/bin/windows/base/)
+- **macOS:** [Download R for macOS](https://cran.r-project.org/bin/macosx/)
+
+Accept the standard installation options. If R is already installed, you do not
+need to reinstall it merely to complete this diagnostic.
+
+### 2. Install RStudio Desktop
+
+RStudio is the interface we will use during the opening sessions. Download the
+free, open-source edition from the official
+[RStudio Desktop download page](https://posit.co/downloads/).
+
+Install **R before RStudio**. Then start RStudio once and confirm that the Console
+opens without an error.
+
+### 3. Verify Quarto
+
+Quarto turns a source document containing prose and R code into an HTML report.
+First try the rendering exercise below. If RStudio cannot render a `.qmd` file,
+use the official [Quarto installation page](https://quarto.org/docs/get-started/)
+and then restart RStudio.
+
+### 4. Install Git using the course recommendation
+
+Git records versions of analytical source files. We will use command-line Git
+through RStudio's **Terminal** tab; we will not require GitHub Desktop.
+
+#### Windows
+
+1. Download [Git for Windows](https://git-scm.com/install/windows).
+2. Choose the standard 64-bit installer unless you know that your computer uses
+   Windows on ARM.
+3. Accept the installer defaults.
+4. Completely close and reopen RStudio after installation.
+
+#### macOS
+
+1. Open **Terminal**.
+2. Run:
+
+   ```bash
+   git --version
+   ```
+
+3. If macOS offers to install the Command Line Developer Tools, accept the
+   installation. If no prompt appears and Git is unavailable, run:
+
+   ```bash
+   xcode-select --install
+   ```
+
+See the official [Git installation instructions for macOS](https://git-scm.com/install/mac).
+
+#### Linux
+
+Use the Git package supplied by your Linux distribution. See the official
+[Git installation page](https://git-scm.com/install/linux).
+
+### 5. Verify Git inside RStudio
+
+After restarting RStudio, select **Tools → Terminal → New Terminal** and run:
+
+```bash
+git --version
+```
+
+A successful result begins with `git version`. You do not need to create a GitHub
+account or configure GitHub authentication yet; that will happen before Session 2.
+
+::: {.callout-tip}
+## If your computer requires administrator approval
+
+Do not download an installer from an unofficial mirror. Submit the error or
+permission message and contact the course TA while there is still time to resolve
+the installation.
+:::
+
+## Part 1: Verify R
+
+Open RStudio and run these expressions in the console:
+
+```r
+R.version.string
+2 + 3
+mean(c(4, 7, 9))
+```
+
+You should see an R version, the value `5`, and the value `6.666667`.
+
+## Part 2: Distinguish console from source
+
+Create a new R script and save it as `setup-check.R`. Add:
+
+```r
+measurements <- c(4, 7, 9)
+mean_measurement <- mean(measurements)
+mean_measurement
+```
+
+Run the script one line at a time. Close and reopen the file. The source remains;
+the console output is not the analytical record.
+
+## Part 3: Open the project
+
+In your local course repository, open `course/session00/`. Copy
+`BIOS6301-setup.Rproj` and `diagnostic-starter.qmd` into a new folder named
+`BIOS6301-setup`, then open the copied `.Rproj` file.
+
+Confirm that the project name appears in the upper-right corner of RStudio.
+
+## Part 4: Render a Quarto document
+
+Open the copied `diagnostic-starter.qmd` and render it to HTML.
+
+The document passes when:
+
+- `diagnostic-starter.html` is created.
+- The HTML contains the value `6.7`.
+- The HTML contains a small scatterplot.
+- The Git check reports a line beginning with `git version`.
+- No error appears during rendering.
+
+
+## How to ask for help
+
+Include all four items:
+
+1. Your operating system
+2. `R.version.string`
+3. What you clicked or ran
+4. The complete error message as text
+
+Screenshots can supplement the error message but should not replace copied text.

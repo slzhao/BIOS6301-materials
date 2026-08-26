@@ -1,0 +1,200 @@
+---
+title: "Session 2 guided lab"
+subtitle: "Create and inspect a small Git history through RStudio"
+---
+
+::: {.callout-note}
+**Suggested use:** checkpoints 1–6 are the core route. They create three small
+commits entirely through the RStudio Git interface. The additional practice is a
+second, longer route that can be completed independently.
+:::
+
+## Goal
+
+Use RStudio to review, select, commit, and synchronize meaningful changes to a
+synthetic-data analysis. Explain the repository state after every action.
+
+## Start from the repository root
+
+1. Open the root `BIOS6301-materials.Rproj` file in your private course clone.
+2. Confirm that the project name shown in RStudio is the course-repository root.
+3. Open the **Git** tab. If it is missing, stop and ask for help.
+4. Copy the complete `course/session02/starter/` folder to
+   `work/session02-git-lab/`.
+5. Keep the root course project open. Do not initialize another Git repository
+   or open a second project inside the copied folder.
+
+The Git pane should now list the copied files as new or untracked.
+
+## One-time remote check
+
+Open RStudio's **Terminal** tab and run this read-only check:
+
+```bash
+git remote -v
+```
+
+The intended result is:
+
+```text
+origin    your private BIOS6301 repository
+upstream  the instructor BIOS6301-materials repository
+```
+
+If both names already point to the correct places, do not reconfigure them.
+
+::: {.callout-note collapse="true"}
+## One-time setup recipe, if the remotes are not configured
+
+Run this only with the instructor or TA. Replace the placeholder with the URL of
+your empty private repository.
+
+```bash
+git remote rename origin upstream
+git remote add origin YOUR_PRIVATE_REPOSITORY_URL
+git push -u origin main
+```
+
+These lines establish the course's two-remotes arrangement. They are a supplied
+setup recipe, not commands you are expected to memorize.
+:::
+
+## Checkpoint 1: Read the Git pane
+
+Before selecting anything:
+
+1. Identify each copied file in the Git pane.
+2. State why it appears.
+3. Open `.gitignore` and identify which generated or local files it excludes.
+4. Confirm that no credential, protected data, or unrelated file is listed.
+
+Do not check every box until you understand every path.
+
+## Checkpoint 2: Commit the analysis skeleton
+
+1. Click **Commit** to open **Review Changes**.
+2. Select one copied file and inspect its diff.
+3. Check the **Staged** box only after reviewing the file.
+4. Repeat for `.gitignore`, `README.md`, `analysis/report.qmd`, and
+   `data/study_summary.csv`.
+5. Switch between the **Staged** and **Unstaged** views. Confirm that the intended
+   four files—and no others—are selected.
+6. Enter the message `Add reproducible analysis skeleton`.
+7. Click **Commit** and read the result message.
+8. Open **History** and locate the new commit.
+
+Explain why this commit exists locally before it is pushed to GitHub.
+
+## Checkpoint 3: Add a calculation
+
+Open `work/session02-git-lab/analysis/report.qmd` and add a named object containing
+the mean outcome. Render and verify the result.
+
+Then use RStudio:
+
+1. Return to the Git pane and refresh it.
+2. Confirm that `analysis/report.qmd` is listed as modified.
+3. Confirm that the rendered HTML is absent because it is ignored.
+4. Open **Diff** and identify the exact calculation added.
+5. Stage only the `.qmd` source.
+6. Commit with the message `Calculate mean outcome`.
+7. Verify that History now contains two lab commits.
+
+## Checkpoint 4: Add an interpretation
+
+Add one sentence that reports and interprets the calculated mean. Render and
+check that the prose agrees with the calculation.
+
+In **Review Changes**:
+
+1. inspect the prose diff;
+2. stage the source;
+3. commit with `Add interpretation of mean outcome`; and
+4. inspect all three lab commits in History.
+
+## Checkpoint 5: Stage and unstage safely
+
+Add this harmless temporary sentence to the copied `README.md`:
+
+```text
+Temporary staging practice.
+```
+
+1. Save and inspect the diff.
+2. Check **Staged**.
+3. Switch to the staged-diff view and confirm the sentence is selected.
+4. Uncheck **Staged**.
+5. Confirm that the sentence remains in the working file.
+
+This demonstrates that unstaging changes selection, not file contents.
+
+After inspecting it again, use **Revert** to discard this known disposable edit.
+Read the confirmation dialog before proceeding, and confirm that the file returns
+to its committed state.
+
+## Checkpoint 6: Push the recorded history
+
+1. Confirm that the Git pane is empty.
+2. Open History and reread the three messages.
+3. Click **Push**.
+4. Read the result and confirm that the push succeeded.
+5. Open your private GitHub repository and locate the three commits.
+
+If the push is rejected, do not force push. Preserve the local work and ask the
+instructor or TA to help identify which remote contains additional commits.
+
+## Course update recipe
+
+Run this only when the Git pane is clean and your own work is committed:
+
+```bash
+git fetch upstream
+git merge upstream/main
+```
+
+Interpret the lines rather than memorizing them:
+
+1. Download new instructor commits from `upstream`.
+2. Add those commits to the current branch.
+
+Afterward, inspect the Git pane and the terminal result. If the update succeeds,
+click **Push** so the updated history is also stored in your private `origin`.
+
+## Additional practice: use the interface deliberately
+
+1. Make one meaningful edit to `analysis/report.qmd` and a different edit to
+   `README.md`. In Review Changes, stage only the analysis, commit it, then commit
+   the documentation separately. Explain why two commits are clearer than one.
+2. Open History and compare each new commit with its parent. Identify the exact
+   commit that introduced the analysis change.
+3. Render the report again. Verify that the HTML remains on disk but absent from
+   the Git pane. Explain the role of `.gitignore` without saying that it deletes
+   anything.
+4. Add a disposable line, stage it, unstage it, and verify the working edit
+   remains. Then remove it by editing normally rather than using Revert.
+5. Draw the three locations—working files, local commit history, and private
+   GitHub `origin`—and label which RStudio action moves information between them.
+6. Explain why RStudio **Pull** communicates with `origin` while the supplied
+   course-update recipe communicates with `upstream`.
+7. Examine this situation without performing any recovery: a file is modified,
+   the Push button reports a rejection, and a classmate suggests force push.
+   Write the safe next steps and explain why force push is inappropriate.
+
+### Independent-practice check
+
+Finish with an empty Git pane and a readable history. You should be able to show
+which commit introduced each analytical idea, and you should be able to explain
+why no command was needed for the everyday review–stage–commit cycle.
+
+## Exit evidence
+
+Show the instructor or TA:
+
+- an empty RStudio Git pane;
+- History containing the three core commits;
+- the line-by-line diff for one selected commit;
+- a successful Push result; and
+- `git remote -v` showing private `origin` and instructor `upstream`.
+
+Explain the difference between a saved edit, a staged change, a local commit,
+and a commit pushed to GitHub.

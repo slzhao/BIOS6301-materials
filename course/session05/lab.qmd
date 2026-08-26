@@ -1,0 +1,53 @@
+---
+title: "Session 5 guided lab"
+subtitle: "Import and audit a synthetic visit file"
+---
+
+::: {.callout-note}
+**Suggested use:** tasks 1–7 form the core import audit. Additional practice
+simulates a second delivery and a stricter data contract. The instructor may set
+the in-class stopping point; remaining work is suitable for independent practice.
+:::
+
+Copy `starter/import-lab.qmd` to `work/session05/`.
+
+## Tasks
+
+1. Import the supplied temporary CSV with documented missing-value codes.
+2. Verify dimensions, names, types, key uniqueness, expected IDs, and missingness.
+3. Diagnose every marker value that cannot be converted to numeric.
+4. Parse dates using the documented formats and flag ambiguous or invalid values.
+5. Create a cleaned object without overwriting the raw import.
+6. Export the cleaned rectangular table as CSV and RDS, read both back, and compare
+   the preserved classes.
+7. Optional: repeat the import with `readr::read_csv()` and compare diagnostics.
+
+## Additional practice: audit a second delivery
+
+1. Create a second synthetic CSV containing one new ID, one repeated ID, leading
+   or trailing whitespace, an additional missing-value spelling, and one date
+   outside the expected study window.
+2. Import both files with an explicit contract for column names and classes. Add
+   `source_file` and `source_row` so every record retains provenance.
+3. Standardize whitespace and documented missing-value spellings without
+   overwriting the raw imported columns.
+4. Append the deliveries and produce a duplicate-ID report. Do not resolve the
+   duplicate until you have stated an adjudication rule.
+5. Write checks for the expected schema, unique post-adjudication IDs, allowed
+   date range, numeric marker range, and complete provenance fields.
+6. Record file size, modification time, and an MD5 checksum for each input. State
+   what a checksum can and cannot establish.
+7. Export the combined clean data as CSV and RDS, read both back, and compare
+   values as well as classes. Explain which format is preferable for the next R
+   analysis and which is preferable for broad interchange.
+
+### Independent-practice check
+
+Your duplicate report must show the source file and source row for both copies.
+Changing one input byte should change its checksum; it should not, by itself,
+tell you whether the changed file is scientifically correct.
+
+## Exit evidence
+
+Render the import contract, audit results, problem records, cleaned structure, and
+CSV/RDS comparison.

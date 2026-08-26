@@ -1,0 +1,893 @@
+---
+title: "Resampling Methods"
+subtitle: "BIOS 6301 · Introduction to Statistical Computing"
+author: "Department of Biostatistics, Vanderbilt University Medical Center"
+date: "Session 15"
+date-format: "[Session 15]"
+format:
+  revealjs:
+    theme: simple
+    css: ../../slides.css
+    slide-number: c/t
+    show-slide-number: all
+    incremental: false
+    width: 1280
+    height: 720
+    fig-align: center
+    code-line-numbers: false
+    highlight-style: github
+    footer: "BIOS 6301 · Session 15 · Resampling Methods"
+    navigation-mode: linear
+execute:
+  enabled: true
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(ggplot2)
+library(knitr)
+
+# Synthetic teaching data for BIOS 6301. Not real patients.
+set.seed(6301)
+n <- 60
+trial <- data.frame(
+  id        = sprintf("P%03d", 1:n),
+  arm       = rep(c("Placebo", "Treatment"), each = n / 2),
+  site      = sample(1:4, n, replace = TRUE),
+  age       = round(rnorm(n, 61, 9)),
+  sex       = sample(c("F", "M"), n, replace = TRUE),
+  weight_kg = round(rnorm(n, 82, 15), 1),
+  sbp_0     = round(rnorm(n, 148, 14)),
+  stringsAsFactors = FALSE
+)
+trial$sbp_12 <- round(trial$sbp_0 -
+  ifelse(trial$arm == "Treatment", rnorm(n, 14, 8), rnorm(n, 3, 8)))
+
+# Repeated-measures version of the same cohort, for the resampling-unit demo:
+# three visits per patient, a large patient-level random intercept (SD 12) and
+# small within-patient noise (SD 4). Nothing is "broken" here — the data are
+# simply clustered, which is what makes the row bootstrap wrong.
+set.seed(2024)
+patient_effect <- rnorm(n, 0, 12)
+trial_long <- data.frame(
+  id   = rep(trial$id, each = 3),
+  arm  = rep(trial$arm, each = 3),
+  week = rep(c(4, 8, 12), times = n),
+  stringsAsFactors = FALSE
+)
+trial_long$sbp <- round(140 + rep(patient_effect, each = 3) +
+  ifelse(trial_long$arm == "Treatment", -10, 0) + rnorm(n * 3, 0, 4))
+
+theme_set(theme_minimal(base_size = 15))
+gold <- "#CFAE70"
+```
+
+## Where we are {.smaller}
+
+| Course arc | Sessions | |
+|---|---:|---|
+| Setup and workflow | 0–2 |  |
+| Data foundations | 3–8 |  |
+| Modern tools | 9–10 |  |
+| R programming | 11–13 |  |
+| **Statistical computing** | **14–16** | **← today** |
+
+Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
+
+
+## What you will be able to do {.smaller}
+
+::: {.smaller}
+[1]{.objective-num} **Explain** what sampling *with* and *without* replacement
+each estimate, and why one line of code separates them.
+
+[2]{.objective-num} **Write** a bootstrap by hand — resample, recompute, collect
+— and report a bootstrap standard error.
+
+[3]{.objective-num} **Construct** percentile and basic bootstrap intervals, and
+say what each assumes.
+
+[4]{.objective-num} **Name** four situations where the bootstrap fails, and
+recognise one from its output.
+
+[5]{.objective-num} **Build** a permutation null distribution, and compute a
+*p*-value that is never exactly zero.
+
+[6]{.objective-num} **Choose** the correct resampling unit for clustered or
+longitudinal data — and show what goes wrong when you do not.
+:::
+
+
+## Roadmap for today {.smaller}
+
+| | Block | Minutes |
+|---|---|---|
+| 1 | One argument apart | 10 |
+| 2 | The bootstrap, by hand | 25 |
+| 3 | When the bootstrap fails | 10 |
+| 4 | Permutation and exchangeability | 20 |
+| 5 | **Choosing the resampling unit** | 20 |
+| 6 | Cross-validation, and closing the course | 15 |
+
+: {tbl-colwidths="[6,64,30]"}
+
+. . .
+
+**Block 5 is the one to protect.** If the room is running slow, compress block 3
+and the `boot` pointers — not block 5.
+
+
+# 1 · One argument apart {.section-divider}
+
+## The whole session, in one table {.smaller}
+
+| | Resample | Target |
+|---|---|---|
+| **Bootstrap** | *with* replacement, from the observed data | the **sampling distribution** of a statistic |
+| **Permutation** | *without* replacement — a reshuffle of labels | the **null distribution** under exchangeability |
+
+: {tbl-colwidths="[18,44,38]"}
+
+. . .
+
+Which decides, for the rest of your career, which one you reach for:
+
+::: {.smaller}
+| You want | Use | You get |
+|---|---|---|
+| A standard error | Bootstrap | `sd()` of the resampled statistics |
+| A confidence interval | Bootstrap | quantiles, or a reflection of them |
+| A *p*-value | Permutation | how often chance beats what you saw |
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+The bootstrap answers **"how variable is my estimate?"**
+Permutation answers **"could chance alone have produced this?"**
+:::
+
+
+## The same line of code, twice {.smaller}
+
+```{r}
+#| label: two-samples
+sbp <- c(150, 142, 168, 131, 155)
+
+set.seed(1)
+sample(sbp, replace = TRUE)   # bootstrap: some values twice, some not at all
+sample(sbp)                   # permutation: same values, new order
+```
+
+. . .
+
+::: {.smaller}
+- **With replacement** the multiset changes — that is what generates variability
+  between resamples.
+- **Without replacement** the multiset is identical every time. Only the *pairing*
+  with something else — a label, an arm, a time — changes.
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+`sample(x)` with no other arguments is a permutation of `x`. You have been
+writing permutations since Session 14 without calling them that.
+:::
+
+
+# 2 · The bootstrap, by hand {.section-divider}
+
+## Why it works at all {.smaller}
+
+The thing you want is a property of the **population**: the standard deviation of
+your estimator across repeated samples from it.
+
+. . .
+
+You do not have the population. You have one sample — which is your best available
+estimate of it.
+
+. . .
+
+::: {.callout-important appearance="simple"}
+**The plug-in principle.** Wherever the formula says *population*, substitute the
+*empirical distribution of your sample*, and compute.
+:::
+
+. . .
+
+::: {.smaller}
+So: resample from your data exactly as nature sampled from the population — same
+size *n*, drawn with replacement — and watch how the statistic moves.
+:::
+
+
+## Resample, recompute, collect {.smaller}
+
+```{mermaid}
+%%| echo: false
+%%| fig-width: 10
+flowchart LR
+  D["<b>your data</b><br/>n = 60"] --> R["<b>resample</b><br/>n = 60,<br/>with replacement"]
+  R --> S["<b>recompute</b><br/>the statistic"]
+  S --> C["<b>collect</b><br/>one number"]
+  C -.->|"B = 2000 times"| R
+  C --> H["<b>bootstrap<br/>distribution</b>"]
+  style D fill:#f4efe4,stroke:#CFAE70
+  style R fill:#CFAE70,stroke:#8a7448,color:#fff
+  style S fill:#CFAE70,stroke:#8a7448,color:#fff
+```
+
+. . .
+
+::: {.smaller}
+Three lines of code, and none of them are new. `sample()` is Session 14, indexing
+a data frame by a vector of row numbers is Session 4, and `replicate()` is a
+functional from Session 13.
+:::
+
+
+## The statistic, as a function {.smaller}
+
+We want the **difference in median** 12-week SBP between arms. There is no
+convenient formula for its standard error — which is exactly when the bootstrap
+earns its keep.
+
+```{r}
+#| label: med-diff
+# Difference in median sbp_12, Treatment minus Placebo.
+# Takes a data frame with `arm` and `sbp_12`; returns one number.
+med_diff <- function(data) {
+  stopifnot(is.data.frame(data), all(c("arm", "sbp_12") %in% names(data)))
+  median(data$sbp_12[data$arm == "Treatment"]) -
+    median(data$sbp_12[data$arm == "Placebo"])
+}
+
+obs_med <- med_diff(trial)
+obs_med
+```
+
+. . .
+
+::: {.smaller}
+Statistic first, resampling second. If the function is wrong, 2000 resamples make
+it wrong 2000 times.
+:::
+
+
+## The bootstrap, in three lines {.smaller}
+
+```{r}
+#| label: boot-med
+set.seed(14)
+B <- 2000
+
+boot_med <- replicate(B, {
+  idx <- sample(nrow(trial), replace = TRUE)   # 60 row numbers, with repeats
+  med_diff(trial[idx, ])
+})
+
+str(boot_med)
+head(round(boot_med, 1))
+```
+
+. . .
+
+::: {.smaller}
+::: {.callout-note appearance="simple" title="The tidyverse way — same thing"}
+```r
+purrr::map_dbl(1:B, \(i) med_diff(dplyr::slice_sample(trial, prop = 1,
+                                                      replace = TRUE)))
+```
+:::
+:::
+
+
+## What came back {.smaller}
+
+```{r}
+#| label: fig-boot-med
+#| fig-cap: "Bootstrap distribution of the difference in median SBP at 12 weeks."
+#| fig-width: 9
+#| fig-height: 3.2
+#| echo: false
+ggplot(data.frame(stat = boot_med), aes(stat)) +
+  geom_histogram(binwidth = 1, fill = gold, colour = "white") +
+  geom_vline(xintercept = obs_med, linewidth = 1) +
+  annotate("text", x = obs_med, y = Inf, label = "  observed", hjust = 0,
+           vjust = 1.6, size = 4.5) +
+  labs(x = "Difference in median SBP (mmHg)", y = "Resamples")
+```
+
+::: {.smaller}
+Centred near the observed value. Ragged, because a median of 30 integers can only
+land on so many values.
+:::
+
+
+## The bootstrap standard error {.smaller}
+
+The standard deviation of the resampled statistics **is** the estimated standard
+error. That is the whole definition.
+
+```{r}
+#| label: boot-se
+se_boot <- sd(boot_med)
+se_boot
+```
+
+. . .
+
+```{r}
+#| label: boot-bias
+mean(boot_med) - obs_med    # bootstrap estimate of bias
+```
+
+. . .
+
+::: {.smaller}
+A small bias estimate is reassuring. A large one is a signal to stop and think —
+not a licence to subtract it, which usually inflates variance more than it
+removes bias.
+:::
+
+
+## Percentile and basic intervals {.smaller}
+
+```{r}
+#| label: boot-ci
+perc <- quantile(boot_med, c(0.025, 0.975))              # percentile
+basic <- 2 * obs_med - quantile(boot_med, c(0.975, 0.025))  # basic
+rbind(percentile = perc, basic = unname(basic))
+```
+
+. . .
+
+::: {.smaller}
+| Interval | Rule | Assumes |
+|---|---|---|
+| **Percentile** | the 2.5th and 97.5th percentiles of the resamples | the bootstrap distribution is roughly the sampling distribution |
+| **Basic** | reflect those percentiles through the observed value | the *shape* is right, the *centre* may be off |
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+Here they disagree — the basic interval reaches across zero and the percentile
+interval does not. That disagreement is **information**, not a nuisance.
+:::
+
+
+## Check it where you know the answer {.smaller}
+
+The bootstrap is most trustworthy when you have first watched it reproduce a
+result you can verify.
+
+```{r}
+#| label: boot-vs-t
+mean_diff <- function(data) {
+  mean(data$sbp_12[data$arm == "Treatment"]) -
+    mean(data$sbp_12[data$arm == "Placebo"])
+}
+
+set.seed(17)
+boot_mean <- replicate(B, mean_diff(trial[sample(nrow(trial), replace = TRUE), ]))
+
+c(boot_se = sd(boot_mean),
+  welch_se = t.test(sbp_12 ~ arm, data = trial)$stderr)
+```
+
+. . .
+
+::: {.smaller}
+Two decimal places apart. Now go back and believe the median result, which has no
+formula to check against.
+:::
+
+
+## How many resamples? {.smaller}
+
+More resamples do **not** improve the estimate. They reduce the *Monte Carlo
+noise* in your report of it.
+
+::: {.smaller}
+| Purpose | *B* | Why |
+|---|---|---|
+| Standard error | 1,000–2,000 | The SD stabilises quickly |
+| Confidence interval | ≥ 10,000 | Tail quantiles are estimated from the tail |
+| A number going in a paper | 10,000+ | It must not change on re-render |
+:::
+
+. . .
+
+```{r}
+#| label: mc-check
+boot_se_once <- function(b) {
+  sd(replicate(b, med_diff(trial[sample(nrow(trial), replace = TRUE), ])))
+}
+
+set.seed(101)
+round(replicate(6, boot_se_once(500)), 3)   # six runs, same data, B = 500
+```
+
+
+# 3 · When the bootstrap fails {.section-divider}
+
+## Four ways it breaks {.smaller}
+
+::: {style="font-size:0.9em"}
+| Situation | What goes wrong | Symptom |
+|---|---|---|
+| **Small *n*** | The empirical distribution is a poor stand-in; only *n^n^* distinct resamples exist | Chunky, lumpy bootstrap distribution |
+| **Extremes** — max, min, range | The extreme of a resample is drawn from a handful of values | A distribution with visible spikes |
+| **Heavy tails** — infinite variance | There is no sampling distribution to estimate | Intervals that grow with *B*; wild resamples |
+| **Dependence** — clustered, longitudinal, time series | Resampling rows destroys the dependence you needed to keep | Standard errors that are **too small**, confidently |
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+Only the last one is silent. The other three announce themselves in a histogram
+you should have plotted anyway.
+:::
+
+
+## The maximum, bootstrapped {.smaller}
+
+```{r}
+#| label: boot-max
+set.seed(18)
+boot_max <- replicate(B, max(trial$sbp_0[sample(nrow(trial), replace = TRUE)]))
+
+length(unique(boot_max))                # distinct values across 2000 resamples
+mean(boot_max == max(trial$sbp_0))      # how often the resample max is THE max
+```
+
+. . .
+
+::: {.smaller}
+The resampled maximum can never exceed the observed maximum, and it equals it
+whenever the largest patient is drawn at all — probability
+1 − (1 − 1/*n*)^*n*^ ≈ 0.63.
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+The bootstrap distribution of a maximum is a spike at the observed value with a
+short left tail. It is not a sampling distribution. **No amount of *B* fixes it.**
+:::
+
+
+## Two packages you should know exist {.smaller}
+
+Not installed here — this is a pointer, not a demonstration.
+
+```r
+# boot: the classical implementation. Statistic takes (data, indices).
+library(boot)
+b <- boot(trial, statistic = function(data, i) med_diff(data[i, ]), R = 10000)
+boot.ci(b, type = c("perc", "basic", "bca"))
+
+# rsample: tidymodels. Resamples as a tibble of splits.
+library(rsample)
+bootstraps(trial, times = 1000)
+```
+
+. . .
+
+::: {.smaller}
+`boot.ci()` gives you **BCa** intervals — bias-corrected and accelerated — which
+adjust for both the bias and the skewness we saw two slides ago. That is the
+single best reason to use the package rather than your own loop.
+:::
+
+
+# 4 · Permutation and exchangeability {.section-divider}
+
+## The logic {.smaller}
+
+**Null hypothesis:** the treatment label carries no information about the outcome.
+
+. . .
+
+If that is true, then each patient's outcome would have been the same whichever
+label they received. The labels are **exchangeable** — any reassignment of the 30
+Treatment labels among the 60 patients was equally likely.
+
+. . .
+
+::: {.smaller}
+So: reassign them, thousands of times, and each time compute the statistic. That
+set of numbers is the **null distribution** — not assumed, not looked up in a
+table, but constructed from your own data.
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+In a randomised trial this is not a modelling assumption. It is a description of
+what the randomisation actually did.
+:::
+
+
+## Shuffle the labels {.smaller}
+
+```{r}
+#| label: perm-run
+obs_mean <- mean_diff(trial)
+
+set.seed(19)
+P <- 999
+perm_stat <- replicate(P, {
+  shuffled <- sample(trial$arm)                 # permutation, not a bootstrap
+  mean(trial$sbp_12[shuffled == "Treatment"]) -
+    mean(trial$sbp_12[shuffled == "Placebo"])
+})
+
+c(observed = obs_mean, perm_mean = mean(perm_stat), perm_sd = sd(perm_stat))
+```
+
+. . .
+
+::: {.smaller}
+Note what is **not** shuffled: `sbp_12` never moves. Only its label does. Shuffling
+both, or shuffling the outcome instead, gives the same answer here — and stops
+being equivalent the moment you have a covariate.
+:::
+
+
+## The null distribution {.smaller}
+
+```{r}
+#| label: fig-perm
+#| fig-cap: "Permutation null distribution of the mean difference, with the observed value."
+#| fig-width: 9
+#| fig-height: 3.2
+#| echo: false
+ggplot(data.frame(stat = perm_stat), aes(stat)) +
+  geom_histogram(bins = 40, fill = "grey78", colour = "white") +
+  geom_vline(xintercept = obs_mean, colour = "#8a4b1f", linewidth = 1.2) +
+  annotate("text", x = obs_mean, y = Inf, label = "observed  ", hjust = 1,
+           vjust = 1.6, size = 4.5, colour = "#8a4b1f") +
+  labs(x = "Mean difference in SBP at 12 weeks (mmHg)", y = "Permutations")
+```
+
+::: {.smaller}
+Centred at zero **by construction**. The *p*-value is the proportion of this
+histogram at least as extreme as the line.
+:::
+
+
+## Exact, or Monte Carlo? {.smaller}
+
+With 4 patients per arm there are only `choose(8, 4)` = **70** possible label
+assignments. You can enumerate **all** of them:
+
+```{r}
+#| label: exact-perm
+small <- trial[c(1:4, 31:34), c("id", "arm", "sbp_12")]
+obs_small <- mean_diff(small)
+
+combos <- combn(8, 4)                    # every way to choose 4 "Treatment"
+exact <- apply(combos, 2, function(k) mean(small$sbp_12[k]) -
+                                      mean(small$sbp_12[-k]))
+
+ncol(combos)                             # the entire reference set
+round(mean(abs(exact) >= abs(obs_small)), 4)    # exact two-sided p-value
+```
+
+. . .
+
+::: {.smaller}
+With 30 per arm there are `choose(60, 30)` ≈ 1.2 × 10^17^. So you
+sample from them instead — that is all "Monte Carlo permutation" means.
+:::
+
+
+## A permutation *p*-value is never zero {.smaller}
+
+```{r}
+#| label: perm-p
+n_extreme <- sum(abs(perm_stat) >= abs(obs_mean))
+n_extreme                                        # out of 999
+```
+
+. . .
+
+```{r}
+#| label: perm-p2
+c(wrong = n_extreme / P,
+  right = (n_extreme + 1) / (P + 1))
+```
+
+. . .
+
+::: {.smaller}
+The observed arrangement **is** one of the possible arrangements. Counting it in
+both numerator and denominator is not a fudge to avoid zero — it is the correct
+count.
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+Report `p < 0.001`, or increase *P*. Never `p = 0`.
+:::
+
+
+## What permutation does not give you {.smaller}
+
+::: columns
+::: {.column width="49%"}
+### It gives
+
+- A valid *p*-value with no distributional assumption
+- Exact validity when the randomisation was real
+- Freedom to use any statistic you like
+:::
+
+::: {.column width="49%"}
+### It does not give
+
+- A confidence interval
+- An effect size
+- Protection against confounding
+- A test of "equal means" specifically
+:::
+:::
+
+. . .
+
+::: {.smaller}
+The last one is subtle. The null being tested is that the two label groups have
+the **same distribution**. A significant result may be a difference in spread or
+shape, not in centre.
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+Which is why the two halves of today go together: permutation for the *p*-value,
+bootstrap for the interval.
+:::
+
+
+# 5 · Choosing the resampling unit {.section-divider}
+
+## The same cohort, three visits each {.smaller}
+
+```{r}
+#| label: long-head
+head(trial_long, 7)
+c(rows = nrow(trial_long), patients = length(unique(trial_long$id)))
+```
+
+. . .
+
+```{r}
+#| label: long-obs
+diff_long <- function(data) {
+  mean(data$sbp[data$arm == "Treatment"]) - mean(data$sbp[data$arm == "Placebo"])
+}
+obs_long <- diff_long(trial_long)
+obs_long
+```
+
+::: {.smaller}
+180 rows. **60 patients.** Hold on to that distinction — the rest of this block is
+about which number is the sample size.
+:::
+
+
+## The naive row bootstrap {.smaller}
+
+```{r}
+#| label: boot-rows
+set.seed(21)
+boot_row <- replicate(B, {
+  idx <- sample(nrow(trial_long), replace = TRUE)   # 180 rows, independently
+  diff_long(trial_long[idx, ])
+})
+
+c(estimate = obs_long, se = sd(boot_row))
+round(quantile(boot_row, c(0.025, 0.975)), 2)
+```
+
+. . .
+
+::: {.smaller}
+Perfectly reasonable code. Runs without complaint. Produces a clean, symmetric
+histogram. The interval comfortably excludes zero.
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+It is wrong, and nothing on this slide tells you so.
+:::
+
+
+## The cluster bootstrap {.smaller}
+
+Resample **patients**, and take all of each patient's rows with them.
+
+```{r}
+#| label: boot-cluster
+ids <- unique(trial_long$id)
+rows_by_id <- split(seq_len(nrow(trial_long)), trial_long$id)   # id -> row numbers
+
+set.seed(22)
+boot_clu <- replicate(B, {
+  picked <- sample(ids, replace = TRUE)              # 60 patients, with repeats
+  diff_long(trial_long[unlist(rows_by_id[picked]), ])
+})
+
+c(row_se = sd(boot_row), cluster_se = sd(boot_clu),
+  ratio = sd(boot_clu) / sd(boot_row))
+```
+
+. . .
+
+::: {.smaller}
+The honest standard error is **1.7 times** the naive one. Every interval built on
+the naive number is 40% too narrow.
+:::
+
+
+## Side by side {.smaller}
+
+```{r}
+#| label: fig-unit
+#| fig-cap: "Bootstrap distributions of the same estimate under two resampling schemes."
+#| fig-width: 9
+#| fig-height: 3.3
+#| echo: false
+cmp <- rbind(
+  data.frame(stat = boot_row, scheme = "Naive: resample rows (wrong)"),
+  data.frame(stat = boot_clu, scheme = "Cluster: resample patients (right)")
+)
+cmp$scheme <- factor(cmp$scheme, levels = unique(cmp$scheme))
+ggplot(cmp, aes(stat, fill = scheme)) +
+  geom_histogram(bins = 45, colour = "white", alpha = 0.85) +
+  geom_vline(xintercept = 0, linetype = 2) +
+  facet_wrap(~scheme) +
+  scale_fill_manual(values = c("grey72", gold)) +
+  labs(x = "Difference in mean SBP (mmHg)", y = "Resamples") +
+  theme(legend.position = "none")
+```
+
+::: {.smaller}
+Same data, same estimate, same statistic function. Only the **unit** changed.
+:::
+
+
+## Why: how much is a visit worth? {.smaller}
+
+```{r}
+#| label: icc
+between <- var(tapply(trial_long$sbp, trial_long$id, mean))
+within  <- mean(tapply(trial_long$sbp, trial_long$id, var))
+icc <- between / (between + within)
+c(icc = icc, design_effect = 1 + (3 - 1) * icc, inflation = sqrt(1 + 2 * icc))
+```
+
+. . .
+
+::: {.smaller}
+With an intra-class correlation near 0.9, three visits carry barely more
+information than one. The **design effect** 1 + (*m* − 1)ρ says how many
+independent observations your *n* × *m* rows are actually worth — and its square
+root is exactly the factor the cluster bootstrap recovered.
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+The bootstrap found that number without being told the formula. That is the point
+of the method.
+:::
+
+
+## Permuting at the wrong level, too {.smaller}
+
+The same mistake, in the other half of the session:
+
+```{r}
+#| label: perm-unit
+arm_by_id <- trial_long$arm[match(ids, trial_long$id)]
+
+set.seed(32)
+p_rows <- replicate(999, {
+  s <- sample(trial_long$arm)                    # shuffles visits, not patients
+  mean(trial_long$sbp[s == "Treatment"]) - mean(trial_long$sbp[s == "Placebo"])
+})
+p_pats <- replicate(999, {
+  s <- rep(sample(arm_by_id), each = 3)          # shuffles patients (rows sorted by id)
+  mean(trial_long$sbp[s == "Treatment"]) - mean(trial_long$sbp[s == "Placebo"])
+})
+
+c(p_row_unit = (sum(abs(p_rows) >= abs(obs_long)) + 1) / 1000,
+  p_patient_unit = (sum(abs(p_pats) >= abs(obs_long)) + 1) / 1000)
+```
+
+::: {.smaller}
+An order of magnitude apart. **Randomisation happened to patients**, so the
+permutation must too.
+:::
+
+
+## The rule {.smaller}
+
+::: {.callout-important}
+## Resample the unit that was independently sampled — the unit that was randomised.
+:::
+
+. . .
+
+::: {style="font-size:0.92em"}
+| Design | Rows | Resample |
+|---|---|---|
+| Simple random sample | Patients | Patients |
+| Repeated measures | Patient-visits | **Patients** |
+| Cluster-randomised trial | Patients | **Clinics** |
+| Multi-site trial, site-stratified | Patients | Patients, **within site** |
+| Matched pairs / crossover | Observations | **Pairs** |
+| Time series | Time points | **Blocks** of consecutive points |
+:::
+
+. . .
+
+::: {.smaller}
+Before you write `sample()`, answer one question in prose: *what did this study
+draw at random?*
+:::
+
+
+# 6 · Cross-validation, and closing the course {.section-divider}
+
+## The same idea, aimed at prediction {.smaller}
+
+Fitting and evaluating on the same data is the statistical equivalent of marking
+your own homework.
+
+```{r}
+#| label: cv
+set.seed(55)
+noise <- as.data.frame(matrix(rnorm(n * 12), nrow = n))   # 12 pure-noise predictors
+names(noise) <- sprintf("z%02d", 1:12)
+d <- cbind(trial[, c("sbp_12", "sbp_0", "age", "weight_kg")], noise)
+
+fit <- lm(sbp_12 ~ ., data = d)
+rmse_in <- sqrt(mean(residuals(fit)^2))
+
+set.seed(56)
+fold <- sample(rep(1:5, length.out = n))
+pred <- numeric(n)
+for (k in 1:5) {
+  m <- lm(sbp_12 ~ ., data = d[fold != k, ])
+  pred[fold == k] <- predict(m, newdata = d[fold == k, ])
+}
+
+round(c(in_sample_rmse = rmse_in, cv_rmse = sqrt(mean((d$sbp_12 - pred)^2))), 2)
+```
+
+
+## Summary {.smaller}
+
+- Bootstrap, permutation, and cross-validation answer different questions.
+- The resampling unit must preserve the design's dependence structure.
+- Permutation validity rests on exchangeability under the null.
+- Preprocessing learned outside a training fold leaks information.
+- Finite resampling adds Monte Carlo variability that should be recorded.
+
+. . .
+
+**Next connection:** Session 16 reserves time for strings, regular expressions, and practical needs observed during the course.
+

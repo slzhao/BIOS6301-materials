@@ -1,0 +1,43 @@
+---
+title: "Synthetic clinic summary in Quarto"
+format:
+  html:
+    embed-resources: true
+execute:
+  enabled: true
+  echo: true
+---
+
+## Question
+
+Write one sentence explaining what this report summarizes.
+
+## Read the data
+
+```{r}
+#| label: setup
+#| include: false
+source("analysis.R")
+```
+
+## Calculate
+
+```{r}
+#| label: clinic-summary
+#| echo: false
+data.frame(
+  statistic = c("Number of records", "Mean age", "Median marker"),
+  value = c(n_records, mean_age, median_marker)
+)
+```
+
+## Report
+
+Replace the bracketed text with inline R calculations:
+
+> The dataset contains [number] records. Mean age is [number] years and median
+> marker value is [number].
+
+## Check
+
+Add one code cell that displays the structure of `clinic`.

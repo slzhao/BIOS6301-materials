@@ -1,0 +1,44 @@
+---
+title: "BIOS6301 setup diagnostic"
+format: html
+execute:
+  enabled: true
+  echo: true
+---
+
+## A calculation
+
+```{r}
+measurements <- c(4, 7, 9)
+mean_measurement <- mean(measurements)
+```
+
+The mean measurement is `r round(mean_measurement, 1)`.
+
+## A figure
+
+```{r}
+plot(
+  x = 1:3,
+  y = measurements,
+  xlab = "Observation",
+  ylab = "Measurement",
+  pch = 19
+)
+```
+
+## Git check
+
+```{r}
+git_path <- Sys.which("git")
+
+if (nzchar(git_path)) {
+  system2(git_path, "--version", stdout = TRUE)
+} else {
+  "GIT NOT FOUND — restart RStudio after installing Git, then render again."
+}
+```
+
+## Completion statement
+
+Replace this sentence with: **I rendered this document from its source.**

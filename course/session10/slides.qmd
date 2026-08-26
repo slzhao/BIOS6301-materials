@@ -1,0 +1,408 @@
+---
+title: "Python Introduction for R Users"
+subtitle: "BIOS 6301 · Introduction to Statistical Computing"
+author: "Department of Biostatistics, Vanderbilt University Medical Center"
+date: "Session 10"
+date-format: "[Session 10]"
+format:
+  revealjs:
+    theme: simple
+    css: ../../slides.css
+    slide-number: c/t
+    show-slide-number: all
+    incremental: false
+    width: 1280
+    height: 720
+    transition: fade
+    center: false
+    code-copy: true
+    fig-align: center
+    code-line-numbers: false
+    highlight-style: github
+    footer: "BIOS 6301 · Session 10 · Python introduction for R users"
+    navigation-mode: linear
+execute:
+  enabled: false
+---
+
+## The question behind this session
+
+::: {.question}
+How can we transfer our existing data-analysis reasoning to Python while noticing
+the places where similar-looking code has different behavior?
+:::
+
+
+## Learning goals
+
+1. Run a versionable Python script in Positron.
+2. Recognize lists, NumPy arrays, and pandas DataFrames.
+3. Translate selection, transformation, and grouped summaries.
+4. Compare missing-value and indexing behavior with R.
+5. Verify equivalent R and Python results.
+
+
+## A 90-minute route
+
+| Block | Purpose | Minutes |
+|---|---|---:|
+| Transfer the mental model | Languages, objects, and execution | 15 |
+| Index and filter | Surface the largest translation hazards | 20 |
+| Transform and summarize | Rebuild one familiar analysis | 25 |
+| Missingness and import | Compare defaults and validation | 15 |
+| Verify and demonstrate | Establish equivalence, then run all | 15 |
+
+
+## Translate the contract before the syntax {.smaller}
+
+Before opening Python, state the R analysis in language-neutral terms:
+
+1. one row represents one participant-visit;
+2. retain week-4 rows;
+3. keep missing outcomes available for the total denominator;
+4. summarize within randomized arm;
+5. return total n, observed n, mean, and SD.
+
+
+## Keep the roles separate
+
+| Tool | Role |
+|---|---|
+| Python | programming language |
+| NumPy | typed arrays and numerical operations |
+| pandas | rectangular data manipulation |
+| matplotlib/seaborn | visualization |
+| Positron | IDE for R and Python |
+| Jupyter kernel | executes notebook or interactive Python code |
+
+No one tool is “Python's version of R.”
+
+
+## A script can have notebook-like cells
+
+```python
+# %% Setup
+import numpy as np
+import pandas as pd
+
+# %% Inspect
+print(pd.__version__)
+```
+
+Positron recognizes `# %%` cells in `.py` files. The file remains plain text that
+Git can diff and Quarto can incorporate later.
+
+
+## Assignment and basic objects
+
+```python
+age = 42
+group = "treated"
+observed = True
+values = [4.1, 5.2, None]
+```
+
+Python uses `=` for assignment and indentation to define blocks. A Python list
+can contain mixed types; it is not a NumPy array.
+
+
+## Functions and methods express similar actions {.smaller}
+
+```r
+mean(x, na.rm = TRUE)
+nrow(visit)
+```
+
+```python
+x.mean()
+len(visit)
+```
+
+Python often attaches an operation to an object with a dot. Do not assume every R function has a method with the same name or defaults.
+
+
+## NumPy arrays support vector arithmetic
+
+```python
+import numpy as np
+
+x = np.array([1.0, 2.0, 3.0])
+x * 2
+x.mean()
+```
+
+```r
+x <- c(1, 2, 3)
+x * 2
+mean(x)
+```
+
+Both are vectorized, but their indexing conventions differ.
+
+
+## Python indexing starts at zero
+
+```python
+x[0]       # first element
+x[0:2]     # positions 0 and 1; stop is excluded
+```
+
+```r
+x[1]       # first element
+x[1:2]     # positions 1 and 2
+```
+
+Off-by-one mistakes are among the most important translation hazards.
+
+
+## Predict the slice before running {.smaller}
+
+```python
+x = np.array([10, 20, 30, 40])
+x[1:3]
+x[-1]
+```
+
+- `x[1:3]` returns `20, 30`: the stop position is excluded.
+- `x[-1]` returns the last element; it does **not** exclude position 1 as in R.
+
+
+## A pandas DataFrame is rectangular
+
+```python
+visit = pd.DataFrame({
+    "id": ["P01", "P01", "P02", "P02"],
+    "arm": ["control", "control", "treated", "treated"],
+    "week": [0, 4, 0, 4],
+    "marker": [4.1, 4.4, 5.2, np.nan],
+})
+
+visit.shape
+visit.dtypes
+visit.head()
+```
+
+As in R, inspect the object before analysis.
+
+
+## Column and row selection
+
+```python
+visit["marker"]                    # Series
+visit[["marker"]]                  # one-column DataFrame
+visit.loc[visit["week"] == 4, :]   # label-based row/column selection
+visit.iloc[0:2, 0:3]               # position-based selection
+```
+
+`loc` and `iloc` make the selection rule explicit.
+
+
+## Translate a filter
+
+```r
+week4 <- visit[visit$week == 4 & !is.na(visit$marker), ]
+```
+
+```python
+week4 = visit.loc[
+    (visit["week"] == 4) & visit["marker"].notna()
+].copy()
+```
+
+Parentheses around each pandas condition are required with `&` and `|`.
+
+
+## Two Boolean-selection traps {.smaller}
+
+```python
+# Wrong for pandas Series
+visit["week"] == 4 and visit["marker"].notna()
+
+# Also wrong: operator precedence is not what was intended
+visit["week"] == 4 & visit["marker"].notna()
+```
+
+Use `&` or `|` for elementwise conditions and put **each condition in parentheses**.
+
+
+## Add columns without chained assignment
+
+```python
+visit = visit.assign(
+    month=visit["week"] / 4,
+    observed=visit["marker"].notna(),
+)
+```
+
+Using `.copy()` after a subset and `.assign()` for derived columns avoids many
+ambiguous chained-assignment problems.
+
+
+## Grouped summaries
+
+```python
+summary = (
+    visit.loc[visit["week"] == 4]
+    .groupby("arm", as_index=False)
+    .agg(
+        n_total=("id", "size"),
+        n_observed=("marker", "count"),
+        mean_marker=("marker", "mean"),
+        sd_marker=("marker", "std"),
+    )
+)
+```
+
+`size` counts rows; `count` counts nonmissing values. That distinction mirrors our
+Copilot example.
+
+
+## Predict the grouped output {.smaller}
+
+Suppose week 4 contains three rows per arm and one treated outcome is missing.
+
+| Quantity | Control | Treated |
+|---|---:|---:|
+| `size` / total rows | 3 | 3 |
+| `count` / observed marker | 3 | 2 |
+| mean marker | mean of 3 | mean of 2 |
+
+A correct table can show both denominators without discarding a row.
+
+
+## Missing-value defaults differ
+
+```python
+visit["marker"].mean()              # skips NaN by default
+visit["marker"].mean(skipna=False)  # propagates NaN
+```
+
+```r
+mean(visit$marker)                  # returns NA by default
+mean(visit$marker, na.rm = TRUE)
+```
+
+Never translate code without translating its missing-value policy.
+
+
+## Python has several missing-value representations {.smaller}
+
+| Value | Common context | Check with pandas |
+|---|---|---|
+| `None` | general Python object | `isna()` |
+| `np.nan` | floating-point array/data | `isna()` |
+| `pd.NA` | nullable pandas dtype | `isna()` |
+
+Use pandas missing-value checks for DataFrame work; do not compare a value to `np.nan` with `==`.
+
+
+## Read and check a file
+
+```python
+visit = pd.read_csv(
+    "data/visits.csv",
+    na_values=["", "NA", "."],
+    dtype={"id": "string", "arm": "category"},
+    parse_dates=["visit_date"],
+)
+
+assert visit["id"].notna().all()
+assert not visit.duplicated(["id", "week"]).any()
+```
+
+The same import contract and invariants apply in either language.
+
+
+## A small data-wrangling Rosetta table {.smaller}
+
+| Intent | Base R | dplyr | pandas |
+|---|---|---|---|
+| rows | `x[condition, ]` | `filter(x, condition)` | `x.loc[condition]` |
+| column | `x[["age"]]` | `pull(x, age)` | `x["age"]` |
+| derive | `x$bmi <- ...` | `mutate(x, bmi = ...)` | `x.assign(bmi=...)` |
+| groups | `aggregate()` | `summarise(.by=)` | `groupby().agg()` |
+
+The table helps you read code; it does not prove that defaults or output shapes match.
+
+
+## A quick plot
+
+```python
+import matplotlib.pyplot as plt
+
+for arm, data in visit.groupby("arm"):
+    plt.scatter(data["week"], data["marker"], label=arm)
+plt.xlabel("Week")
+plt.ylabel("Marker")
+plt.legend()
+plt.show()
+```
+
+The statistical question and visual design principles do not change with the
+graphics library.
+
+
+## Equivalent analyses need an explicit comparison
+
+Compare at least:
+
+- input dimensions and key uniqueness;
+- rows retained by the analysis rule;
+- group labels and group sizes;
+- missing-value counts;
+- one or more numerical estimates within a stated tolerance;
+- output row and column meanings.
+
+Matching printed tables is not enough if the two programs reached them through different populations.
+
+
+## Reproducibility still requires a full run
+
+Interactive state can hide missing steps in both R and Python.
+
+::: {.workflow}
+restart interpreter/kernel → run all source in order → inspect final output
+:::
+
+A notebook cell number is execution history, not proof that the document is
+complete.
+
+
+## Use AI as translation support, not authority
+
+Copilot is now permitted under the Session 9 policy. When translating:
+
+- state the intended R semantics;
+- inspect indexing and missing-value defaults;
+- compare row counts and one numerical result;
+- disclose substantive assistance.
+
+Do not ask AI to translate restricted data or confidential source.
+
+
+## Live translation: one analysis, two languages
+
+1. Run the familiar R group summary.
+2. State its analysis contract in words.
+3. Build the pandas DataFrame.
+4. Translate the week-4 filter.
+5. Compute `size`, `count`, mean, and SD.
+6. Compare group counts and estimates.
+7. Restart Python and run the script from the first cell.
+
+
+## Exit check
+
+1. What is the first element of `x` in Python?
+2. How do `size` and `count` differ in a pandas group summary?
+3. What does pandas `mean()` do with `NaN` by default?
+4. What must match before we call R and Python analyses equivalent?
+
+
+## Continue after class {.smaller}
+
+- [Positron Python guide](https://positron.posit.co/guide-python.html)
+- [Positron Python tutorial](https://positron.posit.co/tutorials.html)
+- [pandas getting started](https://pandas.pydata.org/docs/getting_started/index.html)
+- [NumPy user guide](https://numpy.org/doc/stable/user/)
+

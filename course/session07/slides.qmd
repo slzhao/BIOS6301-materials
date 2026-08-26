@@ -1,0 +1,935 @@
+---
+title: "Joins and Reshaping"
+subtitle: "BIOS 6301 · Introduction to Statistical Computing"
+author: "Department of Biostatistics, Vanderbilt University Medical Center"
+date: "Session 7"
+date-format: "[Session 7]"
+format:
+  revealjs:
+    theme: simple
+    css: ../../slides.css
+    slide-number: c/t
+    show-slide-number: all
+    incremental: false
+    width: 1280
+    height: 720
+    fig-align: center
+    code-line-numbers: false
+    highlight-style: github
+    footer: "BIOS 6301 · Session 7 · Joins and Reshaping"
+    navigation-mode: linear
+execute:
+  enabled: true
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(dplyr)
+library(ggplot2)
+library(knitr)
+options(width = 68)
+theme_set(theme_minimal(base_size = 15))
+
+# Synthetic teaching data for BIOS 6301. Not real patients.
+set.seed(6301)
+n <- 60
+trial <- data.frame(
+  id        = sprintf("P%03d", 1:n),
+  arm       = rep(c("Placebo", "Treatment"), each = n / 2),
+  site      = sample(1:4, n, replace = TRUE),
+  age       = round(rnorm(n, 61, 9)),
+  sex       = sample(c("F", "M"), n, replace = TRUE),
+  weight_kg = round(rnorm(n, 82, 15), 1),
+  sbp_0     = round(rnorm(n, 148, 14)),
+  stringsAsFactors = FALSE
+)
+trial$sbp_12 <- round(trial$sbp_0 -
+  ifelse(trial$arm == "Treatment", rnorm(n, 14, 8), rnorm(n, 3, 8)))
+
+# Added for session 7: a 6-week visit, so the repeated-measures reshape has
+# three timepoints rather than two, and diastolic pressure, so names_sep has
+# something two-part to split.
+trial$sbp_6 <- round(trial$sbp_0 -
+  ifelse(trial$arm == "Treatment", rnorm(n, 9, 7), rnorm(n, 2, 7)))
+set.seed(70301)
+trial$dbp_0 <- round(rnorm(n, 88, 9))
+trial$dbp_12 <- round(trial$dbp_0 -
+  ifelse(trial$arm == "Treatment", rnorm(n, 7, 5), rnorm(n, 1, 5)))
+trial <- trial[, c("id", "arm", "site", "age", "sex", "weight_kg",
+                   "sbp_0", "sbp_6", "sbp_12", "dbp_0", "dbp_12")]
+
+# A site lookup table, as a study coordinator would send it. Two deliberate
+# defects: site 4 is missing (15 patients will not match) and site 5 has no
+# patients (a site that opened but never enrolled).
+sites <- data.frame(
+  site      = c(1, 2, 3, 5),
+  site_name = c("VUMC", "Meharry", "Regional", "Satellite"),
+  n_beds    = c(1019, 240, 130, 44)
+)
+
+# The same table after somebody pasted a row in twice. This is the duplicate
+# key that multiplies rows in a join.
+sites_dup <- rbind(sites, data.frame(site = 2, site_name = "Meharry",
+                                     n_beds = 245))
+
+# A long-format lab table: two rows per patient.
+set.seed(6307)
+labs <- data.frame(
+  id    = rep(trial$id, each = 2),
+  week  = rep(c(0, 12), times = n),
+  creat = round(rnorm(2 * n, 0.95, 0.22), 2)
+)
+
+wide3 <- trial[, c("id", "arm", "sbp_0", "sbp_6", "sbp_12")]
+bp_wide <- trial[1:3, c("id", "sbp_0", "sbp_12", "dbp_0", "dbp_12")]
+```
+
+## Where we are {.smaller}
+
+| Course arc | Sessions | |
+|---|---:|---|
+| Setup and workflow | 0–2 |  |
+| **Data foundations** | **3–8** | **← today** |
+| Modern tools | 9–10 |  |
+| R programming | 11–13 |  |
+| Statistical computing | 14–16 |  |
+
+Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
+
+
+## What you will be able to do {.smaller}
+
+::: {.smaller}
+[1]{.objective-num} **Predict** the number of rows a join will return, *before*
+you run it.
+
+[2]{.objective-num} **Choose** among `left_join()`, `inner_join()`,
+`full_join()`, `semi_join()` and `anti_join()` for a stated question.
+
+[3]{.objective-num} **Detect** duplicate keys and unmatched rows before they
+become a wrong answer.
+
+[4]{.objective-num} **Assert** what you believe with `relationship=` and
+`unmatched=`.
+
+[5]{.objective-num} **Reshape** between wide and long with `pivot_longer()` and
+`pivot_wider()`.
+
+[6]{.objective-num} **Read and write** `merge()`, and **recognise** `reshape()`.
+
+[7]{.objective-num} **Compute** within-patient quantities with `lag()`,
+`cumsum()` and `row_number()`.
+:::
+
+
+## Roadmap for today
+
+| | Block | Minutes |
+|---|---|---|
+| 1 | Data arrives in pieces — keys and grain | 10 |
+| 2 | The join family | 20 |
+| 3 | **Predicting the row count** | 20 |
+| 4 | Safety rails: `relationship=` and `unmatched=` | 10 |
+| 5 | The base R way — `merge()`, head to head | 15 |
+| 6 | Reshaping: `pivot_longer()`, `pivot_wider()`, `reshape()` | 20 |
+| 7 | Window functions, if there is room | 5 |
+
+: {tbl-colwidths="[6,64,30]"}
+
+
+# 1 · Data arrives in pieces {.section-divider}
+
+## Three tables, one analysis {.smaller}
+
+```{r}
+#| label: three-tables
+head(trial[, c("id", "arm", "site", "sbp_0", "sbp_12")], 3)
+sites
+head(labs, 4)
+```
+
+
+## What is one row? {.smaller}
+
+Before you join anything, say out loud what one row of each table is. This is
+the table's **grain**.
+
+::: {style="font-size:0.92em"}
+| Table | One row is | Key |
+|---|---|---|
+| `trial` | one **patient** | `id` |
+| `sites` | one **site** | `site` |
+| `labs` | one **patient-visit** | `id` + `week` |
+:::
+
+. . .
+
+A **key** is the set of columns that identifies a row uniquely. If it does not
+identify a row uniquely, it is not a key — it is just some columns.
+
+. . .
+
+::: {.callout-important appearance="simple"}
+Joining changes the grain unless you can prove it does not. Say what the grain
+of the *result* should be before you type the join.
+:::
+
+
+## Check the keys first {.smaller}
+
+The check takes one line and it goes **before** the join, not after:
+
+```{r}
+#| label: dup-check
+sites_dup |> count(site) |> filter(n > 1)
+```
+
+. . .
+
+```{r}
+#| label: dup-check-2
+trial |> count(id) |> filter(n > 1)
+```
+
+An empty result is the answer you want: **`id` is a key of `trial`**.
+
+. . .
+
+::: {.callout-note appearance="simple"}
+`count(key) |> filter(n > 1)` is the single highest-value habit in this session.
+Run it on both tables, every time, before you join.
+:::
+
+
+# 2 · The join family {.section-divider}
+
+## Six joins, two kinds {.smaller}
+
+::: {style="font-size:0.88em"}
+| | Join | Keeps | Adds columns from `y`? |
+|---|---|---|---|
+| **Mutating** | `left_join(x, y)` | every row of `x` | yes |
+| | `inner_join(x, y)` | rows matched in **both** | yes |
+| | `right_join(x, y)` | every row of `y` | yes |
+| | `full_join(x, y)` | every row of **either** | yes |
+| **Filtering** | `semi_join(x, y)` | rows of `x` **with** a match | **no** |
+| | `anti_join(x, y)` | rows of `x` **without** a match | **no** |
+:::
+
+. . .
+
+The split is the useful thing here. A **mutating** join changes the columns and
+may change the rows. A **filtering** join changes only the rows — it is
+`filter()` with the condition stored in another table.
+
+
+## Which join do you want? {.smaller}
+
+```{mermaid}
+%%| echo: false
+%%| fig-width: 8.6
+flowchart TD
+  A{"Do you need<br/><b>columns</b> from y?"}
+  A -- "no, just to filter rows" --> B{"Keep rows that<br/>match, or that don't?"}
+  B -- match --> SEMI["<b>semi_join</b>"]
+  B -- "don't match" --> ANTI["<b>anti_join</b><br/><i>your diagnostic</i>"]
+  A -- yes --> C{"Which rows<br/>must survive?"}
+  C -- "all of x" --> L["<b>left_join</b><br/><i>the default choice</i>"]
+  C -- "only matched" --> I["<b>inner_join</b>"]
+  C -- "all of both" --> F["<b>full_join</b>"]
+  style L fill:#CFAE70,stroke:#8a7448,color:#fff
+  style ANTI fill:#CFAE70,stroke:#8a7448,color:#fff
+```
+
+
+## `left_join()`: keep every row of `x` {.smaller}
+
+```{r}
+#| label: left-join
+trial_sites <- left_join(trial, sites, by = "site")
+
+nrow(trial)
+nrow(trial_sites)
+head(trial_sites[, c("id", "arm", "site", "site_name", "n_beds")], 5)
+```
+
+::: {.callout-note appearance="simple"}
+**The base R way**
+
+```r
+merge(trial, sites, by = "site", all.x = TRUE)
+```
+:::
+
+
+## `inner_join()`: rows that vanish {.smaller}
+
+```{r}
+#| label: inner-join
+nrow(inner_join(trial, sites, by = "site"))
+```
+
+. . .
+
+Fifteen patients are gone, and **the result does not say so**.
+
+```{r}
+#| label: inner-join-arm
+inner_join(trial, sites, by = "site") |>
+  count(arm)
+```
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+An `inner_join()` is a silent exclusion criterion. If the rows it drops are not
+missing at random — and site is *never* missing at random — your analysis
+population has changed and your table 1 will not match your consort diagram.
+:::
+
+
+## `anti_join()`: the diagnostic {.smaller}
+
+Which patients failed to match?
+
+```{r}
+#| label: anti-join
+anti_join(trial, sites, by = "site") |>
+  count(site)
+```
+
+. . .
+
+And in the other direction — which sites have no patients?
+
+```{r}
+#| label: anti-join-rev
+anti_join(sites, trial, by = "site")
+```
+
+. . .
+
+::: {.callout-tip appearance="simple"}
+Run `anti_join()` **both ways** after every join you care about. It costs two
+lines and it is the difference between knowing your data and hoping.
+:::
+
+
+## The other three {.smaller}
+
+```{r}
+#| label: other-joins
+c(left  = nrow(left_join(trial, sites, by = "site")),
+  inner = nrow(inner_join(trial, sites, by = "site")),
+  right = nrow(right_join(trial, sites, by = "site")),
+  full  = nrow(full_join(trial, sites, by = "site")),
+  semi  = nrow(semi_join(trial, sites, by = "site")),
+  anti  = nrow(anti_join(trial, sites, by = "site")))
+```
+
+. . .
+
+::: {.smaller}
+- `full_join` gives **61** — the 60 patients plus one all-`NA` patient row
+  carrying site 5.
+- `right_join(x, y)` is `left_join(y, x)` with the columns in a different order.
+  **Use `left_join` and swap the arguments** — then the table your analysis is
+  about is always on the left.
+- `semi_join` gives 45 rows and **the same columns as `trial`**. Compare with
+  `inner_join`, which gives 45 rows and three more columns.
+:::
+
+
+# 3 · Predicting the row count {.section-divider}
+
+## The only rule you need {.smaller}
+
+For each row of `x`, count how many rows of `y` share its key. **Add those
+counts up.** That is the number of rows a mutating join returns.
+
+. . .
+
+::: {style="font-size:0.9em"}
+| Multiplicity in `y` | Rows out (`left_join`) | Name |
+|---|---|---|
+| exactly one for every `x` row | `nrow(x)` | one-to-one |
+| at most one, sometimes none | `nrow(x)` | **many-to-one** |
+| several for some `x` rows | **more** than `nrow(x)` | one-to-many |
+| several on both sides | **many** more | many-to-many |
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+A `left_join()` **never loses** rows. It very much can gain them. Those are two
+different facts and students conflate them constantly.
+:::
+
+
+## Many-to-one: the safe case {.smaller}
+
+`sites` has **at most one** row per `site`, so 60 rows in, 60 rows out.
+
+```{r}
+#| label: m2o
+nrow(trial)
+nrow(left_join(trial, sites, by = "site"))
+```
+
+. . .
+
+We are entitled to expect that only because we checked:
+
+```{r}
+#| label: m2o-check
+sites |> count(site) |> filter(n > 1)
+```
+
+. . .
+
+::: {.callout-note appearance="simple"}
+Most joins you write should be many-to-one: many patients, one lookup row each.
+When a join is *supposed* to be many-to-one and is not, you have found a data
+error — not a join problem.
+:::
+
+
+## One-to-many: rows multiply on purpose {.smaller}
+
+`labs` has **two** rows per patient — baseline and Session 12.
+
+```{r}
+#| label: o2m
+nrow(labs)
+trial_labs <- left_join(trial, labs, by = "id")
+nrow(trial_labs)
+```
+
+. . .
+
+`60 × 2 = 120`, predicted before running it.
+
+```{r}
+#| label: o2m-head
+head(trial_labs[, c("id", "arm", "week", "creat")], 4)
+```
+
+. . .
+
+::: {.smaller}
+This is correct and often exactly what you want — the result's grain is now
+**one row per patient-visit**. But every patient-level column is now
+**repeated**, so `mean(trial_labs$age)` is a weighted mean, not a patient mean.
+:::
+
+
+## Many-to-many: rows multiply by accident {.smaller}
+
+`sites_dup` is `sites` with **one row pasted in twice**.
+
+```{r}
+#| label: m2m
+#| warning: true
+nrow(left_join(trial, sites_dup, by = "site"))
+```
+
+. . .
+
+Site 2 has **18** patients. `60 + 18 = 78`.
+
+. . .
+
+::: {.callout-important appearance="simple"}
+Eighteen patients are now in the data twice. Every count, every mean, every
+model is wrong — and the only visible symptom is a row count that nobody looked
+at.
+:::
+
+
+## Predict, then check {.smaller}
+
+Write the prediction into the code. It costs one line:
+
+```{r}
+#| label: predict
+#| error: true
+joined <- left_join(trial, sites, by = "site")
+stopifnot(nrow(joined) == nrow(trial))
+```
+
+. . .
+
+```{r}
+#| label: predict-fail
+#| error: true
+joined_bad <- left_join(trial, sites_dup, by = "site")
+stopifnot(nrow(joined_bad) == nrow(trial))
+```
+
+. . .
+
+::: {.smaller}
+`stopifnot()` is session 12 material — borrowed here as a one-liner. It does
+nothing when the condition holds and stops the render when it does not, which is
+exactly what you want from an assumption.
+:::
+
+
+# 4 · Safety rails {.section-divider}
+
+## The `relationship` argument {.smaller}
+
+State what you believe, and let the join enforce it:
+
+```{r}
+#| label: relationship
+#| error: true
+left_join(trial, sites_dup, by = "site", relationship = "many-to-one")
+```
+
+. . .
+
+::: {.smaller}
+Four values: `"one-to-one"`, `"one-to-many"`, `"many-to-one"`,
+`"many-to-many"`. The last one is not a safety rail — it is how you tell dplyr
+you meant it, and it silences the warning.
+:::
+
+
+## The `unmatched` argument {.smaller}
+
+```{r}
+#| label: unmatched
+#| error: true
+left_join(trial, sites, by = "site", unmatched = "error")
+```
+
+. . .
+
+::: {.smaller}
+Read the message carefully. For a `left_join()`, rows of `x` are **never**
+dropped — so `unmatched=` guards the only side that can lose rows: **`y`**. It
+just told us site 5 is unused.
+:::
+
+. . .
+
+To assert that every *patient* matched, use the diagnostic:
+
+```{r}
+#| label: unmatched-anti
+nrow(anti_join(trial, sites, by = "site")) == 0
+```
+
+
+## The join checklist {.smaller}
+
+Five lines. Every join that matters.
+
+```r
+# 1. What is the grain of each table, and of the result?
+# 2. Duplicate keys?
+sites |> count(site) |> filter(n > 1)
+# 3. Predict the row count. Write the number down.
+# 4. Join, asserting the relationship.
+joined <- left_join(trial, sites, by = "site",
+                    relationship = "many-to-one")
+# 5. What failed to match, both ways?
+anti_join(trial, sites, by = "site")
+anti_join(sites, trial, by = "site")
+```
+
+. . .
+
+::: {.callout-note appearance="simple"}
+Steps 2 and 5 belong in your document, not your console. They are part of the
+analysis: they are how a reader knows the join was safe.
+:::
+
+
+# 5 · Head to head: `merge()` {.section-divider}
+
+## `merge()` anatomy {.smaller}
+
+```r
+merge(x, y,
+      by      = NULL,       # key columns, in BOTH tables
+      by.x    = ,  by.y = , # when the key has different names
+      all.x   = FALSE,      # keep unmatched rows of x?
+      all.y   = FALSE,      # keep unmatched rows of y?
+      all     = FALSE,      # shorthand for both
+      suffixes = c(".x", ".y"),
+      sort    = TRUE)       # sorts the result by the key
+```
+
+. . .
+
+::: {.smaller}
+Everything a join can do is a combination of `all.x` and `all.y`. There is no
+`how = "left"` argument; the two logicals *are* the join type.
+:::
+
+
+## The join family in both dialects {.smaller}
+
+::: {style="font-size:0.86em"}
+| dplyr | `merge()` | Rows |
+|---|---|---|
+| `inner_join(x, y, by = "k")` | `merge(x, y, by = "k")` | 45 |
+| `left_join(x, y, by = "k")` | `merge(x, y, by = "k", all.x = TRUE)` | 60 |
+| `right_join(x, y, by = "k")` | `merge(x, y, by = "k", all.y = TRUE)` | 46 |
+| `full_join(x, y, by = "k")` | `merge(x, y, by = "k", all = TRUE)` | 61 |
+| `semi_join(x, y, by = "k")` | `x[x$k %in% y$k, ]` | 45 |
+| `anti_join(x, y, by = "k")` | `x[!(x$k %in% y$k), ]` | 15 |
+:::
+
+. . .
+
+```{r}
+#| label: merge-counts
+c(inner = nrow(merge(trial, sites, by = "site")),
+  left  = nrow(merge(trial, sites, by = "site", all.x = TRUE)),
+  right = nrow(merge(trial, sites, by = "site", all.y = TRUE)),
+  full  = nrow(merge(trial, sites, by = "site", all   = TRUE)))
+```
+
+
+## The same job, twice {.smaller}
+
+**Task.** Attach site names, keep only patients at a known site, and report mean
+12-week SBP by site.
+
+::: columns
+::: {.column width="49%"}
+```{r}
+#| label: hh-tidy
+trial |>
+  inner_join(sites, by = "site") |>
+  group_by(site_name) |>
+  summarise(
+    n    = n(),
+    mean = round(mean(sbp_12), 1)
+  )
+```
+:::
+
+::: {.column width="49%"}
+```{r}
+#| label: hh-base
+m <- merge(trial, sites,
+           by = "site")
+aggregate(sbp_12 ~ site_name,
+          data = m,
+          FUN  = mean)
+```
+:::
+:::
+
+
+## `merge()` gotchas {.smaller}
+
+::: {style="font-size:0.88em"}
+| Behaviour | Consequence |
+|---|---|
+| `sort = TRUE` by default | The result is **reordered by the key**. dplyr preserves `x`'s order |
+| `by = NULL` by default | Joins on *all* common column names — or gives a **cross join** if there are none |
+| No warning on duplicate keys | 78 rows, silently. dplyr 1.1 warns |
+| `suffixes = c(".x", ".y")` | Same-named non-key columns collide into `age.x` / `age.y` |
+:::
+
+. . .
+
+```{r}
+#| label: merge-cross
+nrow(merge(trial[1:3, c("id", "arm")], sites))   # no common column
+```
+
+Three rows and four rows gave **twelve**. That is every pairing.
+
+
+# 6 · Reshaping {.section-divider}
+
+## The same data, two shapes {.smaller}
+
+::: columns
+::: {.column width="47%"}
+**Wide** — one row per patient
+
+```{r}
+#| label: wide-shape
+#| echo: false
+head(wide3, 3)
+```
+
+One column per timepoint. Good for reading, for table 1, for a paired *t*-test.
+:::
+
+::: {.column width="47%"}
+**Long** — one row per patient-visit
+
+```{r}
+#| label: long-shape
+#| echo: false
+sbp_long <- reshape(wide3,
+  direction = "long", idvar = "id",
+  varying = list(c("sbp_0", "sbp_6", "sbp_12")),
+  v.names = "sbp", timevar = "week",
+  times = c(0, 6, 12))
+sbp_long <- sbp_long[order(sbp_long$id, sbp_long$week), ]
+rownames(sbp_long) <- NULL
+head(sbp_long, 6)
+```
+
+Timepoint is a **value in a column**. Good for plotting, grouping, and mixed
+models.
+:::
+:::
+
+. . .
+
+Same 180 numbers. `60 × 3` cells becomes `180 × 1` column.
+
+
+## Which shape do you need? {.smaller}
+
+::: {style="font-size:0.9em"}
+| You want to | Shape |
+|---|---|
+| Read the data as a human | **wide** |
+| A baseline characteristics table | **wide** |
+| `sbp_12 - sbp_0` | **wide** |
+| Plot outcome against time | **long** |
+| A summary at each timepoint | **long** |
+| Fit a mixed model or GEE | **long** |
+| Send it to a clinical collaborator | **wide**, always |
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+Reshaping is not a step in a pipeline you do once. It is a thing you do **back
+and forth**, several times, in a single analysis.
+:::
+
+
+## Wide to long: `pivot_longer()` {.smaller}
+
+```r
+library(tidyr)
+
+sbp_long <- wide3 |>
+  pivot_longer(
+    cols             = c(sbp_0, sbp_6, sbp_12),
+    names_to         = "week",
+    names_prefix     = "sbp_",
+    values_to        = "sbp",
+    names_transform  = list(week = as.integer)
+  )
+```
+
+. . .
+
+```
+# A tibble: 180 × 4
+   id    arm      week   sbp
+   <chr> <chr>   <int> <dbl>
+ 1 P001  Placebo     0   160
+ 2 P001  Placebo     6   146
+ 3 P001  Placebo    12   144
+ 4 P002  Placebo     0   162
+ 5 P002  Placebo     6   165
+ 6 P002  Placebo    12   156
+ 7 P003  Placebo     0   157
+ 8 P003  Placebo     6   151
+ 9 P003  Placebo    12   156
+10 P004  Placebo     0   157
+# ℹ 170 more rows
+```
+
+::: {.dim style="font-size:0.72em"}
+`tidyr` is not installed on the teaching machine, so this block is not executed.
+The output is the real thing — base `reshape()`, three slides on, builds the
+identical table and *is* executed.
+:::
+
+
+## `names_sep`: two facts in one name {.smaller}
+
+```{r}
+#| label: bp-wide
+#| echo: false
+bp_wide
+```
+
+`sbp_12` encodes **two** things: which measurement, and which week.
+
+. . .
+
+```r
+bp_wide |>
+  pivot_longer(
+    cols      = -id,
+    names_to  = c("measure", "week"),
+    names_sep = "_"
+  )
+```
+
+```
+# A tibble: 12 × 4
+   id    measure week  value
+   <chr> <chr>   <chr> <dbl>
+ 1 P001  sbp     0       160
+ 2 P001  sbp     12      144
+ 3 P001  dbp     0        98
+ 4 P001  dbp     12       92
+ 5 P002  sbp     0       162
+ 6 P002  sbp     12      156
+ 7 P002  dbp     0        78
+ 8 P002  dbp     12       74
+```
+
+::: {.dim style="font-size:0.72em"}
+Rows 1–8 of 12. Not executed here, for the same reason as the previous slide.
+:::
+
+
+## `pivot_wider()` and the round trip {.smaller}
+
+```r
+sbp_long |>
+  pivot_wider(
+    names_from   = week,
+    values_from  = sbp,
+    names_prefix = "sbp_"
+  )
+```
+
+. . .
+
+::: {.smaller}
+`pivot_wider()` is the inverse. It needs to know which column supplies the new
+**names** and which supplies the new **values**; everything else becomes the
+identifier.
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+If the id columns plus `names_from` do not identify a row uniquely,
+`pivot_wider()` cannot put one value in one cell — so it puts a **list** in the
+cell and warns. That warning means you have duplicate measurements, which is a
+data question, not a code question.
+:::
+
+
+## Base `reshape()`: recognition only {.smaller}
+
+```{r}
+#| label: base-reshape
+sbp_long <- reshape(wide3,
+  direction = "long",
+  idvar     = "id",
+  varying   = list(c("sbp_0", "sbp_6", "sbp_12")),
+  v.names   = "sbp",
+  timevar   = "week",
+  times     = c(0, 6, 12))
+dim(sbp_long)
+```
+
+. . .
+
+```{r}
+#| label: base-reshape-back
+back <- reshape(sbp_long, direction = "wide", idvar = "id",
+                timevar = "week", v.names = "sbp", sep = "_")
+dim(back)
+```
+
+. . .
+
+::: {.callout-important appearance="simple"}
+`reshape()` works, and it round-trips exactly. The `idvar` / `timevar` /
+`varying` interface is genuinely punishing, it is easy to get subtly wrong, and
+**`pivot_longer()` is the tool you will actually use.** Learn to recognise this
+call. Do not learn to write it.
+:::
+
+
+## Why long: the plot {.smaller}
+
+```{r}
+#| label: fig-spaghetti
+#| fig-cap: "Mean systolic BP by visit and arm. Long format, three lines of ggplot2."
+#| fig-width: 8
+#| fig-height: 3.0
+ggplot(sbp_long, aes(week, sbp, colour = arm)) +
+  stat_summary(fun = mean, geom = "line", linewidth = 1.1) +
+  labs(x = "Week", y = "Mean SBP (mmHg)", colour = NULL)
+```
+
+::: {.smaller}
+Borrowed from session 1's minimum-viable plot — the grammar is session 8.
+:::
+
+
+# 7 · Window functions {.section-divider}
+
+## Within patient, in order {.smaller}
+
+`lag()` looks back one row. `group_by()` says *back within what*.
+
+```{r}
+#| label: lag-demo
+visits <- sbp_long |>
+  arrange(id, week) |>
+  group_by(id) |>
+  mutate(
+    prev_sbp = lag(sbp),
+    change   = sbp - lag(sbp)
+  ) |>
+  ungroup()
+
+head(as.data.frame(visits), 6)
+```
+
+
+## Numbering, looking forward, and baselines {.smaller}
+
+```{r}
+#| label: window-more
+sbp_long |>
+  arrange(id, week) |>
+  group_by(id) |>
+  mutate(
+    visit      = row_number(),
+    next_sbp   = lead(sbp),
+    from_base  = sbp - first(sbp)
+  ) |>
+  ungroup() |>
+  head(6) |>
+  as.data.frame()
+```
+
+::: {.smaller}
+`row_number()` numbers rows within group · `lead()` looks forward · `first()`
+takes the group's first value · `cumsum()` accumulates.
+:::
+
+
+## Summary {.smaller}
+
+- State the grain and keys of every table before joining.
+- Predict row counts and detect duplicate keys before the join.
+- Use anti-joins to inspect unmatched records in both directions.
+- Wide and long forms encode different observation units.
+- Order explicitly before lagged or cumulative operations.
+
+. . .
+
+**Next connection:** Session 8 uses the long, validated analysis table to build statistical figures.
+

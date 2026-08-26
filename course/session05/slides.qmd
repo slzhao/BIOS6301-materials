@@ -1,0 +1,825 @@
+---
+title: "Getting Data In: Files, Import Checks, Dates"
+subtitle: "BIOS 6301 · Introduction to Statistical Computing"
+author: "Department of Biostatistics, Vanderbilt University Medical Center"
+date: "Session 5"
+date-format: "[Session 5]"
+format:
+  revealjs:
+    theme: simple
+    css: ../../slides.css
+    slide-number: c/t
+    show-slide-number: all
+    incremental: false
+    width: 1280
+    height: 720
+    fig-align: center
+    code-line-numbers: false
+    highlight-style: github
+    footer: "BIOS 6301 · Session 5 · Getting data in"
+    navigation-mode: linear
+execute:
+  enabled: true
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(knitr)
+
+# Synthetic teaching data for BIOS 6301. Not real patients.
+set.seed(6301)
+n <- 60
+trial <- data.frame(
+  id        = sprintf("P%03d", 1:n),
+  arm       = rep(c("Placebo", "Treatment"), each = n / 2),
+  site      = sample(1:4, n, replace = TRUE),
+  age       = round(rnorm(n, 61, 9)),
+  sex       = sample(c("F", "M"), n, replace = TRUE),
+  weight_kg = round(rnorm(n, 82, 15), 1),
+  sbp_0     = round(rnorm(n, 148, 14)),
+  stringsAsFactors = FALSE
+)
+trial$sbp_12 <- round(trial$sbp_0 -
+  ifelse(trial$arm == "Treatment", rnorm(n, 14, 8), rnorm(n, 3, 8)))
+
+# ---------------------------------------------------------------------------
+# Everything below manufactures the FILES this deck reads, so that every import
+# demonstration on the slides is a genuine import of a genuine file rather than
+# a transcript. Derived from `trial`; what we broke, and where each break is
+# used:
+#   creat      character, because 3 records hold "NA" and 2 hold "<0.30".
+#              One of the "NA" records is row 2, so the defect is visible in
+#              the first few lines of the file on the readLines() slide.
+#   wt         -99 for "not recorded" in 4 records   (session 3 callback)
+#   sbp12      -99 in 2 records
+#   sex        an empty field in 2 records
+#   visit_0    dates written as m/d/Y
+#   visit_12   dates written as m/d/Y, except 3 records written as d-b-Y
+#   dob_ser    dates written as Windows Excel serial numbers
+# Plus three small files: a semicolon/decimal-comma export, a REDCap-style
+# export with metadata lines above the header, and a Latin-1 encoded file.
+# ---------------------------------------------------------------------------
+dir.create("data", showWarnings = FALSE)
+
+visit_0  <- as.Date("2023-01-09") + sample(0:180, n, replace = TRUE)
+visit_12 <- visit_0 + 84 + sample(-6:6, n, replace = TRUE)
+dob      <- visit_0 - round(trial$age * 365.25) - sample(0:300, n, replace = TRUE)
+
+export <- data.frame(
+  id       = trial$id,
+  arm      = trial$arm,
+  sex      = trial$sex,
+  wt       = trial$weight_kg,
+  sbp12    = trial$sbp_12,
+  creat    = as.character(round(rnorm(n, 0.95, 0.25), 2)),
+  visit_0  = format(visit_0, "%m/%d/%Y"),
+  visit_12 = format(visit_12, "%m/%d/%Y"),
+  dob_ser  = as.numeric(dob - as.Date("1899-12-30")),
+  stringsAsFactors = FALSE
+)
+export$creat[c(2, 23, 41)]    <- "NA"
+export$creat[c(12, 55)]       <- "<0.30"
+export$wt[c(3, 19, 44, 58)]   <- -99
+export$sbp12[c(9, 30)]        <- -99
+export$sex[c(5, 27)]          <- ""
+export$visit_12[c(4, 17, 38)] <- format(visit_12[c(4, 17, 38)], "%d-%b-%Y")
+write.csv(export, "data/trial_export.csv", row.names = FALSE)
+
+# A site that exports from a German-locale Excel: semicolons, decimal commas.
+writeLines(c("id;wt;sbp12",
+             "P061;90,4;160",
+             "P062;67,8;162",
+             "P063;101,2;139"), "data/site4_export.csv")
+
+# A REDCap-style export: two metadata lines and a blank one above the header.
+writeLines(c("Study 42 - Blood Pressure Substudy",
+             "Exported 2024-03-04 09:12 by s.zhao",
+             "",
+             "Patient ID,Weight (kg),SBP @ 12wk,% change",
+             "P061,90.4,142,-11.2",
+             "P062,67.8,151,-6.8"), "data/redcap_export.csv")
+
+# Latin-1 bytes, written as raw so the file really is mis-encoded.
+writeBin(c(charToRaw("id,clinician\nP061,Bj"), as.raw(0xf6),
+           charToRaw("rn Andr"), as.raw(0xe9), charToRaw("\n")),
+         "data/clinicians.csv")
+```
+
+## Where we are {.smaller}
+
+| Course arc | Sessions | |
+|---|---:|---|
+| Setup and workflow | 0–2 |  |
+| **Data foundations** | **3–8** | **← today** |
+| Modern tools | 9–10 |  |
+| R programming | 11–13 |  |
+| Statistical computing | 14–16 |  |
+
+Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
+
+
+## What you will be able to do {.smaller}
+
+::: {.smaller}
+[1]{.objective-num} **Import** a delimited file with `read.csv()`, and **state**
+rather than guess what type each column should be.
+
+[2]{.objective-num} **Convert** missing-value codes to `NA` at import, and say
+why the door is the right place to do it.
+
+[3]{.objective-num} **Diagnose** a file that is not what it claims to be — wrong
+delimiter, header junk, wrong encoding.
+
+[4]{.objective-num} **Read** Excel, SPSS and Stata files, and know what each
+format drags along with it.
+
+[5]{.objective-num} **Choose** between `write.csv()` and `saveRDS()`, and explain
+why the workspace is never saved.
+
+[6]{.objective-num} **Parse** dates, do arithmetic on them, and rescue Excel
+serial numbers.
+
+[7]{.objective-num} **Recognise** the import failures that produce a wrong
+answer rather than an error.
+:::
+
+
+## Roadmap for today {.smaller}
+
+| | Block | Minutes |
+|---|---|---|
+| 1 | A file is not a data frame: `read.csv()` and its arguments | 15 |
+| 2 | Missing-value codes, handled at the door | 12 |
+| 3 | When the file is not a friendly CSV | 15 |
+| 4 | Excel, SPSS, Stata — and `readr` | 10 |
+| 5 | Getting data back out; never saving the workspace | 8 |
+| 6 | Dates and times | 25 |
+| 7 | Practice and summary | 5 |
+
+: {tbl-colwidths="[6,64,30]"}
+
+. . .
+
+Blocks 1–3 are one habit repeated: **look, then state your intent, then verify.**
+
+
+# 1 · A file is not a data frame {.section-divider}
+
+## What `read.csv()` actually does {.smaller}
+
+```{mermaid}
+%%| echo: false
+%%| fig-width: 10
+flowchart LR
+  F["<b>bytes on disk</b><br/>trial_export.csv"] --> D["split into<br/>lines and fields<br/><i>sep, quote, dec</i>"]
+  D --> E["decode characters<br/><i>fileEncoding</i>"]
+  E --> H["header row?<br/><i>header, skip</i>"]
+  H --> M["which text<br/>means missing?<br/><i>na.strings</i>"]
+  M --> G["<b>guess a type<br/>per column</b><br/><i>colClasses</i>"]
+  G --> DF["data.frame"]
+  style F fill:#f4efe4,stroke:#CFAE70
+  style G fill:#CFAE70,stroke:#8a7448,color:#fff
+  style DF fill:#CFAE70,stroke:#8a7448,color:#fff
+```
+
+. . .
+
+**Six decisions, and you made none of them.** Each argument named under a box is
+a place where R chose for you — correctly most of the time, and silently either way.
+
+
+## Look at the file before you read it {.smaller}
+
+```{r}
+#| label: readlines
+writeLines(readLines("data/trial_export.csv", n = 4))
+```
+
+. . .
+
+::: {.smaller}
+Four lines of raw text, and already visible:
+
+- **quoted** character fields, unquoted numbers — so `write.csv()` made this
+- `"NA"` as *text*, in a creatinine column
+- `-99` where a weight should be
+- dates as `04/08/2023` — **month first, or day first?**
+:::
+
+
+## `read.csv()`, argument by argument {.smaller}
+
+::: {style="font-size:0.80em"}
+| Argument | Default | Set it when |
+|---|---|---|
+| `file` | — | Always. A **relative** path, via `here::here()` |
+| `header` | `TRUE` | The file has no header row → `FALSE`, then set `col.names` |
+| `sep` | `","` | Tabs (`"\t"`), semicolons (`";"`), pipes (`"|"`) |
+| `dec` | `"."` | A European export uses a decimal comma → `","` |
+| `na.strings` | `"NA"` | **Almost always.** Block 2 |
+| `colClasses` | guessed | You know what the types should be. Block 1 |
+| `skip` | `0` | Metadata lines sit above the header |
+| `nrows` | `-1` | Peeking at a large file, or a junk footer |
+| `check.names` | `TRUE` | You want the original column names → `FALSE` |
+| `fileEncoding` | native | Accented characters arrive as rubbish. Block 3 |
+| `strip.white` | `FALSE` | Unquoted fields have padding spaces |
+| `comment.char` | `""` | A `#` legend at the foot of the file |
+:::
+
+
+## What type guessing gave you {.smaller}
+
+```{r}
+#| label: naive-read
+raw <- read.csv("data/trial_export.csv")
+str(raw)
+```
+
+
+## State the types instead of guessing {.smaller}
+
+```{r}
+#| label: colclasses
+raw <- read.csv(
+  "data/trial_export.csv",
+  colClasses = c(id = "character", arm = "factor", sex = "factor",
+                 wt = "numeric", sbp12 = "integer", creat = "character",
+                 visit_0 = "character", visit_12 = "character",
+                 dob_ser = "integer")
+)
+str(raw[, c("id", "arm", "sbp12")])
+```
+
+. . .
+
+::: {.smaller}
+`colClasses` is a **contract**. If the file changes shape — a new value in a
+numeric column, a renamed field — you find out at import instead of three chunks
+later.
+:::
+
+
+## `stringsAsFactors`: what changed in R 4.0 {.smaller}
+
+::: {style="font-size:0.9em"}
+| | Before R 4.0 | R 4.0 and later |
+|---|---|---|
+| `read.csv()` default | character → **factor** | character stays **character** |
+| `data.frame()` default | character → **factor** | character stays **character** |
+:::
+
+. . .
+
+::: {.smaller}
+So a script written in 2018 and run today gives you *different objects*. Symptoms:
+`levels()` returning `NULL`, a model with a numeric term where a categorical one
+was intended, and the `as.numeric(as.factor(x))` catastrophe from session 4 —
+which used to happen by accident and now takes effort.
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+Write `stringsAsFactors = FALSE` explicitly in inherited code you are repairing.
+Not because you need it — because it documents that you noticed.
+:::
+
+
+# 2 · Missing values, handled at the door {.section-divider}
+
+## "Missing" is written a dozen ways {.smaller}
+
+::: {style="font-size:0.82em"}
+| In the file | Comes from | Import default |
+|---|---|---|
+| `NA` | R, or a well-behaved export | `NA` ✓ |
+| *empty field* | Excel, REDCap, almost everything | `NA` if numeric, `""` if character |
+| `.` | SAS | text → **column becomes character** |
+| `-99`, `-999`, `999`, `9999` | Fortran-era CRFs, SPSS conventions | a number ✗ |
+| `NULL`, `N/A`, `#N/A`, `n/a` | databases, Excel formulas | text → character ✗ |
+| `Unknown`, `Not recorded`, `Missing` | free-text data entry | text → character ✗ |
+| `-1` for a count, `0` for a date | a field that "cannot be blank" | a number ✗ |
+:::
+
+. . .
+
+Session 3 showed you how to **find** these. Today they never get in.
+
+
+## `na.strings` — do it at the door {.smaller}
+
+```{r}
+#| label: na-strings
+clean <- read.csv("data/trial_export.csv",
+                  na.strings = c("NA", "", "-99", "999"))
+summary(clean$wt)
+colSums(is.na(clean))
+```
+
+
+## What `na.strings` cannot fix {.smaller}
+
+```{r}
+#| label: na-strings-limits
+str(clean$creat)
+clean$creat[c(2, 12)]
+```
+
+. . .
+
+::: {.smaller}
+The three `"NA"` records became `NA`. The two `"<0.30"` records did not, because
+`"<0.30"` is not a missing value — it is **a measurement below the assay's limit
+of detection**, and throwing it away is a modelling decision, not a cleaning one.
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+The column is still `character`. One unhandled value is enough — session 3.
+:::
+
+
+## Then prove it {.smaller}
+
+```{r}
+#| label: prove-it
+summary(clean[, c("wt", "sbp12")])
+table(clean$sex, useNA = "ifany")
+```
+
+. . .
+
+::: {.smaller}
+`na.strings` states an **intention**. These two lines are the **evidence**. An
+import is not finished until the ranges are plausible and the `NA` counts are
+ones you can explain.
+:::
+
+
+# 3 · When the file is not a friendly CSV {.section-divider}
+
+## Delimiters and the decimal comma {.smaller}
+
+```{r}
+#| label: euro-bad
+writeLines(readLines("data/site4_export.csv", n = 2))
+str(read.csv("data/site4_export.csv"))
+```
+
+. . .
+
+```{r}
+#| label: euro-good
+str(read.csv("data/site4_export.csv", sep = ";", dec = ","))
+```
+
+
+## Header junk, and names R rewrites {.smaller}
+
+```{r}
+#| label: junk-bad
+#| error: true
+writeLines(readLines("data/redcap_export.csv", n = 4))
+read.csv("data/redcap_export.csv")
+```
+
+. . .
+
+```{r}
+#| label: junk-good
+names(read.csv("data/redcap_export.csv", skip = 3))
+names(read.csv("data/redcap_export.csv", skip = 3, check.names = FALSE))
+```
+
+
+## Encodings {.smaller}
+
+```{r}
+#| label: encoding
+lines <- readLines("data/clinicians.csv")
+validUTF8(lines)
+```
+
+. . .
+
+::: {.smaller}
+Line 2 is not valid UTF-8. It is **Latin-1** — one byte per character — and R
+read it as though it were UTF-8.
+:::
+
+```r
+# the fix: tell the reader what the bytes mean
+read.csv("data/clinicians.csv", fileEncoding = "latin1")
+#>     id      clinician
+#> 1 P061  Björn André
+```
+
+
+# 4 · Excel, SPSS, Stata — and readr {.section-divider}
+
+## Excel via `readxl` {.smaller}
+
+```r
+library(readxl)
+
+# What sheets are in here?
+excel_sheets("data/study42.xlsx")
+#> [1] "ReadMe"  "Enrolment"  "Labs"  "Sheet3"
+
+labs <- read_excel(
+  "data/study42.xlsx",
+  sheet = "Labs",
+  range = "A4:H210",              # skip the title block, stop before the totals
+  col_types = c("text", "text", "date", rep("numeric", 5)),
+  na = c("", "NA", "-99")
+)
+```
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+Excel is a **data-entry application**, not a file format. It silently reformats
+IDs as numbers, turns gene names into dates, stores a date as a number whose
+origin depends on which decade the workbook was made in, and lets a total row sit
+below the data.
+:::
+
+
+## SPSS and Stata via `haven` {.smaller}
+
+```r
+library(haven)
+
+d <- read_sav("data/study42.sav")     # SPSS   .sav
+d <- read_dta("data/study42.dta")     # Stata  .dta
+d <- read_xpt("data/adsl.xpt")        # SAS transport  .xpt
+```
+
+. . .
+
+::: {.smaller}
+These formats carry **metadata R has no native place for**: variable labels,
+value labels, user-defined missing codes. `haven` keeps them on a `labelled`
+column.
+:::
+
+```r
+attr(d$arm, "labels")      #  Placebo = 1, Treatment = 2
+as_factor(d$arm)           #  labelled -> factor, using the labels
+zap_labels(d$arm)          #  labelled -> plain numeric, labels discarded
+d$sex <- as_factor(d$sex)  #  do this once, deliberately, at import
+```
+
+
+## `readr::read_csv()` {.smaller}
+
+```r
+library(readr)
+d <- read_csv("data/trial_export.csv")
+#> Rows: 60 Columns: 9
+#> -- Column specification ------------------------------------
+#> chr (6): id, arm, sex, creat, visit_0, visit_12
+#> dbl (3): wt, sbp12, dob_ser
+```
+
+. . .
+
+::: {.smaller}
+That message is the **best thing about it** — the parser tells you what it
+decided, every time. Then you replace the guess with a contract:
+:::
+
+```r
+d <- read_csv(
+  "data/trial_export.csv",
+  col_types = cols(id = col_character(), wt = col_double(),
+                   visit_0 = col_date(format = "%m/%d/%Y")),
+  na = c("", "NA", "-99")
+)
+```
+
+```r
+# the base R way
+read.csv("data/trial_export.csv", colClasses = c(id = "character"),
+         na.strings = c("", "NA", "-99"))
+```
+
+
+# 5 · Getting data back out {.section-divider}
+
+## What CSV cannot carry {.smaller}
+
+```{r}
+#| label: roundtrip
+small <- data.frame(mrn = c("0042", "0007"),
+                    visit = as.Date(c("2024-01-03", "2024-02-11")),
+                    arm = factor(c("Placebo", "Treatment")))
+write.csv(small, "data/small.csv", row.names = FALSE)
+str(read.csv("data/small.csv"))
+```
+
+. . .
+
+::: {.smaller}
+Three columns in, three columns wrecked. A CSV holds **text**, and nothing else —
+no types, no factor levels, no attributes. `write.csv()` then `read.csv()` is a
+round trip through a format that cannot represent what you had.
+:::
+
+
+## `saveRDS()` for R objects {.smaller}
+
+```{r}
+#| label: rds
+saveRDS(small, "data/small.rds")
+str(readRDS("data/small.rds"))
+```
+
+. . .
+
+::: {style="font-size:0.84em"}
+| | Use for | Keeps types | Readable by |
+|---|---|---|---|
+| `write.csv()` | handing data to **someone else** | no | everything |
+| `saveRDS()` | one object, for **your own next step** | yes | R only |
+| `save()` / `load()` | several objects at once | yes | R only — **and it renames your objects** |
+:::
+
+
+## Never save the workspace {.smaller}
+
+::: {.smaller}
+- `.RData` restored at startup means your session begins with objects **no code in
+  your project created**
+- The object in memory and the code on the page drift apart, and nothing warns you
+- `save.image()` at the end of a script is the same bug, made deliberate
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+Tools → Global Options → **Restore .RData: never**, **Save workspace: never**.
+:::
+
+. . .
+
+::: {.smaller}
+The reproducible alternative, already yours since session 1: **the script is the
+state.** Anything you need, you re-create by running code. Anything expensive,
+you cache with `saveRDS()` and a named file you can point at.
+:::
+
+
+# 6 · Dates and times {.section-divider}
+
+## A date is a number {.smaller}
+
+```{r}
+#| label: date-is-number
+d <- as.Date("2024-03-04")
+class(d)
+as.numeric(d)
+d + 84
+```
+
+. . .
+
+::: {.smaller}
+A `Date` is **days since 1970-01-01**, stored as a number and printed as a date.
+That is why `d + 84` works and why `d1 - d2` gives you an interval.
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+A character column that *looks* like a date supports none of this. `"2024-03-04"
++ 84` is an error, and `"03/04/2024" < "12/31/2023"` is `TRUE`.
+:::
+
+
+## Parsing with `as.Date()` {.smaller}
+
+```{r}
+#| label: parse-dates
+as.Date("2024-03-04")                              # ISO: no format needed
+as.Date("03/04/2024", format = "%m/%d/%Y")
+as.Date("04-Mar-2024", format = "%d-%b-%Y")
+as.Date("Mar 4, 2024", format = "%b %d, %Y")
+```
+
+. . .
+
+::: {style="font-size:0.82em"}
+| Code | Means | Matches |
+|---|---|---|
+| `%Y` / `%y` | year, 4-digit / 2-digit | `2024` / `24` |
+| `%m` | month, as a number | `03` |
+| `%b` / `%B` | month name, short / full | `Mar` / `March` |
+| `%d` | day of month | `04` |
+| `%H:%M:%S` | time of day | `14:30:00` |
+:::
+
+. . .
+
+`%b` and `%B` are **locale-dependent**. A French export gives you `mars`, and
+your parse returns `NA`.
+
+
+## `3/4/24` {.smaller}
+
+```{r}
+#| label: ambiguous
+x <- c("3/4/24", "12/31/23", "7/15/24")
+as.Date(x, format = "%m/%d/%y")
+as.Date(x, format = "%d/%m/%y")
+```
+
+. . .
+
+::: {.smaller}
+The first value parsed **both ways, silently, into different dates**. The other
+two failed loudly under the wrong format — because 31 and 15 cannot be months.
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+A day-first file read as month-first is wrong on every date where both parts are
+≤ 12 — about **a third of the year** — and correct-looking everywhere else.
+:::
+
+
+## Two formats in one column {.smaller}
+
+```{r}
+#| label: mixed-formats
+v <- read.csv("data/trial_export.csv")$visit_12
+d <- as.Date(v, format = "%m/%d/%Y")
+sum(is.na(d))
+v[is.na(d)]
+```
+
+. . .
+
+```{r}
+#| label: mixed-fix
+d[is.na(d)] <- as.Date(v[is.na(d)], format = "%d-%b-%Y")
+sum(is.na(d))
+range(d)
+```
+
+
+## Components and arithmetic {.smaller}
+
+```{r}
+#| label: date-arith
+d0  <- as.Date(read.csv("data/trial_export.csv")$visit_0, format = "%m/%d/%Y")
+d12 <- as.Date(read.csv("data/trial_export.csv")$visit_12, format = "%m/%d/%Y")
+head(as.numeric(format(d0, "%Y")))                    # year as a number
+head(difftime(d12, d0, units = "days"), 3)            # explicit units
+head(as.numeric(d12 - d0), 3)                         # plain numbers
+summary(as.numeric(d12 - d0))
+```
+
+
+## Excel serial dates {.smaller}
+
+```{r}
+#| label: excel-serial
+head(read.csv("data/trial_export.csv")$dob_ser, 3)
+head(as.Date(read.csv("data/trial_export.csv")$dob_ser,
+             origin = "1899-12-30"), 3)
+```
+
+. . .
+
+::: {style="font-size:0.84em"}
+| Workbook | Serial 1 is | `origin =` |
+|---|---|---|
+| Windows Excel, and everything modern | 1900-01-01 | `"1899-12-30"` |
+| Legacy Mac Excel (pre-2011) | 1904-01-02 | `"1904-01-01"` |
+:::
+
+. . .
+
+Use the wrong one and every date lands **four years and a day** out — plausibly,
+and with no warning.
+
+
+## Times, and time zones {.smaller}
+
+```{r}
+#| label: posix
+t1 <- as.POSIXct("2024-03-04 14:30:00", tz = "America/Chicago")
+as.numeric(t1)                                     # seconds since 1970
+format(t1, tz = "UTC", usetz = TRUE)
+difftime(as.POSIXct("2024-03-04 14:30:00", tz = "UTC"), t1, units = "hours")
+```
+
+. . .
+
+::: {.smaller}
+`POSIXct` is **seconds** since 1970-01-01 UTC. A time with no `tz` uses your
+machine's zone — so the same code gives different answers on different laptops.
+:::
+
+::: {.callout-warning appearance="simple"}
+Always name the zone. `"America/Chicago"`, not `"CST"`.
+:::
+
+
+## `lubridate`, the friendlier version {.smaller}
+
+```r
+library(lubridate)
+
+ymd("2024-03-04");  mdy("03/04/2024");  dmy("4 March 2024")   # named parsers
+year(d); month(d); day(d); wday(d, label = TRUE)              # components
+d + days(84);  d %m+% months(3)                               # safe arithmetic
+interval(dob, visit) / years(1)                               # exact age
+with_tz(t1, "UTC");  force_tz(t1, "UTC")                      # two different jobs
+```
+
+. . .
+
+```r
+# the base R way
+as.Date("03/04/2024", format = "%m/%d/%Y")
+as.numeric(format(d, "%Y"))
+```
+
+. . .
+
+::: {.smaller}
+`mdy()` versus `dmy()` puts the ambiguity **in the function name**, where a
+reader can see it. That is the real gain, not the typing.
+:::
+
+
+# 7 · Wrap {.section-divider}
+
+## Import problems that do not error {.smaller}
+
+::: {style="font-size:0.78em"}
+| Symptom | Cause | Fix |
+|---|---|---|
+| Data frame has **one column** | Wrong `sep` | `sep = ";"` / `"\t"`, or `read.csv2()` |
+| Numeric column arrives as `chr` | One non-numeric value in it | Find it, then `na.strings` or repair |
+| Leading zeros gone from an ID | Type guessing made it an integer | `colClasses = c(mrn = "character")` |
+| Mean is implausible; `min` is `-99` | Sentinel value | `na.strings = c("NA", "-99")` |
+| `table()` shows a nameless category | Empty fields, not `NA` | Add `""` to `na.strings` |
+| Column name not found | `check.names` mangled it | `names(df)` right after import |
+| Dates all `NA` | `format` does not match the file | `readLines()`, then match it exactly |
+| Dates *partly* `NA` | Two formats, or day-first read month-first | Two passes; check `range()` |
+| A column of five-digit integers | Excel serial dates | `as.Date(x, origin = "1899-12-30")` |
+| Accented names are rubbish | Encoding mismatch | `fileEncoding = "latin1"` |
+| First column called `X` | `write.csv()` without `row.names = FALSE` | Re-export |
+| Row count is 1 more than expected | A totals row at the foot of the sheet | `nrows =`, or `range =` in `read_excel()` |
+:::
+
+
+## What a defensible import looks like {.smaller}
+
+```r
+raw <- read.csv(
+  here::here("data", "trial_export.csv"),
+  na.strings  = c("NA", "", "-99", "999"),   # per the data dictionary, v2.1
+  colClasses  = c(id = "character"),
+  strip.white = TRUE
+)
+raw$visit_0 <- as.Date(raw$visit_0, format = "%m/%d/%Y")
+
+str(raw)
+dim(raw)
+summary(raw)
+table(raw$arm, useNA = "ifany")
+colSums(is.na(raw))
+range(raw$visit_0)
+```
+
+. . .
+
+::: {.smaller}
+Ten lines. The comment naming the data-dictionary version is not decoration — it
+is the only record of **why** those codes and not others.
+:::
+
+
+## Summary {.smaller}
+
+- Import is a translation governed by explicit assumptions.
+- Inspect the file and the returned object before analysis.
+- Declare missing-value codes and date formats at the boundary.
+- Validate dimensions, keys, types, ranges, categories, and missingness.
+- Choose export format according to what must be preserved.
+
+. . .
+
+**Next connection:** Session 6 expresses familiar row, column, transformation, and summary operations with dplyr.
+

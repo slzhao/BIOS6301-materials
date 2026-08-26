@@ -1,0 +1,53 @@
+---
+title: "Session 7 guided lab"
+subtitle: "Build a validated repeated-measures table"
+---
+
+::: {.callout-note}
+**Suggested use:** tasks 1–8 are the core reshape-and-join route. Additional
+practice examines failed relationships, unmatched records, missing combinations,
+and multi-measure reshaping. It may be completed independently after lab.
+:::
+
+Copy `starter/reshape-joins-lab.qmd` to `work/session07/`.
+
+## Tasks
+
+1. State the row unit and candidate key for both supplied tables.
+2. Detect the deliberate duplicate participant key before joining.
+3. Resolve it using the supplied adjudication rule; do not merely use `distinct()`.
+4. Reshape marker columns from wide to long and parse week as integer.
+5. Predict and perform a many-to-one join with participant metadata.
+6. Validate row count, key uniqueness, and unmatched IDs.
+7. Calculate within-participant change after ordering visits.
+8. Pivot back to wide and verify values against the original marker columns.
+
+## Additional practice: make join failures visible
+
+1. Join the unresolved participant table deliberately and quantify its row
+   multiplication. Identify exactly which key produced the additional rows.
+2. Request a many-to-one relationship in a join before adjudication and capture
+   the resulting error as evidence that the relationship check works.
+3. Produce separate reports for marker IDs without metadata and metadata IDs
+   without marker measurements using anti-joins or base-R set operations.
+4. Add a week-8 marker column to a copy of the wide table, reshape all three weeks,
+   and create the complete expected `(id, week)` grid.
+5. Identify missing participant-week combinations separately from rows whose
+   marker is present as an explicit `NA`.
+6. Add parallel `se_w0`, `se_w4`, and `se_w8` columns and reshape marker and SE
+   together using the `.value` convention or a documented base-R equivalent.
+7. Return the multi-measure table to wide form and verify a complete round trip
+   for both marker and SE.
+8. Write a short join contract stating row unit, left and right keys, expected
+   relationship, allowed unmatched records, and post-join checks.
+
+### Independent-practice check
+
+The unresolved join must fail or visibly multiply rows. The adjudicated join must
+preserve the intended participant-visit key, and unmatched IDs must remain in an
+explicit audit table.
+
+## Exit evidence
+
+Render the predictions, validation checks, and explanation of the duplicate-key
+resolution.

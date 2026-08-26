@@ -1,0 +1,919 @@
+---
+title: "RStudio and Reproducible Documents"
+subtitle: "BIOS 6301 · Introduction to Statistical Computing"
+author: "Department of Biostatistics, Vanderbilt University Medical Center"
+date: "Session 1"
+date-format: "[Session 1]"
+format:
+  revealjs:
+    theme: simple
+    css: ../../slides.css
+    slide-number: c/t
+    show-slide-number: all
+    incremental: false
+    width: 1280
+    height: 720
+    fig-align: center
+    code-line-numbers: false
+    highlight-style: github
+    footer: "BIOS 6301 · Session 1 · RStudio and Reproducible Documents"
+    navigation-mode: linear
+execute:
+  enabled: true
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+set.seed(6301)
+# Small synthetic trial dataset used for the live examples in this deck.
+trial <- data.frame(
+  id     = sprintf("P%03d", 1:60),
+  arm    = rep(c("Placebo", "Treatment"), each = 30),
+  age    = round(rnorm(60, 61, 9)),
+  sex    = sample(c("F", "M"), 60, replace = TRUE),
+  sbp_0  = round(rnorm(60, 148, 14)),
+  sbp_12 = NA_real_
+)
+trial$sbp_12 <- round(trial$sbp_0 -
+  ifelse(trial$arm == "Treatment", rnorm(60, 14, 8), rnorm(60, 3, 8)))
+```
+
+## Where we are {.smaller}
+
+| Course arc | Sessions | |
+|---|---:|---|
+| **Setup and workflow** | **0–2** | **← today** |
+| Data foundations | 3–8 |  |
+| Modern tools | 9–10 |  |
+| R programming | 11–13 |  |
+| Statistical computing | 14–16 |  |
+
+Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
+
+
+## What you will be able to do {.smaller}
+
+::: {.smaller}
+[1]{.objective-num} **Navigate** the four RStudio panes and distinguish R from
+the RStudio interface.
+
+[2]{.objective-num} **Write and run** saved commands in an `.R` script rather
+than relying on console history.
+
+[3]{.objective-num} **Build** an `.Rmd` document containing YAML, Markdown,
+R chunks, inline R, and appropriate knitr chunk options.
+
+[4]{.objective-num} **Apply** that document workflow in `.qmd`, using Quarto's
+`format:` key and `#|` cell-option syntax.
+
+[5]{.objective-num} **Choose** a deliberate path strategy for project data and
+for large or protected data stored elsewhere.
+
+[6]{.objective-num} **Explain** why reproducibility is part of statistical
+quality rather than end-of-project clerical work.
+
+[7]{.objective-num} **Verify** that a document renders from a clean R session.
+:::
+
+
+## Roadmap for today
+
+| | Block | Minutes |
+|---|---|---|
+| 1 | RStudio workbench and `.R` scripts | 20 |
+| 2 | R Markdown documents and knitr options | 25 |
+| 3 | What Quarto adds or changes | 15 |
+| 4 | Reproducible projects, paths, and the Duke case | 20 |
+| 5 | Clean-session rendering and summary | 10 |
+
+: {tbl-colwidths="[6,64,30]"}
+
+. . .
+
+**In lab this session** you build and render your first report. Today is the
+material you need in order to do that.
+
+
+## Two useful R styles, one analytical standard {.smaller}
+
+- Sessions 3–5 emphasize **base R** so everyone can read inherited R code.
+- Sessions 6–7 teach the **tidyverse** and compare equivalent operations.
+- When an exercise does not require a particular tool, **students may choose** the clearer approach.
+- Correctness, statistical meaning, verification, and reproducibility matter more than dialect.
+
+
+# 1 · RStudio and the workbench {.section-divider}
+
+## R and RStudio are not the same {.smaller}
+
+::: columns
+::: {.column width="48%"}
+### R
+
+- The statistical programming language
+- Performs calculations
+- Stores objects in a running R session
+- Can run without RStudio
+:::
+
+::: {.column width="48%"}
+### RStudio
+
+- An integrated development environment, or IDE
+- Provides an editor, Console, plots, Help, projects, and Git tools
+- Sends instructions to R
+- Does not replace R
+:::
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+If RStudio opens but R is not installed or configured, the interface exists but
+there is no R engine available to execute your code.
+:::
+
+
+## The four primary panes {.smaller}
+
+::: {style="font-size:0.88em"}
+| Pane | What it contains | Use it for |
+|---|---|---|
+| **Source** | Saved `.R`, `.Rmd`, and `.qmd` files | Writing work that should persist |
+| **Console** | The current interactive R session | Short experiments and immediate feedback |
+| **Environment** | Objects currently held in memory; History and Git tabs | Inspecting temporary session state |
+| **Output** | Files, Plots, Packages, Help, Viewer | Inspecting files, results, and documentation |
+:::
+
+. . .
+
+Pane locations can be customized. Learn their **functions**, not merely their
+default positions.
+
+
+## The Console is a conversation with the current session {.smaller}
+
+```r
+2 + 2
+
+x <- c(4, 7, 9)
+mean(x)
+```
+
+::: columns
+::: {.column width="48%"}
+### Useful for
+
+- Testing one expression
+- Asking for help: `?mean`
+- Inspecting an object: `str(x)`
+:::
+
+::: {.column width="48%"}
+### Not a durable record
+
+- Commands may be incomplete or out of order
+- Objects disappear when the session ends
+- Console history does not explain analytical decisions
+:::
+:::
+
+
+## Your first saved `.R` script {.smaller}
+
+**File → New File → R Script**, then save as `analysis.R`.
+
+```r
+# Summarize the synthetic clinic data
+clinic <- read.csv("data/clinic_summary.csv")
+
+n_records <- nrow(clinic)
+mean_age <- mean(clinic$age, na.rm = TRUE)
+
+n_records
+mean_age
+```
+
+An `.R` file contains R instructions and comments. It does not automatically
+contain formatted narrative or the results produced when the code runs.
+
+
+## Run a line, a selection, or the entire script {.smaller}
+
+::: {style="font-size:0.88em"}
+| Action | RStudio command | Appropriate use |
+|---|---|---|
+| Current line or selection | {{< kbd Ctrl-Enter >}} / {{< kbd Cmd-Enter >}} | Develop and inspect small steps |
+| Entire script | **Source** button or `source("analysis.R")` | Test whether the saved script is complete |
+| Restart R | {{< kbd Ctrl-Shift-F10 >}} / {{< kbd Cmd-Shift-0 >}} | Remove hidden session state |
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+Running selected lines answers “does this step work now?” Sourcing after a
+restart answers “does the saved script contain everything it needs?”
+:::
+
+
+## Console versus `.R` script {.smaller}
+
+| | Console | `.R` script |
+|---|---|---|
+| Immediate feedback | Yes | Yes, when sent to R |
+| Saved deliberately | No | Yes |
+| Easy to rerun in order | Fragile | Yes |
+| Contains formatted report text | No | No |
+| Best role | Exploration | Reusable analysis instructions |
+
+. . .
+
+The next step is to connect saved instructions with the explanation and results
+they produce.
+
+
+# 2 · R Markdown documents {.section-divider}
+
+## R Markdown is the practical starting point {.smaller}
+
+You will meet `.Rmd` constantly—in existing analyses, package vignettes,
+collaborators' reports, and online examples. It remains a supported and widely
+used format for R-based reporting.
+
+. . .
+
+::: {.callout-note appearance="simple"}
+An R Markdown document combines narrative, executable R code, and computed
+results in one inspectable source file.
+:::
+
+. . .
+
+
+## Anatomy of an `.Rmd` {.smaller}
+
+````markdown
+---
+title: "Baseline summary"
+output: html_document
+---
+
+The report contains **prose** and computed results.
+
+```{r summary, echo=FALSE}
+clinic <- read.csv("data/clinic_summary.csv")
+mean(clinic$age)
+```
+````
+
+::: {.smaller}
+Three layers: **YAML** says what to create; **Markdown** explains the analysis;
+an **R chunk** performs the computation. `rmarkdown`, `knitr`, and Pandoc turn
+the source into the report.
+:::
+
+
+## What `.Rmd` adds to an `.R` script {.smaller}
+
+| `.R` script | `.Rmd` document |
+|---|---|
+| R code and comments | Explanatory Markdown plus executable R chunks |
+| Results appear in Console or plot device | Results are placed into a rendered report |
+| Usually one stream of commands | Organized into named analytical sections |
+| Excellent for reusable functions and pipelines | Excellent for an analysis narrative and report |
+
+. . .
+
+These formats complement one another. A report may `source()` functions from an
+`.R` file while keeping the statistical explanation in `.Rmd`.
+
+
+## R Markdown YAML: what should be produced? {.smaller}
+
+```yaml
+---
+title: "Synthetic clinic summary"
+author: "Student name"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+---
+```
+
+::: {.smaller}
+- YAML is between the opening and closing `---` lines.
+- R Markdown uses the `output:` key.
+- Indentation expresses nesting; spaces after colons matter.
+- Start with HTML because it requires no LaTeX installation.
+:::
+
+
+## Markdown supplies the narrative structure {.smaller}
+
+```markdown
+# Main heading
+
+## Data check
+
+The analysis uses **synthetic data**.
+
+- first item
+- second item
+
+[R documentation](https://www.r-project.org/)
+```
+
+. . .
+
+Markdown is plain text. It remains readable even before the document is knitted.
+
+
+## Anatomy of an R Markdown code chunk {.smaller}
+
+````markdown
+```{r age-summary, echo=FALSE, warning=FALSE}
+mean_age <- mean(clinic$age, na.rm = TRUE)
+mean_age
+```
+````
+
+::: {style="font-size:0.88em"}
+| Part | Meaning |
+|---|---|
+| `r` | Execute the chunk with R |
+| `age-summary` | A unique, informative chunk label |
+| `echo=FALSE` | Run the code but hide the source in the report |
+| `warning=FALSE` | Do not print warnings in the report |
+| Lines inside the fences | Ordinary R code, executed from top to bottom |
+:::
+
+
+## Three options students commonly confuse {.smaller}
+
+::: {style="font-size:0.88em"}
+| R Markdown option | Does the code run? | Is code shown? | Are results shown? |
+|---|:---:|:---:|:---:|
+| default | Yes | Yes | Yes |
+| `echo=FALSE` | Yes | **No** | Yes |
+| `eval=FALSE` | **No** | Yes | No |
+| `include=FALSE` | Yes | No | **No** |
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+`include=FALSE` is ideal for a setup chunk: packages and data are loaded, but the
+setup code and all its output are omitted from the report.
+:::
+
+
+## Useful R Markdown chunk options {.smaller}
+
+::: {style="font-size:0.82em"}
+| Option | Example | Effect |
+|---|---|---|
+| Show source | `echo=FALSE` | Hide code but retain its results |
+| Execute | `eval=FALSE` | Display code without running it |
+| Include anything | `include=FALSE` | Run but omit code, results, plots, messages, and warnings |
+| Text output | `results='hide'` | Run but hide printed text output |
+| Messages | `message=FALSE` | Hide package and function messages |
+| Warnings | `warning=FALSE` | Hide warnings after you have investigated them |
+| Figure size | `fig.width=7, fig.height=4` | Set figure dimensions in inches |
+| Figure caption | `fig.cap='Marker by group.'` | Add a caption to the generated figure |
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+Never suppress a warning merely to make the report look clean. Read it,
+understand it, and then decide whether suppression is appropriate.
+:::
+
+
+## A setup chunk establishes document-wide defaults {.smaller}
+
+````markdown
+```{r rmd-setup-example, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 7,
+  fig.height = 4
+)
+
+clinic <- read.csv("data/clinic_summary.csv")
+```
+````
+
+Individual chunks can override these defaults in their own headers.
+
+
+## Inline R keeps numbers connected to calculations {.smaller}
+
+Write this in the R Markdown prose:
+
+```markdown
+The dataset contains `r knitr::inline_expr("nrow(clinic)")` records, with a mean
+age of `r knitr::inline_expr("round(mean(clinic$age), 1)")` years.
+```
+
+. . .
+
+It renders as a sentence containing the current calculated values.
+
+::: {.callout-important appearance="simple"}
+If a number comes from the data, calculate it in code or inline R. Do not type a
+copy of the result into the narrative.
+:::
+
+
+## Knit means process the complete document {.smaller}
+
+In RStudio, use the **Knit** button or run:
+
+```r
+rmarkdown::render("report.Rmd")
+```
+
+::: {.incremental}
+1. Read the YAML.
+2. Execute R chunks in document order.
+3. Insert code, results, figures, and inline values as requested.
+4. Use Pandoc to produce the selected output format.
+5. Write a generated `.html`, `.docx`, or `.pdf` file.
+:::
+
+
+# 3 · Quarto {.section-divider}
+
+## Apply the same document model in `.qmd` {.smaller}
+
+These ideas do **not** change:
+
+::: {.incremental}
+- Markdown provides headings, prose, lists, and links.
+- Fenced `{r}` chunks contain ordinary R code.
+- `knitr` executes R chunks from top to bottom.
+- Inline R inserts calculated values into prose.
+- Source remains separate from generated output.
+- A complete render should not depend on objects left in the Environment pane.
+:::
+
+. . .
+
+Quarto changes selected authoring and publishing syntax; it does not change the
+R language or the logic of the analysis.
+
+
+## The Quarto-specific changes for today {.smaller}
+
+::: {style="font-size:0.86em"}
+| Feature | In the `.Rmd` block | In a `.qmd` |
+|---|---|---|
+| File extension | `.Rmd` | `.qmd` |
+| Output key | `output: html_document` | `format: html` |
+| Button in RStudio | **Knit** | **Render** |
+| Local option style | `{r fig1, echo=FALSE}` | `#\| label: fig1` and `#\| echo: false` |
+| Figure dimensions | `fig.width=7` | `fig-width: 7` |
+| Document defaults | `knitr::opts_chunk$set()` | `execute:` in YAML, or knitr defaults |
+:::
+
+. . .
+
+The course will normally use Quarto for new reports, while expecting students to
+read and maintain R Markdown correctly.
+
+
+## What Quarto does {.smaller}
+
+```{mermaid}
+%%| echo: false
+%%| fig-width: 10
+flowchart LR
+  QMD["<b>report.qmd</b><br/>prose + code"] --> K["<b>knitr</b><br/>runs the R,<br/>captures output"]
+  K --> MD["markdown<br/>+ results"]
+  MD --> P["<b>pandoc</b>"]
+  P --> H["HTML"]
+  P --> PDF["PDF"]
+  P --> W["Word"]
+  P --> S["slides"]
+  style QMD fill:#f4efe4,stroke:#CFAE70
+  style K fill:#CFAE70,stroke:#8a7448,color:#fff
+  style P fill:#CFAE70,stroke:#8a7448,color:#fff
+```
+
+. . .
+
+::: {.smaller}
+Two things follow from this picture, and both matter:
+
+- **knitr executes the document in order during rendering.** Anything the report
+  needs must be created or loaded by saved source.
+- **The source is one file; the outputs are many.** You never maintain an HTML and
+  a Word version by hand.
+:::
+
+
+## Anatomy of a `.qmd` {.smaller}
+
+Three kinds of content, and nothing else:
+
+````markdown
+---                                    ← 1. YAML header: how to render
+title: "Blood pressure at 12 weeks"
+format: html
+---
+
+## Baseline characteristics            ← 2. Prose: markdown
+
+Mean baseline SBP was `r round(mean(trial$sbp_0), 1)` mmHg.
+
+```{{r}}                               ← 3. Code chunk: executed
+#| label: fig-sbp
+#| fig-cap: "SBP by arm at 12 weeks."
+boxplot(sbp_12 ~ arm, data = trial)
+```
+````
+
+. . .
+
+::: {.callout-note appearance="simple"}
+The YAML header is the only part with strict syntax. **Indentation and the space
+after each colon both matter.**
+:::
+
+
+## The YAML header {.smaller}
+
+```yaml
+---
+title: "Blood pressure at 12 weeks"
+author: "Shilin Zhao"
+date: today
+format:
+  html:
+    toc: true
+    code-fold: true
+    embed-resources: true
+execute:
+  echo: false
+  warning: false
+---
+```
+
+::: {.smaller}
+| Key | Does |
+|---|---|
+| `format:` | The output type, and its options. **`output:` in R Markdown** |
+| `toc: true` | Table of contents |
+| `code-fold: true` | Code hidden behind a toggle — useful for a clinical audience |
+| `embed-resources: true` | One self-contained HTML file you can email |
+| `execute:` | Document-wide chunk defaults |
+:::
+
+
+## Code chunks {.smaller}
+
+```{{r}}
+#| label: fig-sbp-arm
+#| fig-cap: "Systolic BP at 12 weeks by treatment arm."
+#| fig-width: 7
+#| fig-height: 3.5
+#| echo: true
+
+boxplot(
+  sbp_12 ~ arm,
+  data = trial,
+  xlab = "Treatment arm",
+  ylab = "SBP at 12 weeks (mmHg)"
+)
+```
+
+. . .
+
+::: {.smaller}
+- Options go **inside** the chunk, on `#|` lines, at the top. Not in the header.
+- One option per line, `key: value`, YAML syntax.
+- `label` is optional but makes error messages and cross-references usable.
+:::
+
+::: {.callout-note appearance="simple"}
+This is the biggest visible change from R Markdown, where options lived in the
+chunk header: ```` ```{r fig-sbp, echo=TRUE} ````.
+:::
+
+
+## The chunk options that matter {.smaller}
+
+::: {style="font-size:0.86em"}
+| Option | Effect | Use when |
+|---|---|---|
+| `echo: false` | Hide the code, show the output | Writing for a non-technical reader |
+| `eval: false` | Show the code, don't run it | Teaching, or documenting a slow step |
+| `include: false` | Run it, show nothing | Setup chunks — `library()` calls, data loading |
+| `warning: false`<br>`message: false` | Suppress those streams | Tidy output — **after** you have read them once |
+| `error: true` | Keep rendering despite an error | Deliberately demonstrating a failure |
+| `fig-width`, `fig-height` | Figure size in inches | Always, for anything published |
+| `cache: true` | Reuse results unless the chunk changes | An expensive step |
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+`warning: false` is for a *finished* document. Suppressing warnings you have never
+read is how you ship a bug.
+:::
+
+
+## Inline code {.smaller}
+
+Write this in your prose:
+
+```markdown
+Mean baseline SBP was `r knitr::inline_expr("round(mean(trial$sbp_0), 1)")` mmHg
+in `r knitr::inline_expr("nrow(trial)")` patients.
+```
+
+. . .
+
+And it renders as:
+
+> Mean baseline SBP was `r round(mean(trial$sbp_0), 1)` mmHg in `r nrow(trial)`
+> patients.
+
+. . .
+
+::: {.callout-important}
+This is the feature that removes an entire class of error. A number typed into
+prose by hand becomes wrong the moment the data changes — and **nothing will tell
+you**. A number computed inline cannot.
+:::
+
+
+## Figures come from code {.smaller}
+
+```{r}
+#| label: fig-sbp-live
+#| fig-cap: "Systolic BP at 12 weeks by treatment arm."
+#| fig-width: 8
+#| fig-height: 3.4
+#| echo: true
+boxplot(
+  sbp_12 ~ arm,
+  data = trial,
+  xlab = "Treatment arm",
+  ylab = "SBP at 12 weeks (mmHg)",
+  col = c("grey85", "grey55")
+)
+```
+
+::: {.smaller}
+Cross-reference it in prose as `@fig-sbp-live` and Quarto numbers it for you.
+:::
+
+
+## Tables come from code too {.smaller}
+
+```{r}
+#| label: tbl-baseline
+#| tbl-cap: "Baseline characteristics by arm."
+#| echo: true
+baseline <- do.call(rbind, lapply(split(trial, trial$arm), function(d) {
+  data.frame(
+    Arm = unique(d$arm),
+    n = nrow(d),
+    `Age (mean)` = round(mean(d$age), 1),
+    `Female (%)` = round(100 * mean(d$sex == "F")),
+    `SBP (mean)` = round(mean(d$sbp_0), 1),
+    check.names = FALSE
+  )
+}))
+row.names(baseline) <- NULL
+knitr::kable(baseline)
+```
+
+::: {.smaller}
+`knitr::kable()` is enough for this course. `gt` and `flextable` do more when you
+need it.
+:::
+
+
+## Rendering {.smaller}
+
+::: {style="font-size:0.9em"}
+| Target | Command | Needs |
+|---|---|---|
+| **HTML** | `quarto render report.qmd` | Nothing extra. Start here, always |
+| **PDF** | `--to pdf` | A LaTeX installation — `quarto install tinytex` |
+| **Word** | `--to docx` | Nothing extra; useful when a co-author needs track changes |
+| **Slides** | `format: revealjs` | Nothing extra — these slides are a `.qmd` |
+:::
+
+. . .
+
+In RStudio: the **Render** button, or {{< kbd Ctrl-Shift-K >}} /
+{{< kbd Cmd-Shift-K >}}.
+
+. . .
+
+::: {.callout-tip appearance="simple"}
+Debug in HTML. It is fast and forgiving. Switch to PDF only once the content is
+right — LaTeX errors are far harder to read than anything else you will meet
+today.
+:::
+
+
+# 4 · Why reproducibility matters {.section-divider}
+
+## A case worth knowing {.smaller}
+
+**Duke University, 2006–2011.** Papers claimed that gene-expression signatures
+could predict which chemotherapy a patient would respond to. **Three clinical
+trials** enrolled patients on the strength of the work.
+
+. . .
+
+When **Keith Baggerly and Kevin Coombes** tried to reproduce the analyses, they
+reported problems including shifted gene indices, reversed sensitive/resistant
+labels, and analyses that could not be reconstructed from the stated methods.
+
+. . .
+
+The trials were suspended and stopped; multiple papers were retracted. The case
+contributed to a major review of how omics-based tests enter clinical use.
+
+<small>Detailed analysis: [Baggerly & Coombes (2009)](https://doi.org/10.1214/09-AOAS291). Timeline and policy review: [Institute of Medicine (2012)](https://doi.org/10.17226/13297).</small>
+
+
+## Three words that get confused {.smaller}
+
+::: {style="font-size:0.88em"}
+| Term | Means | Needs |
+|---|---|---|
+| **Reproducible** | Same data, same code → same result | Organized source and documented inputs |
+| **Replicable** | New data, same question → same conclusion | A new study |
+| **Generalizable** | The conclusion holds beyond the sample | Theory and external validity |
+:::
+
+. . .
+
+Only the first is directly under the analyst's control, and it is the minimum
+needed for someone else to evaluate the computation.
+
+
+## The two ways analyses fail {.smaller}
+
+::: columns
+::: {.column width="48%"}
+### It will not run
+
+Missing files, unavailable data mounts, uninstalled packages, or undocumented
+manual steps.
+
+**Annoying, but visible.**
+:::
+
+::: {.column width="48%"}
+### It runs and is wrong
+
+Wrong file silently read, stale object left in memory, or a result edited by
+hand.
+
+**Dangerous, because it looks finished.**
+:::
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+A saved script and a document rendered from its source make the second class of
+failure easier to detect.
+:::
+
+
+# 5 · Reproducible project workflow {.section-divider}
+
+## Projects give the analysis a stable home {.smaller}
+
+Open the supplied `.Rproj` file, or use
+**File → New Project → Existing Directory**.
+
+```
+bios6301-session01/
+├── bios6301-session01.Rproj
+├── analysis.R
+├── report.Rmd
+├── report.qmd
+└── data/
+    └── clinic_summary.csv
+```
+
+::: {.smaller}
+- Opening the project establishes a predictable project root.
+- Relative paths are interpreted from that project context.
+- The project folder becomes a natural Git repository in Session 2.
+- Source files and input data remain distinct from generated output.
+:::
+
+
+## Paths are a design choice {.smaller}
+
+::: columns
+::: {.column width="48%"}
+### Data inside the project
+
+```r
+clinic <- read.csv(
+  "data/clinic_summary.csv"
+)
+```
+
+Relative paths are convenient for course-sized, shareable data.
+:::
+
+::: {.column width="48%"}
+### Large or protected data elsewhere
+
+```r
+data_root <- "D:/shared/study123"
+clinic <- readRDS(file.path(
+  data_root, "derived/cohort.rds"
+))
+```
+
+An absolute root is often correct on a server, cluster, or shared drive.
+:::
+:::
+
+. . .
+
+`setwd()` is legitimate when the working directory is chosen deliberately. For
+collaboration, define a machine-specific location once and document the required
+drive, mount, or environment.
+
+
+## Restarting R tests saved source {.smaller}
+
+```r
+rm(list = ls())
+```
+
+This removes objects, but loaded packages, changed options, working-directory
+changes, and other process state can remain.
+
+. . .
+
+::: {.callout-tip}
+Use **Session → Restart R** for a genuinely fresh process, then source the `.R`
+script or render the complete document from the project.
+:::
+
+
+## The standing rule of this course {.smaller}
+
+::: {.callout-important}
+## Every submission must render from a clean session in its documented computing environment.
+:::
+
+. . .
+
+Before you submit, every time:
+
+::: {.incremental}
+1. **Restart R** — {{< kbd Ctrl-Shift-F10 >}}
+2. **Render the whole document** from scratch
+3. Confirm the output is what you expect — not just that it succeeded
+4. Confirm every external data location is defined once and documented
+5. Confirm there is no `install.packages()` or hidden manual step in the report
+:::
+
+. . .
+
+::: {.smaller}
+Rendering already uses a fresh session, so a document that renders is *close* to
+verified. Restarting first catches the remaining case: a file that quietly depends
+on something you did in the console.
+:::
+
+
+## Summary {.smaller}
+
+- Reproducibility is a statistical concern, not end-of-project clerical work.
+- R Markdown and Quarto both keep prose, code, and computed results together.
+- Use relative paths for project data; use documented absolute roots for large or
+  protected data stored elsewhere.
+- This course begins from `.Rmd` literacy and focuses new work on `.qmd`.
+- Inline values and generated tables prevent copy-and-paste drift.
+- A clean-session render tests whether the source is complete.
+
+. . .
+
+**Next connection:** Session 2 adds Git and GitHub so analytical changes become inspectable and recoverable.
+

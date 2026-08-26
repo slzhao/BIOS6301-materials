@@ -1,0 +1,358 @@
+---
+title: "Positron and AI-Assisted Coding"
+subtitle: "BIOS 6301 · Introduction to Statistical Computing"
+author: "Department of Biostatistics, Vanderbilt University Medical Center"
+date: "Session 9"
+date-format: "[Session 9]"
+format:
+  revealjs:
+    theme: simple
+    css: ../../slides.css
+    slide-number: c/t
+    show-slide-number: all
+    incremental: false
+    width: 1280
+    height: 720
+    transition: fade
+    center: false
+    code-copy: true
+    fig-align: center
+    code-line-numbers: false
+    highlight-style: github
+    footer: "BIOS 6301 · Session 9 · Positron and AI-assisted coding"
+    navigation-mode: linear
+execute:
+  enabled: false
+---
+
+## The question behind this session
+
+::: {.question}
+When an assistant produces plausible R code, what evidence lets you decide
+whether it answers the statistical question?
+:::
+
+
+## Learning goals
+
+1. Locate familiar project, editor, console, variables, plots, and Git tools in
+   Positron.
+2. Use a GitHub Copilot inline completion deliberately.
+3. Inspect and test a suggestion before relying on it.
+4. Apply the privacy and disclosure rules.
+
+
+## A 90-minute route
+
+| Block | Purpose | Minutes |
+|---|---|---:|
+| Positron orientation | Find familiar R workflow components | 20 |
+| Copilot mechanics | Generate one small inline suggestion | 15 |
+| Statistical failure case | Diagnose and repair a wrong denominator | 25 |
+| Verification and policy | Build a repeatable review habit | 20 |
+| Demonstration and exit check | Apply the complete workflow | 10 |
+
+
+## Positron is another R and Python IDE
+
+Positron provides first-class R and Python support in one data-science
+environment. The underlying R language and project files do not change.
+
+| Familiar need | RStudio | Positron |
+|---|---|---|
+| edit source | Source pane | Editor |
+| run R | Console | R Console |
+| inspect objects | Environment | Variables |
+| view figures | Plots | Plots |
+| version files | Git pane/Terminal | Source Control/Terminal |
+
+
+## The project is the continuity {.smaller}
+
+The same folder can contain:
+
+```text
+BIOS6301-project/
+├── BIOS6301-project.Rproj
+├── analysis.qmd
+├── R/
+├── data/
+└── output/
+```
+
+Changing IDEs should not require changing the analysis structure, paths, or statistical decisions.
+
+
+## Open the project, not a loose file
+
+1. Open the BIOS6301 project folder.
+2. Select the intended R interpreter.
+3. Start an R console.
+4. Open a `.qmd` or `.R` source file.
+5. Confirm relative paths still begin at the project root.
+
+RStudio and Positron should render the same complete source to the same result.
+
+
+## Scripts can use code cells
+
+```r
+# %% Import and inspect
+visit <- read.csv("data/visits.csv")
+str(visit)
+
+# %% Summarize
+aggregate(marker ~ arm, data = visit, FUN = mean)
+```
+
+Positron recognizes `# %%` cells in both R and Python scripts. Cells organize
+interactive execution but do not replace a reproducible top-to-bottom run.
+
+
+## Configure only the course-supported provider
+
+In the Command Palette, run:
+
+```text
+Authentication: Configure Language Model Providers
+```
+
+Choose GitHub Copilot and complete OAuth authentication. For this course, we use
+Copilot inline completion; we do not survey multiple providers or agent tools.
+
+If authentication is unavailable, use the supplied candidate code and complete
+the same verification exercise.
+
+
+## If Copilot is unavailable {.smaller}
+
+1. Confirm you are signed into the intended GitHub account.
+2. Re-run the language-model provider configuration command.
+3. Reload the Positron window.
+4. Continue with the supplied candidate code if authentication remains blocked.
+
+The learning goal is **reviewing a suggestion**, not solving account setup during lecture.
+
+
+## A completion is a proposed edit
+
+Copilot may show faint inline code based on surrounding source and comments. You
+can accept it, dismiss it, or keep typing.
+
+::: {.workflow}
+describe a small task → inspect suggestion → accept selectively → run → verify
+:::
+
+Acceptance means only “put this text in my file.” It does not mean the code is
+correct.
+
+
+## Three legitimate responses to a suggestion
+
+| Response | Use it when |
+|---|---|
+| **Dismiss** | the suggestion answers a different question |
+| **Accept partly** | the structure helps but a detail is wrong or unnecessary |
+| **Accept, then verify** | the code matches the intended operation and still needs evidence |
+
+Fast rejection is a successful use of an assistant.
+
+
+## Give statistical context in the source
+
+```r
+# At week 4, report total n, observed n, mean marker,
+# and SD by randomized arm. Do not remove missing rows
+# before counting total n.
+```
+
+A precise comment improves the proposed code and remains useful documentation
+even when Copilot is disabled.
+
+
+## Vague instructions invite hidden choices {.smaller}
+
+```r
+# Summarize marker by group.
+```
+
+Compare with:
+
+```r
+# At week 4, retain all randomized participants and report
+# total n, observed n, mean, and SD by arm.
+```
+
+The second comment specifies population, time, denominator, statistics, and grouping.
+
+
+## Plausible code can answer the wrong question
+
+```r
+visit |>
+  dplyr::filter(week == 4, !is.na(marker)) |>
+  dplyr::summarise(
+    n = dplyr::n(),
+    mean_marker = mean(marker),
+    sd_marker = sd(marker),
+    .by = arm
+  )
+```
+
+The code runs, but `n` is observed `n`, not total `n`, because missing rows were
+removed first.
+
+
+## Predict before running
+
+For the proposed pipeline, write down:
+
+1. Which rows survive the filter?
+2. What will `n()` count?
+3. Can an arm with more missing outcomes appear to have a smaller sample?
+4. Which requested quantity is absent?
+
+
+## Repair the statistical meaning
+
+```r
+visit |>
+  dplyr::filter(week == 4) |>
+  dplyr::summarise(
+    n_total = dplyr::n(),
+    n_observed = sum(!is.na(marker)),
+    mean_marker = mean(marker, na.rm = TRUE),
+    sd_marker = sd(marker, na.rm = TRUE),
+    .by = arm
+  )
+```
+
+The correction follows from the estimand and denominator—not from asking for
+more fluent-looking code.
+
+
+## A verification ladder {.smaller}
+
+| Level | Question | Example evidence |
+|---|---|---|
+| Syntax | Did it run? | no error or warning |
+| Data | Did it use the intended rows? | counts and key checks |
+| Statistical | Did it estimate the intended quantity? | denominator and missingness review |
+| Reproducibility | Does it work from source? | restart and render/run all |
+
+Passing a lower level does not imply passing the next one.
+
+
+## Five verification questions
+
+1. What does one input row represent?
+2. Which rows and columns did the code use?
+3. How did it handle missing values?
+4. What does one output row and denominator represent?
+5. Can I verify one result independently?
+
+
+## Independent checks should be small
+
+```r
+week4 <- visit[visit$week == 4, ]
+with(week4, table(arm, useNA = "ifany"))
+with(week4, tapply(!is.na(marker), arm, sum))
+```
+
+Do not ask Copilot to generate both the answer and its only verification.
+
+
+## Other common failures
+
+- joining without checking duplicate keys;
+- silently removing missing observations;
+- using an unexpected denominator;
+- inventing a function or argument;
+- changing a working style more broadly than requested;
+- producing a plot whose labels do not match its calculation.
+
+
+## Good first uses are small and checkable
+
+- complete a familiar function call;
+- draft repetitive column names or plotting labels;
+- translate one already-understood base-R operation to dplyr;
+- propose a test case for an existing function;
+- explain an error message using synthetic context.
+
+Avoid beginning with a full analysis whose answer you cannot independently describe.
+
+
+## Context creates a privacy boundary
+
+AI completion can use surrounding code and open-file context. Never expose:
+
+- protected health information or identifiable records;
+- restricted or confidential research data;
+- passwords, tokens, private keys, or `.Renviron`;
+- unpublished confidential material not approved for the service.
+
+Use only synthetic course data in this session.
+
+
+## A quick privacy classification
+
+Would you place each item in an AI-visible editor?
+
+1. Synthetic patient IDs created for this course
+2. A real medical-record number
+3. A public package example
+4. An unpublished collaborator dataset
+5. A token copied from `.Renviron`
+
+
+## Course policy after today
+
+- GitHub Copilot is allowed for homework and labs unless designated unaided.
+- Students remain responsible for every submitted line.
+- Important results and data decisions must be verified.
+- Substantive assistance must be disclosed.
+- Permission for homework does not automatically apply to exams.
+
+
+## Keep disclosure short and useful
+
+```text
+AI use: I used GitHub Copilot to suggest the group-summary code. I corrected its
+missing-value handling and verified the group counts independently.
+```
+
+Or:
+
+```text
+AI use: None.
+```
+
+
+## Live demonstration: one complete cycle
+
+1. Open the same project in Positron.
+2. Start the correct R interpreter.
+3. Type a precise statistical comment.
+4. Inspect and partially accept one completion.
+5. Run the code on synthetic data.
+6. Verify group totals with independent base R.
+7. Add the disclosure sentence and review the diff.
+
+
+## Exit check
+
+1. What changes when a completion is accepted?
+2. Why was the first group-summary code wrong?
+3. Name one independent check you would run.
+4. What information must never be placed in AI-visible context?
+
+
+## Official references {.smaller}
+
+- [Positron: get started with AI](https://positron.posit.co/assistant-getting-started)
+- [Positron: configure AI features](https://positron.posit.co/ai-configuration.html)
+- [Positron: R guide](https://positron.posit.co/guide-r.html)
+- [GitHub: responsible use of inline suggestions](https://docs.github.com/en/copilot/responsible-use/inline-suggestions)
+

@@ -1,0 +1,59 @@
+---
+title: "Session 9 guided lab"
+subtitle: "Accept less, inspect more"
+---
+
+::: {.callout-note}
+**Suggested use:** the first review cycle is the core route. Additional practice
+repeats the generate–inspect–test–revise cycle on a small function. The instructor
+may choose how far to proceed; the remainder is independent practice.
+:::
+
+Copy `starter/copilot-review-lab.qmd` to `work/session09/`.
+
+## Goal
+
+Use Copilot once on a familiar R task, identify whether the suggestion answers the
+question, correct it, and document the verification.
+
+## Tasks
+
+1. Open the copied project file in Positron and confirm the R interpreter/project.
+2. Use the supplied comment to request an inline completion for the week-4 group
+   summary. If Copilot is unavailable, evaluate the supplied candidate instead.
+3. Preserve the first candidate as a non-executed code block for review.
+4. State what `n`, `n_observed`, and one output row should mean.
+5. Correct the candidate and verify group counts using independent base-R code.
+6. Check that the corrected output has one row per randomized arm.
+7. Add either `AI use: None.` or a concise disclosure describing the suggestion,
+   correction, and verification.
+
+## Additional practice: test an AI-generated function
+
+1. Before prompting, write a contract for `summarize_week(data, week)` specifying
+   required columns, one-row-per-arm output, total versus observed `n`, missing-
+   value behavior, and what happens when the requested week is absent.
+2. Ask Copilot for the function using only synthetic column names and the written
+   contract. Preserve its first response as non-executed code.
+3. Predict at least two ways the candidate could violate the contract before
+   running it.
+4. Test it on the supplied data, reversed arm order, a group with all markers
+   missing, and a requested week with no rows.
+5. Revise the function until it either returns a contract-compliant result or
+   fails with an informative error. Do not weaken a test to make the code pass.
+6. Implement an independent base-R check and compare keys, counts, and numerical
+   summaries after sorting.
+7. Give Copilot a deliberately vague request, then a precise testable request for
+   the same task. Compare the usefulness and risks of the two responses.
+8. Extend the disclosure to distinguish generated code, human decisions,
+   corrections, and independent verification.
+
+### Independent-practice check
+
+Every accepted line must have a stated purpose. The test with an all-missing group
+must retain its total `n`, and the absent-week test must have deliberate behavior.
+
+## Exit evidence
+
+Render the candidate, critique, corrected code, independent checks, and disclosure.
+Be prepared to explain every line without Copilot.

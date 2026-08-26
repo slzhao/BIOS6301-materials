@@ -1,0 +1,909 @@
+---
+title: "Random Numbers and Simulation"
+subtitle: "BIOS 6301 · Introduction to Statistical Computing"
+author: "Department of Biostatistics, Vanderbilt University Medical Center"
+date: "Session 14"
+date-format: "[Session 14]"
+format:
+  revealjs:
+    theme: simple
+    css: ../../slides.css
+    slide-number: c/t
+    show-slide-number: all
+    incremental: false
+    width: 1280
+    height: 720
+    fig-align: center
+    code-line-numbers: false
+    highlight-style: github
+    footer: "BIOS 6301 · Session 14 · Random Numbers and Simulation"
+    navigation-mode: linear
+execute:
+  enabled: true
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+# Synthetic teaching data for BIOS 6301. Not real patients.
+set.seed(6301)
+n <- 60
+trial <- data.frame(
+  id        = sprintf("P%03d", 1:n),
+  arm       = rep(c("Placebo", "Treatment"), each = n / 2),
+  site      = sample(1:4, n, replace = TRUE),
+  age       = round(rnorm(n, 61, 9)),
+  sex       = sample(c("F", "M"), n, replace = TRUE),
+  weight_kg = round(rnorm(n, 82, 15), 1),
+  sbp_0     = round(rnorm(n, 148, 14)),
+  stringsAsFactors = FALSE
+)
+trial$sbp_12 <- round(trial$sbp_0 -
+  ifelse(trial$arm == "Treatment", rnorm(n, 14, 8), rnorm(n, 3, 8)))
+
+theme_set(theme_minimal(base_size = 15))
+```
+
+## Where we are {.smaller}
+
+| Course arc | Sessions | |
+|---|---:|---|
+| Setup and workflow | 0–2 |  |
+| Data foundations | 3–8 |  |
+| Modern tools | 9–10 |  |
+| R programming | 11–13 |  |
+| **Statistical computing** | **14–16** | **← today** |
+
+Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
+
+
+## What you will be able to do {.smaller}
+
+::: {.smaller}
+[1]{.objective-num} **Explain** what a seed is, and why reproducible randomness
+is not a contradiction.
+
+[2]{.objective-num} **Draw** from a distribution using the `r*` functions, and
+use `d*`, `p*`, `q*` for the other three questions.
+
+[3]{.objective-num} **Structure** a simulation study with the ADEMP scaffold.
+
+[4]{.objective-num} **Write** one function that simulates a dataset and one that
+analyses it, and iterate over replicates.
+
+[5]{.objective-num} **Compute** bias, empirical standard error, and **Monte Carlo
+error**.
+
+[6]{.objective-num} **Choose** the number of replicates from a target Monte Carlo
+SE.
+
+[7]{.objective-num} **Estimate** type I error and power, and say what to do when
+the type I error is not what it should be.
+:::
+
+
+## Roadmap for today {.smaller}
+
+| | Block | Minutes |
+|---|---|---|
+| 1 | Pseudorandom numbers, seeds, and streams | 12 |
+| 2 | Drawing from distributions: `sample` and the four prefixes | 13 |
+| 3 | ADEMP — a protocol for a simulation study | 10 |
+| 4 | Building it: simulate one, analyse one, replicate | 20 |
+| 5 | Bias, empirical SE, and Monte Carlo error | 12 |
+| 6 | Type I error and power, worked | 18 |
+| 7 | Practice and summary | 5 |
+
+: {tbl-colwidths="[6,64,30]"}
+
+. . .
+
+::: {.callout-note appearance="simple"}
+**Style policy, from today: your choice.** Base R, tidyverse, or a defensible mix —
+consistently, within a document. Today's slides use base R for the simulation
+machinery and dplyr for summarising results, and says why when it matters.
+:::
+
+
+# 1 · Pseudorandom numbers {.section-divider}
+
+## There is no randomness in your laptop {.smaller}
+
+`rnorm()` does not produce random numbers. It produces a **deterministic
+sequence** that passes the statistical tests we ask of randomness: the right
+distribution, no detectable serial correlation, an astronomically long period
+before it repeats.
+
+. . .
+
+::: {.smaller}
+R's default generator is the **Mersenne–Twister**. Its state is 624 32-bit
+integers and its period is $2^{19937}-1$.
+:::
+
+```{r}
+#| label: rngkind
+RNGkind()
+```
+
+. . .
+
+::: {.callout-important appearance="simple"}
+The word is **pseudorandom**, and the determinism is not a defect. It is the
+property the rest of this session exploits.
+:::
+
+
+## The seed picks your starting point {.smaller}
+
+```{r}
+#| label: seed-demo
+set.seed(42)
+rnorm(3)
+
+set.seed(42)
+rnorm(3)
+```
+
+. . .
+
+```{r}
+#| label: seed-demo-2
+set.seed(42)
+rnorm(3)
+rnorm(3)
+```
+
+. . .
+
+::: {.callout-note appearance="simple"}
+**Reproducible randomness is not a contradiction.** The numbers are random with
+respect to your *data* — no structure, no correlation with anything you care
+about. They are fixed with respect to your *machine*.
+:::
+
+
+## The state is an ordinary object {.smaller}
+
+```{r}
+#| label: random-seed
+set.seed(42)
+length(.Random.seed)
+.Random.seed[1:3]
+
+invisible(rnorm(1))     # one draw ...
+.Random.seed[1:3]       # ... and the state has moved
+```
+
+. . .
+
+::: {.smaller}
+Two consequences that catch people:
+
+- Every draw **advances** the stream. Nothing is reset until you call `set.seed()`
+  again.
+- **Inserting a chunk changes everything below it.** If a result must be
+  reproducible, seed it immediately before it — not once at the top and hope.
+:::
+
+
+## Where to put `set.seed()` {.smaller}
+
+::: {style="font-size:0.86em"}
+| Placement | Verdict |
+|---|---|
+| Once near the top of the document | **Fine** for an analysis. The whole render is reproducible |
+| Immediately before a simulation or a resample | **Best.** Stable even if you edit above it |
+| Inside a function that gets called repeatedly | **Catastrophic.** Every replicate is identical, and nothing errors |
+| `set.seed(i)` inside a loop over `i` | Reproducible, but the streams are not *provably* independent |
+| Nowhere | Not reproducible. Not submittable |
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+**Running in parallel?** Workers do not inherit a usable stream. Use
+`RNGkind("L'Ecuyer-CMRG")` and seed once before `parallel::mclapply()`, or hand
+each worker a stream from `parallel::nextRNGStream()`. Know the name; the details
+are Advanced Statistical Computing.
+:::
+
+
+# 2 · Drawing from distributions {.section-divider}
+
+## `sample()` {.smaller}
+
+```{r}
+#| label: sample-demo
+set.seed(13)
+sample(5)                              # a permutation of 1:5
+sample(trial$id, 4)                    # 4 patients, no repeats
+sample(c("A", "B"), 8, replace = TRUE) # allocation, with replacement
+```
+
+. . .
+
+::: {.smaller}
+- Default is **without replacement**, and `size` defaults to `length(x)`.
+- `replace = TRUE` is the one-word difference between *permuting* and
+  *resampling* — which is the whole of session 15.
+- `prob =` gives unequal selection probabilities.
+:::
+
+
+## The `sample()` trap {.smaller}
+
+```{r}
+#| label: sample-trap
+set.seed(13)
+sites <- c(7)          # one site left after exclusions
+sample(sites)          # you wanted 7
+```
+
+. . .
+
+::: {.smaller}
+`sample(x)` with a length-1 numeric `x` samples from `1:x`. **No error, no
+warning, plausible output** — the exact failure mode session 12 was about.
+:::
+
+. . .
+
+```{r}
+#| label: sample-safe
+# The idiom from ?sample. Correct for every length, including 0 and 1.
+resample <- function(x, ...) x[sample.int(length(x), ...)]
+set.seed(13)
+resample(sites)
+```
+
+
+## Four questions, four prefixes {.smaller}
+
+::: {style="font-size:0.88em"}
+| Prefix | Question it answers | Example |
+|---|---|---|
+| `d` | What is the **density** (or pmf) at `x`? | `dnorm(0)` |
+| `p` | What is $P(X \le q)$ — the **CDF**? | `pnorm(1.96)` |
+| `q` | Which `q` has $P(X \le q) = p$ — the **quantile**? | `qnorm(0.975)` |
+| `r` | Give me `n` **random** draws | `rnorm(10)` |
+:::
+
+. . .
+
+::: {.smaller}
+Attach any prefix to any root: `norm`, `unif`, `binom`, `pois`, `t`, `chisq`,
+`exp`, `gamma`, `beta`, `nbinom`, `weibull`, …
+:::
+
+```{r}
+#| label: prefix-demo
+c(dnorm(0), pnorm(1.96), qnorm(0.975), qt(0.975, df = 18))
+```
+
+
+## `rnorm`, `runif`, `rbinom` {.smaller}
+
+```{r}
+#| label: r-funs
+set.seed(13)
+round(rnorm(3, mean = 148, sd = 14), 1)  # n, then the parameters
+round(runif(3, min = 0, max = 1), 3)
+rbinom(3, size = 1, prob = 0.3)          # 3 coin flips
+rbinom(3, size = 10, prob = 0.3)         # 3 counts out of 10
+```
+
+. . .
+
+::: {.smaller}
+**Parameters recycle**, which is how you generate a whole trial in one call:
+:::
+
+```{r}
+#| label: r-vectorised
+set.seed(13)
+round(rnorm(6, mean = rep(c(148, 134), each = 3), sd = 14))
+```
+
+
+# 3 · ADEMP — a protocol for a simulation {.section-divider}
+
+## A simulation is an experiment {.smaller}
+
+You would not run a trial by collecting data until the result looked right. A
+simulation has the same failure mode and none of the oversight.
+
+. . .
+
+::: {.smaller}
+Written down in advance, a simulation study is evidence. Written down afterwards,
+it is a story about the settings that worked.
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+**ADEMP** — Morris, White & Crowther, "Using simulation studies to evaluate
+statistical methods," *Statistics in Medicine* **38**:2074–2102, 2019. Read it
+before you design one for real; it is the clearest thing written on the subject.
+:::
+
+
+## ADEMP {.smaller}
+
+::: {style="font-size:0.86em"}
+| | | You must be able to write down |
+|---|---|---|
+| **A** | Aims | The question, in one sentence |
+| **D** | Data-generating mechanism | Exactly how **one** dataset is produced. Every parameter, every value |
+| **E** | Estimands | The quantity being estimated — a number that exists before any method touches it |
+| **M** | Methods | The procedures being compared, including the naive one |
+| **P** | Performance measures | How you decide which method won, **and with what precision** |
+:::
+
+. . .
+
+::: {.smaller}
+Five headings, and the discipline is that you fill them in **before** you write
+any code.
+:::
+
+
+## ADEMP for today {.smaller}
+
+::: {style="font-size:0.82em"}
+| | |
+|---|---|
+| **A** | Does a two-sample *t*-test hold its nominal 5% type I error when the arms have different variances **and** different sizes? |
+| **D** | $y_{\text{ctrl}} \sim N(0, 12^2)$, $n_{\text{ctrl}}$ patients; $y_{\text{trt}} \sim N(\delta, 4^2)$, $n_{\text{trt}}$ patients. Allocations 25/25, 10/40, 40/10 |
+| **E** | $\delta$, the difference in mean SBP change. Null case $\delta = 0$; power cases $\delta = 3, 6, 9, 12$ mmHg |
+| **M** | Pooled *t*-test (`var.equal = TRUE`) vs Welch (`var.equal = FALSE`) |
+| **P** | Rejection rate at $\alpha = 0.05$; bias and empirical SE of $\hat\delta$. $n_{\text{sim}} = 10{,}000$, chosen for a Monte Carlo SE of 0.0022 |
+:::
+
+. . .
+
+::: {.smaller}
+The SDs are not invented: 12 and 4 mmHg bracket what our `trial` cohort shows for
+`sbp_12` by arm.
+:::
+
+
+## Estimands — the letter people skip {.smaller}
+
+::: {.callout-important appearance="simple"}
+The estimand is a property of the **data-generating mechanism**, not of a method.
+If you cannot write down its true value before running anything, you cannot
+compute bias.
+:::
+
+. . .
+
+::: {.smaller}
+- Two methods can both be "unbiased" — for **different** estimands. A marginal
+  risk difference and a conditional odds ratio are not the same target, and a
+  simulation that mixes them will report bias that is an artefact of the
+  question, not the method.
+- In today's study the estimand is $\delta$, and we know it because we **set**
+  it. That is the entire reason simulation can measure bias at all.
+:::
+
+
+# 4 · Building the simulation {.section-divider}
+
+## The shape of every simulation {.smaller}
+
+```{mermaid}
+%%| echo: false
+%%| fig-width: 10
+flowchart LR
+  P["<b>parameters</b><br/>n, sd, delta"] --> S["<b>simulate_one()</b><br/>one dataset"]
+  S --> A["<b>analyse_one()</b><br/>one row of results"]
+  A --> R["<b>replicate</b><br/>× n_sim"]
+  R --> T["<b>results</b><br/>one row per replicate"]
+  T --> M["<b>performance</b><br/>bias, SE, rejection rate"]
+  style S fill:#CFAE70,stroke:#8a7448,color:#fff
+  style A fill:#CFAE70,stroke:#8a7448,color:#fff
+  style P fill:#f4efe4,stroke:#CFAE70
+```
+
+. . .
+
+::: {.smaller}
+Session 11 gave you **functions**. Session 13 gave you **iteration**. This is what
+they were for.
+:::
+
+
+## `simulate_one()` {.smaller}
+
+```{r}
+#| label: sim-one
+# Simulate one two-arm trial. Returns a data frame with `arm` and `y`.
+# Control is N(0, sd_ctrl^2); treatment is N(delta, sd_trt^2).
+simulate_trial <- function(n_ctrl, n_trt, sd_ctrl, sd_trt, delta = 0) {
+  stopifnot(n_ctrl >= 2, n_trt >= 2, sd_ctrl > 0, sd_trt > 0)
+
+  data.frame(
+    arm = rep(c("ctrl", "trt"), c(n_ctrl, n_trt)),
+    y   = c(rnorm(n_ctrl, mean = 0,     sd = sd_ctrl),
+            rnorm(n_trt,  mean = delta, sd = sd_trt))
+  )
+}
+
+set.seed(6301)
+head(simulate_trial(3, 3, 12, 4, delta = 8), 3)
+```
+
+
+## `analyse_one()` {.smaller}
+
+```{r}
+#| label: analyse-one
+# Analyse one simulated trial with a two-sample t-test.
+# Returns a named numeric vector: estimate, p-value, CI limits.
+analyse_trial <- function(data, pooled = TRUE) {
+  stopifnot(is.data.frame(data), all(c("arm", "y") %in% names(data)))
+
+  fit <- t.test(y ~ arm, data = data, var.equal = pooled)
+  c(est = unname(diff(fit$estimate)),    # trt minus ctrl
+    p   = fit$p.value,
+    lo  = -fit$conf.int[2],              # t.test's CI is ctrl minus trt
+    hi  = -fit$conf.int[1])
+}
+
+set.seed(6301)
+round(analyse_trial(simulate_trial(20, 20, 12, 4, delta = 8)), 3)
+```
+
+
+## One replicate, then ten thousand {.smaller}
+
+```{r}
+#| label: replicate-demo
+run_scenario <- function(n_sim, n_ctrl, n_trt, sd_ctrl, sd_trt,
+                         delta = 0, pooled = TRUE) {
+  out <- replicate(n_sim, {
+    d <- simulate_trial(n_ctrl, n_trt, sd_ctrl, sd_trt, delta)
+    analyse_trial(d, pooled = pooled)
+  })
+  as.data.frame(t(out))          # n_sim rows, one per replicate
+}
+
+set.seed(6301)
+demo <- run_scenario(5, 20, 20, 12, 4, delta = 8)
+round(demo, 3)
+```
+
+
+## Store results tidily {.smaller}
+
+Keep **one row per replicate**, and carry every parameter that varies:
+
+```{r}
+#| label: tidy-results
+set.seed(6301)
+res <- run_scenario(200, 10, 40, 12, 4, delta = 0, pooled = TRUE)
+res$n_ctrl <- 10; res$n_trt <- 40; res$method <- "pooled"
+
+res |>
+  group_by(method) |>
+  summarise(reject = mean(p < 0.05), bias = mean(est), emp_se = sd(est))
+```
+
+::: {.smaller}
+::: {.callout-tip appearance="simple"}
+**The base R way**
+```r
+c(reject = mean(res$p < 0.05), bias = mean(res$est), emp_se = sd(res$est))
+```
+:::
+:::
+
+
+## Many scenarios {.smaller}
+
+```{r}
+#| label: grid
+grid <- expand.grid(
+  alloc  = c("25 / 25", "10 / 40", "40 / 10"),
+  method = c("pooled", "welch"),
+  delta  = c(0, 6),
+  stringsAsFactors = FALSE
+)
+nrow(grid)
+head(grid, 3)
+```
+
+. . .
+
+::: {.smaller}
+`nrow(grid)` scenarios × `n_sim` replicates is the whole cost of the study.
+**Compute that number before you start the run**, not while it is running.
+:::
+
+
+## Cache the run {.smaller}
+
+::: {style="font-size:0.88em"}
+| Level | How | Use when |
+|---|---|---|
+| Chunk cache | `#\| cache: true` | Seconds to a minute. Needs `codetools` |
+| Results file | `saveRDS(res, "output/sim.rds")` | Minutes to hours |
+| Separate script | `01-run-sim.R` writes; the `.qmd` reads | Long enough that it should never run on render |
+:::
+
+. . .
+
+```r
+sim_file <- here::here("output", "sim-typeI.rds")
+if (!file.exists(sim_file)) {
+  set.seed(6301)
+  saveRDS(run_all(grid, n_sim = 10000), sim_file)
+}
+res <- readRDS(sim_file)
+```
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+Save the **seed and the parameter grid** with the results. A cached object you
+cannot regenerate is not reproducible — it is just a file.
+:::
+
+
+## A buggy simulation does not crash {.smaller}
+
+```{r}
+#| label: seed-bug
+simulate_bad <- function(n_ctrl, n_trt, sd_ctrl, sd_trt, delta = 0) {
+  set.seed(6301)                       # <- the bug
+  data.frame(
+    arm = rep(c("ctrl", "trt"), c(n_ctrl, n_trt)),
+    y   = c(rnorm(n_ctrl, 0, sd_ctrl), rnorm(n_trt, delta, sd_trt))
+  )
+}
+
+bad <- as.data.frame(t(replicate(500, analyse_trial(simulate_bad(25, 25, 12, 4)))))
+c(reject = mean(bad$p < 0.05), bias = mean(bad$est), emp_se = sd(bad$est))
+```
+
+. . .
+
+::: {.smaller}
+No error. No warning. A type I error of **0**, a bias of exactly zero, and a
+perfectly plausible-looking estimate — from 500 copies of the same dataset.
+:::
+
+
+## Assertions for simulations {.smaller}
+
+::: {style="font-size:0.86em"}
+| Where | Check |
+|---|---|
+| **Arguments** | `stopifnot(n_ctrl >= 2, sd_ctrl > 0, length(delta) == 1)` |
+| **The DGM** | Simulate once at $n = 10^6$; the empirical mean and SD must match the parameters |
+| **The results object** | `nrow(res) == n_sim`, no `NA`, and **`sd(res$est) > 0`** |
+| **A known case** | A setting where you know the answer must return it, to within Monte Carlo error |
+:::
+
+. . .
+
+```{r}
+#| label: dgm-check
+set.seed(6301)
+check <- simulate_trial(1e6, 1e6, 12, 4, delta = 8)
+stopifnot(
+  abs(mean(check$y[check$arm == "trt"]) - 8) < 0.05,
+  abs(sd(check$y[check$arm == "ctrl"]) - 12) < 0.05
+)
+"DGM checks passed"
+```
+
+
+# 5 · Performance measures {.section-divider}
+
+## What you actually report {.smaller}
+
+::: {style="font-size:0.84em"}
+| Measure | Estimated by | Answers |
+|---|---|---|
+| **Bias** | $\bar{\hat\theta} - \theta$ | Is the estimator systematically off? |
+| **Empirical SE** | $\mathrm{sd}(\hat\theta)$ | How variable is it, run to run? |
+| **Coverage** | $\frac{1}{n_{\text{sim}}}\sum \mathbb{1}\{\hat\theta_{\text{lo}} \le \theta \le \hat\theta_{\text{hi}}\}$ | Does the 95% CI cover 95% of the time? |
+| **Type I error** | $\mathrm{mean}(p < \alpha)$, with $\theta = 0$ | Does the test hold its size? |
+| **Power** | $\mathrm{mean}(p < \alpha)$, with $\theta \ne 0$ | Will the study detect a real effect? |
+:::
+
+. . .
+
+::: {.smaller}
+Type I error and power are the **same computation** on data from the same DGM
+with `delta` set differently. Nothing else changes.
+:::
+
+
+## Monte Carlo error {.smaller}
+
+Every number on the previous slide is **itself an estimate**, from $n_{\text{sim}}$
+draws. It has a standard error.
+
+::: {style="font-size:0.86em"}
+| Quantity | Monte Carlo SE |
+|---|---|
+| Bias | $\mathrm{EmpSE}/\sqrt{n_{\text{sim}}}$ |
+| Empirical SE | $\mathrm{EmpSE}/\sqrt{2(n_{\text{sim}}-1)}$ |
+| A rejection rate $\hat p$ | $\sqrt{\hat p(1-\hat p)/n_{\text{sim}}}$ |
+:::
+
+. . .
+
+```{r}
+#| label: mcse
+p_hat <- 0.052; n_sim <- 1000
+sqrt(p_hat * (1 - p_hat) / n_sim)      # MCSE
+p_hat + c(-1.96, 1.96) * sqrt(p_hat * (1 - p_hat) / n_sim)
+```
+
+. . .
+
+::: {.smaller}
+At $n_{\text{sim}} = 1000$, an observed 0.052 is consistent with anything from
+0.038 to 0.066. **That simulation cannot tell 5% from 6.5%.**
+:::
+
+
+## Choosing $n_{\text{sim}}$ on purpose {.smaller}
+
+Invert the formula. For a rejection rate near $p$:
+
+$$n_{\text{sim}} = \frac{p(1-p)}{\text{MCSE}^2}$$
+
+::: {style="font-size:0.86em"}
+| Target MCSE at $p = 0.05$ | $n_{\text{sim}}$ | Resolves |
+|---|---|---|
+| 0.010 | 475 | 0.05 vs 0.08 |
+| 0.005 | 1,900 | 0.05 vs 0.065 |
+| **0.0025** | **7,600** | 0.05 vs 0.057 |
+| 0.001 | 47,500 | 0.05 vs 0.053 |
+:::
+
+. . .
+
+::: {.smaller}
+For **bias**, $n_{\text{sim}} = (\mathrm{EmpSE}/\text{target})^2$. With an
+empirical SE of 3.9 mmHg and a target of 0.1 mmHg, that is 1,521.
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+**1000 is a habit, not a decision.** State the difference you need to detect, then
+compute $n_{\text{sim}}$ — exactly as you would a sample size for a trial.
+:::
+
+
+# 6 · Type I error and power {.section-divider}
+
+## The question, restated {.smaller}
+
+Two arms. **Different variances** — 12 vs 4 mmHg. **Different sizes** — and it is
+the *combination* that does the damage.
+
+::: {.smaller}
+The pooled *t*-test assumes a common variance. It estimates one $s_p$ from both
+arms, weighting by degrees of freedom, and gets $n_1 + n_2 - 2$ df. Welch
+estimates each arm's variance separately and adjusts the df downwards.
+:::
+
+. . .
+
+::: {.smaller}
+`t.test()` in R defaults to `var.equal = FALSE`. Most software does not, most
+textbooks teach the pooled version first, and most people tick the box that says
+"assume equal variances" because it sounds like the simpler model.
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+Four scenarios, $\delta = 0$, $n_{\text{sim}} = 10{,}000$. If the test is behaving,
+every number should be 0.05 ± 0.0044.
+:::
+
+
+## Run it {.smaller}
+
+```{r}
+#| label: type1-run
+n_sim <- 10000
+set.seed(6301)
+
+scenarios <- list(
+  list(lab = "25 / 25", nc = 25, nt = 25, pooled = TRUE),
+  list(lab = "10 / 40", nc = 10, nt = 40, pooled = TRUE),
+  list(lab = "40 / 10", nc = 40, nt = 10, pooled = TRUE),
+  list(lab = "10 / 40", nc = 10, nt = 40, pooled = FALSE)
+)
+
+type1 <- do.call(rbind, lapply(scenarios, function(s) {
+  r <- run_scenario(n_sim, s$nc, s$nt, sd_ctrl = 12, sd_trt = 4,
+                    delta = 0, pooled = s$pooled)
+  data.frame(alloc = s$lab, method = ifelse(s$pooled, "pooled", "Welch"),
+             reject = mean(r$p < 0.05), bias = mean(r$est), emp_se = sd(r$est))
+}))
+type1$mcse <- sqrt(type1$reject * (1 - type1$reject) / n_sim)
+```
+
+
+## The type I error is not 0.05 {.smaller}
+
+```{r}
+#| label: type1-table
+#| echo: false
+type1 |>
+  transmute(
+    Allocation = alloc, Method = method,
+    `Rejection rate` = sprintf("%.4f", reject),
+    `MC SE` = sprintf("%.4f", mcse),
+    Bias = sprintf("%+.3f", bias),
+    `Emp. SE` = sprintf("%.2f", emp_se)
+  ) |>
+  kable(align = "llrrrr")
+```
+
+::: {.smaller}
+$\sigma_{\text{ctrl}} = 12$, $\sigma_{\text{trt}} = 4$, $\delta = 0$,
+$n_{\text{sim}} = 10{,}000$. Nominal $\alpha = 0.05$.
+:::
+
+. . .
+
+::: {.smaller}
+- **10 / 40 pooled** — the small arm is the noisy one. Rejects **five times too
+  often**.
+- **40 / 10 pooled** — reverse the allocation and the test becomes absurdly
+  conservative.
+- **Bias is essentially zero in every row.** The estimate was never the problem.
+:::
+
+
+## Under the null, p-values must be uniform {.smaller}
+
+```{r}
+#| label: fig-pvals
+#| echo: false
+#| fig-width: 9.5
+#| fig-height: 3.4
+#| fig-cap: "Null p-values, 10,000 replicates, n = 10 / 40, sd = 12 / 4."
+set.seed(97)
+pv <- rbind(
+  data.frame(method = "Pooled t-test",
+             p = run_scenario(10000, 10, 40, 12, 4, 0, TRUE)$p),
+  data.frame(method = "Welch t-test",
+             p = run_scenario(10000, 10, 40, 12, 4, 0, FALSE)$p)
+)
+ggplot(pv, aes(p)) +
+  geom_histogram(breaks = seq(0, 1, 0.05), fill = "#CFAE70", colour = "white") +
+  geom_hline(yintercept = 500, linetype = 2) +
+  facet_wrap(~method) +
+  labs(x = "p-value under the null", y = "count")
+```
+
+::: {.smaller}
+The dashed line is what a correct test gives: 500 per bin. The pooled test piles
+up near zero — and the excess *is* the inflated type I error.
+:::
+
+
+## Welch, and what it costs {.smaller}
+
+::: {.smaller}
+Welch does not pool. It uses $\sqrt{s_1^2/n_1 + s_2^2/n_2}$ and a
+Satterthwaite-approximated degrees of freedom, which is smaller — often much
+smaller — than $n_1 + n_2 - 2$.
+:::
+
+::: columns
+::: {.column width="48%"}
+### Under unequal variances
+
+Holds its size. **0.0485** against a nominal 0.05, with a Monte Carlo SE of
+0.0021.
+:::
+
+::: {.column width="48%"}
+### Under equal variances
+
+Costs almost nothing. A percent or two of power in the worst case, and nothing at
+all in most.
+:::
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+`var.equal = TRUE` is a **choice you have to justify**. R's default is the safe
+one; use it unless you can say why the variances are equal.
+:::
+
+
+## Power, from the same machinery {.smaller}
+
+```{r}
+#| label: fig-power
+#| echo: false
+#| fig-width: 9
+#| fig-height: 3.6
+#| fig-cap: "Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (trt)."
+set.seed(555)
+alloc <- data.frame(lab = c("10 / 40", "25 / 25", "38 / 12"),
+                    nc = c(10, 25, 38), nt = c(40, 25, 12))
+pw_grid <- expand.grid(i = 1:3, delta = c(0, 3, 6, 9, 12))
+pw <- do.call(rbind, lapply(seq_len(nrow(pw_grid)), function(k) {
+  i <- pw_grid$i[k]
+  r <- run_scenario(2000, alloc$nc[i], alloc$nt[i], 12, 4,
+                    delta = pw_grid$delta[k], pooled = FALSE)
+  data.frame(alloc = alloc$lab[i], delta = pw_grid$delta[k],
+             power = mean(r$p < 0.05))
+}))
+ggplot(pw, aes(delta, power, colour = alloc, shape = alloc)) +
+  geom_line(linewidth = 0.9) + geom_point(size = 2.6) +
+  geom_hline(yintercept = 0.8, linetype = 2, colour = "grey40") +
+  scale_y_continuous(limits = c(0, 1)) +
+  labs(x = "true difference in means (mmHg)", y = "power",
+       colour = "ctrl / trt", shape = "ctrl / trt")
+```
+
+::: {.smaller}
+Same DGM, same functions, one argument changed: `delta`. Fifty patients in every
+scenario — only the **allocation** differs.
+:::
+
+
+## What the simulation actually told us {.smaller}
+
+::: {.smaller}
+- The pooled *t*-test's **type I error was 0.26**, not 0.05, when the smaller arm
+  had the larger variance.
+- The **estimate was unbiased throughout**. Only the inference broke.
+- Welch fixed it, at negligible cost.
+- With unequal variances, **allocate more patients to the noisier arm**.
+:::
+
+. . .
+
+::: {.smaller}
+None of that required any new mathematics. It required a DGM you could write
+down, two short functions, ten thousand replicates, and the discipline to report a
+Monte Carlo SE.
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+This is the general move: **when you do not know whether a method works under
+your conditions, build your conditions and find out.**
+:::
+
+
+## Summary {.smaller}
+
+- A seed identifies a pseudorandom stream; it does not make a design valid.
+- Write ADEMP before writing the repetition.
+- Test one simulated replicate before running thousands.
+- Report Monte Carlo uncertainty with every simulated probability.
+- Type I error and power differ by the data-generating parameter, not by the code skeleton.
+
+. . .
+
+**Next connection:** Session 15 changes the simulated world into bootstrap, permutation, and cross-validation worlds.
+

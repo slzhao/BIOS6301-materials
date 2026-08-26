@@ -1,0 +1,839 @@
+---
+title: "Iteration and Vectorization"
+subtitle: "BIOS 6301 · Introduction to Statistical Computing"
+author: "Department of Biostatistics, Vanderbilt University Medical Center"
+date: "Session 13"
+date-format: "[Session 13]"
+format:
+  revealjs:
+    theme: simple
+    css: ../../slides.css
+    slide-number: c/t
+    show-slide-number: all
+    incremental: false
+    width: 1280
+    height: 720
+    fig-align: center
+    code-line-numbers: false
+    highlight-style: github
+    footer: "BIOS 6301 · Session 13 · Iteration and Vectorization"
+    navigation-mode: linear
+execute:
+  enabled: true
+  echo: true
+  warning: false
+  message: false
+  freeze: auto
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+# Synthetic teaching data for BIOS 6301. Not real patients.
+set.seed(6301)
+n <- 60
+trial <- data.frame(
+  id        = sprintf("P%03d", 1:n),
+  arm       = rep(c("Placebo", "Treatment"), each = n / 2),
+  site      = sample(1:4, n, replace = TRUE),
+  age       = round(rnorm(n, 61, 9)),
+  sex       = sample(c("F", "M"), n, replace = TRUE),
+  weight_kg = round(rnorm(n, 82, 15), 1),
+  sbp_0     = round(rnorm(n, 148, 14)),
+  stringsAsFactors = FALSE
+)
+trial$sbp_12 <- round(trial$sbp_0 -
+  ifelse(trial$arm == "Treatment", rnorm(n, 14, 8), rnorm(n, 3, 8)))
+
+# Added for this session: a 6-week visit, so there are three outcome columns
+# to iterate over and a three-column matrix for the apply() margins demo.
+trial$sbp_6 <- round(trial$sbp_0 -
+  ifelse(trial$arm == "Treatment", rnorm(n, 9, 7), rnorm(n, 2, 7)))
+
+outcomes <- c("sbp_0", "sbp_6", "sbp_12")
+sbp_mat  <- as.matrix(trial[, outcomes])
+rownames(sbp_mat) <- trial$id
+
+# The same extract, re-run a month later. Nothing about the query changed;
+# site 3's most recent enrolments simply happen to all be female. This is the
+# only difference between trial and trial_jun, and it is the whole sapply demo.
+trial_jun <- trial
+trial_jun$sex[trial_jun$site == 3] <- "F"
+
+theme_set(theme_minimal(base_size = 15))
+```
+
+## Where we are {.smaller}
+
+| Course arc | Sessions | |
+|---|---:|---|
+| Setup and workflow | 0–2 |  |
+| Data foundations | 3–8 |  |
+| Modern tools | 9–10 |  |
+| **R programming** | **11–13** | **← today** |
+| Statistical computing | 14–16 |  |
+
+Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
+
+
+## What you will be able to do {.smaller}
+
+::: {.smaller}
+[1]{.objective-num} **Write** a `for` loop that pre-allocates its result, and
+say what it costs when you do not.
+
+[2]{.objective-num} **Use** `seq_along()` and explain what `1:length(x)` does
+when `x` is empty.
+
+[3]{.objective-num} **Explain** what "vectorized" means, and why it is fast.
+
+[4]{.objective-num} **Choose** between `lapply()`, `sapply()`, `vapply()`,
+`apply()`, `mapply()`, and `tapply()`.
+
+[5]{.objective-num} **Say** why `sapply()` is unsafe in code that matters, and
+write the `vapply()` that fixes it.
+
+[6]{.objective-num} **Read** `purrr::map()` code and translate it to base R,
+and back.
+
+[7]{.objective-num} **Recognise** a problem that genuinely needs a loop.
+:::
+
+
+## Roadmap for today
+
+| | Block | Minutes |
+|---|---|---|
+| 1 | Doing the same thing many times | 6 |
+| 2 | `for`, `while`, and pre-allocation | 18 |
+| 3 | What "vectorized" actually means | 12 |
+| 4 | The apply family | 25 |
+| 5 | Head to head: base and `purrr` | 15 |
+| 6 | Choosing, and when a loop is right | 9 |
+| 7 | Practice and summary | 5 |
+
+: {tbl-colwidths="[6,64,30]"}
+
+. . .
+
+**In lab this week** you turn one function into a table of results across every
+outcome in the dataset.
+
+
+# 1 · Doing the same thing many times {.section-divider}
+
+## earlier in the course's function, twelve times {.smaller}
+
+You finished session 11 with this:
+
+```r
+summarise_by_arm(trial, sbp_0)
+summarise_by_arm(trial, sbp_6)
+summarise_by_arm(trial, sbp_12)
+summarise_by_arm(trial, weight_kg)
+summarise_by_arm(trial, age)
+# ... and eight more outcomes in the final project
+```
+
+. . .
+
+::: {.smaller}
+The duplication did not disappear. It **moved up one level** — from the body of
+the block to the list of calls.
+:::
+
+. . .
+
+::: {.callout-important appearance="simple"}
+A function names *what* you are doing. Iteration names *what you are doing it
+to*.
+:::
+
+
+## Three ways to say "for each" {.smaller}
+
+::: {style="font-size:0.9em"}
+| | Looks like | Gives you |
+|---|---|---|
+| **Loop** | `for (v in outcomes) { ... }` | Nothing. You manage the result yourself |
+| **Apply family** | `lapply(outcomes, f)` | A list, one element per input |
+| **`purrr`** | `map(outcomes, f)` | A list, with a stricter contract |
+| **Vectorized** | `sqrt(x)`, `x > 140` | The answer, with no iteration written at all |
+:::
+
+. . .
+
+::: {.smaller}
+The first three are the same idea with different bookkeeping. The fourth is a
+different idea, and where it applies it beats all of them.
+:::
+
+
+# 2 · `for`, `while`, and pre-allocation {.section-divider}
+
+## Anatomy of a `for` loop {.smaller}
+
+```{r}
+#| label: for-anatomy
+for (v in outcomes) {
+  cat(v, ":", round(mean(trial[[v]]), 1), "mmHg\n")
+}
+```
+
+. . .
+
+::: {.smaller}
+- `v` takes each element of `outcomes` **in turn**. It is a real variable and it
+  survives the loop.
+- `trial[[v]]` — double brackets, because `v` holds a *name*, not a column.
+- This loop **prints**. It does not produce an object. That is the next slide,
+  and it is where the trouble is.
+:::
+
+
+## Pre-allocate, do not grow {.smaller}
+
+Same answer, two ways. Watch the clock.
+
+```{r}
+#| label: prealloc-bench
+grow <- function(k) {
+  out <- c()                                  # grows on every iteration
+  for (i in seq_len(k)) out <- c(out, sqrt(i))
+  out
+}
+
+prealloc <- function(k) {
+  out <- numeric(k)                           # the right size, once
+  for (i in seq_len(k)) out[i] <- sqrt(i)
+  out
+}
+
+system.time(grow(50000))["elapsed"]
+system.time(prealloc(50000))["elapsed"]
+```
+
+
+## Why growing is quadratic {.smaller}
+
+`out <- c(out, x)` does not append. It **allocates a new vector and copies the
+old one into it**, every single iteration.
+
+```{r}
+#| label: quadratic
+#| echo: false
+grow2 <- function(k) {
+  out <- c()
+  for (i in seq_len(k)) out <- c(out, sqrt(i))
+  out
+}
+elapsed <- function(e) round(system.time(e)["elapsed"], 2)
+data.frame(
+  k       = c(20000, 40000, 80000),
+  seconds = c(elapsed(grow2(20000)),
+              elapsed(grow2(40000)),
+              elapsed(grow2(80000)))
+) |> kable()
+```
+
+. . .
+
+::: {.smaller}
+Doubling `k` costs roughly **four times** as much. Building a vector of length
+`k` this way copies about `k²/2` values.
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+`rbind()`-ing rows onto a data frame inside a loop is the same bug, and worse —
+a data frame copy is far more expensive than a vector copy.
+:::
+
+
+## `seq_along()`, and the empty-vector trap {.smaller}
+
+```{r}
+#| label: empty-trap
+sbp <- numeric(0)          # a filter that matched nobody
+1:length(sbp)
+```
+
+. . .
+
+```{r}
+#| label: empty-trap-loop
+for (i in 1:length(sbp)) {
+  cat("iteration", i, "gives value:", sbp[i], "\n")
+}
+```
+
+. . .
+
+```{r}
+#| label: empty-trap-fix
+seq_along(sbp)             # the fix: length zero means zero iterations
+```
+
+
+## `while`: when you do not know how many {.smaller}
+
+```{r}
+#| label: while-newton
+# Newton's method for sqrt(2): iterate until the step is small enough.
+x    <- 1
+iter <- 0
+
+while (abs(x^2 - 2) > 1e-10 && iter < 100) {
+  x    <- x - (x^2 - 2) / (2 * x)
+  iter <- iter + 1
+}
+
+c(root = x, iterations = iter)
+```
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+**Always bound the loop.** `iter < 100` is not decoration — without it, a
+condition that never becomes false hangs your session with no error and no
+output.
+:::
+
+
+# 3 · What "vectorized" actually means {.section-divider}
+
+## The loop is still there. It is in C {.smaller}
+
+```{mermaid}
+%%| echo: false
+%%| fig-width: 10.5
+flowchart LR
+  A["<b>sum(x)</b>"] --> B["<b>one</b> call<br/>into C"]
+  B --> C["1,000,000<br/>additions,<br/>compiled"]
+  D["<b>for (i in ...)</b><br/>s &lt;- s + x[i]"] --> E["<b>1,000,000</b> trips<br/>through the<br/>R interpreter"]
+  E --> F["look up s,<br/>look up x, index,<br/>add, assign —<br/>every time"]
+  style A fill:#CFAE70,stroke:#8a7448,color:#fff
+  style D fill:#f4efe4,stroke:#CFAE70
+  style C fill:#f4efe4,stroke:#CFAE70
+  style F fill:#f4efe4,stroke:#CFAE70
+```
+
+. . .
+
+::: {.smaller}
+"Vectorized" does not mean *no loop*. It means **the loop is not written in R**.
+:::
+
+
+## `for` loops are not slow. Growing is {.smaller}
+
+```{r}
+#| label: bench-three
+y  <- rnorm(5e5)
+tt <- \(expr) system.time(expr)[["elapsed"]]      # seconds, unnamed
+
+c(`for loop`   = tt({
+                   out <- numeric(length(y))
+                   for (i in seq_along(y)) out[i] <- y[i]^2
+                 }),
+  `vapply()`   = tt(vapply(y, \(v) v^2, numeric(1))),
+  `vectorized` = tt(y^2))
+```
+
+. . .
+
+::: {.smaller}
+The functional is **not faster than the loop** — it is often slower. Only the
+last row is a different kind of thing.
+:::
+
+
+## The vectorized answers you already have {.smaller}
+
+::: {style="font-size:0.84em"}
+| Instead of looping to... | Write |
+|---|---|
+| build a new column from an old one | `trial$high <- trial$sbp_0 > 140` |
+| choose per row | `ifelse()`, `if_else()`, `case_when()` |
+| total or average a column | `sum()`, `mean()`, `cumsum()` |
+| average across visits, per patient | `rowMeans()`, `rowSums()` |
+| average one visit, across patients | `colMeans()`, `colSums()` |
+| element-wise max of two vectors | `pmax()`, `pmin()` |
+| count each value | `table()` |
+| test membership | `x %in% y` |
+| find where a condition holds | `which()` |
+| running total | `cumsum()`, `cumprod()`, `cummax()` |
+:::
+
+. . .
+
+::: {.callout-tip appearance="simple"}
+Before writing a loop, ask whether a function already does it. Ten minutes of
+searching beats an hour of debugging an index.
+:::
+
+
+# 4 · The apply family {.section-divider}
+
+## `lapply()`: a list in, a list out {.smaller}
+
+```{r}
+#| label: lapply-demo
+summary_of <- function(x) {
+  round(c(n = sum(!is.na(x)), mean = mean(x), sd = sd(x)), 1)
+}
+
+results <- lapply(trial[outcomes], summary_of)
+results
+```
+
+
+## `sapply()`: convenience, and what it costs {.smaller}
+
+`sapply()` is `lapply()` plus a guess about what shape you wanted.
+
+```{r}
+#| label: sapply-good
+sapply(trial[outcomes], summary_of)
+```
+
+. . .
+
+```{r}
+#| label: sapply-sex
+# For each site, which sexes are enrolled?
+sapply(split(trial$sex, trial$site), unique)
+```
+
+
+## The day the data changed {.smaller}
+
+Same code. Same query. The extract re-run a month later:
+
+```{r}
+#| label: sapply-bad
+sapply(split(trial_jun$sex, trial_jun$site), unique)
+```
+
+. . .
+
+```{r}
+#| label: sapply-bad-class
+class(sapply(split(trial$sex,     trial$site), unique))
+class(sapply(split(trial_jun$sex, trial_jun$site), unique))
+```
+
+. . .
+
+::: {.callout-important appearance="simple"}
+A matrix on Tuesday, a list on Wednesday. Nothing downstream was written to
+handle both.
+:::
+
+
+## `vapply()`: declare the shape {.smaller}
+
+`FUN.VALUE` is a template. It says what one answer looks like.
+
+```{r}
+#| label: vapply-good
+vapply(trial[outcomes], summary_of, numeric(3))
+```
+
+. . .
+
+```{r}
+#| label: vapply-error
+#| error: true
+vapply(split(trial_jun$sex, trial_jun$site), unique, character(2))
+```
+
+. . .
+
+::: {.smaller}
+The error names the element that broke the contract: `FUN(X[[3]])`. That is
+site 3.
+:::
+
+
+## `apply()`: margins on a matrix {.smaller}
+
+::: columns
+::: {.column width="49%"}
+```{r}
+#| label: apply-rows
+# MARGIN = 1: one answer per ROW
+head(apply(sbp_mat, 1, max), 4)
+```
+:::
+
+::: {.column width="49%"}
+```{r}
+#| label: apply-cols
+# MARGIN = 2: one answer per COLUMN
+round(apply(sbp_mat, 2, mean), 1)
+```
+:::
+:::
+
+. . .
+
+::: {.smaller}
+`sbp_mat` is 60 × 3: one row per patient, one column per visit. **`MARGIN` is
+the dimension you keep.**
+:::
+
+. . .
+
+```r
+# and when the function is mean or sum, do not use apply() at all
+rowMeans(sbp_mat)   colMeans(sbp_mat)   # written in C, much faster
+```
+
+
+## `apply()` on a data frame: the coercion trap {.smaller}
+
+```{r}
+#| label: apply-coerce
+apply(trial[, c("id", "sbp_0", "sbp_12")], 1, max) |> head(4)
+```
+
+. . .
+
+::: {.smaller}
+Those are patient **IDs**, not blood pressures. `apply()` needs a matrix, so it
+called `as.matrix()` — and a matrix holds one type, so every number became
+`"P001"`-style text.
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+Session 3's coercion rules, arriving through a new door. `apply()` on a data
+frame with any character column silently converts **everything** to character.
+:::
+
+
+## `mapply()` and `Map()`: two vectors at once {.smaller}
+
+When you need to walk **two** things in parallel:
+
+```{r}
+#| label: mapply-demo
+labels <- c("Baseline", "6 weeks", "12 weeks")
+
+mapply(
+  \(col, lab) sprintf("%s: %.1f mmHg", lab, mean(trial[[col]])),
+  outcomes, labels
+)
+```
+
+. . .
+
+::: {.smaller}
+`Map()` is the same thing without simplification — it is to `mapply()` what
+`lapply()` is to `sapply()`, and it is the safer default.
+:::
+
+
+## `tapply()`: split, apply, combine {.smaller}
+
+You met this in session 4. Look at it again as a **functional**:
+
+```{r}
+#| label: tapply-demo
+round(tapply(trial$sbp_12, trial$arm, mean), 1)
+```
+
+. . .
+
+```{r}
+#| label: tapply-two
+round(tapply(trial$sbp_12, list(trial$arm, trial$site), mean), 1)
+```
+
+. . .
+
+::: {.smaller}
+```r
+# the tidyverse way
+trial |> group_by(arm) |> summarise(mean = mean(sbp_12))
+```
+:::
+
+
+## The family on one slide {.smaller}
+
+::: {style="font-size:0.82em"}
+| Function | Input | Output | Use it |
+|---|---|---|---|
+| `lapply(x, f)` | vector or list | **always a list** | The safe default |
+| `sapply(x, f)` | vector or list | vector, matrix, *or list* | Console only |
+| `vapply(x, f, FUN.VALUE)` | vector or list | the shape you declared | **In scripts** |
+| `apply(m, MARGIN, f)` | matrix | vector or matrix | Rows or columns of a matrix |
+| `mapply(f, x, y)` | two or more vectors | simplified, like `sapply()` | Parallel iteration |
+| `Map(f, x, y)` | two or more vectors | always a list | Parallel, safely |
+| `tapply(x, g, f)` | vector + grouping | vector or matrix | Grouped summary |
+| `Reduce(f, x)` | vector or list | one value | Combining, cumulatively |
+| `Filter(f, x)` | vector or list | a subset | Keeping what matches |
+:::
+
+
+# 5 · Head to head: base and `purrr` {.section-divider}
+
+## `map()` is `lapply()` with better manners {.smaller}
+
+::: columns
+::: {.column width="49%"}
+### base R
+
+```{r}
+#| label: hh-lapply
+res <- lapply(trial[outcomes],
+              summary_of)
+res$sbp_12
+```
+:::
+
+::: {.column width="49%"}
+### `purrr`
+
+```r
+library(purrr)
+
+res <- map(trial[outcomes],
+           summary_of)
+res$sbp_12
+```
+:::
+:::
+
+. . .
+
+::: {.smaller}
+Same idea, same result. `map()` puts the data first — so it pipes — and is the
+only member of a family whose names all mean something.
+:::
+
+::: {.callout-note appearance="simple"}
+`purrr` is not installed in this container, so the right-hand column is shown,
+not run. Everything on the left is live.
+:::
+
+
+## Typed variants: `map_dbl()` and friends {.smaller}
+
+::: columns
+::: {.column width="49%"}
+### base R
+
+```{r}
+#| label: hh-vapply
+vapply(trial[outcomes],
+       mean, numeric(1))
+```
+:::
+
+::: {.column width="49%"}
+### `purrr`
+
+```r
+map_dbl(trial[outcomes], mean)
+```
+:::
+:::
+
+. . .
+
+::: {style="font-size:0.86em"}
+| Want back | base R | `purrr` |
+|---|---|---|
+| a list | `lapply(x, f)` | `map(x, f)` |
+| a double vector | `vapply(x, f, numeric(1))` | `map_dbl(x, f)` |
+| a character vector | `vapply(x, f, character(1))` | `map_chr(x, f)` |
+| a logical vector | `vapply(x, f, logical(1))` | `map_lgl(x, f)` |
+| an integer vector | `vapply(x, f, integer(1))` | `map_int(x, f)` |
+| a data frame of rows | `do.call(rbind, lapply(...))` | `map_dfr(x, f)` |
+:::
+
+
+## The `\(x)` shorthand {.smaller}
+
+`\(x)` is base R 4.1, not tidyverse. It works everywhere a function does.
+
+```{r}
+#| label: lambda-base
+vapply(trial[outcomes], \(x) round(mean(x), 1), numeric(1))
+```
+
+. . .
+
+```{r}
+#| label: lambda-pvals
+# One t-test per outcome, in one line.
+vapply(outcomes, \(v) t.test(trial[[v]] ~ trial$arm)$p.value, numeric(1)) |>
+  signif(3)
+```
+
+. . .
+
+::: {.smaller}
+```r
+# purrr, with the same shorthand and its own ~ .x form
+map_dbl(outcomes, \(v) t.test(trial[[v]] ~ trial$arm)$p.value)
+map_dbl(outcomes, ~ t.test(trial[[.x]] ~ trial$arm)$p.value)
+```
+:::
+
+
+## `map2()`, `pmap()`, and the rest {.smaller}
+
+::: {style="font-size:0.86em"}
+| Job | base R | `purrr` |
+|---|---|---|
+| Two vectors in parallel | `mapply(f, x, y)` / `Map(f, x, y)` | `map2(x, y, f)` |
+| Many vectors in parallel | `mapply(f, x, y, z)` | `pmap(list(x, y, z), f)` |
+| Side effects only — plots, files | `for` / `invisible(lapply())` | `walk(x, f)` |
+| Element and its name | `mapply(f, x, names(x))` | `imap(x, f)` |
+| Keep what matches | `Filter(f, x)` | `keep(x, f)` |
+| Combine cumulatively | `Reduce(f, x)` | `reduce(x, f)` |
+| Fail softly, keep going | `try()` inside the function | `possibly(f, NA)` |
+:::
+
+. . .
+
+::: {.smaller}
+Note the argument order: `purrr` is **data first, function second**, always.
+Base R is not.
+:::
+
+
+## The same job, twice {.smaller}
+
+**Task.** For every outcome, the treatment-minus-placebo difference in means.
+
+::: columns
+::: {.column width="49%"}
+```{r}
+#| label: hh-base-final
+vapply(outcomes, \(v) {
+  m <- tapply(trial[[v]],
+              trial$arm, mean)
+  round(m[["Treatment"]] -
+        m[["Placebo"]], 1)
+}, numeric(1))
+```
+:::
+
+::: {.column width="49%"}
+```r
+map_dbl(outcomes, \(v) {
+  trial |>
+    group_by(arm) |>
+    summarise(m = mean(.data[[v]])) |>
+    pull(m) |>
+    diff() |>
+    round(1)
+}) |> set_names(outcomes)
+```
+:::
+:::
+
+. . .
+
+::: {.smaller}
+Same numbers. `vapply()` names its result for free; `map_dbl()` needs
+`set_names()`. And `v` holds a **string**, so it is `.data[[v]]` — not last
+week's curly-curly, which wants a bare column name.
+:::
+
+
+# 6 · Choosing, and when a loop is right {.section-divider}
+
+## Which one do I want? {.smaller}
+
+::: {style="font-size:0.88em"}
+| If... | Use |
+|---|---|
+| A vectorized function already exists | **That function.** Nothing else is close |
+| One value per element, type known | `vapply()` / `map_dbl()` |
+| Results have different shapes | `lapply()` / `map()` |
+| You are looping for a side effect | `for` loop, or `walk()` |
+| Step *i* depends on step *i−1* | **`for` or `while`.** No functional can help |
+| You are exploring at the console | Whatever is quickest to type |
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+Readability is the tie-breaker, not speed. Slide 16 showed that the timing
+difference between a loop and a functional is usually noise.
+:::
+
+
+## The loop you cannot remove {.smaller}
+
+**Iterative dependence**: step *i* needs the result of step *i−1*.
+
+```{r}
+#| label: newton-mle
+# Newton-Raphson. Each step is computed FROM the previous estimate.
+x     <- 1
+trace <- numeric(4)
+
+for (i in seq_len(4)) {
+  x        <- x - (x^2 - 2) / (2 * x)
+  trace[i] <- x
+}
+
+round(trace, 8)
+```
+
+. . .
+
+::: {.smaller}
+There is nothing to hand to `lapply()`. The input to iteration 3 does not exist
+until iteration 2 has run. **MCMC, EM, gradient descent, and every iterative
+optimiser have this shape.**
+:::
+
+
+## Accumulating results without growing {.smaller}
+
+The pattern for "one row of results per iteration":
+
+```{r}
+#| label: accumulate
+#| results: hold
+res <- vector("list", length(outcomes))     # pre-allocated LIST
+names(res) <- outcomes
+
+for (v in outcomes) {
+  res[[v]] <- data.frame(
+    outcome = v,
+    mean    = round(mean(trial[[v]]), 1),
+    sd      = round(sd(trial[[v]]), 1)
+  )
+}
+
+do.call(rbind, res)                          # combine ONCE, at the end
+```
+
+
+## Summary {.smaller}
+
+- Vectorize when the vector expression states the operation directly.
+- Use a loop when the algorithm has state or the steps need to remain explicit.
+- Preallocate output; repeated growth is the expensive pattern.
+- Prefer functionals with a stable output contract for repeated independent work.
+- Verify equivalence before benchmarking or optimizing.
+
+. . .
+
+**Next connection:** Session 14 uses these functions and iteration patterns to build simulation studies.
+

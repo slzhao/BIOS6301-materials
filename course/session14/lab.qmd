@@ -1,0 +1,57 @@
+---
+title: "Session 14 guided lab"
+subtitle: "Estimate Type I error and power"
+---
+
+Copy `starter/simulation-lab.qmd` to `work/session14/`.
+
+::: {.callout-note}
+**Suggested use:** Tasks 1–7 are the core Type-I-error and power study.
+Additional practice expands the same ADEMP study to bias, coverage, sample size,
+and two additional data-generating mechanisms. Remaining scenarios may be run
+independently after lab.
+:::
+
+## Tasks
+
+1. Write an ADEMP specification for comparing Welch's t test with the equal-
+   variance t test when group variances differ.
+2. Complete `simulate_one()` and verify one replicate by inspecting its generated
+   data and returned values.
+3. Run both methods under the null and estimate Type I error.
+4. Run at two nonzero mean differences and estimate power.
+5. Report Monte Carlo SE for every rejection probability.
+6. Count failed/nonfinite replicates and retain the condition parameters.
+7. Increase the replicate count until the worst MCSE meets a precision target you
+   state in advance.
+
+## Additional practice: broaden the ADEMP study
+
+1. Extend one simulation replicate so that each method returns the estimate,
+   estimated standard error, 95% confidence interval, and p-value.
+2. Add bias, empirical SD, mean estimated SE, coverage, and mean interval width
+   to the performance summary.
+3. Repeat selected null and alternative scenarios for group sizes 15, 30, and
+   100. Keep the variance ratio unchanged.
+4. Add a centered, variance-standardized log-normal error distribution. State
+   its true mean and variance in the ADEMP specification.
+5. Add a rare-outlier mechanism and retain the number of injected outliers in
+   each replicate rather than silently discarding unusual samples.
+6. Build one scenario table containing the data-generating mechanism, sample
+   size, effect, replicate count, seed, and target precision.
+7. Make one diagnostic figure that helps compare performance across sample sizes
+   or data-generating mechanisms. Include Monte Carlo uncertainty where useful.
+8. Mark which conclusions appear stable and which require more replicates or a
+   wider scenario grid.
+
+### Independent-practice check
+
+The true estimand must be explicit in every scenario. Coverage is the proportion
+of intervals containing that truth—not the proportion containing the observed
+estimate from a single generated dataset.
+
+## Exit evidence
+
+Render ADEMP, tested function, scenario table, Monte Carlo uncertainty, failure
+count, and interpretation. Do not claim that simulation proves a method is
+universally valid.
