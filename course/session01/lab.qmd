@@ -1,127 +1,169 @@
 ---
 title: "Session 1 guided lab"
-subtitle: "Build a report that survives a fresh session"
+subtitle: "Create a reproducible R project from scratch"
 ---
-
-::: {.callout-note}
-**Suggested use:** complete the core checkpoints first. The instructor may choose
-some or all of the additional practice during the scheduled lab. Anything not
-finished is designed for independent practice afterward.
-:::
 
 ## Goal
 
-Use the RStudio workbench to run a saved `.R` script, knit an R Markdown report,
-and render a Quarto report whose numbers can be regenerated from saved source
-and the supplied synthetic data.
-
-## Start from the repository
-
-Do not edit `course/session01/starter/`. Copy that complete folder to
-`work/session01-lab/`, then work only in the copy.
-
-Your private repository should contain:
+Start with an empty folder and use RStudio to create a small, reproducible
+analysis. By the end of the lab, your project will contain:
 
 ```text
-work/session01-lab/
+session01-lab/
 ├── session01-lab.Rproj
 ├── analysis.R
 ├── report.Rmd
+├── report.html
 ├── report.qmd
-└── data/
-    └── clinic_summary.csv
+└── report-quarto.html
 ```
 
-## Checkpoint 1: Establish the project
+You do not need to download or clone any course files for this lab. Create every
+source file yourself and save it inside the project.
 
-1. Open `work/session01-lab/session01-lab.Rproj`.
-2. Locate the Source, Console, Environment, and Output panes.
-3. Confirm that the three source files and `data/clinic_summary.csv` are present.
-4. Run `2 + 2` in the Console, then explain why that command is not yet part of
-   the saved analysis.
+## Checkpoint 1: Create an RStudio project
 
-## Checkpoint 2: Run the `.R` script
+1. In RStudio, choose **File → New Project**.
+2. Select **New Directory**, then **New Project**.
+3. Enter `session01-lab` as the directory name.
+4. Choose a parent directory that you can find again, then select
+   **Create Project**.
+5. Confirm that RStudio opens the new project and that the Files pane contains
+   `session01-lab.Rproj`.
+6. Locate the Source, Console, Environment, and Output panes.
+7. Run `2 + 2` in the Console. Explain why this command is not yet part of a
+   saved, reproducible analysis.
 
-Open `analysis.R`. Use {{< kbd Ctrl-Enter >}} to run it one section at a time.
-Then restart R and use **Source** to run the complete saved script.
+::: {.callout-tip}
+The project folder is the home of this analysis. Create all remaining files in
+this folder; do not create them in the course website or another project.
+:::
 
-Confirm that these objects appear in the Environment pane:
+## Checkpoint 2: Create and run an `.R` script
 
-`clinic`, `n_records`, `mean_age`, and `median_marker`.
+1. Choose **File → New File → R Script**.
+2. Save the new file as `analysis.R` in the project folder.
+3. Type the following code into the script. Do not paste it into the Console.
 
-## Checkpoint 3: Knit the R Markdown report
+```r
+# BIOS6301 Session 1: a small reproducible analysis
 
-Open `report.Rmd` and identify:
+clinic <- data.frame(
+  patient_id = 1:6,
+  group = c("A", "A", "A", "B", "B", "B"),
+  age = c(52, 61, 47, 70, 58, 64),
+  marker = c(8.2, 7.5, 9.1, 6.8, 7.9, 7.2)
+)
 
-1. The YAML header and its `output:` key
-2. Markdown prose
-3. The setup and summary R chunks
-4. The chunk labels and classic knitr options in the `{r ...}` headers
-5. Inline R expressions
+n_records <- nrow(clinic)
+mean_age <- mean(clinic$age)
+median_marker <- median(clinic$marker)
 
-Complete the calculations and use the **Knit** button to produce HTML. Set the
-summary chunk to `echo=FALSE`. Explain why the calculations still appear even
-though the source code is hidden.
+summary_values <- data.frame(
+  statistic = c("Number of records", "Mean age", "Median marker"),
+  value = c(n_records, mean_age, median_marker)
+)
 
-## Checkpoint 4: Apply the model in Quarto
+print(summary_values)
+```
 
-Open `report.qmd`. Identify what is unchanged from R Markdown, then complete its
-Quarto-specific syntax:
+4. Save the script.
+5. Use {{< kbd Ctrl-Enter >}} to run the code a few lines at a time.
+6. Select **Session → Restart R** and confirm that the Environment pane is empty.
+7. Open `analysis.R` and select **Source** to run the entire saved script.
+8. Confirm that `clinic`, `n_records`, `mean_age`, `median_marker`, and
+   `summary_values` appear in the Environment pane.
 
-- `format: html` in YAML
-- `#| label: ...` and `#| echo: false` at the top of a code cell
-- the **Render** button
+## Checkpoint 3: Create and knit an R Markdown report
 
-Use inline R to insert `n_records`, `mean_age`, and `median_marker`. Do not type
-copies of the calculated numbers manually.
+1. Choose **File → New File → R Markdown**.
+2. Enter a title such as `Session 1 report`, choose **HTML**, and select **OK**.
+3. Save the document as `report.Rmd` in the project folder.
+4. Replace the example document with the following structure.
 
-## Checkpoint 5: Verify reproducibility
+````markdown
+---
+title: "Session 1 report"
+output: html_document
+---
 
-1. Restart R.
-2. Confirm that the Environment pane is empty.
-3. Source `analysis.R`, knit `report.Rmd`, and render `report.qmd`.
-4. Explain which files are source and which HTML files are generated output.
+```{{r setup, include=FALSE}}
+source("analysis.R")
+```
 
-## Controlled error
+## Results
 
-Temporarily change the data path to an incorrect filename. Render, read the error,
-repair the path, and render successfully again.
+The analysis contains `r knitr::inline_expr("n_records")` records. The mean age is
+`r knitr::inline_expr("round(mean_age, 1)")` years, and the median marker value is
+`r knitr::inline_expr("round(median_marker, 1)")`.
 
-## Additional practice: extend the workflow
+```{{r summary, echo=FALSE}}
+summary_values
+```
+````
 
-1. Add comments and three `stopifnot()` input checks to `analysis.R`, then source
-   it after restarting R.
-2. In `report.Rmd`, test `echo=FALSE`, `eval=FALSE`, and `include=FALSE` in three
-   small chunks. Record whether each chunk runs and whether code and results are
-   displayed.
-3. Add a setup chunk to `report.Rmd` using `knitr::opts_chunk$set()` for at least
-   two document-wide defaults. Override one default in an individual chunk.
-4. In `report.qmd`, express the same selected behaviors with Quarto `#|` cell
-   options. Identify the spelling and value-style differences from R Markdown.
-5. Add a table with one row per `group`, reporting total `n`, mean age, and mean
-   marker. Generate the values from code rather than typing them.
-6. Add a participant-level figure comparing marker values between groups. Give
-   it an informative title, axes, and a one-sentence interpretation.
-7. Read the CSV a second way using a single, explicitly defined absolute
-   `data_root`. Verify that the resulting object equals the relative-path import,
-   and document when each path strategy is appropriate.
-8. Restart R and produce all outputs from beginning to end. Record any hidden
-   dependency you discovered and how you removed it.
+5. Identify the YAML header, Markdown prose, setup chunk, summary chunk, chunk
+   labels, chunk options, and inline R expressions.
+6. Select **Knit** and confirm that RStudio creates `report.html`.
+7. Explain why the table appears even though `echo=FALSE` hides its source code.
 
-### Independent-practice check
+## Checkpoint 4: Create and render a Quarto report
 
-The `.R`, `.Rmd`, and `.qmd` files should agree numerically. A reader should be
-able to identify every input location and regenerate every table and figure
-without preparatory console commands.
+1. Choose **File → New File → Quarto Doc**.
+2. Enter a title such as `Session 1 Quarto report`, choose **HTML**, and select
+   **Create**.
+3. Save the document as `report.qmd` in the project folder.
+4. Replace the example document with the following structure.
+
+````markdown
+---
+title: "Session 1 Quarto report"
+format: html
+output-file: report-quarto.html
+---
+
+```{{r}}
+#| label: setup
+#| include: false
+source("analysis.R")
+```
+
+## Results
+
+The analysis contains `r knitr::inline_expr("n_records")` records. The mean age is
+`r knitr::inline_expr("round(mean_age, 1)")` years, and the median marker value is
+`r knitr::inline_expr("round(median_marker, 1)")`.
+
+```{{r}}
+#| label: summary
+#| echo: false
+summary_values
+```
+````
+
+5. Identify what is unchanged from R Markdown.
+6. Identify the Quarto-specific `format:` key and `#|` cell-option syntax.
+7. Select **Render** and confirm that Quarto creates `report-quarto.html` rather
+   than replacing the R Markdown output.
+
+## Checkpoint 5: Test the saved workflow
+
+1. Select **Session → Restart R** and confirm that the Environment pane is empty.
+2. Source `analysis.R` and confirm the three calculated values.
+3. Knit `report.Rmd` without running any preparatory Console commands.
+4. Render `report.qmd` without running any preparatory Console commands.
+5. Temporarily change `source("analysis.R")` to
+   `source("analysis-missing.R")` in `report.qmd` and render again.
+6. Read the error, restore the correct filename, and render successfully.
+7. Identify the three source files and the two generated HTML files.
 
 ## Exit evidence
 
 Show the instructor or TA:
 
-- The project folder
-- The `.R` script and a successful complete Source run
-- The `.Rmd` source and knitted HTML
-- The `.qmd` source
-- The Quarto-rendered HTML
-- The three calculated values
-- A successful render after restarting R
+- The RStudio project that you created from scratch
+- `analysis.R` and a successful complete Source run
+- `report.Rmd` and its knitted HTML output
+- `report.qmd` and its rendered HTML output
+- The calculated values: 6 records, mean age 58.7 years, and median marker 7.7
+- A successful Knit and Render after restarting R
