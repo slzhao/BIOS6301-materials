@@ -6,8 +6,8 @@
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.38">
 
   <meta name="author" content="Department of Biostatistics, Vanderbilt University Medical Center">
   <title>BIOS6301 · Student Materials – Python Introduction for R Users</title>
@@ -17,6 +17,9 @@
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -95,7 +98,7 @@
     code span.vs { color: #032f62; } /* VerbatimString */
     code span.wa { color: #ff5555; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-673c2e7d040da7fd4b9d655d29f657a0.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-8f256d708726d40fbff7d707db68e007.css">
   <link rel="stylesheet" href="../../slides.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
@@ -313,55 +316,55 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="a-script-can-have-notebook-like-cells" class="slide level2">
 <h2>A script can have notebook-like cells</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># %% Setup</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># %% Setup</span></span>
 <span id="cb1-2"><a aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb1-3"><a aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
 <span id="cb1-4"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-5"><a aria-hidden="true" tabindex="-1"></a><span class="co"># %% Inspect</span></span>
-<span id="cb1-6"><a aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pd.__version__)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-6"><a aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(pd.__version__)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Positron recognizes <code># %%</code> cells in <code>.py</code> files. The file remains plain text that Git can diff and Quarto can incorporate later.</p>
 </section>
 <section id="assignment-and-basic-objects" class="slide level2">
 <h2>Assignment and basic objects</h2>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a aria-hidden="true" tabindex="-1"></a>age <span class="op">=</span> <span class="dv">42</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a aria-hidden="true" tabindex="-1"></a>age <span class="op">=</span> <span class="dv">42</span></span>
 <span id="cb2-2"><a aria-hidden="true" tabindex="-1"></a>group <span class="op">=</span> <span class="st">"treated"</span></span>
 <span id="cb2-3"><a aria-hidden="true" tabindex="-1"></a>observed <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb2-4"><a aria-hidden="true" tabindex="-1"></a>values <span class="op">=</span> [<span class="fl">4.1</span>, <span class="fl">5.2</span>, <span class="va">None</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-4"><a aria-hidden="true" tabindex="-1"></a>values <span class="op">=</span> [<span class="fl">4.1</span>, <span class="fl">5.2</span>, <span class="va">None</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Python uses <code>=</code> for assignment and indentation to define blocks. A Python list can contain mixed types; it is not a NumPy array.</p>
 </section>
 <section id="functions-and-methods-express-similar-actions" class="slide level2 smaller">
 <h2>Functions and methods express similar actions</h2>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb3-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(visit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a aria-hidden="true" tabindex="-1"></a>x.mean()</span>
-<span id="cb4-2"><a aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(visit)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(visit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a aria-hidden="true" tabindex="-1"></a>x.mean()</span>
+<span id="cb4-2"><a aria-hidden="true" tabindex="-1"></a><span class="bu">len</span>(visit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Python often attaches an operation to an object with a dot. Do not assume every R function has a method with the same name or defaults.</p>
 </section>
 <section id="numpy-arrays-support-vector-arithmetic" class="slide level2">
 <h2>NumPy arrays support vector arithmetic</h2>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
 <span id="cb5-2"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.array([<span class="fl">1.0</span>, <span class="fl">2.0</span>, <span class="fl">3.0</span>])</span>
 <span id="cb5-4"><a aria-hidden="true" tabindex="-1"></a>x <span class="op">*</span> <span class="dv">2</span></span>
-<span id="cb5-5"><a aria-hidden="true" tabindex="-1"></a>x.mean()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
+<span id="cb5-5"><a aria-hidden="true" tabindex="-1"></a>x.mean()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)</span>
 <span id="cb6-2"><a aria-hidden="true" tabindex="-1"></a>x <span class="sc">*</span> <span class="dv">2</span></span>
-<span id="cb6-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Both are vectorized, but their indexing conventions differ.</p>
 </section>
 <section id="python-indexing-starts-at-zero" class="slide level2">
 <h2>Python indexing starts at zero</h2>
-<div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a>x[<span class="dv">0</span>]       <span class="co"># first element</span></span>
-<span id="cb7-2"><a aria-hidden="true" tabindex="-1"></a>x[<span class="dv">0</span>:<span class="dv">2</span>]     <span class="co"># positions 0 and 1; stop is excluded</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span>]       <span class="co"># first element</span></span>
-<span id="cb8-2"><a aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>]     <span class="co"># positions 1 and 2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a>x[<span class="dv">0</span>]       <span class="co"># first element</span></span>
+<span id="cb7-2"><a aria-hidden="true" tabindex="-1"></a>x[<span class="dv">0</span>:<span class="dv">2</span>]     <span class="co"># positions 0 and 1; stop is excluded</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span>]       <span class="co"># first element</span></span>
+<span id="cb8-2"><a aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>]     <span class="co"># positions 1 and 2</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Off-by-one mistakes are among the most important translation hazards.</p>
 </section>
 <section id="predict-the-slice-before-running" class="slide level2 smaller">
 <h2>Predict the slice before running</h2>
-<div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.array([<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">40</span>])</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> np.array([<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">40</span>])</span>
 <span id="cb9-2"><a aria-hidden="true" tabindex="-1"></a>x[<span class="dv">1</span>:<span class="dv">3</span>]</span>
-<span id="cb9-3"><a aria-hidden="true" tabindex="-1"></a>x[<span class="op">-</span><span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-3"><a aria-hidden="true" tabindex="-1"></a>x[<span class="op">-</span><span class="dv">1</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>x[1:3]</code> returns <code>20, 30</code>: the stop position is excluded.</li>
 <li><code>x[-1]</code> returns the last element; it does <strong>not</strong> exclude position 1 as in R.</li>
@@ -369,7 +372,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="a-pandas-dataframe-is-rectangular" class="slide level2">
 <h2>A pandas DataFrame is rectangular</h2>
-<div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a aria-hidden="true" tabindex="-1"></a>visit <span class="op">=</span> pd.DataFrame({</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a aria-hidden="true" tabindex="-1"></a>visit <span class="op">=</span> pd.DataFrame({</span>
 <span id="cb10-2"><a aria-hidden="true" tabindex="-1"></a>    <span class="st">"id"</span>: [<span class="st">"P01"</span>, <span class="st">"P01"</span>, <span class="st">"P02"</span>, <span class="st">"P02"</span>],</span>
 <span id="cb10-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="st">"arm"</span>: [<span class="st">"control"</span>, <span class="st">"control"</span>, <span class="st">"treated"</span>, <span class="st">"treated"</span>],</span>
 <span id="cb10-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="st">"week"</span>: [<span class="dv">0</span>, <span class="dv">4</span>, <span class="dv">0</span>, <span class="dv">4</span>],</span>
@@ -378,45 +381,45 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <span id="cb10-7"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-8"><a aria-hidden="true" tabindex="-1"></a>visit.shape</span>
 <span id="cb10-9"><a aria-hidden="true" tabindex="-1"></a>visit.dtypes</span>
-<span id="cb10-10"><a aria-hidden="true" tabindex="-1"></a>visit.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-10"><a aria-hidden="true" tabindex="-1"></a>visit.head()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>As in R, inspect the object before analysis.</p>
 </section>
 <section id="column-and-row-selection" class="slide level2">
 <h2>Column and row selection</h2>
-<div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a aria-hidden="true" tabindex="-1"></a>visit[<span class="st">"marker"</span>]                    <span class="co"># Series</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a aria-hidden="true" tabindex="-1"></a>visit[<span class="st">"marker"</span>]                    <span class="co"># Series</span></span>
 <span id="cb11-2"><a aria-hidden="true" tabindex="-1"></a>visit[[<span class="st">"marker"</span>]]                  <span class="co"># one-column DataFrame</span></span>
 <span id="cb11-3"><a aria-hidden="true" tabindex="-1"></a>visit.loc[visit[<span class="st">"week"</span>] <span class="op">==</span> <span class="dv">4</span>, :]   <span class="co"># label-based row/column selection</span></span>
-<span id="cb11-4"><a aria-hidden="true" tabindex="-1"></a>visit.iloc[<span class="dv">0</span>:<span class="dv">2</span>, <span class="dv">0</span>:<span class="dv">3</span>]               <span class="co"># position-based selection</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-4"><a aria-hidden="true" tabindex="-1"></a>visit.iloc[<span class="dv">0</span>:<span class="dv">2</span>, <span class="dv">0</span>:<span class="dv">3</span>]               <span class="co"># position-based selection</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>loc</code> and <code>iloc</code> make the selection rule explicit.</p>
 </section>
 <section id="translate-a-filter" class="slide level2">
 <h2>Translate a filter</h2>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a aria-hidden="true" tabindex="-1"></a>week4 <span class="ot">&lt;-</span> visit[visit<span class="sc">$</span>week <span class="sc">==</span> <span class="dv">4</span> <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(visit<span class="sc">$</span>marker), ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a aria-hidden="true" tabindex="-1"></a>week4 <span class="op">=</span> visit.loc[</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a aria-hidden="true" tabindex="-1"></a>week4 <span class="ot">&lt;-</span> visit[visit<span class="sc">$</span>week <span class="sc">==</span> <span class="dv">4</span> <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(visit<span class="sc">$</span>marker), ]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a aria-hidden="true" tabindex="-1"></a>week4 <span class="op">=</span> visit.loc[</span>
 <span id="cb13-2"><a aria-hidden="true" tabindex="-1"></a>    (visit[<span class="st">"week"</span>] <span class="op">==</span> <span class="dv">4</span>) <span class="op">&amp;</span> visit[<span class="st">"marker"</span>].notna()</span>
-<span id="cb13-3"><a aria-hidden="true" tabindex="-1"></a>].copy()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-3"><a aria-hidden="true" tabindex="-1"></a>].copy()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Parentheses around each pandas condition are required with <code>&amp;</code> and <code>|</code>.</p>
 </section>
 <section id="two-boolean-selection-traps" class="slide level2 smaller">
 <h2>Two Boolean-selection traps</h2>
-<div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Wrong for pandas Series</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Wrong for pandas Series</span></span>
 <span id="cb14-2"><a aria-hidden="true" tabindex="-1"></a>visit[<span class="st">"week"</span>] <span class="op">==</span> <span class="dv">4</span> <span class="kw">and</span> visit[<span class="st">"marker"</span>].notna()</span>
 <span id="cb14-3"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-4"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Also wrong: operator precedence is not what was intended</span></span>
-<span id="cb14-5"><a aria-hidden="true" tabindex="-1"></a>visit[<span class="st">"week"</span>] <span class="op">==</span> <span class="dv">4</span> <span class="op">&amp;</span> visit[<span class="st">"marker"</span>].notna()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-5"><a aria-hidden="true" tabindex="-1"></a>visit[<span class="st">"week"</span>] <span class="op">==</span> <span class="dv">4</span> <span class="op">&amp;</span> visit[<span class="st">"marker"</span>].notna()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Use <code>&amp;</code> or <code>|</code> for elementwise conditions and put <strong>each condition in parentheses</strong>.</p>
 </section>
 <section id="add-columns-without-chained-assignment" class="slide level2">
 <h2>Add columns without chained assignment</h2>
-<div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a>visit <span class="op">=</span> visit.assign(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a>visit <span class="op">=</span> visit.assign(</span>
 <span id="cb15-2"><a aria-hidden="true" tabindex="-1"></a>    month<span class="op">=</span>visit[<span class="st">"week"</span>] <span class="op">/</span> <span class="dv">4</span>,</span>
 <span id="cb15-3"><a aria-hidden="true" tabindex="-1"></a>    observed<span class="op">=</span>visit[<span class="st">"marker"</span>].notna(),</span>
-<span id="cb15-4"><a aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-4"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Using <code>.copy()</code> after a subset and <code>.assign()</code> for derived columns avoids many ambiguous chained-assignment problems.</p>
 </section>
 <section id="grouped-summaries" class="slide level2">
 <h2>Grouped summaries</h2>
-<div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> (</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> (</span>
 <span id="cb16-2"><a aria-hidden="true" tabindex="-1"></a>    visit.loc[visit[<span class="st">"week"</span>] <span class="op">==</span> <span class="dv">4</span>]</span>
 <span id="cb16-3"><a aria-hidden="true" tabindex="-1"></a>    .groupby(<span class="st">"arm"</span>, as_index<span class="op">=</span><span class="va">False</span>)</span>
 <span id="cb16-4"><a aria-hidden="true" tabindex="-1"></a>    .agg(</span>
@@ -425,7 +428,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <span id="cb16-7"><a aria-hidden="true" tabindex="-1"></a>        mean_marker<span class="op">=</span>(<span class="st">"marker"</span>, <span class="st">"mean"</span>),</span>
 <span id="cb16-8"><a aria-hidden="true" tabindex="-1"></a>        sd_marker<span class="op">=</span>(<span class="st">"marker"</span>, <span class="st">"std"</span>),</span>
 <span id="cb16-9"><a aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb16-10"><a aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-10"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p><code>size</code> counts rows; <code>count</code> counts nonmissing values. That distinction mirrors our Copilot example.</p>
 </section>
 <section id="predict-the-grouped-output" class="slide level2 smaller">
@@ -461,10 +464,10 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="missing-value-defaults-differ" class="slide level2">
 <h2>Missing-value defaults differ</h2>
-<div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a>visit[<span class="st">"marker"</span>].mean()              <span class="co"># skips NaN by default</span></span>
-<span id="cb17-2"><a aria-hidden="true" tabindex="-1"></a>visit[<span class="st">"marker"</span>].mean(skipna<span class="op">=</span><span class="va">False</span>)  <span class="co"># propagates NaN</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(visit<span class="sc">$</span>marker)                  <span class="co"># returns NA by default</span></span>
-<span id="cb18-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(visit<span class="sc">$</span>marker, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a>visit[<span class="st">"marker"</span>].mean()              <span class="co"># skips NaN by default</span></span>
+<span id="cb17-2"><a aria-hidden="true" tabindex="-1"></a>visit[<span class="st">"marker"</span>].mean(skipna<span class="op">=</span><span class="va">False</span>)  <span class="co"># propagates NaN</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(visit<span class="sc">$</span>marker)                  <span class="co"># returns NA by default</span></span>
+<span id="cb18-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(visit<span class="sc">$</span>marker, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Never translate code without translating its missing-value policy.</p>
 </section>
 <section id="python-has-several-missing-value-representations" class="slide level2 smaller">
@@ -499,7 +502,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="read-and-check-a-file" class="slide level2">
 <h2>Read and check a file</h2>
-<div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a aria-hidden="true" tabindex="-1"></a>visit <span class="op">=</span> pd.read_csv(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a aria-hidden="true" tabindex="-1"></a>visit <span class="op">=</span> pd.read_csv(</span>
 <span id="cb19-2"><a aria-hidden="true" tabindex="-1"></a>    <span class="st">"data/visits.csv"</span>,</span>
 <span id="cb19-3"><a aria-hidden="true" tabindex="-1"></a>    na_values<span class="op">=</span>[<span class="st">""</span>, <span class="st">"NA"</span>, <span class="st">"."</span>],</span>
 <span id="cb19-4"><a aria-hidden="true" tabindex="-1"></a>    dtype<span class="op">=</span>{<span class="st">"id"</span>: <span class="st">"string"</span>, <span class="st">"arm"</span>: <span class="st">"category"</span>},</span>
@@ -507,7 +510,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <span id="cb19-6"><a aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb19-7"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb19-8"><a aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> visit[<span class="st">"id"</span>].notna().<span class="bu">all</span>()</span>
-<span id="cb19-9"><a aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="kw">not</span> visit.duplicated([<span class="st">"id"</span>, <span class="st">"week"</span>]).<span class="bu">any</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-9"><a aria-hidden="true" tabindex="-1"></a><span class="cf">assert</span> <span class="kw">not</span> visit.duplicated([<span class="st">"id"</span>, <span class="st">"week"</span>]).<span class="bu">any</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The same import contract and invariants apply in either language.</p>
 </section>
 <section id="a-small-data-wrangling-rosetta-table" class="slide level2 smaller">
@@ -558,14 +561,14 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="a-quick-plot" class="slide level2">
 <h2>A quick plot</h2>
-<div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
 <span id="cb20-2"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-3"><a aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> arm, data <span class="kw">in</span> visit.groupby(<span class="st">"arm"</span>):</span>
 <span id="cb20-4"><a aria-hidden="true" tabindex="-1"></a>    plt.scatter(data[<span class="st">"week"</span>], data[<span class="st">"marker"</span>], label<span class="op">=</span>arm)</span>
 <span id="cb20-5"><a aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"Week"</span>)</span>
 <span id="cb20-6"><a aria-hidden="true" tabindex="-1"></a>plt.ylabel(<span class="st">"Marker"</span>)</span>
 <span id="cb20-7"><a aria-hidden="true" tabindex="-1"></a>plt.legend()</span>
-<span id="cb20-8"><a aria-hidden="true" tabindex="-1"></a>plt.show()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-8"><a aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The statistical question and visual design principles do not change with the graphics library.</p>
 </section>
 <section id="equivalent-analyses-need-an-explicit-comparison" class="slide level2">
@@ -821,7 +824,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -895,13 +898,14 @@ Department of Biostatistics, Vanderbilt University Medical Center
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy

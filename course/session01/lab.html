@@ -2,13 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.32">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>Session 1 guided lab – BIOS6301 · Student Materials</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -19,6 +22,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -36,10 +74,10 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-4e2c5c4aecfc97ea02a5a87656b3d99a.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-b7b2ba6e893e72e3fc5356a4ce84bc8b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script src="../../site_libs/quarto-contrib/kbd/kbd.js"></script>
 <link href="../../site_libs/quarto-contrib/kbd/kbd.css" rel="stylesheet">
 <script id="quarto-search-options" type="application/json">{
@@ -226,17 +264,11 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#goal" id="toc-goal" class="nav-link active" data-scroll-target="#goal">Goal</a></li>
-  <li><a href="#start-from-the-repository" id="toc-start-from-the-repository" class="nav-link" data-scroll-target="#start-from-the-repository">Start from the repository</a></li>
-  <li><a href="#checkpoint-1-establish-the-project" id="toc-checkpoint-1-establish-the-project" class="nav-link" data-scroll-target="#checkpoint-1-establish-the-project">Checkpoint 1: Establish the project</a></li>
-  <li><a href="#checkpoint-2-run-the-.r-script" id="toc-checkpoint-2-run-the-.r-script" class="nav-link" data-scroll-target="#checkpoint-2-run-the-.r-script">Checkpoint 2: Run the <code>.R</code> script</a></li>
-  <li><a href="#checkpoint-3-knit-the-r-markdown-report" id="toc-checkpoint-3-knit-the-r-markdown-report" class="nav-link" data-scroll-target="#checkpoint-3-knit-the-r-markdown-report">Checkpoint 3: Knit the R Markdown report</a></li>
-  <li><a href="#checkpoint-4-apply-the-model-in-quarto" id="toc-checkpoint-4-apply-the-model-in-quarto" class="nav-link" data-scroll-target="#checkpoint-4-apply-the-model-in-quarto">Checkpoint 4: Apply the model in Quarto</a></li>
-  <li><a href="#checkpoint-5-verify-reproducibility" id="toc-checkpoint-5-verify-reproducibility" class="nav-link" data-scroll-target="#checkpoint-5-verify-reproducibility">Checkpoint 5: Verify reproducibility</a></li>
-  <li><a href="#controlled-error" id="toc-controlled-error" class="nav-link" data-scroll-target="#controlled-error">Controlled error</a></li>
-  <li><a href="#additional-practice-extend-the-workflow" id="toc-additional-practice-extend-the-workflow" class="nav-link" data-scroll-target="#additional-practice-extend-the-workflow">Additional practice: extend the workflow</a>
-  <ul class="collapse">
-  <li><a href="#independent-practice-check" id="toc-independent-practice-check" class="nav-link" data-scroll-target="#independent-practice-check">Independent-practice check</a></li>
-  </ul></li>
+  <li><a href="#checkpoint-1-create-an-rstudio-project" id="toc-checkpoint-1-create-an-rstudio-project" class="nav-link" data-scroll-target="#checkpoint-1-create-an-rstudio-project">Checkpoint 1: Create an RStudio project</a></li>
+  <li><a href="#checkpoint-2-create-and-run-an-.r-script" id="toc-checkpoint-2-create-and-run-an-.r-script" class="nav-link" data-scroll-target="#checkpoint-2-create-and-run-an-.r-script">Checkpoint 2: Create and run an <code>.R</code> script</a></li>
+  <li><a href="#checkpoint-3-create-and-knit-an-r-markdown-report" id="toc-checkpoint-3-create-and-knit-an-r-markdown-report" class="nav-link" data-scroll-target="#checkpoint-3-create-and-knit-an-r-markdown-report">Checkpoint 3: Create and knit an R Markdown report</a></li>
+  <li><a href="#checkpoint-4-create-and-render-a-quarto-report" id="toc-checkpoint-4-create-and-render-a-quarto-report" class="nav-link" data-scroll-target="#checkpoint-4-create-and-render-a-quarto-report">Checkpoint 4: Create and render a Quarto report</a></li>
+  <li><a href="#checkpoint-5-test-the-saved-workflow" id="toc-checkpoint-5-test-the-saved-workflow" class="nav-link" data-scroll-target="#checkpoint-5-test-the-saved-workflow">Checkpoint 5: Test the saved workflow</a></li>
   <li><a href="#exit-evidence" id="toc-exit-evidence" class="nav-link" data-scroll-target="#exit-evidence">Exit evidence</a></li>
   </ul>
 </nav>
@@ -247,7 +279,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Session 1 guided lab</h1>
-<p class="subtitle lead">Build a report that survives a fresh session</p>
+<p class="subtitle lead">Create a reproducible R project from scratch</p>
 </div>
 
 
@@ -264,113 +296,168 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<div class="callout callout-style-default callout-note callout-titled">
+<section id="goal" class="level2">
+<h2 class="anchored" data-anchor-id="goal">Goal</h2>
+<p>Start with an empty folder and use RStudio to create a small, reproducible analysis. By the end of the lab, your project will contain:</p>
+<pre class="text"><code>session01-lab/
+├── session01-lab.Rproj
+├── analysis.R
+├── report.Rmd
+├── report.html
+├── report.qmd
+└── report-quarto.html</code></pre>
+<p>You do not need to download or clone any course files for this lab. Create every source file yourself and save it inside the project.</p>
+</section>
+<section id="checkpoint-1-create-an-rstudio-project" class="level2">
+<h2 class="anchored" data-anchor-id="checkpoint-1-create-an-rstudio-project">Checkpoint 1: Create an RStudio project</h2>
+<ol type="1">
+<li>In RStudio, choose <strong>File → New Project</strong>.</li>
+<li>Select <strong>New Directory</strong>, then <strong>New Project</strong>.</li>
+<li>Enter <code>session01-lab</code> as the directory name.</li>
+<li>Choose a parent directory that you can find again, then select <strong>Create Project</strong>.</li>
+<li>Confirm that RStudio opens the new project and that the Files pane contains <code>session01-lab.Rproj</code>.</li>
+<li>Locate the Source, Console, Environment, and Output panes.</li>
+<li>Run <code>2 + 2</code> in the Console. Explain why this command is not yet part of a saved, reproducible analysis.</li>
+</ol>
+<div class="callout callout-style-default callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-Note
+Tip
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Suggested use:</strong> complete the core checkpoints first. The instructor may choose some or all of the additional practice during the scheduled lab. Anything not finished is designed for independent practice afterward.</p>
+<p>The project folder is the home of this analysis. Create all remaining files in this folder; do not create them in the course website or another project.</p>
 </div>
 </div>
-<section id="goal" class="level2">
-<h2 class="anchored" data-anchor-id="goal">Goal</h2>
-<p>Use the RStudio workbench to run a saved <code>.R</code> script, knit an R Markdown report, and render a Quarto report whose numbers can be regenerated from saved source and the supplied synthetic data.</p>
 </section>
-<section id="start-from-the-repository" class="level2">
-<h2 class="anchored" data-anchor-id="start-from-the-repository">Start from the repository</h2>
-<p>Do not edit <code>course/session01/starter/</code>. Copy that complete folder to <code>work/session01-lab/</code>, then work only in the copy.</p>
-<p>Your private repository should contain:</p>
-<pre class="text"><code>work/session01-lab/
-├── session01-lab.Rproj
-├── analysis.R
-├── report.Rmd
-├── report.qmd
-└── data/
-    └── clinic_summary.csv</code></pre>
-</section>
-<section id="checkpoint-1-establish-the-project" class="level2">
-<h2 class="anchored" data-anchor-id="checkpoint-1-establish-the-project">Checkpoint 1: Establish the project</h2>
+<section id="checkpoint-2-create-and-run-an-.r-script" class="level2">
+<h2 class="anchored" data-anchor-id="checkpoint-2-create-and-run-an-.r-script">Checkpoint 2: Create and run an <code>.R</code> script</h2>
 <ol type="1">
-<li>Open <code>work/session01-lab/session01-lab.Rproj</code>.</li>
-<li>Locate the Source, Console, Environment, and Output panes.</li>
-<li>Confirm that the three source files and <code>data/clinic_summary.csv</code> are present.</li>
-<li>Run <code>2 + 2</code> in the Console, then explain why that command is not yet part of the saved analysis.</li>
+<li>Choose <strong>File → New File → R Script</strong>.</li>
+<li>Save the new file as <code>analysis.R</code> in the project folder.</li>
+<li>Type the following code into the script. Do not paste it into the Console.</li>
+</ol>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># BIOS6301 Session 1: a small reproducible analysis</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>clinic <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">patient_id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">group =</span> <span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"A"</span>, <span class="st">"B"</span>, <span class="st">"B"</span>, <span class="st">"B"</span>),</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">age =</span> <span class="fu">c</span>(<span class="dv">52</span>, <span class="dv">61</span>, <span class="dv">47</span>, <span class="dv">70</span>, <span class="dv">58</span>, <span class="dv">64</span>),</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">marker =</span> <span class="fu">c</span>(<span class="fl">8.2</span>, <span class="fl">7.5</span>, <span class="fl">9.1</span>, <span class="fl">6.8</span>, <span class="fl">7.9</span>, <span class="fl">7.2</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>n_records <span class="ot">&lt;-</span> <span class="fu">nrow</span>(clinic)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>mean_age <span class="ot">&lt;-</span> <span class="fu">mean</span>(clinic<span class="sc">$</span>age)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>median_marker <span class="ot">&lt;-</span> <span class="fu">median</span>(clinic<span class="sc">$</span>marker)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>summary_values <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">statistic =</span> <span class="fu">c</span>(<span class="st">"Number of records"</span>, <span class="st">"Mean age"</span>, <span class="st">"Median marker"</span>),</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">value =</span> <span class="fu">c</span>(n_records, mean_age, median_marker)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(summary_values)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ol start="4" type="1">
+<li>Save the script.</li>
+<li>Use <kbd title="Ctrl-Enter" aria-hidden="true">Ctrl-Enter</kbd><span class="visually-hidden">Ctrl-Enter</span> to run the code a few lines at a time.</li>
+<li>Select <strong>Session → Restart R</strong> and confirm that the Environment pane is empty.</li>
+<li>Open <code>analysis.R</code> and select <strong>Source</strong> to run the entire saved script.</li>
+<li>Confirm that <code>clinic</code>, <code>n_records</code>, <code>mean_age</code>, <code>median_marker</code>, and <code>summary_values</code> appear in the Environment pane.</li>
 </ol>
 </section>
-<section id="checkpoint-2-run-the-.r-script" class="level2">
-<h2 class="anchored" data-anchor-id="checkpoint-2-run-the-.r-script">Checkpoint 2: Run the <code>.R</code> script</h2>
-<p>Open <code>analysis.R</code>. Use <kbd aria-hidden="true">Ctrl-Enter</kbd><span class="visually-hidden">Ctrl-Enter</span> to run it one section at a time. Then restart R and use <strong>Source</strong> to run the complete saved script.</p>
-<p>Confirm that these objects appear in the Environment pane:</p>
-<p><code>clinic</code>, <code>n_records</code>, <code>mean_age</code>, and <code>median_marker</code>.</p>
-</section>
-<section id="checkpoint-3-knit-the-r-markdown-report" class="level2">
-<h2 class="anchored" data-anchor-id="checkpoint-3-knit-the-r-markdown-report">Checkpoint 3: Knit the R Markdown report</h2>
-<p>Open <code>report.Rmd</code> and identify:</p>
+<section id="checkpoint-3-create-and-knit-an-r-markdown-report" class="level2">
+<h2 class="anchored" data-anchor-id="checkpoint-3-create-and-knit-an-r-markdown-report">Checkpoint 3: Create and knit an R Markdown report</h2>
 <ol type="1">
-<li>The YAML header and its <code>output:</code> key</li>
-<li>Markdown prose</li>
-<li>The setup and summary R chunks</li>
-<li>The chunk labels and classic knitr options in the <code>{r ...}</code> headers</li>
-<li>Inline R expressions</li>
+<li>Choose <strong>File → New File → R Markdown</strong>.</li>
+<li>Enter a title such as <code>Session 1 report</code>, choose <strong>HTML</strong>, and select <strong>OK</strong>.</li>
+<li>Save the document as <code>report.Rmd</code> in the project folder.</li>
+<li>Replace the example document with the following structure.</li>
 </ol>
-<p>Complete the calculations and use the <strong>Knit</strong> button to produce HTML. Set the summary chunk to <code>echo=FALSE</code>. Explain why the calculations still appear even though the source code is hidden.</p>
-</section>
-<section id="checkpoint-4-apply-the-model-in-quarto" class="level2">
-<h2 class="anchored" data-anchor-id="checkpoint-4-apply-the-model-in-quarto">Checkpoint 4: Apply the model in Quarto</h2>
-<p>Open <code>report.qmd</code>. Identify what is unchanged from R Markdown, then complete its Quarto-specific syntax:</p>
-<ul>
-<li><code>format: html</code> in YAML</li>
-<li><code>#| label: ...</code> and <code>#| echo: false</code> at the top of a code cell</li>
-<li>the <strong>Render</strong> button</li>
-</ul>
-<p>Use inline R to insert <code>n_records</code>, <code>mean_age</code>, and <code>median_marker</code>. Do not type copies of the calculated numbers manually.</p>
-</section>
-<section id="checkpoint-5-verify-reproducibility" class="level2">
-<h2 class="anchored" data-anchor-id="checkpoint-5-verify-reproducibility">Checkpoint 5: Verify reproducibility</h2>
-<ol type="1">
-<li>Restart R.</li>
-<li>Confirm that the Environment pane is empty.</li>
-<li>Source <code>analysis.R</code>, knit <code>report.Rmd</code>, and render <code>report.qmd</code>.</li>
-<li>Explain which files are source and which HTML files are generated output.</li>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Session 1 report"</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="an">output:</span><span class="co"> html_document</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="in">```{r setup, include=FALSE}</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"analysis.R"</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="fu">## Results</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>The analysis contains <span class="in">`r knitr::inline_expr("n_records")`</span> records. The mean age is</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="in">`r knitr::inline_expr("round(mean_age, 1)")`</span> years, and the median marker value is</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="in">`r knitr::inline_expr("round(median_marker, 1)")`</span>.</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="in">```{r summary, echo=FALSE}</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>summary_values</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ol start="5" type="1">
+<li>Identify the YAML header, Markdown prose, setup chunk, summary chunk, chunk labels, chunk options, and inline R expressions.</li>
+<li>Select <strong>Knit</strong> and confirm that RStudio creates <code>report.html</code>.</li>
+<li>Explain why the table appears even though <code>echo=FALSE</code> hides its source code.</li>
 </ol>
 </section>
-<section id="controlled-error" class="level2">
-<h2 class="anchored" data-anchor-id="controlled-error">Controlled error</h2>
-<p>Temporarily change the data path to an incorrect filename. Render, read the error, repair the path, and render successfully again.</p>
-</section>
-<section id="additional-practice-extend-the-workflow" class="level2">
-<h2 class="anchored" data-anchor-id="additional-practice-extend-the-workflow">Additional practice: extend the workflow</h2>
+<section id="checkpoint-4-create-and-render-a-quarto-report" class="level2">
+<h2 class="anchored" data-anchor-id="checkpoint-4-create-and-render-a-quarto-report">Checkpoint 4: Create and render a Quarto report</h2>
 <ol type="1">
-<li>Add comments and three <code>stopifnot()</code> input checks to <code>analysis.R</code>, then source it after restarting R.</li>
-<li>In <code>report.Rmd</code>, test <code>echo=FALSE</code>, <code>eval=FALSE</code>, and <code>include=FALSE</code> in three small chunks. Record whether each chunk runs and whether code and results are displayed.</li>
-<li>Add a setup chunk to <code>report.Rmd</code> using <code>knitr::opts_chunk$set()</code> for at least two document-wide defaults. Override one default in an individual chunk.</li>
-<li>In <code>report.qmd</code>, express the same selected behaviors with Quarto <code>#|</code> cell options. Identify the spelling and value-style differences from R Markdown.</li>
-<li>Add a table with one row per <code>group</code>, reporting total <code>n</code>, mean age, and mean marker. Generate the values from code rather than typing them.</li>
-<li>Add a participant-level figure comparing marker values between groups. Give it an informative title, axes, and a one-sentence interpretation.</li>
-<li>Read the CSV a second way using a single, explicitly defined absolute <code>data_root</code>. Verify that the resulting object equals the relative-path import, and document when each path strategy is appropriate.</li>
-<li>Restart R and produce all outputs from beginning to end. Record any hidden dependency you discovered and how you removed it.</li>
+<li>Choose <strong>File → New File → Quarto Doc</strong>.</li>
+<li>Enter a title such as <code>Session 1 Quarto report</code>, choose <strong>HTML</strong>, and select <strong>Create</strong>.</li>
+<li>Save the document as <code>report.qmd</code> in the project folder.</li>
+<li>Replace the example document with the following structure.</li>
 </ol>
-<section id="independent-practice-check" class="level3">
-<h3 class="anchored" data-anchor-id="independent-practice-check">Independent-practice check</h3>
-<p>The <code>.R</code>, <code>.Rmd</code>, and <code>.qmd</code> files should agree numerically. A reader should be able to identify every input location and regenerate every table and figure without preparatory console commands.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Session 1 Quarto report"</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> html</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="an">output-file:</span><span class="co"> report-quarto.html</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: setup</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">#| include: false</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"analysis.R"</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">## Results</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>The analysis contains <span class="in">`r knitr::inline_expr("n_records")`</span> records. The mean age is</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="in">`r knitr::inline_expr("round(mean_age, 1)")`</span> years, and the median marker value is</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="in">`r knitr::inline_expr("round(median_marker, 1)")`</span>.</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: summary</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>summary_values</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ol start="5" type="1">
+<li>Identify what is unchanged from R Markdown.</li>
+<li>Identify the Quarto-specific <code>format:</code> key and <code>#|</code> cell-option syntax.</li>
+<li>Select <strong>Render</strong> and confirm that Quarto creates <code>report-quarto.html</code> rather than replacing the R Markdown output.</li>
+</ol>
 </section>
+<section id="checkpoint-5-test-the-saved-workflow" class="level2">
+<h2 class="anchored" data-anchor-id="checkpoint-5-test-the-saved-workflow">Checkpoint 5: Test the saved workflow</h2>
+<ol type="1">
+<li>Select <strong>Session → Restart R</strong> and confirm that the Environment pane is empty.</li>
+<li>Source <code>analysis.R</code> and confirm the three calculated values.</li>
+<li>Knit <code>report.Rmd</code> without running any preparatory Console commands.</li>
+<li>Render <code>report.qmd</code> without running any preparatory Console commands.</li>
+<li>Temporarily change <code>source("analysis.R")</code> to <code>source("analysis-missing.R")</code> in <code>report.qmd</code> and render again.</li>
+<li>Read the error, restore the correct filename, and render successfully.</li>
+<li>Identify the three source files and the two generated HTML files.</li>
+</ol>
 </section>
 <section id="exit-evidence" class="level2">
 <h2 class="anchored" data-anchor-id="exit-evidence">Exit evidence</h2>
 <p>Show the instructor or TA:</p>
 <ul>
-<li>The project folder</li>
-<li>The <code>.R</code> script and a successful complete Source run</li>
-<li>The <code>.Rmd</code> source and knitted HTML</li>
-<li>The <code>.qmd</code> source</li>
-<li>The Quarto-rendered HTML</li>
-<li>The three calculated values</li>
-<li>A successful render after restarting R</li>
+<li>The RStudio project that you created from scratch</li>
+<li><code>analysis.R</code> and a successful complete Source run</li>
+<li><code>report.Rmd</code> and its knitted HTML output</li>
+<li><code>report.qmd</code> and its rendered HTML output</li>
+<li>The calculated values: 6 records, mean age 58.7 years, and median marker 7.7</li>
+<li>A successful Knit and Render after restarting R</li>
 </ul>
 
 
@@ -428,13 +515,14 @@ Note
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy

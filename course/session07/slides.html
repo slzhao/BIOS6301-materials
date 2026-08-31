@@ -6,8 +6,8 @@
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.38">
 
   <meta name="author" content="Department of Biostatistics, Vanderbilt University Medical Center">
   <title>BIOS6301 · Student Materials – Joins and Reshaping</title>
@@ -17,6 +17,9 @@
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -95,7 +98,7 @@
     code span.vs { color: #032f62; } /* VerbatimString */
     code span.wa { color: #ff5555; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-2c1b5f745a11cfad616ebade4a4a7d24.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
   <link rel="stylesheet" href="../../slides.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
@@ -324,14 +327,14 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="three-tables-one-analysis" class="slide level2 smaller">
 <h2>Three tables, one analysis</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial[, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"site"</span>, <span class="st">"sbp_0"</span>, <span class="st">"sbp_12"</span>)], <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial[, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"site"</span>, <span class="st">"sbp_0"</span>, <span class="st">"sbp_12"</span>)], <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    id     arm site sbp_0 sbp_12
 1 P001 Placebo    1   160    144
 2 P002 Placebo    4   162    156
 3 P003 Placebo    3   157    156</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a aria-hidden="true" tabindex="-1"></a>sites</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a aria-hidden="true" tabindex="-1"></a>sites</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  site site_name n_beds
 1    1      VUMC   1019
@@ -339,7 +342,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 3    3  Regional    130
 4    5 Satellite     44</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(labs, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(labs, <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    id week creat
 1 P001    0  1.13
@@ -400,7 +403,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <h2>Check the keys first</h2>
 <p>The check takes one line and it goes <strong>before</strong> the join, not after:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a>sites_dup <span class="sc">|&gt;</span> <span class="fu">count</span>(site) <span class="sc">|&gt;</span> <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a>sites_dup <span class="sc">|&gt;</span> <span class="fu">count</span>(site) <span class="sc">|&gt;</span> <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  site n
 1    2 2</code></pre>
@@ -408,7 +411,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a>trial <span class="sc">|&gt;</span> <span class="fu">count</span>(id) <span class="sc">|&gt;</span> <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a>trial <span class="sc">|&gt;</span> <span class="fu">count</span>(id) <span class="sc">|&gt;</span> <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] id n 
 &lt;0 rows&gt; (or 0-length row.names)</code></pre>
@@ -524,17 +527,17 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="left_join-keep-every-row-of-x" class="slide level2 smaller">
 <h2><code>left_join()</code>: keep every row of <code>x</code></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a aria-hidden="true" tabindex="-1"></a>trial_sites <span class="ot">&lt;-</span> <span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a aria-hidden="true" tabindex="-1"></a>trial_sites <span class="ot">&lt;-</span> <span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)</span>
 <span id="cb11-2"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(trial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(trial)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 60</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(trial_sites)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(trial_sites)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 60</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial_sites[, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"site"</span>, <span class="st">"site_name"</span>, <span class="st">"n_beds"</span>)], <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial_sites[, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"site"</span>, <span class="st">"site_name"</span>, <span class="st">"n_beds"</span>)], <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    id     arm site site_name n_beds
 1 P001 Placebo    1      VUMC   1019
@@ -551,7 +554,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <div class="callout-content">
 <p><strong>The base R way</strong></p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">all.x =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">all.x =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -559,7 +562,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="inner_join-rows-that-vanish" class="slide level2 smaller">
 <h2><code>inner_join()</code>: rows that vanish</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">inner_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">inner_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 45</code></pre>
 </div>
@@ -567,8 +570,8 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <div class="fragment">
 <p>Fifteen patients are gone, and <strong>the result does not say so</strong>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">inner_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb20-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(arm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">inner_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb20-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(arm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>        arm  n
 1   Placebo 20
@@ -593,8 +596,8 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <h2><code>anti_join()</code>: the diagnostic</h2>
 <p>Which patients failed to match?</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb22-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(site)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb22-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(site)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  site  n
 1    4 15</code></pre>
@@ -603,7 +606,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <div class="fragment">
 <p>And in the other direction — which sites have no patients?</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>(sites, trial, <span class="at">by =</span> <span class="st">"site"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>(sites, trial, <span class="at">by =</span> <span class="st">"site"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  site site_name n_beds
 1    5 Satellite     44</code></pre>
@@ -626,12 +629,12 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="the-other-three" class="slide level2 smaller">
 <h2>The other three</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">left  =</span> <span class="fu">nrow</span>(<span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">left  =</span> <span class="fu">nrow</span>(<span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
 <span id="cb26-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">inner =</span> <span class="fu">nrow</span>(<span class="fu">inner_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
 <span id="cb26-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">right =</span> <span class="fu">nrow</span>(<span class="fu">right_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
 <span id="cb26-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">full  =</span> <span class="fu">nrow</span>(<span class="fu">full_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
 <span id="cb26-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">semi  =</span> <span class="fu">nrow</span>(<span class="fu">semi_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
-<span id="cb26-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">anti  =</span> <span class="fu">nrow</span>(<span class="fu">anti_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb26-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">anti  =</span> <span class="fu">nrow</span>(<span class="fu">anti_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> left inner right  full  semi  anti 
    60    45    46    61    45    15 </code></pre>
@@ -707,11 +710,11 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <h2>Many-to-one: the safe case</h2>
 <p><code>sites</code> has <strong>at most one</strong> row per <code>site</code>, so 60 rows in, 60 rows out.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(trial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(trial)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 60</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 60</code></pre>
 </div>
@@ -719,7 +722,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <div class="fragment">
 <p>We are entitled to expect that only because we checked:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a aria-hidden="true" tabindex="-1"></a>sites <span class="sc">|&gt;</span> <span class="fu">count</span>(site) <span class="sc">|&gt;</span> <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a aria-hidden="true" tabindex="-1"></a>sites <span class="sc">|&gt;</span> <span class="fu">count</span>(site) <span class="sc">|&gt;</span> <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] site n   
 &lt;0 rows&gt; (or 0-length row.names)</code></pre>
@@ -743,12 +746,12 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <h2>One-to-many: rows multiply on purpose</h2>
 <p><code>labs</code> has <strong>two</strong> rows per patient — baseline and Session 12.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(labs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(labs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 120</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a aria-hidden="true" tabindex="-1"></a>trial_labs <span class="ot">&lt;-</span> <span class="fu">left_join</span>(trial, labs, <span class="at">by =</span> <span class="st">"id"</span>)</span>
-<span id="cb36-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(trial_labs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a aria-hidden="true" tabindex="-1"></a>trial_labs <span class="ot">&lt;-</span> <span class="fu">left_join</span>(trial, labs, <span class="at">by =</span> <span class="st">"id"</span>)</span>
+<span id="cb36-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(trial_labs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 120</code></pre>
 </div>
@@ -756,7 +759,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <div class="fragment">
 <p><code>60 × 2 = 120</code>, predicted before running it.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial_labs[, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"week"</span>, <span class="st">"creat"</span>)], <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial_labs[, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"week"</span>, <span class="st">"creat"</span>)], <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    id     arm week creat
 1 P001 Placebo    0  1.13
@@ -776,7 +779,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <h2>Many-to-many: rows multiply by accident</h2>
 <p><code>sites_dup</code> is <code>sites</code> with <strong>one row pasted in twice</strong>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">left_join</span>(trial, sites_dup, <span class="at">by =</span> <span class="st">"site"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">left_join</span>(trial, sites_dup, <span class="at">by =</span> <span class="st">"site"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in left_join(trial, sites_dup, by = "site"): Detected an unexpected many-to-many relationship between `x` and
 `y`.
@@ -809,13 +812,13 @@ i If a many-to-many relationship is expected, set `relationship =
 <h2>Predict, then check</h2>
 <p>Write the prediction into the code. It costs one line:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a>joined <span class="ot">&lt;-</span> <span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)</span>
-<span id="cb43-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(joined) <span class="sc">==</span> <span class="fu">nrow</span>(trial))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a>joined <span class="ot">&lt;-</span> <span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)</span>
+<span id="cb43-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(joined) <span class="sc">==</span> <span class="fu">nrow</span>(trial))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a aria-hidden="true" tabindex="-1"></a>joined_bad <span class="ot">&lt;-</span> <span class="fu">left_join</span>(trial, sites_dup, <span class="at">by =</span> <span class="st">"site"</span>)</span>
-<span id="cb44-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(joined_bad) <span class="sc">==</span> <span class="fu">nrow</span>(trial))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a aria-hidden="true" tabindex="-1"></a>joined_bad <span class="ot">&lt;-</span> <span class="fu">left_join</span>(trial, sites_dup, <span class="at">by =</span> <span class="st">"site"</span>)</span>
+<span id="cb44-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(joined_bad) <span class="sc">==</span> <span class="fu">nrow</span>(trial))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error: nrow(joined_bad) == nrow(trial) is not TRUE</code></pre>
 </div>
@@ -836,7 +839,7 @@ i If a many-to-many relationship is expected, set `relationship =
 <h2>The <code>relationship</code> argument</h2>
 <p>State what you believe, and let the join enforce it:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(trial, sites_dup, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">relationship =</span> <span class="st">"many-to-one"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(trial, sites_dup, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">relationship =</span> <span class="st">"many-to-one"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in `left_join()`:
 ! Each row in `x` must match at most 1 row in `y`.
@@ -852,7 +855,7 @@ i Row 6 of `x` matches multiple rows in `y`.</code></pre>
 <section id="the-unmatched-argument" class="slide level2 smaller">
 <h2>The <code>unmatched</code> argument</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">unmatched =</span> <span class="st">"error"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">unmatched =</span> <span class="st">"error"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in `left_join()`:
 ! Each row of `y` must be matched by `x`.
@@ -867,7 +870,7 @@ i Row 4 of `y` was not matched.</code></pre>
 <div class="fragment">
 <p>To assert that every <em>patient</em> matched, use the diagnostic:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">anti_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)) <span class="sc">==</span> <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">anti_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)) <span class="sc">==</span> <span class="dv">0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE</code></pre>
 </div>
@@ -877,7 +880,7 @@ i Row 4 of `y` was not matched.</code></pre>
 <section id="the-join-checklist" class="slide level2 smaller">
 <h2>The join checklist</h2>
 <p>Five lines. Every join that matters.</p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># 1. What is the grain of each table, and of the result?</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># 1. What is the grain of each table, and of the result?</span></span>
 <span id="cb52-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Duplicate keys?</span></span>
 <span id="cb52-3"><a aria-hidden="true" tabindex="-1"></a>sites <span class="sc">|&gt;</span> <span class="fu">count</span>(site) <span class="sc">|&gt;</span> <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span>
 <span id="cb52-4"><a aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Predict the row count. Write the number down.</span></span>
@@ -886,7 +889,7 @@ i Row 4 of `y` was not matched.</code></pre>
 <span id="cb52-7"><a aria-hidden="true" tabindex="-1"></a>                    <span class="at">relationship =</span> <span class="st">"many-to-one"</span>)</span>
 <span id="cb52-8"><a aria-hidden="true" tabindex="-1"></a><span class="co"># 5. What failed to match, both ways?</span></span>
 <span id="cb52-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)</span>
-<span id="cb52-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>(sites, trial, <span class="at">by =</span> <span class="st">"site"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb52-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">anti_join</span>(sites, trial, <span class="at">by =</span> <span class="st">"site"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <div class="callout callout-note callout-style-simple">
 <div class="callout-body">
@@ -907,14 +910,14 @@ i Row 4 of `y` was not matched.</code></pre>
 </section>
 <section id="merge-anatomy" class="slide level2 smaller">
 <h2><code>merge()</code> anatomy</h2>
-<div class="sourceCode" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>(x, y,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>(x, y,</span>
 <span id="cb53-2"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">by      =</span> <span class="cn">NULL</span>,       <span class="co"># key columns, in BOTH tables</span></span>
 <span id="cb53-3"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">by.x    =</span> ,  <span class="at">by.y =</span> , <span class="co"># when the key has different names</span></span>
 <span id="cb53-4"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">all.x   =</span> <span class="cn">FALSE</span>,      <span class="co"># keep unmatched rows of x?</span></span>
 <span id="cb53-5"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">all.y   =</span> <span class="cn">FALSE</span>,      <span class="co"># keep unmatched rows of y?</span></span>
 <span id="cb53-6"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">all     =</span> <span class="cn">FALSE</span>,      <span class="co"># shorthand for both</span></span>
 <span id="cb53-7"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">suffixes =</span> <span class="fu">c</span>(<span class="st">".x"</span>, <span class="st">".y"</span>),</span>
-<span id="cb53-8"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">sort    =</span> <span class="cn">TRUE</span>)       <span class="co"># sorts the result by the key</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb53-8"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">sort    =</span> <span class="cn">TRUE</span>)       <span class="co"># sorts the result by the key</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <div class="smaller">
 <p>Everything a join can do is a combination of <code>all.x</code> and <code>all.y</code>. There is no <code>how = "left"</code> argument; the two logicals <em>are</em> the join type.</p>
@@ -973,10 +976,10 @@ i Row 4 of `y` was not matched.</code></pre>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">inner =</span> <span class="fu">nrow</span>(<span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">inner =</span> <span class="fu">nrow</span>(<span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
 <span id="cb54-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">left  =</span> <span class="fu">nrow</span>(<span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">all.x =</span> <span class="cn">TRUE</span>)),</span>
 <span id="cb54-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">right =</span> <span class="fu">nrow</span>(<span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">all.y =</span> <span class="cn">TRUE</span>)),</span>
-<span id="cb54-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">full  =</span> <span class="fu">nrow</span>(<span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">all   =</span> <span class="cn">TRUE</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb54-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">full  =</span> <span class="fu">nrow</span>(<span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">all   =</span> <span class="cn">TRUE</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>inner  left right  full 
    45    60    46    61 </code></pre>
@@ -990,13 +993,13 @@ i Row 4 of `y` was not matched.</code></pre>
 <div class="columns">
 <div class="column" style="width:49%;">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a aria-hidden="true" tabindex="-1"></a>trial <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a aria-hidden="true" tabindex="-1"></a>trial <span class="sc">|&gt;</span></span>
 <span id="cb56-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(sites, <span class="at">by =</span> <span class="st">"site"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb56-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(site_name) <span class="sc">|&gt;</span></span>
 <span id="cb56-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
 <span id="cb56-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">n    =</span> <span class="fu">n</span>(),</span>
 <span id="cb56-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> <span class="fu">round</span>(<span class="fu">mean</span>(sbp_12), <span class="dv">1</span>)</span>
-<span id="cb56-7"><a aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb56-7"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 x 3
   site_name     n  mean
@@ -1008,11 +1011,11 @@ i Row 4 of `y` was not matched.</code></pre>
 </div>
 </div><div class="column" style="width:49%;">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">merge</span>(trial, sites,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">merge</span>(trial, sites,</span>
 <span id="cb58-2"><a aria-hidden="true" tabindex="-1"></a>           <span class="at">by =</span> <span class="st">"site"</span>)</span>
 <span id="cb58-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(sbp_12 <span class="sc">~</span> site_name,</span>
 <span id="cb58-4"><a aria-hidden="true" tabindex="-1"></a>          <span class="at">data =</span> m,</span>
-<span id="cb58-5"><a aria-hidden="true" tabindex="-1"></a>          <span class="at">FUN  =</span> mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb58-5"><a aria-hidden="true" tabindex="-1"></a>          <span class="at">FUN  =</span> mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  site_name   sbp_12
 1   Meharry 135.6111
@@ -1058,7 +1061,7 @@ i Row 4 of `y` was not matched.</code></pre>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">merge</span>(trial[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>)], sites))   <span class="co"># no common column</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">merge</span>(trial[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>)], sites))   <span class="co"># no common column</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 12</code></pre>
 </div>
@@ -1161,7 +1164,7 @@ i Row 4 of `y` was not matched.</code></pre>
 </section>
 <section id="wide-to-long-pivot_longer" class="slide level2 smaller">
 <h2>Wide to long: <code>pivot_longer()</code></h2>
-<div class="sourceCode" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
 <span id="cb64-2"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb64-3"><a aria-hidden="true" tabindex="-1"></a>sbp_long <span class="ot">&lt;-</span> wide3 <span class="sc">|&gt;</span></span>
 <span id="cb64-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
@@ -1170,7 +1173,7 @@ i Row 4 of `y` was not matched.</code></pre>
 <span id="cb64-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_prefix     =</span> <span class="st">"sbp_"</span>,</span>
 <span id="cb64-8"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to        =</span> <span class="st">"sbp"</span>,</span>
 <span id="cb64-9"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_transform  =</span> <span class="fu">list</span>(<span class="at">week =</span> as.integer)</span>
-<span id="cb64-10"><a aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb64-10"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <pre><code># A tibble: 180 × 4
    id    arm      week   sbp
@@ -1203,12 +1206,12 @@ i Row 4 of `y` was not matched.</code></pre>
 </div>
 <p><code>sbp_12</code> encodes <strong>two</strong> things: which measurement, and which week.</p>
 <div class="fragment">
-<div class="sourceCode" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a aria-hidden="true" tabindex="-1"></a>bp_wide <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a aria-hidden="true" tabindex="-1"></a>bp_wide <span class="sc">|&gt;</span></span>
 <span id="cb67-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
 <span id="cb67-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">cols      =</span> <span class="sc">-</span>id,</span>
 <span id="cb67-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to  =</span> <span class="fu">c</span>(<span class="st">"measure"</span>, <span class="st">"week"</span>),</span>
 <span id="cb67-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_sep =</span> <span class="st">"_"</span></span>
-<span id="cb67-6"><a aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb67-6"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <pre><code># A tibble: 12 × 4
    id    measure week  value
    &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;dbl&gt;
@@ -1227,12 +1230,12 @@ i Row 4 of `y` was not matched.</code></pre>
 </section>
 <section id="pivot_wider-and-the-round-trip" class="slide level2 smaller">
 <h2><code>pivot_wider()</code> and the round trip</h2>
-<div class="sourceCode" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a aria-hidden="true" tabindex="-1"></a>sbp_long <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a aria-hidden="true" tabindex="-1"></a>sbp_long <span class="sc">|&gt;</span></span>
 <span id="cb69-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
 <span id="cb69-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from   =</span> week,</span>
 <span id="cb69-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from  =</span> sbp,</span>
 <span id="cb69-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_prefix =</span> <span class="st">"sbp_"</span></span>
-<span id="cb69-6"><a aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb69-6"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <div class="smaller">
 <p><code>pivot_wider()</code> is the inverse. It needs to know which column supplies the new <strong>names</strong> and which supplies the new <strong>values</strong>; everything else becomes the identifier.</p>
@@ -1254,23 +1257,23 @@ i Row 4 of `y` was not matched.</code></pre>
 <section id="base-reshape-recognition-only" class="slide level2 smaller">
 <h2>Base <code>reshape()</code>: recognition only</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a aria-hidden="true" tabindex="-1"></a>sbp_long <span class="ot">&lt;-</span> <span class="fu">reshape</span>(wide3,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a aria-hidden="true" tabindex="-1"></a>sbp_long <span class="ot">&lt;-</span> <span class="fu">reshape</span>(wide3,</span>
 <span id="cb70-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">direction =</span> <span class="st">"long"</span>,</span>
 <span id="cb70-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">idvar     =</span> <span class="st">"id"</span>,</span>
 <span id="cb70-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">varying   =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">"sbp_0"</span>, <span class="st">"sbp_6"</span>, <span class="st">"sbp_12"</span>)),</span>
 <span id="cb70-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">v.names   =</span> <span class="st">"sbp"</span>,</span>
 <span id="cb70-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">timevar   =</span> <span class="st">"week"</span>,</span>
 <span id="cb70-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">times     =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">6</span>, <span class="dv">12</span>))</span>
-<span id="cb70-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(sbp_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb70-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(sbp_long)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 180   4</code></pre>
 </div>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a aria-hidden="true" tabindex="-1"></a>back <span class="ot">&lt;-</span> <span class="fu">reshape</span>(sbp_long, <span class="at">direction =</span> <span class="st">"wide"</span>, <span class="at">idvar =</span> <span class="st">"id"</span>,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a aria-hidden="true" tabindex="-1"></a>back <span class="ot">&lt;-</span> <span class="fu">reshape</span>(sbp_long, <span class="at">direction =</span> <span class="st">"wide"</span>, <span class="at">idvar =</span> <span class="st">"id"</span>,</span>
 <span id="cb72-2"><a aria-hidden="true" tabindex="-1"></a>                <span class="at">timevar =</span> <span class="st">"week"</span>, <span class="at">v.names =</span> <span class="st">"sbp"</span>, <span class="at">sep =</span> <span class="st">"_"</span>)</span>
-<span id="cb72-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(back)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb72-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(back)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 60  5</code></pre>
 </div>
@@ -1292,9 +1295,9 @@ i Row 4 of `y` was not matched.</code></pre>
 <section id="why-long-the-plot" class="slide level2 smaller">
 <h2>Why long: the plot</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sbp_long, <span class="fu">aes</span>(week, sbp, <span class="at">colour =</span> arm)) <span class="sc">+</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sbp_long, <span class="fu">aes</span>(week, sbp, <span class="at">colour =</span> arm)) <span class="sc">+</span></span>
 <span id="cb74-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"line"</span>, <span class="at">linewidth =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
-<span id="cb74-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Mean SBP (mmHg)"</span>, <span class="at">colour =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb74-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Mean SBP (mmHg)"</span>, <span class="at">colour =</span> <span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 </div>
 <img data-src="slides_files/figure-revealjs/fig-spaghetti-1.png" width="768" class="r-stretch quarto-figure-center" id="fig-spaghetti"><p class="caption">
@@ -1312,7 +1315,7 @@ Figure&nbsp;1: Mean systolic BP by visit and arm. Long format, three lines of gg
 <h2>Within patient, in order</h2>
 <p><code>lag()</code> looks back one row. <code>group_by()</code> says <em>back within what</em>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a aria-hidden="true" tabindex="-1"></a>visits <span class="ot">&lt;-</span> sbp_long <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a aria-hidden="true" tabindex="-1"></a>visits <span class="ot">&lt;-</span> sbp_long <span class="sc">|&gt;</span></span>
 <span id="cb75-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(id, week) <span class="sc">|&gt;</span></span>
 <span id="cb75-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id) <span class="sc">|&gt;</span></span>
 <span id="cb75-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
@@ -1321,7 +1324,7 @@ Figure&nbsp;1: Mean systolic BP by visit and arm. Long format, three lines of gg
 <span id="cb75-7"><a aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb75-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
 <span id="cb75-9"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb75-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">as.data.frame</span>(visits), <span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb75-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">as.data.frame</span>(visits), <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    id     arm week sbp prev_sbp change
 1 P001 Placebo    0 160       NA     NA
@@ -1336,7 +1339,7 @@ Figure&nbsp;1: Mean systolic BP by visit and arm. Long format, three lines of gg
 <section id="numbering-looking-forward-and-baselines" class="slide level2 smaller">
 <h2>Numbering, looking forward, and baselines</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a aria-hidden="true" tabindex="-1"></a>sbp_long <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a aria-hidden="true" tabindex="-1"></a>sbp_long <span class="sc">|&gt;</span></span>
 <span id="cb77-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(id, week) <span class="sc">|&gt;</span></span>
 <span id="cb77-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id) <span class="sc">|&gt;</span></span>
 <span id="cb77-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
@@ -1346,7 +1349,7 @@ Figure&nbsp;1: Mean systolic BP by visit and arm. Long format, three lines of gg
 <span id="cb77-8"><a aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
 <span id="cb77-9"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
 <span id="cb77-10"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">6</span>) <span class="sc">|&gt;</span></span>
-<span id="cb77-11"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb77-11"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    id     arm week sbp visit next_sbp from_base
 1 P001 Placebo    0 160     1      146         0
@@ -1565,7 +1568,7 @@ Figure&nbsp;1: Mean systolic BP by visit and arm. Long format, three lines of gg
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -1715,13 +1718,14 @@ Figure&nbsp;1: Mean systolic BP by visit and arm. Long format, three lines of gg
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy

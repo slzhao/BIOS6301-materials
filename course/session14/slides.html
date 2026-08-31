@@ -6,8 +6,8 @@
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.38">
 
   <meta name="author" content="Department of Biostatistics, Vanderbilt University Medical Center">
   <title>BIOS6301 · Student Materials – Random Numbers and Simulation</title>
@@ -17,6 +17,9 @@
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -95,7 +98,7 @@
     code span.vs { color: #032f62; } /* VerbatimString */
     code span.wa { color: #ff5555; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-2c1b5f745a11cfad616ebade4a4a7d24.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
   <link rel="stylesheet" href="../../slides.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
@@ -341,7 +344,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <p>R’s default generator is the <strong>Mersenne–Twister</strong>. Its state is 624 32-bit integers and its period is <span class="math inline">\(2^{19937}-1\)</span>.</p>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">RNGkind</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">RNGkind</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Mersenne-Twister" "Inversion"        "Rejection"       </code></pre>
 </div>
@@ -363,25 +366,25 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="the-seed-picks-your-starting-point" class="slide level2 smaller">
 <h2>The seed picks your starting point</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb3-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rnorm</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb3-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rnorm</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  1.3709584 -0.5646982  0.3631284</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb5-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rnorm</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb5-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rnorm</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  1.3709584 -0.5646982  0.3631284</code></pre>
 </div>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb7-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rnorm</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb7-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rnorm</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  1.3709584 -0.5646982  0.3631284</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rnorm</span>(<span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rnorm</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  0.6328626  0.4042683 -0.1061245</code></pre>
 </div>
@@ -403,17 +406,17 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="the-state-is-an-ordinary-object" class="slide level2 smaller">
 <h2>The state is an ordinary object</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
-<span id="cb11-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(.Random.seed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb11-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(.Random.seed)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 626</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a aria-hidden="true" tabindex="-1"></a>.Random.seed[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a aria-hidden="true" tabindex="-1"></a>.Random.seed[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]     10403       624 507561766</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">rnorm</span>(<span class="dv">1</span>))     <span class="co"># one draw ...</span></span>
-<span id="cb15-2"><a aria-hidden="true" tabindex="-1"></a>.Random.seed[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]       <span class="co"># ... and the state has moved</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">rnorm</span>(<span class="dv">1</span>))     <span class="co"># one draw ...</span></span>
+<span id="cb15-2"><a aria-hidden="true" tabindex="-1"></a>.Random.seed[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]       <span class="co"># ... and the state has moved</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]       10403           2 -1577024373</code></pre>
 </div>
@@ -487,16 +490,16 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="sample" class="slide level2 smaller">
 <h2><code>sample()</code></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">13</span>)</span>
-<span id="cb17-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(<span class="dv">5</span>)                              <span class="co"># a permutation of 1:5</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">13</span>)</span>
+<span id="cb17-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(<span class="dv">5</span>)                              <span class="co"># a permutation of 1:5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 3 4 1 2 5</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(trial<span class="sc">$</span>id, <span class="dv">4</span>)                    <span class="co"># 4 patients, no repeats</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(trial<span class="sc">$</span>id, <span class="dv">4</span>)                    <span class="co"># 4 patients, no repeats</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "P006" "P048" "P022" "P004"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>), <span class="dv">8</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>) <span class="co"># allocation, with replacement</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(<span class="fu">c</span>(<span class="st">"A"</span>, <span class="st">"B"</span>), <span class="dv">8</span>, <span class="at">replace =</span> <span class="cn">TRUE</span>) <span class="co"># allocation, with replacement</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "B" "A" "B" "B" "A" "A" "B" "B"</code></pre>
 </div>
@@ -514,9 +517,9 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="the-sample-trap" class="slide level2 smaller">
 <h2>The <code>sample()</code> trap</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">13</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">13</span>)</span>
 <span id="cb23-2"><a aria-hidden="true" tabindex="-1"></a>sites <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">7</span>)          <span class="co"># one site left after exclusions</span></span>
-<span id="cb23-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(sites)          <span class="co"># you wanted 7</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb23-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sample</span>(sites)          <span class="co"># you wanted 7</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 3 5 2 1 6 7 4</code></pre>
 </div>
@@ -528,10 +531,10 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># The idiom from ?sample. Correct for every length, including 0 and 1.</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># The idiom from ?sample. Correct for every length, including 0 and 1.</span></span>
 <span id="cb25-2"><a aria-hidden="true" tabindex="-1"></a>resample <span class="ot">&lt;-</span> <span class="cf">function</span>(x, ...) x[<span class="fu">sample.int</span>(<span class="fu">length</span>(x), ...)]</span>
 <span id="cb25-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">13</span>)</span>
-<span id="cb25-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">resample</span>(sites)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb25-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">resample</span>(sites)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 7</code></pre>
 </div>
@@ -583,7 +586,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <p>Attach any prefix to any root: <code>norm</code>, <code>unif</code>, <code>binom</code>, <code>pois</code>, <code>t</code>, <code>chisq</code>, <code>exp</code>, <code>gamma</code>, <code>beta</code>, <code>nbinom</code>, <code>weibull</code>, …</p>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="fu">dnorm</span>(<span class="dv">0</span>), <span class="fu">pnorm</span>(<span class="fl">1.96</span>), <span class="fu">qnorm</span>(<span class="fl">0.975</span>), <span class="fu">qt</span>(<span class="fl">0.975</span>, <span class="at">df =</span> <span class="dv">18</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="fu">dnorm</span>(<span class="dv">0</span>), <span class="fu">pnorm</span>(<span class="fl">1.96</span>), <span class="fu">qnorm</span>(<span class="fl">0.975</span>), <span class="fu">qt</span>(<span class="fl">0.975</span>, <span class="at">df =</span> <span class="dv">18</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.3989423 0.9750021 1.9599640 2.1009220</code></pre>
 </div>
@@ -593,20 +596,20 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="rnorm-runif-rbinom" class="slide level2 smaller">
 <h2><code>rnorm</code>, <code>runif</code>, <code>rbinom</code></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">13</span>)</span>
-<span id="cb29-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="dv">3</span>, <span class="at">mean =</span> <span class="dv">148</span>, <span class="at">sd =</span> <span class="dv">14</span>), <span class="dv">1</span>)  <span class="co"># n, then the parameters</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">13</span>)</span>
+<span id="cb29-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="dv">3</span>, <span class="at">mean =</span> <span class="dv">148</span>, <span class="at">sd =</span> <span class="dv">14</span>), <span class="dv">1</span>)  <span class="co"># n, then the parameters</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 155.8 144.1 172.9</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">runif</span>(<span class="dv">3</span>, <span class="at">min =</span> <span class="dv">0</span>, <span class="at">max =</span> <span class="dv">1</span>), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">runif</span>(<span class="dv">3</span>, <span class="at">min =</span> <span class="dv">0</span>, <span class="at">max =</span> <span class="dv">1</span>), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.574 0.764 0.873</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rbinom</span>(<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.3</span>)          <span class="co"># 3 coin flips</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rbinom</span>(<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.3</span>)          <span class="co"># 3 coin flips</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0 0 1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rbinom</span>(<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">10</span>, <span class="at">prob =</span> <span class="fl">0.3</span>)         <span class="co"># 3 counts out of 10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rbinom</span>(<span class="dv">3</span>, <span class="at">size =</span> <span class="dv">10</span>, <span class="at">prob =</span> <span class="fl">0.3</span>)         <span class="co"># 3 counts out of 10</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 5 3 3</code></pre>
 </div>
@@ -616,8 +619,8 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <p><strong>Parameters recycle</strong>, which is how you generate a whole trial in one call:</p>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">13</span>)</span>
-<span id="cb37-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="dv">6</span>, <span class="at">mean =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">148</span>, <span class="dv">134</span>), <span class="at">each =</span> <span class="dv">3</span>), <span class="at">sd =</span> <span class="dv">14</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">13</span>)</span>
+<span id="cb37-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="dv">6</span>, <span class="at">mean =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">148</span>, <span class="dv">134</span>), <span class="at">each =</span> <span class="dv">3</span>), <span class="at">sd =</span> <span class="dv">14</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 156 144 173 137 150 140</code></pre>
 </div>
@@ -796,7 +799,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="simulate_one" class="slide level2 smaller">
 <h2><code>simulate_one()</code></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate one two-arm trial. Returns a data frame with `arm` and `y`.</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate one two-arm trial. Returns a data frame with `arm` and `y`.</span></span>
 <span id="cb39-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Control is N(0, sd_ctrl^2); treatment is N(delta, sd_trt^2).</span></span>
 <span id="cb39-3"><a aria-hidden="true" tabindex="-1"></a>simulate_trial <span class="ot">&lt;-</span> <span class="cf">function</span>(n_ctrl, n_trt, sd_ctrl, sd_trt, <span class="at">delta =</span> <span class="dv">0</span>) {</span>
 <span id="cb39-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(n_ctrl <span class="sc">&gt;=</span> <span class="dv">2</span>, n_trt <span class="sc">&gt;=</span> <span class="dv">2</span>, sd_ctrl <span class="sc">&gt;</span> <span class="dv">0</span>, sd_trt <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
@@ -809,7 +812,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <span id="cb39-11"><a aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb39-12"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb39-13"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
-<span id="cb39-14"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">simulate_trial</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">8</span>), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb39-14"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">simulate_trial</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">8</span>), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   arm         y
 1 ctrl -5.667400
@@ -821,7 +824,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="analyse_one" class="slide level2 smaller">
 <h2><code>analyse_one()</code></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Analyse one simulated trial with a two-sample t-test.</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Analyse one simulated trial with a two-sample t-test.</span></span>
 <span id="cb41-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Returns a named numeric vector: estimate, p-value, CI limits.</span></span>
 <span id="cb41-3"><a aria-hidden="true" tabindex="-1"></a>analyse_trial <span class="ot">&lt;-</span> <span class="cf">function</span>(data, <span class="at">pooled =</span> <span class="cn">TRUE</span>) {</span>
 <span id="cb41-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.data.frame</span>(data), <span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"arm"</span>, <span class="st">"y"</span>) <span class="sc">%in%</span> <span class="fu">names</span>(data)))</span>
@@ -834,7 +837,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <span id="cb41-11"><a aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb41-12"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb41-13"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
-<span id="cb41-14"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">analyse_trial</span>(<span class="fu">simulate_trial</span>(<span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">8</span>)), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb41-14"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">analyse_trial</span>(<span class="fu">simulate_trial</span>(<span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">8</span>)), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   est      p     lo     hi 
  8.171  0.002  3.164 13.177 </code></pre>
@@ -844,7 +847,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="one-replicate-then-ten-thousand" class="slide level2 smaller">
 <h2>One replicate, then ten thousand</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a>run_scenario <span class="ot">&lt;-</span> <span class="cf">function</span>(n_sim, n_ctrl, n_trt, sd_ctrl, sd_trt,</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a>run_scenario <span class="ot">&lt;-</span> <span class="cf">function</span>(n_sim, n_ctrl, n_trt, sd_ctrl, sd_trt,</span>
 <span id="cb43-2"><a aria-hidden="true" tabindex="-1"></a>                         <span class="at">delta =</span> <span class="dv">0</span>, <span class="at">pooled =</span> <span class="cn">TRUE</span>) {</span>
 <span id="cb43-3"><a aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">replicate</span>(n_sim, {</span>
 <span id="cb43-4"><a aria-hidden="true" tabindex="-1"></a>    d <span class="ot">&lt;-</span> <span class="fu">simulate_trial</span>(n_ctrl, n_trt, sd_ctrl, sd_trt, delta)</span>
@@ -855,7 +858,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <span id="cb43-9"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb43-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
 <span id="cb43-11"><a aria-hidden="true" tabindex="-1"></a>demo <span class="ot">&lt;-</span> <span class="fu">run_scenario</span>(<span class="dv">5</span>, <span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">8</span>)</span>
-<span id="cb43-12"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(demo, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb43-12"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(demo, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    est     p     lo     hi
 1 8.171 0.002  3.164 13.177
@@ -870,13 +873,13 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <h2>Store results tidily</h2>
 <p>Keep <strong>one row per replicate</strong>, and carry every parameter that varies:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
 <span id="cb45-2"><a aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">run_scenario</span>(<span class="dv">200</span>, <span class="dv">10</span>, <span class="dv">40</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">0</span>, <span class="at">pooled =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb45-3"><a aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>n_ctrl <span class="ot">&lt;-</span> <span class="dv">10</span>; res<span class="sc">$</span>n_trt <span class="ot">&lt;-</span> <span class="dv">40</span>; res<span class="sc">$</span>method <span class="ot">&lt;-</span> <span class="st">"pooled"</span></span>
 <span id="cb45-4"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb45-5"><a aria-hidden="true" tabindex="-1"></a>res <span class="sc">|&gt;</span></span>
 <span id="cb45-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(method) <span class="sc">|&gt;</span></span>
-<span id="cb45-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">reject =</span> <span class="fu">mean</span>(p <span class="sc">&lt;</span> <span class="fl">0.05</span>), <span class="at">bias =</span> <span class="fu">mean</span>(est), <span class="at">emp_se =</span> <span class="fu">sd</span>(est))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb45-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">reject =</span> <span class="fu">mean</span>(p <span class="sc">&lt;</span> <span class="fl">0.05</span>), <span class="at">bias =</span> <span class="fu">mean</span>(est), <span class="at">emp_se =</span> <span class="fu">sd</span>(est))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 x 4
   method reject   bias emp_se
@@ -892,7 +895,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <div class="callout-content">
 <p><strong>The base R way</strong></p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">reject =</span> <span class="fu">mean</span>(res<span class="sc">$</span>p <span class="sc">&lt;</span> <span class="fl">0.05</span>), <span class="at">bias =</span> <span class="fu">mean</span>(res<span class="sc">$</span>est), <span class="at">emp_se =</span> <span class="fu">sd</span>(res<span class="sc">$</span>est))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">reject =</span> <span class="fu">mean</span>(res<span class="sc">$</span>p <span class="sc">&lt;</span> <span class="fl">0.05</span>), <span class="at">bias =</span> <span class="fu">mean</span>(res<span class="sc">$</span>est), <span class="at">emp_se =</span> <span class="fu">sd</span>(res<span class="sc">$</span>est))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -901,17 +904,17 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="many-scenarios" class="slide level2 smaller">
 <h2>Many scenarios</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
 <span id="cb48-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">alloc  =</span> <span class="fu">c</span>(<span class="st">"25 / 25"</span>, <span class="st">"10 / 40"</span>, <span class="st">"40 / 10"</span>),</span>
 <span id="cb48-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="fu">c</span>(<span class="st">"pooled"</span>, <span class="st">"welch"</span>),</span>
 <span id="cb48-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">delta  =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">6</span>),</span>
 <span id="cb48-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
 <span id="cb48-6"><a aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb48-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(grid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb48-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(grid)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 12</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(grid, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(grid, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    alloc method delta
 1 25 / 25 pooled     0
@@ -961,12 +964,12 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </table>
 </div>
 <div class="fragment">
-<div class="sourceCode" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a aria-hidden="true" tabindex="-1"></a>sim_file <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"output"</span>, <span class="st">"sim-typeI.rds"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a aria-hidden="true" tabindex="-1"></a>sim_file <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"output"</span>, <span class="st">"sim-typeI.rds"</span>)</span>
 <span id="cb52-2"><a aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(sim_file)) {</span>
 <span id="cb52-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
 <span id="cb52-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="fu">run_all</span>(grid, <span class="at">n_sim =</span> <span class="dv">10000</span>), sim_file)</span>
 <span id="cb52-5"><a aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb52-6"><a aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(sim_file)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb52-6"><a aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(sim_file)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="fragment">
 <div class="callout callout-warning callout-style-simple">
@@ -984,7 +987,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="a-buggy-simulation-does-not-crash" class="slide level2 smaller">
 <h2>A buggy simulation does not crash</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a>simulate_bad <span class="ot">&lt;-</span> <span class="cf">function</span>(n_ctrl, n_trt, sd_ctrl, sd_trt, <span class="at">delta =</span> <span class="dv">0</span>) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a>simulate_bad <span class="ot">&lt;-</span> <span class="cf">function</span>(n_ctrl, n_trt, sd_ctrl, sd_trt, <span class="at">delta =</span> <span class="dv">0</span>) {</span>
 <span id="cb53-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">6301</span>)                       <span class="co"># &lt;- the bug</span></span>
 <span id="cb53-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
 <span id="cb53-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">arm =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"ctrl"</span>, <span class="st">"trt"</span>), <span class="fu">c</span>(n_ctrl, n_trt)),</span>
@@ -993,7 +996,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <span id="cb53-7"><a aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb53-8"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb53-9"><a aria-hidden="true" tabindex="-1"></a>bad <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">t</span>(<span class="fu">replicate</span>(<span class="dv">500</span>, <span class="fu">analyse_trial</span>(<span class="fu">simulate_bad</span>(<span class="dv">25</span>, <span class="dv">25</span>, <span class="dv">12</span>, <span class="dv">4</span>)))))</span>
-<span id="cb53-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">reject =</span> <span class="fu">mean</span>(bad<span class="sc">$</span>p <span class="sc">&lt;</span> <span class="fl">0.05</span>), <span class="at">bias =</span> <span class="fu">mean</span>(bad<span class="sc">$</span>est), <span class="at">emp_se =</span> <span class="fu">sd</span>(bad<span class="sc">$</span>est))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb53-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">reject =</span> <span class="fu">mean</span>(bad<span class="sc">$</span>p <span class="sc">&lt;</span> <span class="fl">0.05</span>), <span class="at">bias =</span> <span class="fu">mean</span>(bad<span class="sc">$</span>est), <span class="at">emp_se =</span> <span class="fu">sd</span>(bad<span class="sc">$</span>est))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  reject     bias   emp_se 
 0.000000 1.082951 0.000000 </code></pre>
@@ -1041,13 +1044,13 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
 <span id="cb55-2"><a aria-hidden="true" tabindex="-1"></a>check <span class="ot">&lt;-</span> <span class="fu">simulate_trial</span>(<span class="fl">1e6</span>, <span class="fl">1e6</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">8</span>)</span>
 <span id="cb55-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(</span>
 <span id="cb55-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">abs</span>(<span class="fu">mean</span>(check<span class="sc">$</span>y[check<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"trt"</span>]) <span class="sc">-</span> <span class="dv">8</span>) <span class="sc">&lt;</span> <span class="fl">0.05</span>,</span>
 <span id="cb55-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">abs</span>(<span class="fu">sd</span>(check<span class="sc">$</span>y[check<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"ctrl"</span>]) <span class="sc">-</span> <span class="dv">12</span>) <span class="sc">&lt;</span> <span class="fl">0.05</span></span>
 <span id="cb55-6"><a aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb55-7"><a aria-hidden="true" tabindex="-1"></a><span class="st">"DGM checks passed"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb55-7"><a aria-hidden="true" tabindex="-1"></a><span class="st">"DGM checks passed"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "DGM checks passed"</code></pre>
 </div>
@@ -1139,12 +1142,12 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a aria-hidden="true" tabindex="-1"></a>p_hat <span class="ot">&lt;-</span> <span class="fl">0.052</span>; n_sim <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
-<span id="cb57-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sqrt</span>(p_hat <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_hat) <span class="sc">/</span> n_sim)      <span class="co"># MCSE</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a aria-hidden="true" tabindex="-1"></a>p_hat <span class="ot">&lt;-</span> <span class="fl">0.052</span>; n_sim <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb57-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sqrt</span>(p_hat <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_hat) <span class="sc">/</span> n_sim)      <span class="co"># MCSE</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.007021111</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a aria-hidden="true" tabindex="-1"></a>p_hat <span class="sc">+</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.96</span>, <span class="fl">1.96</span>) <span class="sc">*</span> <span class="fu">sqrt</span>(p_hat <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_hat) <span class="sc">/</span> n_sim)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a aria-hidden="true" tabindex="-1"></a>p_hat <span class="sc">+</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.96</span>, <span class="fl">1.96</span>) <span class="sc">*</span> <span class="fu">sqrt</span>(p_hat <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_hat) <span class="sc">/</span> n_sim)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.03823862 0.06576138</code></pre>
 </div>
@@ -1243,7 +1246,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="run-it" class="slide level2 smaller">
 <h2>Run it</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a aria-hidden="true" tabindex="-1"></a>n_sim <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a aria-hidden="true" tabindex="-1"></a>n_sim <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
 <span id="cb61-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
 <span id="cb61-3"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb61-4"><a aria-hidden="true" tabindex="-1"></a>scenarios <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
@@ -1259,7 +1262,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <span id="cb61-14"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">alloc =</span> s<span class="sc">$</span>lab, <span class="at">method =</span> <span class="fu">ifelse</span>(s<span class="sc">$</span>pooled, <span class="st">"pooled"</span>, <span class="st">"Welch"</span>),</span>
 <span id="cb61-15"><a aria-hidden="true" tabindex="-1"></a>             <span class="at">reject =</span> <span class="fu">mean</span>(r<span class="sc">$</span>p <span class="sc">&lt;</span> <span class="fl">0.05</span>), <span class="at">bias =</span> <span class="fu">mean</span>(r<span class="sc">$</span>est), <span class="at">emp_se =</span> <span class="fu">sd</span>(r<span class="sc">$</span>est))</span>
 <span id="cb61-16"><a aria-hidden="true" tabindex="-1"></a>}))</span>
-<span id="cb61-17"><a aria-hidden="true" tabindex="-1"></a>type1<span class="sc">$</span>mcse <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(type1<span class="sc">$</span>reject <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> type1<span class="sc">$</span>reject) <span class="sc">/</span> n_sim)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb61-17"><a aria-hidden="true" tabindex="-1"></a>type1<span class="sc">$</span>mcse <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(type1<span class="sc">$</span>reject <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> type1<span class="sc">$</span>reject) <span class="sc">/</span> n_sim)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="the-type-i-error-is-not-0.05" class="slide level2 smaller">
@@ -1603,7 +1606,7 @@ Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -1753,13 +1756,14 @@ Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy

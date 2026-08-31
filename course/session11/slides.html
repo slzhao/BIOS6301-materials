@@ -6,8 +6,8 @@
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.38">
 
   <meta name="author" content="Department of Biostatistics, Vanderbilt University Medical Center">
   <title>BIOS6301 · Student Materials – Conditions and Functions</title>
@@ -17,6 +17,9 @@
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -95,7 +98,7 @@
     code span.vs { color: #032f62; } /* VerbatimString */
     code span.wa { color: #ff5555; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-2c1b5f745a11cfad616ebade4a4a7d24.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
   <link rel="stylesheet" href="../../slides.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
@@ -325,7 +328,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="look-at-what-you-have-been-doing" class="slide level2 smaller">
 <h2>Look at what you have been doing</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># session 6 — baseline SBP by arm</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># session 6 — baseline SBP by arm</span></span>
 <span id="cb1-2"><a aria-hidden="true" tabindex="-1"></a>trial <span class="sc">|&gt;</span> <span class="fu">group_by</span>(arm) <span class="sc">|&gt;</span></span>
 <span id="cb1-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>(), <span class="at">mean =</span> <span class="fu">mean</span>(sbp_0), <span class="at">sd =</span> <span class="fu">sd</span>(sbp_0))</span>
 <span id="cb1-4"><a aria-hidden="true" tabindex="-1"></a></span>
@@ -339,7 +342,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <span id="cb1-12"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-13"><a aria-hidden="true" tabindex="-1"></a><span class="co"># coursework — age, for the baseline table</span></span>
 <span id="cb1-14"><a aria-hidden="true" tabindex="-1"></a>trial <span class="sc">|&gt;</span> <span class="fu">group_by</span>(arm) <span class="sc">|&gt;</span></span>
-<span id="cb1-15"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>(), <span class="at">mean =</span> <span class="fu">mean</span>(age), <span class="at">sd =</span> <span class="fu">sd</span>(age))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-15"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>(), <span class="at">mean =</span> <span class="fu">mean</span>(age), <span class="at">sd =</span> <span class="fu">sd</span>(age))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <p>Four blocks. <strong>One name differs.</strong></p>
 </div>
@@ -392,7 +395,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <div class="fragment">
 <p>By the end of today that block is one line:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summarise_by_arm</span>(trial, sbp_0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summarise_by_arm</span>(trial, sbp_0)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section></section>
 <section>
@@ -462,7 +465,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <h2><code>if</code>, <code>else if</code>, <code>else</code></h2>
 <p><code>if</code> takes <strong>one</strong> <code>TRUE</code> or <code>FALSE</code> and picks a branch.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a aria-hidden="true" tabindex="-1"></a>n_missing <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(trial_raw<span class="sc">$</span>sbp_12))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a aria-hidden="true" tabindex="-1"></a>n_missing <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(trial_raw<span class="sc">$</span>sbp_12))</span>
 <span id="cb3-2"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (n_missing <span class="sc">==</span> <span class="dv">0</span>) {</span>
 <span id="cb3-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="st">"complete outcome data"</span></span>
@@ -470,7 +473,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <span id="cb3-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="st">"a few missing — a complete-case summary is defensible"</span></span>
 <span id="cb3-7"><a aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
 <span id="cb3-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="st">"too much missing outcome data to summarise naively"</span></span>
-<span id="cb3-9"><a aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-9"><a aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "a few missing &lt;U+2014&gt; a complete-case summary is defensible"</code></pre>
 </div>
@@ -488,7 +491,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="the-error-you-will-actually-hit" class="slide level2 smaller">
 <h2>The error you will actually hit</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (trial<span class="sc">$</span>sbp_0 <span class="sc">&gt;</span> <span class="dv">140</span>) <span class="st">"high"</span> <span class="cf">else</span> <span class="st">"normal"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (trial<span class="sc">$</span>sbp_0 <span class="sc">&gt;</span> <span class="dv">140</span>) <span class="st">"high"</span> <span class="cf">else</span> <span class="st">"normal"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in if (trial$sbp_0 &gt; 140) "high" else "normal": the condition has length &gt; 1</code></pre>
 </div>
@@ -499,14 +502,14 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <div class="fragment">
 <p>Two neighbours worth recognising:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="cn">NA</span> <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="st">"yes"</span> <span class="cf">else</span> <span class="st">"no"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="cn">NA</span> <span class="sc">&gt;</span> <span class="dv">1</span>) <span class="st">"yes"</span> <span class="cf">else</span> <span class="st">"no"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in if (NA &gt; 1) "yes" else "no": missing value where TRUE/FALSE needed</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a>sbp <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="dv">0</span>)          <span class="co"># a filter that matched nobody</span></span>
-<span id="cb9-2"><a aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (sbp <span class="sc">&gt;</span> <span class="dv">140</span>) <span class="st">"high"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a>sbp <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="dv">0</span>)          <span class="co"># a filter that matched nobody</span></span>
+<span id="cb9-2"><a aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (sbp <span class="sc">&gt;</span> <span class="dv">140</span>) <span class="st">"high"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in if (sbp &gt; 140) "high": argument is of length zero</code></pre>
 </div>
@@ -542,8 +545,8 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <div class="fragment">
 <p>And <code>if</code> is an expression, so it returns a value:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a aria-hidden="true" tabindex="-1"></a>label <span class="ot">&lt;-</span> <span class="cf">if</span> (n_missing <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="st">"complete-case"</span> <span class="cf">else</span> <span class="st">"all randomised"</span></span>
-<span id="cb11-2"><a aria-hidden="true" tabindex="-1"></a>label</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a aria-hidden="true" tabindex="-1"></a>label <span class="ot">&lt;-</span> <span class="cf">if</span> (n_missing <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="st">"complete-case"</span> <span class="cf">else</span> <span class="st">"all randomised"</span></span>
+<span id="cb11-2"><a aria-hidden="true" tabindex="-1"></a>label</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "complete-case"</code></pre>
 </div>
@@ -570,13 +573,13 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="a-function-is-three-things" class="slide level2 smaller">
 <h2>A function is three things</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a aria-hidden="true" tabindex="-1"></a>sbp_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">digits =</span> <span class="dv">1</span>) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a aria-hidden="true" tabindex="-1"></a>sbp_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">digits =</span> <span class="dv">1</span>) {</span>
 <span id="cb13-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="fu">c</span>(<span class="at">n =</span> <span class="fu">length</span>(x), <span class="at">mean =</span> <span class="fu">mean</span>(x), <span class="at">sd =</span> <span class="fu">sd</span>(x)), digits)</span>
 <span id="cb13-3"><a aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb13-4"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">formals</span>(sbp_summary)</span>
 <span id="cb13-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">body</span>(sbp_summary)</span>
-<span id="cb13-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">environment</span>(sbp_summary)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">environment</span>(sbp_summary)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>$x
 
@@ -598,22 +601,22 @@ $digits
 <h2>Your first function, from your own code</h2>
 <p>The duplicated block, in one place:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Return n, mean, and SD of a numeric vector, rounded.</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Return n, mean, and SD of a numeric vector, rounded.</span></span>
 <span id="cb15-2"><a aria-hidden="true" tabindex="-1"></a>sbp_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">digits =</span> <span class="dv">1</span>) {</span>
 <span id="cb15-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="fu">c</span>(<span class="at">n =</span> <span class="fu">length</span>(x), <span class="at">mean =</span> <span class="fu">mean</span>(x), <span class="at">sd =</span> <span class="fu">sd</span>(x)), digits)</span>
 <span id="cb15-4"><a aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb15-5"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(trial<span class="sc">$</span>sbp_0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb15-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(trial<span class="sc">$</span>sbp_0)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    n  mean    sd 
  60.0 149.5  11.9 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(trial<span class="sc">$</span>sbp_12)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(trial<span class="sc">$</span>sbp_12)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    n  mean    sd 
  60.0 141.6  15.1 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(trial<span class="sc">$</span>weight_kg, <span class="at">digits =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(trial<span class="sc">$</span>weight_kg, <span class="at">digits =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    n  mean    sd 
 60.00 83.22 15.76 </code></pre>
@@ -628,7 +631,7 @@ $digits
 <section id="arguments-and-defaults" class="slide level2 smaller">
 <h2>Arguments and defaults</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># n counts non-missing values, so the reported n matches the mean.</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># n counts non-missing values, so the reported n matches the mean.</span></span>
 <span id="cb21-2"><a aria-hidden="true" tabindex="-1"></a>sbp_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">digits =</span> <span class="dv">1</span>, <span class="at">na_rm =</span> <span class="cn">TRUE</span>) {</span>
 <span id="cb21-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="fu">c</span>(</span>
 <span id="cb21-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">n    =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)),</span>
@@ -637,12 +640,12 @@ $digits
 <span id="cb21-7"><a aria-hidden="true" tabindex="-1"></a>  ), digits)</span>
 <span id="cb21-8"><a aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb21-9"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(trial_raw<span class="sc">$</span>sbp_12)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(trial_raw<span class="sc">$</span>sbp_12)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    n  mean    sd 
  57.0 141.3  15.3 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(trial_raw<span class="sc">$</span>sbp_12, <span class="at">na_rm =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(trial_raw<span class="sc">$</span>sbp_12, <span class="at">na_rm =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   n mean   sd 
   57   NA   NA </code></pre>
@@ -656,12 +659,12 @@ $digits
 <h2>How R matches arguments</h2>
 <p>Three ways, tried in this order: <strong>exact name</strong>, then <strong>partial name</strong>, then <strong>position</strong>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(trial<span class="sc">$</span>sbp_0, <span class="dv">2</span>)                 <span class="co"># position</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(trial<span class="sc">$</span>sbp_0, <span class="dv">2</span>)                 <span class="co"># position</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     n   mean     sd 
  60.00 149.47  11.85 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(<span class="at">digits =</span> <span class="dv">2</span>, <span class="at">x =</span> trial<span class="sc">$</span>sbp_0)    <span class="co"># exact name — order stops mattering</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(<span class="at">digits =</span> <span class="dv">2</span>, <span class="at">x =</span> trial<span class="sc">$</span>sbp_0)    <span class="co"># exact name — order stops mattering</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     n   mean     sd 
  60.00 149.47  11.85 </code></pre>
@@ -670,8 +673,8 @@ $digits
 <div class="fragment">
 <p>Partial matching works, and is a trap:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a aria-hidden="true" tabindex="-1"></a>report <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">na_rm =</span> <span class="cn">FALSE</span>, <span class="at">names =</span> <span class="cn">TRUE</span>) <span class="st">"ok"</span></span>
-<span id="cb29-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">report</span>(<span class="dv">1</span>, <span class="at">n =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a aria-hidden="true" tabindex="-1"></a>report <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">na_rm =</span> <span class="cn">FALSE</span>, <span class="at">names =</span> <span class="cn">TRUE</span>) <span class="st">"ok"</span></span>
+<span id="cb29-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">report</span>(<span class="dv">1</span>, <span class="at">n =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in report(1, n = TRUE): argument 2 matches multiple formal arguments</code></pre>
 </div>
@@ -694,16 +697,16 @@ $digits
 <h2>Return values, and the implicit return</h2>
 <p>A function returns the value of its <strong>last evaluated expression</strong>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a aria-hidden="true" tabindex="-1"></a>mean_sbp   <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">mean</span>(x)          <span class="co"># implicit return</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a aria-hidden="true" tabindex="-1"></a>mean_sbp   <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">mean</span>(x)          <span class="co"># implicit return</span></span>
 <span id="cb31-2"><a aria-hidden="true" tabindex="-1"></a>mean_sbp_2 <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">return</span>(<span class="fu">mean</span>(x))  <span class="co"># identical, more typing</span></span>
 <span id="cb31-3"><a aria-hidden="true" tabindex="-1"></a>mean_sbp_3 <span class="ot">&lt;-</span> <span class="cf">function</span>(x) { m <span class="ot">&lt;-</span> <span class="fu">mean</span>(x) } <span class="co"># returns m, invisibly</span></span>
 <span id="cb31-4"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_sbp</span>(trial<span class="sc">$</span>sbp_0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb31-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_sbp</span>(trial<span class="sc">$</span>sbp_0)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 149.4667</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_sbp_3</span>(trial<span class="sc">$</span>sbp_0)      <span class="co"># prints nothing</span></span>
-<span id="cb33-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">mean_sbp_3</span>(trial<span class="sc">$</span>sbp_0))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_sbp_3</span>(trial<span class="sc">$</span>sbp_0)      <span class="co"># prints nothing</span></span>
+<span id="cb33-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">mean_sbp_3</span>(trial<span class="sc">$</span>sbp_0))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 149.4667</code></pre>
 </div>
@@ -724,17 +727,17 @@ $digits
 <section id="what-happens-inside-stays-inside" class="slide level2 smaller">
 <h2>What happens inside stays inside</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a aria-hidden="true" tabindex="-1"></a>centre_sbp <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a aria-hidden="true" tabindex="-1"></a>centre_sbp <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
 <span id="cb35-2"><a aria-hidden="true" tabindex="-1"></a>  offset <span class="ot">&lt;-</span> <span class="fu">mean</span>(x)      <span class="co"># local: created on the call, destroyed after</span></span>
 <span id="cb35-3"><a aria-hidden="true" tabindex="-1"></a>  x <span class="sc">-</span> offset</span>
 <span id="cb35-4"><a aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb35-5"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb35-6"><a aria-hidden="true" tabindex="-1"></a>centred <span class="ot">&lt;-</span> <span class="fu">centre_sbp</span>(trial<span class="sc">$</span>sbp_0)</span>
-<span id="cb35-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">head</span>(centred, <span class="dv">4</span>), <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb35-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">head</span>(centred, <span class="dv">4</span>), <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 10.5 12.5  7.5  7.5</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">exists</span>(<span class="st">"offset"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">exists</span>(<span class="st">"offset"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
@@ -761,13 +764,13 @@ $digits
 <h2><code>...</code> and <code>invisible()</code></h2>
 <p><code>...</code> collects arguments you did not name and passes them on:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a>mean_sbp <span class="ot">&lt;-</span> <span class="cf">function</span>(x, ...) <span class="fu">mean</span>(x, ...)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a>mean_sbp <span class="ot">&lt;-</span> <span class="cf">function</span>(x, ...) <span class="fu">mean</span>(x, ...)</span>
 <span id="cb39-2"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_sbp</span>(trial_raw<span class="sc">$</span>sbp_12)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb39-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_sbp</span>(trial_raw<span class="sc">$</span>sbp_12)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] NA</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_sbp</span>(trial_raw<span class="sc">$</span>sbp_12, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_sbp</span>(trial_raw<span class="sc">$</span>sbp_12, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 141.3158</code></pre>
 </div>
@@ -775,20 +778,20 @@ $digits
 <div class="fragment">
 <p><code>invisible()</code> returns a value without printing it:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a>report_n <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a>report_n <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
 <span id="cb43-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"n ="</span>, <span class="fu">nrow</span>(data), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
 <span id="cb43-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">invisible</span>(<span class="fu">nrow</span>(data))</span>
 <span id="cb43-4"><a aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb43-5"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">report_n</span>(trial)          <span class="co"># prints the message, not the value</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb43-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">report_n</span>(trial)          <span class="co"># prints the message, not the value</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>n = 60 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a>n_rows <span class="ot">&lt;-</span> <span class="fu">report_n</span>(trial)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a>n_rows <span class="ot">&lt;-</span> <span class="fu">report_n</span>(trial)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>n = 60 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a>n_rows</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a>n_rows</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 60</code></pre>
 </div>
@@ -837,11 +840,11 @@ $digits
 <section id="the-global-that-vanishes" class="slide level2 smaller">
 <h2>The global that vanishes</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a aria-hidden="true" tabindex="-1"></a>threshold <span class="ot">&lt;-</span> <span class="dv">140</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a aria-hidden="true" tabindex="-1"></a>threshold <span class="ot">&lt;-</span> <span class="dv">140</span></span>
 <span id="cb49-2"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb49-3"><a aria-hidden="true" tabindex="-1"></a>is_high <span class="ot">&lt;-</span> <span class="cf">function</span>(sbp) sbp <span class="sc">&gt;</span> threshold   <span class="co"># threshold is not an argument</span></span>
 <span id="cb49-4"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is_high</span>(trial<span class="sc">$</span>sbp_0))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb49-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is_high</span>(trial<span class="sc">$</span>sbp_0))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 50</code></pre>
 </div>
@@ -849,8 +852,8 @@ $digits
 <div class="fragment">
 <p>It works. Now restart R — or hand the script to a colleague:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(threshold)</span>
-<span id="cb51-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is_high</span>(trial<span class="sc">$</span>sbp_0))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(threshold)</span>
+<span id="cb51-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is_high</span>(trial<span class="sc">$</span>sbp_0))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in is_high(trial$sbp_0): object 'threshold' not found</code></pre>
 </div>
@@ -865,8 +868,8 @@ $digits
 <section id="the-global-that-is-stale" class="slide level2 smaller">
 <h2>The global that is stale</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a>threshold <span class="ot">&lt;-</span> <span class="dv">140</span></span>
-<span id="cb53-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is_high</span>(trial<span class="sc">$</span>sbp_0))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a>threshold <span class="ot">&lt;-</span> <span class="dv">140</span></span>
+<span id="cb53-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is_high</span>(trial<span class="sc">$</span>sbp_0))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 50</code></pre>
 </div>
@@ -874,8 +877,8 @@ $digits
 <div class="fragment">
 <p>Fifty lines further down the document, somebody — possibly you, last Tuesday — writes:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a aria-hidden="true" tabindex="-1"></a>threshold <span class="ot">&lt;-</span> <span class="dv">160</span>        <span class="co"># for the sensitivity analysis</span></span>
-<span id="cb55-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is_high</span>(trial<span class="sc">$</span>sbp_0))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a aria-hidden="true" tabindex="-1"></a>threshold <span class="ot">&lt;-</span> <span class="dv">160</span>        <span class="co"># for the sensitivity analysis</span></span>
+<span id="cb55-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is_high</span>(trial<span class="sc">$</span>sbp_0))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 8</code></pre>
 </div>
@@ -897,17 +900,17 @@ $digits
 <section id="everything-comes-in-through-an-argument" class="slide level2 smaller">
 <h2>Everything comes in through an argument</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Flag patients above a systolic threshold. Threshold is an argument so the</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Flag patients above a systolic threshold. Threshold is an argument so the</span></span>
 <span id="cb57-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># result depends only on what the caller passed.</span></span>
 <span id="cb57-3"><a aria-hidden="true" tabindex="-1"></a>is_high <span class="ot">&lt;-</span> <span class="cf">function</span>(sbp, <span class="at">threshold =</span> <span class="dv">140</span>) {</span>
 <span id="cb57-4"><a aria-hidden="true" tabindex="-1"></a>  sbp <span class="sc">&gt;</span> threshold</span>
 <span id="cb57-5"><a aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb57-6"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb57-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is_high</span>(trial<span class="sc">$</span>sbp_0))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb57-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is_high</span>(trial<span class="sc">$</span>sbp_0))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 50</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is_high</span>(trial<span class="sc">$</span>sbp_0, <span class="at">threshold =</span> <span class="dv">160</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is_high</span>(trial<span class="sc">$</span>sbp_0, <span class="at">threshold =</span> <span class="dv">160</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 8</code></pre>
 </div>
@@ -938,13 +941,13 @@ $digits
 <section id="fail-loudly-or-be-wrong-quietly" class="slide level2 smaller">
 <h2>Fail loudly, or be wrong quietly</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a aria-hidden="true" tabindex="-1"></a>mean_weight <span class="ot">&lt;-</span> <span class="cf">function</span>(weight_kg) <span class="fu">mean</span>(weight_kg)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a aria-hidden="true" tabindex="-1"></a>mean_weight <span class="ot">&lt;-</span> <span class="cf">function</span>(weight_kg) <span class="fu">mean</span>(weight_kg)</span>
 <span id="cb61-2"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb61-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_weight</span>(trial_raw<span class="sc">$</span>weight_kg)   <span class="co"># one weight is recorded as -99</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb61-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_weight</span>(trial_raw<span class="sc">$</span>weight_kg)   <span class="co"># one weight is recorded as -99</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 80.275</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_weight</span>(trial<span class="sc">$</span>weight_kg)       <span class="co"># the same cohort, repaired</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_weight</span>(trial<span class="sc">$</span>weight_kg)       <span class="co"># the same cohort, repaired</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 83.22</code></pre>
 </div>
@@ -973,13 +976,13 @@ $digits
 <section id="stopifnot" class="slide level2 smaller">
 <h2><code>stopifnot()</code></h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a aria-hidden="true" tabindex="-1"></a>sbp_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">digits =</span> <span class="dv">1</span>) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a aria-hidden="true" tabindex="-1"></a>sbp_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">digits =</span> <span class="dv">1</span>) {</span>
 <span id="cb65-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.numeric</span>(x), <span class="fu">length</span>(x) <span class="sc">&gt;</span> <span class="dv">0</span>, digits <span class="sc">&gt;=</span> <span class="dv">0</span>)</span>
 <span id="cb65-3"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb65-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="fu">c</span>(<span class="at">n =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)), <span class="at">mean =</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)), digits)</span>
 <span id="cb65-5"><a aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb65-6"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb65-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(trial<span class="sc">$</span>arm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb65-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(trial<span class="sc">$</span>arm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in sbp_summary(trial$arm): is.numeric(x) is not TRUE</code></pre>
 </div>
@@ -987,7 +990,7 @@ $digits
 <div class="fragment">
 <p>Name the checks and you choose the message:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a aria-hidden="true" tabindex="-1"></a>sbp_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">digits =</span> <span class="dv">1</span>) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a aria-hidden="true" tabindex="-1"></a>sbp_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">digits =</span> <span class="dv">1</span>) {</span>
 <span id="cb67-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(</span>
 <span id="cb67-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="st">"x must be a numeric vector"</span> <span class="ot">=</span> <span class="fu">is.numeric</span>(x),</span>
 <span id="cb67-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="st">"digits must not be negative"</span> <span class="ot">=</span> digits <span class="sc">&gt;=</span> <span class="dv">0</span></span>
@@ -995,7 +998,7 @@ $digits
 <span id="cb67-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">round</span>(<span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), digits)</span>
 <span id="cb67-7"><a aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb67-8"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(trial<span class="sc">$</span>arm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb67-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sbp_summary</span>(trial<span class="sc">$</span>arm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in sbp_summary(trial$arm): x must be a numeric vector</code></pre>
 </div>
@@ -1005,7 +1008,7 @@ $digits
 <section id="stop-and-guard-clauses" class="slide level2 smaller">
 <h2><code>stop()</code> and guard clauses</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Mean weight, refusing sentinel codes. Site 3 used -99 for "not recorded",</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Mean weight, refusing sentinel codes. Site 3 used -99 for "not recorded",</span></span>
 <span id="cb69-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># and averaging those understates the mean by about 3 kg.</span></span>
 <span id="cb69-3"><a aria-hidden="true" tabindex="-1"></a>mean_weight <span class="ot">&lt;-</span> <span class="cf">function</span>(weight_kg) {</span>
 <span id="cb69-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">any</span>(weight_kg <span class="sc">&lt;</span> <span class="dv">20</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) {</span>
@@ -1015,7 +1018,7 @@ $digits
 <span id="cb69-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(weight_kg, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb69-9"><a aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb69-10"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-11"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_weight</span>(trial_raw<span class="sc">$</span>weight_kg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb69-11"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_weight</span>(trial_raw<span class="sc">$</span>weight_kg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error: weight_kg contains values below 20: check for sentinel codes</code></pre>
 </div>
@@ -1083,7 +1086,7 @@ $digits
 <h2>Data argument first</h2>
 <p>When the column names are fixed, nothing special is needed:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Add change from baseline. Fails if the two SBP columns are absent, because</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Add change from baseline. Fails if the two SBP columns are absent, because</span></span>
 <span id="cb71-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># mutate() would otherwise create a column full of nothing useful.</span></span>
 <span id="cb71-3"><a aria-hidden="true" tabindex="-1"></a>add_change <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
 <span id="cb71-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.data.frame</span>(data),</span>
@@ -1092,7 +1095,7 @@ $digits
 <span id="cb71-7"><a aria-hidden="true" tabindex="-1"></a>  data <span class="sc">|&gt;</span> <span class="fu">mutate</span>(<span class="at">change =</span> sbp_12 <span class="sc">-</span> sbp_0)</span>
 <span id="cb71-8"><a aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb71-9"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb71-10"><a aria-hidden="true" tabindex="-1"></a>trial_raw <span class="sc">|&gt;</span> <span class="fu">add_change</span>() <span class="sc">|&gt;</span> <span class="fu">summarise</span>(<span class="at">mean_change =</span> <span class="fu">mean</span>(change, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb71-10"><a aria-hidden="true" tabindex="-1"></a>trial_raw <span class="sc">|&gt;</span> <span class="fu">add_change</span>() <span class="sc">|&gt;</span> <span class="fu">summarise</span>(<span class="at">mean_change =</span> <span class="fu">mean</span>(change, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  mean_change
 1   -7.614035</code></pre>
@@ -1108,7 +1111,7 @@ $digits
 <h2>The wrinkle: <code>{ var }</code></h2>
 <p>When the <strong>column itself</strong> is the argument, dplyr needs to be told:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a aria-hidden="true" tabindex="-1"></a>summarise_by_arm <span class="ot">&lt;-</span> <span class="cf">function</span>(data, outcome) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a aria-hidden="true" tabindex="-1"></a>summarise_by_arm <span class="ot">&lt;-</span> <span class="cf">function</span>(data, outcome) {</span>
 <span id="cb73-2"><a aria-hidden="true" tabindex="-1"></a>  data <span class="sc">|&gt;</span></span>
 <span id="cb73-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(arm) <span class="sc">|&gt;</span></span>
 <span id="cb73-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(</span>
@@ -1117,7 +1120,7 @@ $digits
 <span id="cb73-7"><a aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb73-8"><a aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb73-9"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb73-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summarise_by_arm</span>(trial_raw, sbp_12)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb73-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summarise_by_arm</span>(trial_raw, sbp_12)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 x 3
   arm           n  mean
@@ -1125,7 +1128,7 @@ $digits
 1 Placebo      28  148 
 2 Treatment    29  135.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summarise_by_arm</span>(trial_raw, weight_kg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summarise_by_arm</span>(trial_raw, weight_kg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 x 3
   arm           n  mean
@@ -1135,18 +1138,18 @@ $digits
 </div>
 </div>
 <div class="smaller">
-<div class="sourceCode" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way — no tidy evaluation involved</span></span>
-<span id="cb77-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(trial_raw<span class="sc">$</span>sbp_12, trial_raw<span class="sc">$</span>arm, mean, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way — no tidy evaluation involved</span></span>
+<span id="cb77-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(trial_raw<span class="sc">$</span>sbp_12, trial_raw<span class="sc">$</span>arm, mean, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="without-two-failures" class="slide level2 smaller">
 <h2>Without <code>{ }</code>: two failures</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a aria-hidden="true" tabindex="-1"></a>bad_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(data, outcome) {</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a aria-hidden="true" tabindex="-1"></a>bad_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(data, outcome) {</span>
 <span id="cb78-2"><a aria-hidden="true" tabindex="-1"></a>  data <span class="sc">|&gt;</span> <span class="fu">group_by</span>(arm) <span class="sc">|&gt;</span> <span class="fu">summarise</span>(<span class="at">mean =</span> <span class="fu">mean</span>(outcome))</span>
 <span id="cb78-3"><a aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb78-4"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb78-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">bad_summary</span>(trial, sbp_0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb78-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">bad_summary</span>(trial, sbp_0)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in `summarise()`:
 i In argument: `mean = mean(outcome)`.
@@ -1158,8 +1161,8 @@ Caused by error:
 <div class="fragment">
 <p>Now the same call, with a stray object in the workspace:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a aria-hidden="true" tabindex="-1"></a>sbp_0 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1000</span>, <span class="dv">2000</span>)      <span class="co"># left over from something else entirely</span></span>
-<span id="cb80-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">bad_summary</span>(trial, sbp_0)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a aria-hidden="true" tabindex="-1"></a>sbp_0 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1000</span>, <span class="dv">2000</span>)      <span class="co"># left over from something else entirely</span></span>
+<span id="cb80-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">bad_summary</span>(trial, sbp_0)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 x 2
   arm        mean
@@ -1177,7 +1180,7 @@ Caused by error:
 </section>
 <section id="before-the-script-we-all-wrote" class="slide level2 smaller">
 <h2>Before: the script we all wrote</h2>
-<div class="sourceCode" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># baseline</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># baseline</span></span>
 <span id="cb82-2"><a aria-hidden="true" tabindex="-1"></a>tab_0 <span class="ot">&lt;-</span> trial <span class="sc">|&gt;</span> <span class="fu">group_by</span>(arm) <span class="sc">|&gt;</span></span>
 <span id="cb82-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">n</span>(), <span class="at">mean =</span> <span class="fu">round</span>(<span class="fu">mean</span>(sbp_0), <span class="dv">1</span>), <span class="at">sd =</span> <span class="fu">round</span>(<span class="fu">sd</span>(sbp_0), <span class="dv">1</span>))</span>
 <span id="cb82-4"><a aria-hidden="true" tabindex="-1"></a></span>
@@ -1192,7 +1195,7 @@ Caused by error:
 <span id="cb82-13"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb82-14"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, sbp_0)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"SBP baseline"</span>)</span>
 <span id="cb82-15"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, sbp_12)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"SBP 12 wk"</span>)</span>
-<span id="cb82-16"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, change)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Change"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb82-16"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, change)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>() <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">y =</span> <span class="st">"Change"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <div class="smaller">
 <p>Six blocks, two shapes, <strong>one bug</strong> — and <code>n</code> is wrong in the third block for the same reason.</p>
@@ -1202,7 +1205,7 @@ Caused by error:
 <section id="after-three-functions" class="slide level2 smaller">
 <h2>After: three functions</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># n counts patients contributing to the mean, not patients randomised.</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># n counts patients contributing to the mean, not patients randomised.</span></span>
 <span id="cb83-2"><a aria-hidden="true" tabindex="-1"></a>summarise_by_arm <span class="ot">&lt;-</span> <span class="cf">function</span>(data, outcome, <span class="at">digits =</span> <span class="dv">1</span>) {</span>
 <span id="cb83-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.data.frame</span>(data), <span class="st">"arm"</span> <span class="sc">%in%</span> <span class="fu">names</span>(data))</span>
 <span id="cb83-4"><a aria-hidden="true" tabindex="-1"></a></span>
@@ -1223,7 +1226,7 @@ Caused by error:
 <span id="cb83-19"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span>
 <span id="cb83-20"><a aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb83-21"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb83-22"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summarise_by_arm</span>(trial_raw, change)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb83-22"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summarise_by_arm</span>(trial_raw, change)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 x 4
   arm           n  mean    sd
@@ -1237,7 +1240,7 @@ Caused by error:
 <h2>Verify the refactor</h2>
 <p>A refactor that changes the output is not a refactor. <strong>Check.</strong></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a aria-hidden="true" tabindex="-1"></a>old <span class="ot">&lt;-</span> trial <span class="sc">|&gt;</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a aria-hidden="true" tabindex="-1"></a>old <span class="ot">&lt;-</span> trial <span class="sc">|&gt;</span></span>
 <span id="cb85-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(arm) <span class="sc">|&gt;</span></span>
 <span id="cb85-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">n =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(sbp_0)),</span>
 <span id="cb85-4"><a aria-hidden="true" tabindex="-1"></a>            <span class="at">mean =</span> <span class="fu">round</span>(<span class="fu">mean</span>(sbp_0), <span class="dv">1</span>),</span>
@@ -1245,11 +1248,11 @@ Caused by error:
 <span id="cb85-6"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb85-7"><a aria-hidden="true" tabindex="-1"></a>new <span class="ot">&lt;-</span> <span class="fu">summarise_by_arm</span>(trial, sbp_0)</span>
 <span id="cb85-8"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb85-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">identical</span>(old, new)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb85-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">identical</span>(old, new)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(old, new)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(old, new)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
@@ -1527,7 +1530,7 @@ Caused by error:
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -1677,13 +1680,14 @@ Caused by error:
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy

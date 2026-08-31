@@ -1943,7 +1943,7 @@
     "href": "course/session02/lab.html#one-time-remote-check",
     "title": "Session 2 guided lab",
     "section": "One-time remote check",
-    "text": "One-time remote check\nOpen RStudio’s Terminal tab and run this read-only check:\ngit remote -v\nThe intended result is:\norigin    your private BIOS6301 repository\nupstream  the instructor BIOS6301-materials repository\nIf both names already point to the correct places, do not reconfigure them.\n\n\n\n\n\n\nOne-time setup recipe, if the remotes are not configured\n\n\n\n\n\nRun this only with the instructor or TA. Replace the username placeholder with your GitHub username. Use the plain HTTPS URL—without Markdown brackets or parentheses.\ngit remote rename origin upstream\ngit remote add origin https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git\ngit push -u origin main\nThese lines establish the course’s two-remotes arrangement. They are a supplied setup recipe, not commands you are expected to memorize. The first push may open a GitHub browser sign-in through Git Credential Manager or GitHub CLI. Complete authentication in the browser. If the terminal requests a GitHub password, cancel and ask for help; do not enter your account password."
+    "text": "One-time remote check\nOpen RStudio’s Terminal tab and run this read-only check:\ngit remote -v\nThe intended result is:\norigin    your private BIOS6301 repository\nupstream  the instructor BIOS6301-materials repository\nIf both names already point to the correct places, do not reconfigure them.\n\n\n\n\n\n\nNoteOne-time setup recipe, if the remotes are not configured\n\n\n\n\n\nRun this only with the instructor or TA. Replace the username placeholder with your GitHub username. Use the plain HTTPS URL—without Markdown brackets or parentheses.\ngit remote rename origin upstream\ngit remote add origin https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git\ngit push -u origin main\nThese lines establish the course’s two-remotes arrangement. They are a supplied setup recipe, not commands you are expected to memorize. The first push may open a GitHub browser sign-in through Git Credential Manager or GitHub CLI. Complete authentication in the browser. If the terminal requests a GitHub password, cancel and ask for help; do not enter your account password."
   },
   {
     "objectID": "course/session02/lab.html#checkpoint-1-read-the-git-pane",
@@ -2062,77 +2062,56 @@
     "href": "course/session01/lab.html",
     "title": "Session 1 guided lab",
     "section": "",
-    "text": "Note\n\n\n\nSuggested use: complete the core checkpoints first. The instructor may choose some or all of the additional practice during the scheduled lab. Anything not finished is designed for independent practice afterward."
+    "text": "Start with an empty folder and use RStudio to create a small, reproducible analysis. By the end of the lab, your project will contain:\nsession01-lab/\n├── session01-lab.Rproj\n├── analysis.R\n├── report.Rmd\n├── report.html\n├── report.qmd\n└── report-quarto.html\nYou do not need to download or clone any course files for this lab. Create every source file yourself and save it inside the project."
   },
   {
     "objectID": "course/session01/lab.html#goal",
     "href": "course/session01/lab.html#goal",
     "title": "Session 1 guided lab",
-    "section": "Goal",
-    "text": "Goal\nUse the RStudio workbench to run a saved .R script, knit an R Markdown report, and render a Quarto report whose numbers can be regenerated from saved source and the supplied synthetic data."
+    "section": "",
+    "text": "Start with an empty folder and use RStudio to create a small, reproducible analysis. By the end of the lab, your project will contain:\nsession01-lab/\n├── session01-lab.Rproj\n├── analysis.R\n├── report.Rmd\n├── report.html\n├── report.qmd\n└── report-quarto.html\nYou do not need to download or clone any course files for this lab. Create every source file yourself and save it inside the project."
   },
   {
-    "objectID": "course/session01/lab.html#start-from-the-repository",
-    "href": "course/session01/lab.html#start-from-the-repository",
+    "objectID": "course/session01/lab.html#checkpoint-1-create-an-rstudio-project",
+    "href": "course/session01/lab.html#checkpoint-1-create-an-rstudio-project",
     "title": "Session 1 guided lab",
-    "section": "Start from the repository",
-    "text": "Start from the repository\nDo not edit course/session01/starter/. Copy that complete folder to work/session01-lab/, then work only in the copy.\nYour private repository should contain:\nwork/session01-lab/\n├── session01-lab.Rproj\n├── analysis.R\n├── report.Rmd\n├── report.qmd\n└── data/\n    └── clinic_summary.csv"
+    "section": "Checkpoint 1: Create an RStudio project",
+    "text": "Checkpoint 1: Create an RStudio project\n\nIn RStudio, choose File → New Project.\nSelect New Directory, then New Project.\nEnter session01-lab as the directory name.\nChoose a parent directory that you can find again, then select Create Project.\nConfirm that RStudio opens the new project and that the Files pane contains session01-lab.Rproj.\nLocate the Source, Console, Environment, and Output panes.\nRun 2 + 2 in the Console. Explain why this command is not yet part of a saved, reproducible analysis.\n\n\n\n\n\n\n\nTip\n\n\n\nThe project folder is the home of this analysis. Create all remaining files in this folder; do not create them in the course website or another project."
   },
   {
-    "objectID": "course/session01/lab.html#checkpoint-1-establish-the-project",
-    "href": "course/session01/lab.html#checkpoint-1-establish-the-project",
+    "objectID": "course/session01/lab.html#checkpoint-2-create-and-run-an-.r-script",
+    "href": "course/session01/lab.html#checkpoint-2-create-and-run-an-.r-script",
     "title": "Session 1 guided lab",
-    "section": "Checkpoint 1: Establish the project",
-    "text": "Checkpoint 1: Establish the project\n\nOpen work/session01-lab/session01-lab.Rproj.\nLocate the Source, Console, Environment, and Output panes.\nConfirm that the three source files and data/clinic_summary.csv are present.\nRun 2 + 2 in the Console, then explain why that command is not yet part of the saved analysis."
+    "section": "Checkpoint 2: Create and run an .R script",
+    "text": "Checkpoint 2: Create and run an .R script\n\nChoose File → New File → R Script.\nSave the new file as analysis.R in the project folder.\nType the following code into the script. Do not paste it into the Console.\n\n# BIOS6301 Session 1: a small reproducible analysis\n\nclinic &lt;- data.frame(\n  patient_id = 1:6,\n  group = c(\"A\", \"A\", \"A\", \"B\", \"B\", \"B\"),\n  age = c(52, 61, 47, 70, 58, 64),\n  marker = c(8.2, 7.5, 9.1, 6.8, 7.9, 7.2)\n)\n\nn_records &lt;- nrow(clinic)\nmean_age &lt;- mean(clinic$age)\nmedian_marker &lt;- median(clinic$marker)\n\nsummary_values &lt;- data.frame(\n  statistic = c(\"Number of records\", \"Mean age\", \"Median marker\"),\n  value = c(n_records, mean_age, median_marker)\n)\n\nprint(summary_values)\n\nSave the script.\nUse Ctrl-EnterCtrl-Enter to run the code a few lines at a time.\nSelect Session → Restart R and confirm that the Environment pane is empty.\nOpen analysis.R and select Source to run the entire saved script.\nConfirm that clinic, n_records, mean_age, median_marker, and summary_values appear in the Environment pane."
   },
   {
-    "objectID": "course/session01/lab.html#checkpoint-2-run-the-.r-script",
-    "href": "course/session01/lab.html#checkpoint-2-run-the-.r-script",
+    "objectID": "course/session01/lab.html#checkpoint-3-create-and-knit-an-r-markdown-report",
+    "href": "course/session01/lab.html#checkpoint-3-create-and-knit-an-r-markdown-report",
     "title": "Session 1 guided lab",
-    "section": "Checkpoint 2: Run the .R script",
-    "text": "Checkpoint 2: Run the .R script\nOpen analysis.R. Use Ctrl-EnterCtrl-Enter to run it one section at a time. Then restart R and use Source to run the complete saved script.\nConfirm that these objects appear in the Environment pane:\nclinic, n_records, mean_age, and median_marker."
+    "section": "Checkpoint 3: Create and knit an R Markdown report",
+    "text": "Checkpoint 3: Create and knit an R Markdown report\n\nChoose File → New File → R Markdown.\nEnter a title such as Session 1 report, choose HTML, and select OK.\nSave the document as report.Rmd in the project folder.\nReplace the example document with the following structure.\n\n---\ntitle: \"Session 1 report\"\noutput: html_document\n---\n\n```{r setup, include=FALSE}\nsource(\"analysis.R\")\n```\n\n## Results\n\nThe analysis contains `r knitr::inline_expr(\"n_records\")` records. The mean age is\n`r knitr::inline_expr(\"round(mean_age, 1)\")` years, and the median marker value is\n`r knitr::inline_expr(\"round(median_marker, 1)\")`.\n\n```{r summary, echo=FALSE}\nsummary_values\n```\n\nIdentify the YAML header, Markdown prose, setup chunk, summary chunk, chunk labels, chunk options, and inline R expressions.\nSelect Knit and confirm that RStudio creates report.html.\nExplain why the table appears even though echo=FALSE hides its source code."
   },
   {
-    "objectID": "course/session01/lab.html#checkpoint-3-knit-the-r-markdown-report",
-    "href": "course/session01/lab.html#checkpoint-3-knit-the-r-markdown-report",
+    "objectID": "course/session01/lab.html#checkpoint-4-create-and-render-a-quarto-report",
+    "href": "course/session01/lab.html#checkpoint-4-create-and-render-a-quarto-report",
     "title": "Session 1 guided lab",
-    "section": "Checkpoint 3: Knit the R Markdown report",
-    "text": "Checkpoint 3: Knit the R Markdown report\nOpen report.Rmd and identify:\n\nThe YAML header and its output: key\nMarkdown prose\nThe setup and summary R chunks\nThe chunk labels and classic knitr options in the {r ...} headers\nInline R expressions\n\nComplete the calculations and use the Knit button to produce HTML. Set the summary chunk to echo=FALSE. Explain why the calculations still appear even though the source code is hidden."
+    "section": "Checkpoint 4: Create and render a Quarto report",
+    "text": "Checkpoint 4: Create and render a Quarto report\n\nChoose File → New File → Quarto Doc.\nEnter a title such as Session 1 Quarto report, choose HTML, and select Create.\nSave the document as report.qmd in the project folder.\nReplace the example document with the following structure.\n\n---\ntitle: \"Session 1 Quarto report\"\nformat: html\noutput-file: report-quarto.html\n---\n\n```{r}\n#| label: setup\n#| include: false\nsource(\"analysis.R\")\n```\n\n## Results\n\nThe analysis contains `r knitr::inline_expr(\"n_records\")` records. The mean age is\n`r knitr::inline_expr(\"round(mean_age, 1)\")` years, and the median marker value is\n`r knitr::inline_expr(\"round(median_marker, 1)\")`.\n\n```{r}\n#| label: summary\n#| echo: false\nsummary_values\n```\n\nIdentify what is unchanged from R Markdown.\nIdentify the Quarto-specific format: key and #| cell-option syntax.\nSelect Render and confirm that Quarto creates report-quarto.html rather than replacing the R Markdown output."
   },
   {
-    "objectID": "course/session01/lab.html#checkpoint-4-apply-the-model-in-quarto",
-    "href": "course/session01/lab.html#checkpoint-4-apply-the-model-in-quarto",
+    "objectID": "course/session01/lab.html#checkpoint-5-test-the-saved-workflow",
+    "href": "course/session01/lab.html#checkpoint-5-test-the-saved-workflow",
     "title": "Session 1 guided lab",
-    "section": "Checkpoint 4: Apply the model in Quarto",
-    "text": "Checkpoint 4: Apply the model in Quarto\nOpen report.qmd. Identify what is unchanged from R Markdown, then complete its Quarto-specific syntax:\n\nformat: html in YAML\n#| label: ... and #| echo: false at the top of a code cell\nthe Render button\n\nUse inline R to insert n_records, mean_age, and median_marker. Do not type copies of the calculated numbers manually."
-  },
-  {
-    "objectID": "course/session01/lab.html#checkpoint-5-verify-reproducibility",
-    "href": "course/session01/lab.html#checkpoint-5-verify-reproducibility",
-    "title": "Session 1 guided lab",
-    "section": "Checkpoint 5: Verify reproducibility",
-    "text": "Checkpoint 5: Verify reproducibility\n\nRestart R.\nConfirm that the Environment pane is empty.\nSource analysis.R, knit report.Rmd, and render report.qmd.\nExplain which files are source and which HTML files are generated output."
-  },
-  {
-    "objectID": "course/session01/lab.html#controlled-error",
-    "href": "course/session01/lab.html#controlled-error",
-    "title": "Session 1 guided lab",
-    "section": "Controlled error",
-    "text": "Controlled error\nTemporarily change the data path to an incorrect filename. Render, read the error, repair the path, and render successfully again."
-  },
-  {
-    "objectID": "course/session01/lab.html#additional-practice-extend-the-workflow",
-    "href": "course/session01/lab.html#additional-practice-extend-the-workflow",
-    "title": "Session 1 guided lab",
-    "section": "Additional practice: extend the workflow",
-    "text": "Additional practice: extend the workflow\n\nAdd comments and three stopifnot() input checks to analysis.R, then source it after restarting R.\nIn report.Rmd, test echo=FALSE, eval=FALSE, and include=FALSE in three small chunks. Record whether each chunk runs and whether code and results are displayed.\nAdd a setup chunk to report.Rmd using knitr::opts_chunk$set() for at least two document-wide defaults. Override one default in an individual chunk.\nIn report.qmd, express the same selected behaviors with Quarto #| cell options. Identify the spelling and value-style differences from R Markdown.\nAdd a table with one row per group, reporting total n, mean age, and mean marker. Generate the values from code rather than typing them.\nAdd a participant-level figure comparing marker values between groups. Give it an informative title, axes, and a one-sentence interpretation.\nRead the CSV a second way using a single, explicitly defined absolute data_root. Verify that the resulting object equals the relative-path import, and document when each path strategy is appropriate.\nRestart R and produce all outputs from beginning to end. Record any hidden dependency you discovered and how you removed it.\n\n\nIndependent-practice check\nThe .R, .Rmd, and .qmd files should agree numerically. A reader should be able to identify every input location and regenerate every table and figure without preparatory console commands."
+    "section": "Checkpoint 5: Test the saved workflow",
+    "text": "Checkpoint 5: Test the saved workflow\n\nSelect Session → Restart R and confirm that the Environment pane is empty.\nSource analysis.R and confirm the three calculated values.\nKnit report.Rmd without running any preparatory Console commands.\nRender report.qmd without running any preparatory Console commands.\nTemporarily change source(\"analysis.R\") to source(\"analysis-missing.R\") in report.qmd and render again.\nRead the error, restore the correct filename, and render successfully.\nIdentify the three source files and the two generated HTML files."
   },
   {
     "objectID": "course/session01/lab.html#exit-evidence",
     "href": "course/session01/lab.html#exit-evidence",
     "title": "Session 1 guided lab",
     "section": "Exit evidence",
-    "text": "Exit evidence\nShow the instructor or TA:\n\nThe project folder\nThe .R script and a successful complete Source run\nThe .Rmd source and knitted HTML\nThe .qmd source\nThe Quarto-rendered HTML\nThe three calculated values\nA successful render after restarting R"
+    "text": "Exit evidence\nShow the instructor or TA:\n\nThe RStudio project that you created from scratch\nanalysis.R and a successful complete Source run\nreport.Rmd and its knitted HTML output\nreport.qmd and its rendered HTML output\nThe calculated values: 6 records, mean age 58.7 years, and median marker 7.7\nA successful Knit and Render after restarting R"
   },
   {
     "objectID": "course/session01/index.html",
@@ -2160,7 +2139,7 @@
     "href": "course/session01/index.html#materials",
     "title": "Session 1: Reproducible workflow",
     "section": "Materials",
-    "text": "Materials\n\nInteractive HTML lecture slides\nGuided lab\nLab starter: course/session01/starter/\n\n\n\n\n\n\n\nNote\n\n\n\nThe lecture begins in the RStudio workbench, moves from an .R script to a complete R Markdown document, and then applies that model in Quarto. The lab is a scrollable HTML handout; complete the work in a copy of the starter under work/session01-lab/."
+    "text": "Materials\n\nInteractive HTML lecture slides\nGuided lab\n\n\n\n\n\n\n\nNote\n\n\n\nThe lecture begins in the RStudio workbench, moves from an .R script to a complete R Markdown document, and then applies that model in Quarto. The lab is a scrollable HTML handout. Students create a new RStudio project and every lab source file from scratch; no repository clone or downloaded starter is needed."
   },
   {
     "objectID": "syllabus.html",
@@ -2258,7 +2237,7 @@
     "href": "index.html",
     "title": "BIOS6301: Introduction to Statistical Computing",
     "section": "",
-    "text": "Course code and lab starters\n\n\n\nUse this website as the primary source for course reading. To clone the code, synthetic data, and lab starters, use the public GitHub repository:\nhttps://github.com/slzhao/BIOS6301-materials"
+    "text": "TipCourse code and lab starters\n\n\n\nUse this website as the primary source for course reading. To clone the code, synthetic data, and lab starters, use the public GitHub repository:\nhttps://github.com/slzhao/BIOS6301-materials"
   },
   {
     "objectID": "index.html#start-here",
@@ -2307,7 +2286,7 @@
     "href": "course/session00/index.html#install-in-this-order",
     "title": "Session 0: Setup and orientation",
     "section": "Install in this order",
-    "text": "Install in this order\nUse only the official links below. You do not need to install any R packages, GitHub Desktop, or a separate Git graphical interface.\n\n1. Install R\nR is the program that performs the calculations. Choose your operating system from the official R download page:\n\nWindows: Download R for Windows\nmacOS: Download R for macOS\n\nAccept the standard installation options. If R is already installed, you do not need to reinstall it merely to complete this diagnostic.\n\n\n2. Install RStudio Desktop\nRStudio is the interface we will use during the opening sessions. Download the free, open-source edition from the official RStudio Desktop download page.\nInstall R before RStudio. Then start RStudio once and confirm that the Console opens without an error.\n\n\n3. Verify Quarto\nQuarto turns a source document containing prose and R code into an HTML report. First try the rendering exercise below. If RStudio cannot render a .qmd file, use the official Quarto installation page and then restart RStudio.\n\n\n4. Install Git using the course recommendation\nGit records versions of analytical source files. We will use command-line Git through RStudio’s Terminal tab; we will not require GitHub Desktop.\n\nWindows\n\nDownload Git for Windows.\nChoose the standard 64-bit installer unless you know that your computer uses Windows on ARM.\nAccept the installer defaults, including Git Credential Manager. It will provide browser-based GitHub authentication later in the course.\nCompletely close and reopen RStudio after installation.\n\n\n\nmacOS\n\nOpen Terminal.\nRun:\ngit --version\nIf macOS offers to install the Command Line Developer Tools, accept the installation. If no prompt appears and Git is unavailable, run:\nxcode-select --install\n\nSee the official Git installation instructions for macOS.\n\n\nLinux\nUse the Git package supplied by your Linux distribution. See the official Git installation page.\n\n\n\n5. Verify Git inside RStudio\nAfter restarting RStudio, select Tools → Terminal → New Terminal and run:\ngit --version\nA successful result begins with git version. You do not need to create a GitHub account or configure GitHub authentication yet; that will happen before Session 2.\n\n\n\n\n\n\nIf your computer requires administrator approval\n\n\n\nDo not download an installer from an unofficial mirror. Submit the error or permission message and contact the course TA while there is still time to resolve the installation."
+    "text": "Install in this order\nUse only the official links below. You do not need to install any R packages, GitHub Desktop, or a separate Git graphical interface.\n\n1. Install R\nR is the program that performs the calculations. Choose your operating system from the official R download page:\n\nWindows: Download R for Windows\nmacOS: Download R for macOS\n\nAccept the standard installation options. If R is already installed, you do not need to reinstall it merely to complete this diagnostic.\n\n\n2. Install RStudio Desktop\nRStudio is the interface we will use during the opening sessions. Download the free, open-source edition from the official RStudio Desktop download page.\nInstall R before RStudio. Then start RStudio once and confirm that the Console opens without an error.\n\n\n3. Verify Quarto\nQuarto turns a source document containing prose and R code into an HTML report. First try the rendering exercise below. If RStudio cannot render a .qmd file, use the official Quarto installation page and then restart RStudio.\n\n\n4. Install Git using the course recommendation\nGit records versions of analytical source files. We will use command-line Git through RStudio’s Terminal tab; we will not require GitHub Desktop.\n\nWindows\n\nDownload Git for Windows.\nChoose the standard 64-bit installer unless you know that your computer uses Windows on ARM.\nAccept the installer defaults, including Git Credential Manager. It will provide browser-based GitHub authentication later in the course.\nCompletely close and reopen RStudio after installation.\n\n\n\nmacOS\n\nOpen Terminal.\nRun:\ngit --version\nIf macOS offers to install the Command Line Developer Tools, accept the installation. If no prompt appears and Git is unavailable, run:\nxcode-select --install\n\nSee the official Git installation instructions for macOS.\n\n\nLinux\nUse the Git package supplied by your Linux distribution. See the official Git installation page.\n\n\n\n5. Verify Git inside RStudio\nAfter restarting RStudio, select Tools → Terminal → New Terminal and run:\ngit --version\nA successful result begins with git version. You do not need to create a GitHub account or configure GitHub authentication yet; that will happen before Session 2.\n\n\n\n\n\n\nTipIf your computer requires administrator approval\n\n\n\nDo not download an installer from an unofficial mirror. Submit the error or permission message and contact the course TA while there is still time to resolve the installation."
   },
   {
     "objectID": "course/session00/index.html#part-1-verify-r",
@@ -2440,7 +2419,7 @@
     "href": "course/session01/slides.html#r-markdown-yaml-what-should-be-produced",
     "title": "RStudio and Reproducible Documents",
     "section": "R Markdown YAML: what should be produced?",
-    "text": "R Markdown YAML: what should be produced?\n---\ntitle: \"Synthetic clinic summary\"\nauthor: \"Student name\"\ndate: \"2026-08-25\"\noutput:\n  html_document:\n    toc: true\n---\n\n\nYAML is between the opening and closing --- lines.\nR Markdown uses the output: key.\nIndentation expresses nesting; spaces after colons matter.\nStart with HTML because it requires no LaTeX installation."
+    "text": "R Markdown YAML: what should be produced?\n---\ntitle: \"Synthetic clinic summary\"\nauthor: \"Student name\"\ndate: \"2026-08-31\"\noutput:\n  html_document:\n    toc: true\n---\n\n\nYAML is between the opening and closing --- lines.\nR Markdown uses the output: key.\nIndentation expresses nesting; spaces after colons matter.\nStart with HTML because it requires no LaTeX installation."
   },
   {
     "objectID": "course/session01/slides.html#markdown-supplies-the-narrative-structure",
@@ -2594,7 +2573,7 @@
     "href": "course/session01/slides.html#projects-give-the-analysis-a-stable-home",
     "title": "RStudio and Reproducible Documents",
     "section": "Projects give the analysis a stable home",
-    "text": "Projects give the analysis a stable home\nOpen the supplied .Rproj file, or use File → New Project → Existing Directory.\nbios6301-session01/\n├── bios6301-session01.Rproj\n├── analysis.R\n├── report.Rmd\n├── report.qmd\n└── data/\n    └── clinic_summary.csv\n\n\nOpening the project establishes a predictable project root.\nRelative paths are interpreted from that project context.\nThe project folder becomes a natural Git repository in Session 2.\nSource files and input data remain distinct from generated output."
+    "text": "Projects give the analysis a stable home\nUse File → New Project → New Directory → New Project and create session01-lab.\nsession01-lab/\n├── session01-lab.Rproj\n├── analysis.R\n├── report.Rmd\n└── report.qmd\n\n\nOpening the project establishes a predictable project root.\nRelative paths are interpreted from that project context.\nThe project folder becomes a natural Git repository in Session 2.\nSource files and input data remain distinct from generated output."
   },
   {
     "objectID": "course/session01/slides.html#paths-are-a-design-choice",
@@ -4113,7 +4092,7 @@
     "href": "course/session12/slides.html#anatomy-of-an-error-message",
     "title": "Debugging and Reliable Code",
     "section": "Anatomy of an error message",
-    "text": "Anatomy of an error message\n\nmean(trial_raw$creat_raw)\n\nWarning in mean.default(trial_raw$creat_raw): argument is not numeric or\nlogical: returning NA\n\n\n[1] NA\n\nsum(trial_raw$creat_raw)\n\nError in sum(trial_raw$creat_raw): invalid 'type' (character) of argument\n\n\n\n\nError in sum(trial_raw$creat_raw) : invalid 'type' (character) of argument\n        └──────── where ────────┘   └──────────── what ─────────────────┘\n\nError in names the call that raised it — not necessarily the call that is wrong.\nThe text after the colon is R’s vocabulary, and it is small. invalid   'type', object not found, subscript out of bounds, non-numeric argument, argument of length zero. You will learn all of them this term."
+    "text": "Anatomy of an error message\n\nmean(trial_raw$creat_raw)\n\nWarning in mean.default(trial_raw$creat_raw): argument is not numeric or\nlogical: returning NA\n\n\n[1] NA\n\nsum(trial_raw$creat_raw)\n\nError in sum(trial_raw$creat_raw): invalid 'type' (character) of argument\n\n\n\n\nError in sum(trial_raw$creat_raw) : invalid 'type' (character) of argument\n        └──────── where ────────┘   └──────────── what ─────────────────┘\n\nError in names the call that raised it — not necessarily the call that is wrong.\nThe text after the colon is R’s vocabulary, and it is small. invalid 'type', object not found, subscript out of bounds, non-numeric argument, argument of length zero. You will learn all of them this term."
   },
   {
     "objectID": "course/session12/slides.html#warnings-are-the-ones-that-cost-you",

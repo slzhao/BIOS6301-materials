@@ -6,8 +6,8 @@
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-234273d1456647dabc34a594ac50e507.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
-  <meta name="generator" content="quarto-1.7.32">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.38">
 
   <meta name="author" content="Department of Biostatistics, Vanderbilt University Medical Center">
   <title>BIOS6301 · Student Materials – Selected Practical Topics in R</title>
@@ -17,6 +17,9 @@
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
   <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -95,7 +98,7 @@
     code span.vs { color: #032f62; } /* VerbatimString */
     code span.wa { color: #ff5555; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-2c1b5f745a11cfad616ebade4a4a7d24.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
   <link rel="stylesheet" href="../../slides.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
@@ -328,7 +331,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <h2>The column that will not be a number</h2>
 <p>Six rows of a real-shaped <code>dose</code> field from an EHR extract:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a>dose</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a>dose</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "10 mg BID"              "2.5mg daily"           
 [3] " 20 MG bid "            "lisinopril 10 mg PO QD"
@@ -337,7 +340,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(dose)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(dose)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: NAs introduced by coercion</code></pre>
 </div>
@@ -447,16 +450,16 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="detect-is-the-pattern-there" class="slide level2 smaller">
 <h2>Detect: is the pattern there?</h2>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># stringr</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># stringr</span></span>
 <span id="cb6-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_detect</span>(dose, <span class="st">"mg"</span>)</span>
-<span id="cb6-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_subset</span>(dose, <span class="st">"BID"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_subset</span>(dose, <span class="st">"BID"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way</span></span>
-<span id="cb7-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">grepl</span>(<span class="st">"mg"</span>, dose)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way</span></span>
+<span id="cb7-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">grepl</span>(<span class="st">"mg"</span>, dose)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  TRUE  TRUE FALSE  TRUE  TRUE FALSE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span>(<span class="st">"BID"</span>, dose, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>, <span class="at">value =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">grep</span>(<span class="st">"BID"</span>, dose, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>, <span class="at">value =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "10 mg BID"   " 20 MG bid "</code></pre>
 </div>
@@ -469,12 +472,12 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="extract-pull-the-match-out" class="slide level2 smaller">
 <h2>Extract: pull the match out</h2>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># stringr</span></span>
-<span id="cb11-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_extract</span>(dose, <span class="st">"[0-9.]+"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># stringr</span></span>
+<span id="cb11-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_extract</span>(dose, <span class="st">"[0-9.]+"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way, and it has a trap</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way, and it has a trap</span></span>
 <span id="cb12-2"><a aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">regexpr</span>(<span class="st">"[0-9.]+"</span>, dose)</span>
-<span id="cb12-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">regmatches</span>(dose, m)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">regmatches</span>(dose, m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "10"  "2.5" "20"  "10"  "5"  </code></pre>
 </div>
@@ -491,9 +494,9 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA_character_</span>, <span class="fu">length</span>(dose))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a aria-hidden="true" tabindex="-1"></a>out <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA_character_</span>, <span class="fu">length</span>(dose))</span>
 <span id="cb14-2"><a aria-hidden="true" tabindex="-1"></a>out[m <span class="sc">&gt;</span> <span class="dv">0</span>] <span class="ot">&lt;-</span> <span class="fu">regmatches</span>(dose, m)</span>
-<span id="cb14-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(out)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb14-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(out)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 10.0  2.5 20.0 10.0  5.0   NA</code></pre>
 </div>
@@ -502,18 +505,18 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="replace-first-or-all" class="slide level2 smaller">
 <h2>Replace: first, or all</h2>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># stringr</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># stringr</span></span>
 <span id="cb16-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_replace</span>(dose, <span class="st">" +"</span>, <span class="st">" "</span>)       <span class="co"># first run of spaces only</span></span>
-<span id="cb16-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_replace_all</span>(dose, <span class="st">" +"</span>, <span class="st">" "</span>)   <span class="co"># every run</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb16-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_replace_all</span>(dose, <span class="st">" +"</span>, <span class="st">" "</span>)   <span class="co"># every run</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way</span></span>
-<span id="cb17-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sub</span>(<span class="st">" +"</span>, <span class="st">" "</span>, dose)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way</span></span>
+<span id="cb17-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sub</span>(<span class="st">" +"</span>, <span class="st">" "</span>, dose)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "10 mg BID"              "2.5mg daily"           
 [3] " 20 MG bid "            "lisinopril 10 mg PO QD"
 [5] "5mg q.d."               "one tablet daily"      </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">gsub</span>(<span class="st">" +"</span>, <span class="st">" "</span>, dose)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">gsub</span>(<span class="st">" +"</span>, <span class="st">" "</span>, dose)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "10 mg BID"              "2.5mg daily"           
 [3] " 20 MG bid "            "lisinopril 10 mg PO QD"
@@ -528,12 +531,12 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="split-one-field-into-many" class="slide level2 smaller">
 <h2>Split: one field into many</h2>
-<div class="sourceCode" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># stringr</span></span>
-<span id="cb21-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_split</span>(comorb, <span class="st">" *[;,|] *"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># stringr</span></span>
+<span id="cb21-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_split</span>(comorb, <span class="st">" *[;,|] *"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way — note what comes back</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way — note what comes back</span></span>
 <span id="cb22-2"><a aria-hidden="true" tabindex="-1"></a>parts <span class="ot">&lt;-</span> <span class="fu">strsplit</span>(comorb, <span class="st">" *[;,|] *"</span>)</span>
-<span id="cb22-3"><a aria-hidden="true" tabindex="-1"></a>parts[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb22-3"><a aria-hidden="true" tabindex="-1"></a>parts[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]
 [1] "HTN"  "T2DM"
@@ -544,7 +547,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 [[3]]
 [1] "HTN" "DM2" "CKD"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">lengths</span>(parts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">lengths</span>(parts)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2 2 3 2 2 2 1</code></pre>
 </div>
@@ -552,21 +555,21 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="slice-trim-pad" class="slide level2 smaller">
 <h2>Slice, trim, pad</h2>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># stringr</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># stringr</span></span>
 <span id="cb26-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_sub</span>(icd, <span class="dv">1</span>, <span class="dv">1</span>)                  <span class="co"># the ICD-10 chapter letter</span></span>
 <span id="cb26-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_trim</span>(icd)</span>
-<span id="cb26-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_pad</span>(<span class="fu">c</span>(<span class="st">"12345"</span>, <span class="st">"7"</span>), <span class="dv">7</span>, <span class="at">pad =</span> <span class="st">"0"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb26-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_pad</span>(<span class="fu">c</span>(<span class="st">"12345"</span>, <span class="st">"7"</span>), <span class="dv">7</span>, <span class="at">pad =</span> <span class="st">"0"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way</span></span>
-<span id="cb27-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">substr</span>(icd, <span class="dv">1</span>, <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way</span></span>
+<span id="cb27-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">substr</span>(icd, <span class="dv">1</span>, <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "I" "E" "i" "E" " " "Z" "H"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">trimws</span>(icd)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">trimws</span>(icd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "I10"     "E11.9"   "i10"     "E119"    "I10"     "Z79.899" "HTN"    </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">"%07d"</span>, <span class="fu">as.integer</span>(<span class="fu">c</span>(<span class="st">"12345"</span>, <span class="st">"7"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sprintf</span>(<span class="st">"%07d"</span>, <span class="fu">as.integer</span>(<span class="fu">c</span>(<span class="st">"12345"</span>, <span class="st">"7"</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "0012345" "0000007"</code></pre>
 </div>
@@ -593,23 +596,23 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <h2>The double-backslash problem</h2>
 <p>The regex for “a digit” is <code>\d</code>. But R will not let you type that.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="st">"\d+"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="st">"\d+"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error: '\d' is an unrecognized escape in character string (&lt;input&gt;:1:8)</code></pre>
 </div>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="st">"</span><span class="sc">\\</span><span class="st">d+"</span></span>
-<span id="cb35-2"><a aria-hidden="true" tabindex="-1"></a>p            <span class="co"># what R stores, shown as source</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="st">"</span><span class="sc">\\</span><span class="st">d+"</span></span>
+<span id="cb35-2"><a aria-hidden="true" tabindex="-1"></a>p            <span class="co"># what R stores, shown as source</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "\\d+"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(p)       <span class="co"># what the regex engine actually receives</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(p)       <span class="co"># what the regex engine actually receives</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>\d+</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nchar</span>(p)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nchar</span>(p)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 3</code></pre>
 </div>
@@ -668,9 +671,9 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="fu">grepl</span>(<span class="st">"."</span>, <span class="st">"no dot here"</span>),</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="fu">grepl</span>(<span class="st">"."</span>, <span class="st">"no dot here"</span>),</span>
 <span id="cb41-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">grepl</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">."</span>, <span class="st">"no dot here"</span>),</span>
-<span id="cb41-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">grepl</span>(<span class="st">"."</span>, <span class="st">"no dot here"</span>, <span class="at">fixed =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb41-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">grepl</span>(<span class="st">"."</span>, <span class="st">"no dot here"</span>, <span class="at">fixed =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  TRUE FALSE FALSE</code></pre>
 </div>
@@ -681,11 +684,11 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <h2>Raw strings</h2>
 <p>R 4.0 added a syntax that turns off the backslash doubling entirely.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a>r<span class="st">"(\d+\s*mg)"</span>          <span class="co"># a raw string: what you see is what R stores</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a>r<span class="st">"(\d+\s*mg)"</span>          <span class="co"># a raw string: what you see is what R stores</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "\\d+\\s*mg"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">grepl</span>(r<span class="st">"(\d+)"</span>, dose)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">grepl</span>(r<span class="st">"(\d+)"</span>, dose)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  TRUE  TRUE  TRUE  TRUE  TRUE FALSE</code></pre>
 </div>
@@ -716,7 +719,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="a-pattern-is-a-description-of-a-set-of-strings" class="slide level2 smaller">
 <h2>A pattern is a description of a set of strings</h2>
 <p>Read this out loud, left to right:</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a><span class="st">"^[A-Z][0-9]{2}(</span><span class="sc">\\</span><span class="st">.[0-9]{1,4})?$"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a><span class="st">"^[A-Z][0-9]{2}(</span><span class="sc">\\</span><span class="st">.[0-9]{1,4})?$"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div style="font-size:0.9em">
 <table class="caption-top">
 <thead>
@@ -822,7 +825,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">gsub</span>(<span class="st">"[^0-9]"</span>, <span class="st">""</span>, mrn)      <span class="co"># keep only the digits</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">gsub</span>(<span class="st">"[^0-9]"</span>, <span class="st">""</span>, mrn)      <span class="co"># keep only the digits</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "0012345" "12345"   "0012345" "0012345" "12345"  </code></pre>
 </div>
@@ -876,9 +879,9 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a aria-hidden="true" tabindex="-1"></a>v <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"E11"</span>, <span class="st">"E11.9"</span>, <span class="st">"E11.90"</span>, <span class="st">"E1"</span>, <span class="st">""</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a aria-hidden="true" tabindex="-1"></a>v <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"E11"</span>, <span class="st">"E11.9"</span>, <span class="st">"E11.90"</span>, <span class="st">"E1"</span>, <span class="st">""</span>)</span>
 <span id="cb50-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">strict  =</span> <span class="fu">grepl</span>(<span class="st">"^[A-Z][0-9]{2}$"</span>, v),</span>
-<span id="cb50-3"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">relaxed =</span> <span class="fu">grepl</span>(<span class="st">"^[A-Z][0-9]{2}</span><span class="sc">\\</span><span class="st">.?[0-9]*$"</span>, v))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb50-3"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">relaxed =</span> <span class="fu">grepl</span>(<span class="st">"^[A-Z][0-9]{2}</span><span class="sc">\\</span><span class="st">.?[0-9]*$"</span>, v))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>        [,1]  [,2]  [,3]  [,4]  [,5]
 strict  TRUE FALSE FALSE FALSE FALSE
@@ -890,13 +893,13 @@ relaxed TRUE  TRUE  TRUE FALSE FALSE</code></pre>
 <section id="anchors-and-boundaries" class="slide level2 smaller">
 <h2>Anchors and boundaries</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># unanchored: "is it in there anywhere?"</span></span>
-<span id="cb52-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">grepl</span>(<span class="st">"[0-9]{3}"</span>, <span class="fu">c</span>(<span class="st">"P001"</span>, <span class="st">"site 1004 visit"</span>, <span class="st">"P01"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># unanchored: "is it in there anywhere?"</span></span>
+<span id="cb52-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">grepl</span>(<span class="st">"[0-9]{3}"</span>, <span class="fu">c</span>(<span class="st">"P001"</span>, <span class="st">"site 1004 visit"</span>, <span class="st">"P01"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  TRUE  TRUE FALSE</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># anchored: "is that the whole string?"</span></span>
-<span id="cb54-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">grepl</span>(<span class="st">"^P[0-9]{3}$"</span>, <span class="fu">c</span>(<span class="st">"P001"</span>, <span class="st">"site 1004 visit"</span>, <span class="st">"P01"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># anchored: "is that the whole string?"</span></span>
+<span id="cb54-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">grepl</span>(<span class="st">"^P[0-9]{3}$"</span>, <span class="fu">c</span>(<span class="st">"P001"</span>, <span class="st">"site 1004 visit"</span>, <span class="st">"P01"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  TRUE FALSE FALSE</code></pre>
 </div>
@@ -904,8 +907,8 @@ relaxed TRUE  TRUE  TRUE FALSE FALSE</code></pre>
 <div class="fragment">
 <p><code>\\b</code> is a <strong>word boundary</strong> — the edge between a word character and anything else.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">loose =</span> <span class="fu">grepl</span>(<span class="st">"MI"</span>, comorb, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb56-2"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">tight =</span> <span class="fu">grepl</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">bMI</span><span class="sc">\\</span><span class="st">b"</span>, comorb, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">loose =</span> <span class="fu">grepl</span>(<span class="st">"MI"</span>, comorb, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb56-2"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">tight =</span> <span class="fu">grepl</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">bMI</span><span class="sc">\\</span><span class="st">b"</span>, comorb, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       [,1]  [,2]  [,3]  [,4] [,5]  [,6]  [,7]
 loose FALSE FALSE FALSE  TRUE TRUE FALSE FALSE
@@ -918,17 +921,17 @@ tight FALSE FALSE FALSE FALSE TRUE FALSE FALSE</code></pre>
 <h2>Alternation and groups</h2>
 <p><code>|</code> means <strong>or</strong>. Parentheses control what it applies to.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">grepl</span>(<span class="st">"BID|TID|daily"</span>, dose, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">grepl</span>(<span class="st">"BID|TID|daily"</span>, dose, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1]  TRUE  TRUE  TRUE FALSE FALSE  TRUE</code></pre>
 </div>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the parentheses matter</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the parentheses matter</span></span>
 <span id="cb60-2"><a aria-hidden="true" tabindex="-1"></a>v <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"HTN"</span>, <span class="st">"HTN x"</span>, <span class="st">"x hypertension"</span>)</span>
 <span id="cb60-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">grouped   =</span> <span class="fu">grepl</span>(<span class="st">"^(HTN|hypertension)$"</span>, v),</span>
-<span id="cb60-4"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">ungrouped =</span> <span class="fu">grepl</span>(<span class="st">"^HTN|hypertension$"</span>,   v))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb60-4"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">ungrouped =</span> <span class="fu">grepl</span>(<span class="st">"^HTN|hypertension$"</span>,   v))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>          [,1]  [,2]  [,3]
 grouped   TRUE FALSE FALSE
@@ -953,8 +956,8 @@ ungrouped TRUE  TRUE  TRUE</code></pre>
 <h2>Capture groups</h2>
 <p>Parentheses do a second job: they <strong>remember</strong> what they matched.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">regexec</span>(<span class="st">"([0-9.]+) *(mg|mcg)</span><span class="sc">\\</span><span class="st">b"</span>, dose, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb62-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">regmatches</span>(dose, m)[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">regexec</span>(<span class="st">"([0-9.]+) *(mg|mcg)</span><span class="sc">\\</span><span class="st">b"</span>, dose, <span class="at">ignore.case =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb62-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">regmatches</span>(dose, m)[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[[1]]
 [1] "10 mg" "10"    "mg"   
@@ -1084,7 +1087,7 @@ ungrouped TRUE  TRUE  TRUE</code></pre>
 <section id="dose-strings" class="slide level2 smaller">
 <h2>Dose strings</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(<span class="fu">table</span>(trial<span class="sc">$</span>dose_raw), <span class="at">decreasing =</span> <span class="cn">TRUE</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(<span class="fu">table</span>(trial<span class="sc">$</span>dose_raw), <span class="at">decreasing =</span> <span class="cn">TRUE</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
            12.5 mg QHS               5mg q.d.             10 mg  bid 
@@ -1095,12 +1098,12 @@ lisinopril 10 mg PO QD       one tablet daily             20 MG bid
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tolower</span>(<span class="fu">trimws</span>(<span class="fu">gsub</span>(<span class="st">" +"</span>, <span class="st">" "</span>, trial<span class="sc">$</span>dose_raw)))     <span class="co"># normalise</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">tolower</span>(<span class="fu">trimws</span>(<span class="fu">gsub</span>(<span class="st">" +"</span>, <span class="st">" "</span>, trial<span class="sc">$</span>dose_raw)))     <span class="co"># normalise</span></span>
 <span id="cb66-2"><a aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">regexec</span>(<span class="st">"([0-9.]+) ?mg</span><span class="sc">\\</span><span class="st">b"</span>, d)                       <span class="co"># extract</span></span>
 <span id="cb66-3"><a aria-hidden="true" tabindex="-1"></a>mg <span class="ot">&lt;-</span> <span class="fu">vapply</span>(<span class="fu">regmatches</span>(d, m),</span>
 <span id="cb66-4"><a aria-hidden="true" tabindex="-1"></a>             <span class="cf">function</span>(p) <span class="cf">if</span> (<span class="fu">length</span>(p)) <span class="fu">as.numeric</span>(p[<span class="dv">2</span>]) <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
 <span id="cb66-5"><a aria-hidden="true" tabindex="-1"></a>             <span class="fu">numeric</span>(<span class="dv">1</span>))</span>
-<span id="cb66-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">n =</span> <span class="fu">length</span>(mg), <span class="at">missing =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(mg)), <span class="at">median =</span> <span class="fu">median</span>(mg, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb66-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">n =</span> <span class="fu">length</span>(mg), <span class="at">missing =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(mg)), <span class="at">median =</span> <span class="fu">median</span>(mg, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      n missing  median 
      60       9      10 </code></pre>
@@ -1111,13 +1114,13 @@ lisinopril 10 mg PO QD       one tablet daily             20 MG bid
 <section id="icd-10-codes" class="slide level2 smaller">
 <h2>ICD-10 codes</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a aria-hidden="true" tabindex="-1"></a>icd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a aria-hidden="true" tabindex="-1"></a>icd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "I10"     "E11.9"   "i10"     "E119"    " I10 "   "Z79.899" "HTN"    </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a aria-hidden="true" tabindex="-1"></a>norm  <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">.$"</span>, <span class="st">""</span>, <span class="fu">toupper</span>(<span class="fu">trimws</span>(icd)))    <span class="co"># normalise</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a aria-hidden="true" tabindex="-1"></a>norm  <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">.$"</span>, <span class="st">""</span>, <span class="fu">toupper</span>(<span class="fu">trimws</span>(icd)))    <span class="co"># normalise</span></span>
 <span id="cb70-2"><a aria-hidden="true" tabindex="-1"></a>valid <span class="ot">&lt;-</span> <span class="fu">grepl</span>(<span class="st">"^[A-Z][0-9][0-9A-Z](</span><span class="sc">\\</span><span class="st">.[0-9A-Z]{1,4})?$"</span>, norm)</span>
-<span id="cb70-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">raw =</span> icd, norm, valid)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb70-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">raw =</span> icd, norm, valid)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      raw    norm valid
 1     I10     I10  TRUE
@@ -1200,8 +1203,8 @@ lisinopril 10 mg PO QD       one tablet daily             20 MG bid
 </section>
 <section id="never-trust-a-pattern-you-have-not-tried-to-break" class="slide level2 smaller">
 <h2>Never trust a pattern you have not tried to break</h2>
-<div class="sourceCode" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># stringr: highlights every match, in the Viewer</span></span>
-<span id="cb72-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_view</span>(dose, <span class="st">"[0-9.]+ ?mg"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># stringr: highlights every match, in the Viewer</span></span>
+<span id="cb72-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_view</span>(dose, <span class="st">"[0-9.]+ ?mg"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <div class="smaller">
 <ul>
@@ -1226,7 +1229,7 @@ lisinopril 10 mg PO QD       one tablet daily             20 MG bid
 <section id="the-test-case-habit" class="slide level2 smaller">
 <h2>The test-case habit</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Return the milligram dose from a free-text prescription string, or NA.</span></span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Return the milligram dose from a free-text prescription string, or NA.</span></span>
 <span id="cb73-2"><a aria-hidden="true" tabindex="-1"></a>extract_dose_mg <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
 <span id="cb73-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.character</span>(x))</span>
 <span id="cb73-4"><a aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">tolower</span>(<span class="fu">trimws</span>(<span class="fu">gsub</span>(<span class="st">" +"</span>, <span class="st">" "</span>, x)))</span>
@@ -1241,7 +1244,7 @@ lisinopril 10 mg PO QD       one tablet daily             20 MG bid
 <span id="cb73-13"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">identical</span>(<span class="fu">extract_dose_mg</span>(<span class="st">"2.5mg daily"</span>),      <span class="fl">2.5</span>),</span>
 <span id="cb73-14"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">identical</span>(<span class="fu">extract_dose_mg</span>(<span class="st">"one tablet daily"</span>), <span class="cn">NA_real_</span>),</span>
 <span id="cb73-15"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">identical</span>(<span class="fu">extract_dose_mg</span>(<span class="st">"100mcg daily"</span>),     <span class="cn">NA_real_</span>)</span>
-<span id="cb73-16"><a aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb73-16"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="flexible-practical-block" class="slide level2 smaller">
@@ -1455,7 +1458,7 @@ lisinopril 10 mg PO QD       one tablet daily             20 MG bid
         margin: 0.1,
 
         math: {
-          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
           config: 'TeX-AMS_HTML-full',
           tex2jax: {
             inlineMath: [['\\(','\\)']],
@@ -1605,13 +1608,14 @@ lisinopril 10 mg PO QD       one tablet daily             20 MG bid
           e.clearSelection();
         }
         const getTextToCopy = function(trigger) {
-            const codeEl = trigger.previousElementSibling.cloneNode(true);
-            for (const childEl of codeEl.children) {
-              if (isCodeAnnotation(childEl)) {
-                childEl.remove();
-              }
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
             }
-            return codeEl.innerText;
+          }
+          return codeEl.innerText;
         }
         const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
           text: getTextToCopy
