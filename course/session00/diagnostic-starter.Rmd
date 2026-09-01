@@ -1,11 +1,7 @@
 ---
 title: "BIOS6301 setup diagnostic"
-date: now
-date-format: "YYYY-MM-DD HH:mm:ss Z"
-format: html
-execute:
-  enabled: true
-  echo: true
+date: "`r format(Sys.time(), '%Y-%m-%d %H:%M:%S %Z')`"
+output: html_document
 ---
 
 ## A calculation
@@ -37,10 +33,10 @@ git_path <- Sys.which("git")
 if (nzchar(git_path)) {
   system2(git_path, "--version", stdout = TRUE)
 } else {
-  "GIT NOT FOUND — restart RStudio after installing Git, then render again."
+  "GIT NOT FOUND — restart RStudio after installing Git, then knit again."
 }
 ```
 
 ## Completion statement
 
-Replace this sentence with: **I rendered this document from its source.**
+Replace this sentence with: **I knitted this document from its source.**

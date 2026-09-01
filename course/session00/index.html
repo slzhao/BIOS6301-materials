@@ -266,14 +266,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#install-r" id="toc-install-r" class="nav-link" data-scroll-target="#install-r">1. Install R</a></li>
   <li><a href="#install-rstudio-desktop" id="toc-install-rstudio-desktop" class="nav-link" data-scroll-target="#install-rstudio-desktop">2. Install RStudio Desktop</a></li>
-  <li><a href="#verify-quarto" id="toc-verify-quarto" class="nav-link" data-scroll-target="#verify-quarto">3. Verify Quarto</a></li>
+  <li><a href="#verify-document-rendering" id="toc-verify-document-rendering" class="nav-link" data-scroll-target="#verify-document-rendering">3. Verify document rendering</a></li>
   <li><a href="#install-git-using-the-course-recommendation" id="toc-install-git-using-the-course-recommendation" class="nav-link" data-scroll-target="#install-git-using-the-course-recommendation">4. Install Git using the course recommendation</a></li>
   <li><a href="#verify-git-inside-rstudio" id="toc-verify-git-inside-rstudio" class="nav-link" data-scroll-target="#verify-git-inside-rstudio">5. Verify Git inside RStudio</a></li>
   </ul></li>
   <li><a href="#part-1-verify-r" id="toc-part-1-verify-r" class="nav-link" data-scroll-target="#part-1-verify-r">Part 1: Verify R</a></li>
   <li><a href="#part-2-distinguish-console-from-source" id="toc-part-2-distinguish-console-from-source" class="nav-link" data-scroll-target="#part-2-distinguish-console-from-source">Part 2: Distinguish console from source</a></li>
   <li><a href="#part-3-open-the-project" id="toc-part-3-open-the-project" class="nav-link" data-scroll-target="#part-3-open-the-project">Part 3: Open the project</a></li>
-  <li><a href="#part-4-render-a-quarto-document" id="toc-part-4-render-a-quarto-document" class="nav-link" data-scroll-target="#part-4-render-a-quarto-document">Part 4: Render a Quarto document</a></li>
+  <li><a href="#part-4-knit-or-render-the-diagnostic" id="toc-part-4-knit-or-render-the-diagnostic" class="nav-link" data-scroll-target="#part-4-knit-or-render-the-diagnostic">Part 4: Knit or Render the diagnostic</a></li>
   <li><a href="#how-to-ask-for-help" id="toc-how-to-ask-for-help" class="nav-link" data-scroll-target="#how-to-ask-for-help">How to ask for help</a></li>
   </ul>
 </nav>
@@ -309,14 +309,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Start RStudio and identify the console and source editor.</li>
 <li>Run an R expression and save instructions in a source file.</li>
 <li>Open an RStudio project.</li>
-<li>Create and render a Quarto document to HTML.</li>
+<li>Knit an R Markdown document or Render a Quarto document to HTML.</li>
 <li>Locate the source file and the rendered output.</li>
 <li>Copy an error message when asking for help.</li>
 </ul>
 </section>
 <section id="install-in-this-order" class="level2">
 <h2 class="anchored" data-anchor-id="install-in-this-order">Install in this order</h2>
-<p>Use only the official links below. You do not need to install any R packages, GitHub Desktop, or a separate Git graphical interface.</p>
+<p>Use only the official links below. You do not need GitHub Desktop or a separate Git graphical interface. RStudio may offer to install the <code>rmarkdown</code> package the first time you Knit an <code>.Rmd</code> file; accept that prompt.</p>
 <section id="install-r" class="level3">
 <h3 class="anchored" data-anchor-id="install-r">1. Install R</h3>
 <p>R is the program that performs the calculations. Choose your operating system from the official <a href="https://cran.r-project.org/">R download page</a>:</p>
@@ -331,9 +331,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>RStudio is the interface we will use during the opening sessions. Download the free, open-source edition from the official <a href="https://posit.co/downloads/">RStudio Desktop download page</a>.</p>
 <p>Install <strong>R before RStudio</strong>. Then start RStudio once and confirm that the Console opens without an error.</p>
 </section>
-<section id="verify-quarto" class="level3">
-<h3 class="anchored" data-anchor-id="verify-quarto">3. Verify Quarto</h3>
-<p>Quarto turns a source document containing prose and R code into an HTML report. First try the rendering exercise below. If RStudio cannot render a <code>.qmd</code> file, use the official <a href="https://quarto.org/docs/get-started/">Quarto installation page</a> and then restart RStudio.</p>
+<section id="verify-document-rendering" class="level3">
+<h3 class="anchored" data-anchor-id="verify-document-rendering">3. Verify document rendering</h3>
+<p>R Markdown and Quarto both turn a source document containing prose and R code into an HTML report. You may use either format for this diagnostic. RStudio uses <strong>Knit</strong> for <code>.Rmd</code> and <strong>Render</strong> for <code>.qmd</code>. If RStudio cannot render a <code>.qmd</code> file, use the official <a href="https://quarto.org/docs/get-started/">Quarto installation page</a> and then restart RStudio.</p>
 </section>
 <section id="install-git-using-the-course-recommendation" class="level3">
 <h3 class="anchored" data-anchor-id="install-git-using-the-course-recommendation">4. Install Git using the course recommendation</h3>
@@ -401,19 +401,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="part-3-open-the-project" class="level2">
 <h2 class="anchored" data-anchor-id="part-3-open-the-project">Part 3: Open the project</h2>
-<p>In your local course repository, open <code>course/session00/</code>. Copy <code>BIOS6301-setup.Rproj</code> and <code>diagnostic-starter.qmd</code> into a new folder named <code>BIOS6301-setup</code>, then open the copied <code>.Rproj</code> file.</p>
+<p>In your local course repository, open <code>course/session00/</code>. Copy <code>BIOS6301-setup.Rproj</code> and <strong>one</strong> starter—<code>diagnostic-starter.Rmd</code> or <code>diagnostic-starter.qmd</code>—into a new folder named <code>BIOS6301-setup</code>, then open the copied <code>.Rproj</code> file.</p>
 <p>Confirm that the project name appears in the upper-right corner of RStudio.</p>
 </section>
-<section id="part-4-render-a-quarto-document" class="level2">
-<h2 class="anchored" data-anchor-id="part-4-render-a-quarto-document">Part 4: Render a Quarto document</h2>
-<p>Open the copied <code>diagnostic-starter.qmd</code> and render it to HTML.</p>
+<section id="part-4-knit-or-render-the-diagnostic" class="level2">
+<h2 class="anchored" data-anchor-id="part-4-knit-or-render-the-diagnostic">Part 4: Knit or Render the diagnostic</h2>
+<p>Open the copied diagnostic. Select <strong>Knit</strong> for <code>.Rmd</code> or <strong>Render</strong> for <code>.qmd</code>.</p>
 <p>The document passes when:</p>
 <ul>
 <li><code>diagnostic-starter.html</code> is created.</li>
 <li>The HTML contains the value <code>6.7</code>.</li>
 <li>The HTML contains a small scatterplot.</li>
 <li>The Git check reports a line beginning with <code>git version</code>.</li>
-<li>No error appears during rendering.</li>
+<li>The title block shows the date and time of this render.</li>
+<li>No error appears during Knit or Render.</li>
 </ul>
 </section>
 <section id="how-to-ask-for-help" class="level2">

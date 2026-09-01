@@ -10,7 +10,7 @@
   <meta name="generator" content="quarto-1.9.38">
 
   <meta name="author" content="Department of Biostatistics, Vanderbilt University Medical Center">
-  <title>BIOS6301 · Student Materials – Version Control in RStudio</title>
+  <title>BIOS6301 · Student Materials – Git and GitHub for Statistical Computing</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -200,7 +200,7 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Version Control in RStudio</h1>
+  <h1 class="title">Git and GitHub for Statistical Computing</h1>
   <p class="subtitle">BIOS 6301 · Introduction to Statistical Computing</p>
 
 <div class="quarto-title-authors">
@@ -216,105 +216,337 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="the-question-behind-this-session" class="slide level2 smaller">
 <h2>The question behind this session</h2>
 <div class="question">
-<p>Six weeks from now, can you identify <strong>which version</strong> of an analysis produced Table 1—and explain what changed immediately before it?</p>
+<p>Six weeks from now, can you identify <strong>which version</strong> of an analysis produced Table 1—and explain exactly what changed immediately before it?</p>
 </div>
 <div class="fragment">
-<p>Git is useful because it turns analytical changes into an inspectable history.</p>
+<p>Git turns a changing analysis into an inspectable sequence of checkpoints.</p>
 <p>It is not primarily a homework-upload tool.</p>
 </div>
 </section>
-<section id="what-you-will-be-able-to-do" class="slide level2 smaller">
-<h2>What you will be able to do</h2>
-<p><span class="objective-num">1</span> <strong>Read</strong> the RStudio Git pane as a view of repository state.</p>
-<p><span class="objective-num">2</span> <strong>Review</strong> a change before selecting it for a commit.</p>
-<p><span class="objective-num">3</span> <strong>Complete</strong> the edit → diff → stage → commit workflow using RStudio buttons.</p>
-<p><span class="objective-num">4</span> <strong>Synchronize</strong> a private repository and receive course updates without editing instructor-managed files.</p>
-<p><span class="objective-num">5</span> <strong>Stop safely</strong> when a conflict or destructive choice appears.</p>
+<section id="what-you-should-be-able-to-do" class="slide level2 smaller">
+<h2>What you should be able to do</h2>
+<p><span class="objective-num">1</span> Explain why version control matters for statistical work.</p>
+<p><span class="objective-num">2</span> Read Git <strong>status</strong> in the RStudio Git pane.</p>
+<p><span class="objective-num">3</span> Distinguish saved edits, staged changes, local commits, and pushed commits.</p>
+<p><span class="objective-num">4</span> Complete a safe Pull → Edit → Review → Commit → Push cycle.</p>
+<p><span class="objective-num">5</span> Stop safely when a conflict, rejected push, or sensitive file appears.</p>
 </section>
-<section id="a-90-minute-route" class="slide level2">
-<h2>A 90-minute route</h2>
+<section>
+<section id="why-git" class="title-slide slide level1 section-divider center">
+<h1>1 · Why Git?</h1>
+
+</section>
+<section id="saving-files-is-not-version-control" class="slide level2 smaller">
+<h2>Saving files is not version control</h2>
+<pre class="text"><code>analysis.R
+analysis-final.R
+analysis-final2.R
+analysis-final-revised.R
+analysis-final-revised-SZ.R</code></pre>
+<div class="fragment">
+<p>Which file produced the submitted result?</p>
+<p>What changed between <code>final2</code> and <code>final-revised</code>?</p>
+<p>Why was the change made?</p>
+</div>
+</section>
+<section id="git-records-history-without-duplicate-filenames" class="slide level2 smaller">
+<h2>Git records history without duplicate filenames</h2>
+<pre class="text"><code>analysis.R
+    │
+    ├── 4f73a9  Import cleaned cohort
+    ├── 83c1d2  Define missing-value rule
+    ├── a728e4  Calculate adjusted estimate
+    └── c091bf  Revise Table 1 labels</code></pre>
+<p>Each commit is a checkpoint containing:</p>
+<ul>
+<li>the exact tracked files at that moment;</li>
+<li>the change from the prior checkpoint; and</li>
+<li>a short message explaining the purpose.</li>
+</ul>
+</section>
+<section id="example-1-one-analysis-may-run-in-several-places" class="slide level2 smaller">
+<h2>Example 1 · One analysis may run in several places</h2>
+<p>For example, you may work on the same project using a <strong>laptop</strong>, the <strong>ACCRE cluster</strong>, an <strong>office workstation</strong>, or another approved computing environment.</p>
+<div class="cell" data-reveal="true" data-layout-align="center">
+<div class="cell-output-display">
+<div>
+<p></p><figure class=""><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  laptop["Laptop — computer&lt;br/&gt;write and review"] --&gt;|Push commits| github["GitHub repository — remote&lt;br/&gt;host shared Git history"]
+  github --&gt;|Pull commits| accre["ACCRE — computing cluster&lt;br/&gt;run large computations"]
+  accre --&gt;|Push commits| github
+  github --&gt;|Pull commits| workstation["Office workstation — computer&lt;br/&gt;prepare the manuscript"]
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>The boxes name different <strong>computing environments</strong>; GitHub is the remote transfer point for <strong>Git history</strong>, not another analysis machine.</p>
+<p>Large or protected data can remain on approved storage.</p>
+</section>
+<section id="moving-between-machines-requires-a-complete-handoff" class="slide level2 smaller">
+<h2>Moving between machines requires a complete handoff</h2>
+<h3 id="before-leaving-machine-a">Before leaving Machine A</h3>
+<ol type="1">
+<li>Save and test the source.</li>
+<li>Review the changes.</li>
+<li>Commit the checkpoint.</li>
+<li>Push it to GitHub.</li>
+</ol>
+<p>. . .</p>
+<h3 id="before-working-on-machine-b">Before working on Machine B</h3>
+<ol type="1">
+<li>Open the correct repository.</li>
+<li>Check status.</li>
+<li>Pull the latest commits.</li>
+<li>Begin editing.</li>
+</ol>
+</section>
+<section id="example-2-preserve-the-code-behind-a-publication" class="slide level2 smaller">
+<h2>Example 2 · Preserve the code behind a publication</h2>
+<p>Suppose Table 1 was generated from commit:</p>
+<pre class="text"><code>c091bf  Revise Table 1 labels</code></pre>
+<p>That identifier lets the team recover:</p>
+<ul>
+<li>the analysis code;</li>
+<li>report source;</li>
+<li>configuration and documentation; and</li>
+<li>the change immediately before submission.</li>
+</ul>
+<div class="callout callout-important callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>A manuscript date is not a code version. A commit identifies an exact snapshot.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="example-3-a-result-unexpectedly-changes" class="slide level2 smaller">
+<h2>Example 3 · A result unexpectedly changes</h2>
+<p>Yesterday:</p>
+<pre class="text"><code>Adjusted hazard ratio: 0.82</code></pre>
+<p>Today:</p>
+<pre class="text"><code>Adjusted hazard ratio: 0.91</code></pre>
+<p>Git helps answer:</p>
+<ol type="1">
+<li>Which lines changed?</li>
+<li>When were they changed?</li>
+<li>Which checkpoint first produced the new result?</li>
+<li>Was the change intentional?</li>
+</ol>
+</section>
+<section id="example-4-give-another-analyst-the-repositorynot-copied-files" class="slide level2 smaller">
+<h2>Example 4 · Give another analyst the repository—not copied files</h2>
+<p>Without history:</p>
+<blockquote>
+<p>“Use the newest file in the folder. I think it is <code>final-revised.R</code>.”</p>
+</blockquote>
+<div class="fragment">
+<p>With Git and a shared repository:</p>
+<blockquote>
+<p>“Clone this repository and begin from commit <code>c091bf</code>. It contains the submitted Table 1 analysis.”</p>
+</blockquote>
+<p>Instead of emailing or manually copying files, give the collaborator the repository address. They can <strong>clone</strong> it once, <strong>pull</strong> later commits, and inspect newer changes without overwriting the submitted version.</p>
+</div>
+</section>
+<section id="git-and-github-do-different-jobs" class="slide level2 smaller">
+<h2>Git and GitHub do different jobs</h2>
+<h3 id="gitthe-version-control-system-on-your-computer">Git—the version-control system on your computer</h3>
+<ul>
+<li>Maintains a complete <strong>local repository</strong> and its commit history.</li>
+<li>Reviews changes, records staged snapshots, and creates commits.</li>
+<li>Performs most everyday operations without GitHub or a network connection.</li>
+</ul>
+<p>. . .</p>
+<h3 id="githuba-remote-service-that-hosts-git-repositories">GitHub—a remote service that hosts Git repositories</h3>
+<ul>
+<li>Stores a remote copy of a Git repository and its history on GitHub’s servers.</li>
+<li>Lets computers and collaborators exchange commits through Clone, Pull, and Push.</li>
+<li>Adds web access, permissions, and collaboration around the repository.</li>
+</ul>
+<p><strong>Git records the history locally. GitHub hosts and coordinates a remote copy.</strong></p>
+</section>
+<section id="you-decide-which-project-files-git-should-track" class="slide level2 smaller">
+<h2>You decide which project files Git should track</h2>
+<p>Git does not automatically put every project file into its history. You choose what to track, and <code>.gitignore</code> helps keep specified files out.</p>
+<h3 id="usually-ask-git-to-track">Usually ask Git to track</h3>
+<ul>
+<li><code>.R</code>, <code>.Rmd</code>, and <code>.qmd</code> source files;</li>
+<li>README files and data dictionaries; and</li>
+<li>small, safe configuration or teaching-data files when permitted.</li>
+</ul>
+<h3 id="usually-keep-elsewhere-or-ignore">Usually keep elsewhere or ignore</h3>
+<ul>
+<li>large or protected datasets;</li>
+<li>passwords, tokens, and <code>.Renviron</code>; and</li>
+<li><code>.Rhistory</code>, <code>.RData</code>, <code>.Rproj.user/</code>, caches, and replaceable output.</li>
+</ul>
+<p>The decision depends on whether a file is <strong>necessary, safe, and reasonably sized</strong>—not only on its extension.</p>
+</section></section>
+<section>
+<section id="how-git-describes-the-project" class="title-slide slide level1 section-divider center">
+<h1>2 · How Git describes the project</h1>
+
+</section>
+<section id="a-repository-is-a-project-with-recorded-history" class="slide level2 smaller">
+<h2>A repository is a project with recorded history</h2>
+<pre class="text"><code>BIOS6301-mywork/
+├── BIOS6301-materials.Rproj
+├── course/
+├── work/
+└── .git/                    ← repository history and settings</code></pre>
+<p>Open the <strong>root RStudio project</strong> so RStudio can find the repository.</p>
+<p>Do not create another repository inside <code>work/</code>.</p>
+</section>
+<section id="four-locations-explain-the-everyday-workflow" class="slide level2">
+<h2>Four locations explain the everyday workflow</h2>
+<div class="cell" data-reveal="true" data-layout-align="center">
+<div class="cell-output-display">
+<div>
+<p></p><figure class=""><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  W["Working files&lt;br/&gt;saved edits"] --&gt;|Stage| S["Staging area&lt;br/&gt;next checkpoint"]
+  S --&gt;|Commit| C["Local repository&lt;br/&gt;recorded history"]
+  C --&gt;|Push| R["GitHub remote&lt;br/&gt;shared history"]
+  R --&gt;|Pull| C
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>The RStudio buttons make sense once these locations make sense.</p>
+</section>
+<section id="save-stage-commit-and-push-are-different-actions" class="slide level2">
+<h2>Save, Stage, Commit, and Push are different actions</h2>
 <table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
 <thead>
 <tr class="header">
-<th>Block</th>
-<th>Purpose</th>
-<th style="text-align: right;">Minutes</th>
+<th>Action</th>
+<th>What changes?</th>
+<th>Where?</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Why version control</td>
-<td>Connect Git to reproducible analysis</td>
-<td style="text-align: right;">10</td>
+<td><strong>Save</strong></td>
+<td>File contents</td>
+<td>Working folder</td>
 </tr>
 <tr class="even">
-<td>RStudio Git pane</td>
-<td>Locate and interpret the interface</td>
-<td style="text-align: right;">15</td>
+<td><strong>Stage</strong></td>
+<td>Record the current file version for the next checkpoint</td>
+<td>Staging area</td>
 </tr>
 <tr class="odd">
-<td>The state model</td>
-<td>Working, staged, committed, remote</td>
-<td style="text-align: right;">15</td>
+<td><strong>Commit</strong></td>
+<td>A checkpoint is added</td>
+<td>Local repository</td>
 </tr>
 <tr class="even">
-<td>Everyday workflow</td>
-<td>Demonstrate one complete cycle</td>
-<td style="text-align: right;">25</td>
-</tr>
-<tr class="odd">
-<td>Repository boundaries</td>
-<td>Ignore rules, large data, privacy</td>
-<td style="text-align: right;">10</td>
-</tr>
-<tr class="even">
-<td>Origin and upstream</td>
-<td>Explain the course synchronization model</td>
-<td style="text-align: right;">8</td>
-</tr>
-<tr class="odd">
-<td>Safe recovery</td>
-<td>Unstage, revert, rejection, conflict</td>
-<td style="text-align: right;">7</td>
+<td><strong>Push</strong></td>
+<td>Local commits are copied</td>
+<td>GitHub remote</td>
 </tr>
 </tbody>
 </table>
+<div class="fragment">
+<div class="workflow">
+<p><strong>Saved ≠ staged ≠ committed ≠ pushed</strong></p>
+</div>
+</div>
 </section>
-<section>
-<section id="find-git-inside-the-project" class="title-slide slide level1 section-divider center">
-<h1>1 · Find Git inside the project</h1>
+<section id="pull-brings-remote-commits-to-this-computer" class="slide level2 smaller">
+<h2>Pull brings remote commits to this computer</h2>
+<p>Pull is appropriate when GitHub contains history that this computer does not.</p>
+<p>Examples:</p>
+<ul>
+<li>you previously pushed from another machine;</li>
+<li>a collaborator pushed a change; or</li>
+<li>you are returning to a repository after time away.</li>
+</ul>
+<div class="callout callout-tip callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>Begin with <strong>status</strong>. If the working tree is clean, Pull before new work.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="status-tells-you-what-git-sees" class="slide level2 smaller">
+<h2>Status tells you what Git sees</h2>
+<p>In the RStudio Terminal, <code>git status</code> may report:</p>
+<pre class="text"><code>$ git status
+On branch main
+Changes to be committed:
+  modified:   work/analysis.R
+Changes not staged for commit:
+  modified:   work/report.qmd
+Untracked files:
+  work/notes.txt</code></pre>
+<div class="fragment">
+<ul>
+<li><strong>To be committed</strong> means a staged snapshot is ready.</li>
+<li><strong>Not staged</strong> means the saved working version is not yet in the staging area.</li>
+<li><strong>Untracked</strong> means Git has not recorded the file before.</li>
+</ul>
+</div>
+</section>
+<section id="three-commands-provide-a-quick-diagnosis" class="slide level2 smaller">
+<h2>Three commands provide a quick diagnosis</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> status</span>
+<span id="cb8-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> diff</span>
+<span id="cb8-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> log <span class="at">--oneline</span> <span class="at">-5</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>git status</code> — What is modified, staged, untracked, ahead, or behind?</li>
+<li><code>git diff</code> — Which unstaged lines changed?</li>
+<li><code>git log --oneline -5</code> — What are the five most recent commits?</li>
+</ul>
+<div class="callout callout-tip callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>These are reference commands. RStudio exposes the same ideas through menus, buttons, and panes.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="rstudio-shows-the-same-git-status-visually" class="slide level2 smaller">
+<h2>RStudio shows the same Git status visually</h2>
 
-</section>
-<section id="git-belongs-to-the-project" class="slide level2 smaller">
-<h2>Git belongs to the project</h2>
-<p>Open the course repository through its root project file:</p>
-<pre class="text"><code>BIOS6301-mywork/
-├── BIOS6301-materials.Rproj   ← open this
-├── course/                    ← instructor-managed
-├── work/                      ← your analyses and answers
-└── .git/                      ← repository history</code></pre>
-<p>Do not create another Git repository or another RStudio project inside <code>work/session02-git-lab/</code>.</p>
-</section>
-<section id="where-the-git-interface-appears" class="slide level2 smaller">
-<h2>Where the Git interface appears</h2>
-
-<img data-src="images/rstudio-vcs-pane-labeled.png" style="width:91.0%" alt="RStudio interface with the Git menu and Git tab highlighted in the upper-right pane" class="r-stretch"><p><small>Official RStudio interface image: <a href="https://docs.posit.co/ide/user/ide/guide/tools/version-control.html">Posit RStudio User Guide</a>.</small></p>
+<img data-src="images/rstudio-vcs-pane-labeled.png" style="width:91.0%" alt="RStudio interface with the Git menu and Git tab highlighted in the upper-right pane" class="r-stretch"><p><small>Interface image: <a href="https://docs.posit.co/ide/user/ide/guide/tools/version-control.html">Posit RStudio User Guide</a>.</small></p>
 </section>
 <section id="if-the-git-tab-is-missing" class="slide level2">
 <h2>If the Git tab is missing</h2>
 <p>Check these in order:</p>
 <ol type="1">
-<li>Is the <strong>course root project</strong> open?</li>
+<li>Is the <strong>course-root project</strong> open?</li>
 <li>Was Git installed before RStudio was restarted?</li>
 <li>Does <strong>Tools → Global Options → Git/SVN</strong> show a Git executable?</li>
-<li>Is this folder actually the course repository?</li>
+<li>Is this folder actually the cloned repository?</li>
 </ol>
 <p>Do not click “initialize a new repository” as a troubleshooting experiment.</p>
 </section>
-<section id="the-git-tab-is-a-status-display" class="slide level2 smaller">
-<h2>The Git tab is a status display</h2>
+<section id="the-git-pane-is-a-visual-status-report" class="slide level2 smaller">
+<h2>The Git pane is a visual status report</h2>
 
-<img data-src="images/git-tab.png" style="width:92.0%" alt="RStudio Git tab with Diff, Commit, Pull, Push, History, branch controls, status symbols, file paths, and staging checkboxes" class="r-stretch"><table class="caption-top">
+<img data-src="images/git-tab.png" style="width:91.0%" alt="RStudio Git tab with Diff, Commit, Pull, Push, History, status symbols, file paths, and staging checkboxes" class="r-stretch"><table class="caption-top">
 <thead>
 <tr class="header">
 <th>Part</th>
@@ -324,93 +556,116 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <tbody>
 <tr class="odd">
 <td><strong>Status</strong></td>
-<td>What happened to this file?</td>
+<td>What happened to the file?</td>
 </tr>
 <tr class="even">
 <td><strong>Path</strong></td>
 <td>Which file is affected?</td>
 </tr>
 <tr class="odd">
-<td><strong>Staged checkbox</strong></td>
-<td>Is it selected for the next commit?</td>
+<td><strong>Staged</strong></td>
+<td>Which file version is prepared for the next commit?</td>
 </tr>
 <tr class="even">
 <td><strong>Diff</strong></td>
-<td>What lines changed?</td>
+<td>Which lines changed?</td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="read-the-pane-before-clicking" class="slide level2 smaller">
-<h2>Read the pane before clicking</h2>
-<p>For each listed file, ask:</p>
-<ol type="1">
-<li>Did I intend to change or create it?</li>
-<li>Is it source, data, configuration, or generated output?</li>
-<li>Should it be part of the next meaningful change?</li>
-</ol>
-<div class="callout callout-tip callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<p><strong>Tip</strong></p>
-</div>
-<div class="callout-content">
-<p>A Git pane containing an unexpected file is a reason to inspect—not a reason to check every box.</p>
-</div>
-</div>
-</div>
-</section></section>
-<section>
-<section id="understand-the-states" class="title-slide slide level1 section-divider center">
-<h1>2 · Understand the states</h1>
-
+<section id="common-file-states" class="slide level2 smaller">
+<h2>Common file states</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>State</th>
+<th>Meaning</th>
+<th>Typical next question</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Untracked</strong></td>
+<td>Git has never recorded this file</td>
+<td>Should it be tracked or ignored?</td>
+</tr>
+<tr class="even">
+<td><strong>Modified</strong></td>
+<td>Tracked file differs from the last commit</td>
+<td>What lines changed?</td>
+</tr>
+<tr class="odd">
+<td><strong>Staged</strong></td>
+<td>A file version is recorded in the staging area</td>
+<td>Is this the version I intend to commit?</td>
+</tr>
+<tr class="even">
+<td><strong>Committed</strong></td>
+<td>Change is recorded locally</td>
+<td>Has it been pushed?</td>
+</tr>
+</tbody>
+</table>
+<p>An empty Git pane usually means the working files match the current commit.</p>
 </section>
-<section id="one-file-can-occupy-several-states" class="slide level2">
-<h2>One file can occupy several states</h2>
+<section id="one-file-moves-through-several-states" class="slide level2">
+<h2>One file moves through several states</h2>
 <div class="cell" data-reveal="true" data-layout-align="center">
 <div class="cell-output-display">
 <div>
 <p></p><figure class=""><p></p>
 <div>
 <pre class="mermaid mermaid-js">flowchart LR
-  W["Working files&lt;br/&gt;saved edits"] --&gt;|select with checkbox| S["Staged changes&lt;br/&gt;next snapshot"]
-  S --&gt;|Commit| C["Commit history&lt;br/&gt;recorded locally"]
-  C --&gt;|Push| O["origin/main&lt;br/&gt;private GitHub copy"]
-  O --&gt;|Pull| C
+  U["Untracked"] --&gt;|Stage| S["Staged"]
+  M["Modified"] --&gt;|Stage| S
+  S --&gt;|Commit| C["Committed locally"]
+  C --&gt;|Edit and save| M
+  C --&gt;|Push| G["Available on GitHub"]
 </pre>
 </div>
 <p></p></figure><p></p>
 </div>
 </div>
 </div>
-<p>The buttons make more sense after the states make sense.</p>
+<p>The state changes; the filename can stay the same.</p>
 </section>
-<section id="a-checkbox-changes-selection-not-the-file" class="slide level2 smaller">
-<h2>A checkbox changes selection, not the file</h2>
-<p>Checking <strong>Staged</strong> means:</p>
-<blockquote>
-<p>Include the current version of this change in the next commit.</p>
-</blockquote>
-<p>It does not:</p>
+<section id="a-diff-answers-what-changed" class="slide level2 smaller">
+<h2>A diff answers “what changed?”</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode diff code-with-copy"><code class="sourceCode diff"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a><span class="st">-mean_age &lt;- mean(clinic$age)</span></span>
+<span id="cb9-2"><a aria-hidden="true" tabindex="-1"></a><span class="va">+mean_age &lt;- mean(clinic$age, na.rm = TRUE)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A diff makes the analytical decision visible:</p>
 <ul>
-<li>save the file;</li>
-<li>commit the change;</li>
-<li>upload anything to GitHub; or</li>
-<li>change the statistical result.</li>
+<li>one argument was added;</li>
+<li>missing values are now removed; and</li>
+<li>the reported result may change.</li>
 </ul>
-<p>Unchecking the box removes the change from the next commit but preserves the working edit.</p>
 </section>
-<section id="why-have-a-staging-step" class="slide level2 smaller">
-<h2>Why have a staging step?</h2>
-<p>Suppose the Git pane shows:</p>
-<pre class="text"><code>M  work/hw1/analysis.qmd
-M  work/hw1/README.md
-?  work/hw1/debug-notes.txt</code></pre>
-<p>The analysis and interpretation belong together. The temporary debugging notes do not.</p>
-<p>Staging lets one commit express <strong>one coherent analytical idea</strong>.</p>
+<section id="staging-records-a-snapshotnot-a-live-connection" class="slide level2 smaller">
+<h2>Staging records a snapshot—not a live connection</h2>
+<p>Suppose <code>analysis.R</code> contains version A in the latest commit:</p>
+<pre class="text"><code>Edit and save version B
+        ↓
+Stage the file          → staging area contains B
+        ↓
+Edit and save version C → working file contains C
+        ↓
+Commit                  → the new commit contains B</code></pre>
+<p>Version C is not lost; it remains as an <strong>unstaged working-file change</strong>.</p>
+<div class="callout callout-important callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>If version C belongs in this commit, <strong>stage the file again</strong> before committing.</p>
+</div>
+</div>
+</div>
 </section>
 <section id="a-commit-is-a-documented-checkpoint" class="slide level2 smaller">
 <h2>A commit is a documented checkpoint</h2>
@@ -442,178 +697,200 @@ M  work/hw1/README.md
 </table>
 <p>Commit after a small result renders and its checks pass.</p>
 </section>
-<section id="git-and-github-are-different" class="slide level2 smaller">
-<h2>Git and GitHub are different</h2>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Git</th>
-<th>GitHub</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Records history on the computer</td>
-<td>Stores a remote copy of commits</td>
-</tr>
-<tr class="even">
-<td>Works without a network</td>
-<td>Requires network and authentication</td>
-</tr>
-<tr class="odd">
-<td>Creates commits</td>
-<td>Receives commits when you push</td>
-</tr>
-<tr class="even">
-<td>Lets you inspect changes</td>
-<td>Supports sharing and backup</td>
-</tr>
-</tbody>
-</table>
-<p>A commit exists before it is pushed.</p>
-</section>
-<section id="authentication-choice-for-this-course" class="slide level2 smaller">
-<h2>Authentication choice for this course</h2>
-<p>We use <strong>HTTPS with browser-based authentication</strong>:</p>
-<ol type="1">
-<li>Repository URLs begin with <code>https://github.com/</code>.</li>
-<li>The first private Push may open GitHub in a browser.</li>
-<li>Sign in and complete two-factor authentication in the browser.</li>
-<li>Git Credential Manager or GitHub CLI stores the resulting credential.</li>
-</ol>
-<div class="callout callout-warning callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
+<section id="history-is-a-sequence-of-inspectable-checkpoints" class="slide level2 smaller">
+<h2>History is a sequence of inspectable checkpoints</h2>
+<p>For example, a project history might contain:</p>
+<pre class="text"><code>c84e92a  Add interpretation of treatment difference
+51b6d2c  Document missing-value rule
+0a12f4e  Import and check baseline data</code></pre>
+<p>Each row is one commit: a short <strong>identifier</strong> followed by its <strong>message</strong>.</p>
+<div class="fragment">
+<p>When you open a commit in RStudio History, you can inspect its:</p>
+<ul>
+<li>full identifier, author, and time;</li>
+<li>files changed; and</li>
+<li>line-by-line differences.</li>
+</ul>
 </div>
-<p><strong>Warning</strong></p>
+<div class="fragment">
+<p>History answers the opening question only when commits are small enough and messages are meaningful enough to interpret.</p>
 </div>
-<div class="callout-content">
-<p>Do not enter your ordinary GitHub account password in a terminal prompt. GitHub does not accept account passwords for Git operations.</p>
-</div>
-</div>
-</div>
-<p>SSH keys and manually created personal access tokens are outside this session.</p>
 </section></section>
 <section>
 <section id="the-everyday-rstudio-workflow" class="title-slide slide level1 section-divider center">
 <h1>3 · The everyday RStudio workflow</h1>
 
 </section>
-<section id="the-loop-to-practice" class="slide level2">
-<h2>The loop to practice</h2>
-<div class="workflow">
-<p>save → refresh → diff → stage → commit → push</p>
+<section id="the-complete-cycle" class="slide level2 smaller">
+<h2>The complete cycle</h2>
+<div class="cell" data-reveal="true" data-layout-align="center">
+<div class="cell-output-display">
+<div>
+<p></p><figure class=""><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  A["Check status"] --&gt; B["Pull"] --&gt; C["Edit, save,&lt;br/&gt;and test"] --&gt; D["Review diff"] --&gt; E["Stage"] --&gt; F["Commit"] --&gt; G["Push"] --&gt; H["Check status"]
+</pre>
 </div>
-<p>Before starting new work on a second computer:</p>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>The short classroom version:</p>
 <div class="workflow">
-<p>pull → edit → save → review → commit → push</p>
+<p>status → pull → code → review → stage → commit → push</p>
 </div>
 </section>
-<section id="step-0-begin-from-a-known-state" class="slide level2 smaller">
-<h2>Step 0 · Begin from a known state</h2>
+<section id="the-cycle-uses-two-rstudio-git-views" class="slide level2 smaller">
+<h2>The cycle uses two RStudio Git views</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/git-tab.png" alt="RStudio Git pane showing changed files, staging checkboxes, Diff, Commit, Pull, Push, and History controls" height="245"></p>
+<p><strong>Git pane</strong></p>
+<ul>
+<li>Read status and file paths.</li>
+<li>Pull, Push, and open History.</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<p><img data-src="images/git-commit-pane.png" alt="RStudio Review Changes window showing a file list, staging controls, commit message field, and diff" height="245"></p>
+<p><strong>Review Changes window</strong></p>
+<ul>
+<li>Inspect the diff and staged snapshot.</li>
+<li>Write the message and Commit.</li>
+</ul>
+</div></div>
+</section>
+<section id="step-0-open-the-correct-project-and-read-status" class="slide level2 smaller">
+<h2>Step 0 · Open the correct project and read status</h2>
 <ol type="1">
-<li>Open the repository-root RStudio project.</li>
+<li>Open <code>BIOS6301-materials.Rproj</code> at the repository root.</li>
 <li>Open the <strong>Git</strong> tab.</li>
-<li>Click <strong>Refresh</strong> if needed.</li>
-<li>Confirm that you understand every listed file.</li>
+<li>Refresh if needed.</li>
+<li>Explain every listed file before doing anything else.</li>
 </ol>
-<p>An empty file list means the working tree matches the current commit.</p>
+<div class="callout callout-warning callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>An unexpected file is a reason to inspect—not a reason to check every box.</p>
+</div>
+</div>
+</div>
 </section>
-<section id="step-1-edit-save-and-render" class="slide level2">
-<h2>Step 1 · Edit, save, and render</h2>
-<p>Edit <code>work/session02-git-lab/analysis/report.qmd</code>.</p>
+<section id="step-1-pull-before-beginning-new-work" class="slide level2 smaller">
+<h2>Step 1 · Pull before beginning new work</h2>
+<p>When status is clean, click <strong>Pull</strong>.</p>
+<p>Pull is especially important when:</p>
+<ul>
+<li>you worked from another computer;</li>
+<li>a collaborator may have pushed; or</li>
+<li>you have not opened the project recently.</li>
+</ul>
+<p>Read the Pull result before editing.</p>
+</section>
+<section id="step-2-edit-save-render-and-check" class="slide level2 smaller">
+<h2>Step 2 · Edit, save, render, and check</h2>
+<p>Edit a source file such as:</p>
+<pre class="text"><code>work/session02-git-lab/analysis/report.Rmd</code></pre>
+<p>The equivalent <code>report.qmd</code> starter is also available; use one format per work copy.</p>
 <p>Then:</p>
 <ol type="1">
 <li>Save the source.</li>
-<li>Render it.</li>
-<li>Check the result.</li>
-<li>Return to the Git tab.</li>
+<li>Knit, Render, or run it as appropriate.</li>
+<li>Inspect the result.</li>
+<li>Return to the Git pane.</li>
 </ol>
-<p>Git records files; it cannot record an unsaved editor buffer.</p>
+<p>Git cannot record an unsaved editor buffer.</p>
 </section>
-<section id="step-2-inspect-the-changed-file" class="slide level2 smaller">
-<h2>Step 2 · Inspect the changed file</h2>
+<section id="step-3-let-status-identify-the-changed-files" class="slide level2 smaller">
+<h2>Step 3 · Let status identify the changed files</h2>
+<p>For every listed file, ask:</p>
+<ol type="1">
+<li>Did I intend to create or change it?</li>
+<li>Is it source, data, configuration, or generated output?</li>
+<li>Does it belong in the same analytical checkpoint?</li>
+<li>Could it contain a secret or protected information?</li>
+</ol>
+<p>Do not stage until these questions have answers.</p>
+</section>
+<section id="step-4-inspect-the-diff" class="slide level2 smaller">
+<h2>Step 4 · Inspect the diff</h2>
 <p>Select the file and click <strong>Diff</strong>, or click <strong>Commit</strong> to open Review Changes.</p>
 
-<img data-src="images/git-commit-pane.png" style="width:77.0%" alt="RStudio Review Changes window showing file selection, staging checkboxes, a commit-message box, and a line-by-line diff" class="r-stretch"><p><small>Official RStudio interface image: <a href="https://docs.posit.co/ide/user/ide/guide/tools/version-control.html">Posit RStudio User Guide</a>.</small></p>
+<img data-src="images/git-commit-pane.png" style="width:76.0%" alt="RStudio Review Changes window showing file selection, staging checkboxes, a commit-message box, and a line-by-line diff" class="r-stretch"><p><small>Interface image: <a href="https://docs.posit.co/ide/user/ide/guide/tools/version-control.html">Posit RStudio User Guide</a>.</small></p>
 </section>
-<section id="read-a-diff-as-a-scientific-reviewer" class="slide level2 smaller">
-<h2>Read a diff as a scientific reviewer</h2>
+<section id="review-the-diff-as-a-statistical-reviewer" class="slide level2 smaller">
+<h2>Review the diff as a statistical reviewer</h2>
 <p>For an analysis change, verify:</p>
 <ul>
 <li>the intended rows changed;</li>
-<li>no data inclusion rule changed accidentally;</li>
+<li>the cohort or inclusion rule did not change accidentally;</li>
 <li>missing-value handling remains explicit;</li>
-<li>no credential or local path appeared; and</li>
-<li>the interpretation matches the calculation.</li>
+<li>no credential or private path appeared;</li>
+<li>the interpretation matches the calculation; and</li>
+<li>the document still renders.</li>
 </ul>
 <p>“The file changed” is less useful than “these lines changed for this reason.”</p>
 </section>
-<section id="step-3-select-the-next-checkpoint" class="slide level2">
-<h2>Step 3 · Select the next checkpoint</h2>
+<section id="step-5-stage-the-file-versions-for-this-checkpoint" class="slide level2 smaller">
+<h2>Step 5 · Stage the file versions for this checkpoint</h2>
 <p>In <strong>Review Changes</strong>:</p>
 <ol type="1">
-<li>Select one file.</li>
-<li>Read its diff.</li>
-<li>Check <strong>Staged</strong> only if it belongs in this checkpoint.</li>
-<li>Repeat for any logically related file.</li>
+<li>Choose one file and read its diff.</li>
+<li>Check <strong>Staged</strong> to record its current version in the staging area.</li>
+<li>Repeat for other files that belong in the same checkpoint.</li>
+<li>Read the staged diff to confirm the recorded versions.</li>
+<li>If you edit a staged file again, stage it again to update the snapshot.</li>
 </ol>
-<p>Use the <strong>Staged</strong> and <strong>Unstaged</strong> views to confirm the boundary.</p>
+<p>Checking <strong>Staged</strong> does not modify or upload the working file.</p>
 </section>
-<section id="step-4-commit-the-selected-idea" class="slide level2">
-<h2>Step 4 · Commit the selected idea</h2>
+<section id="step-6-commit-the-staged-snapshot" class="slide level2 smaller">
+<h2>Step 6 · Commit the staged snapshot</h2>
 <ol type="1">
 <li>Write a short message describing the analytical change.</li>
 <li>Read the staged diff once more.</li>
 <li>Click <strong>Commit</strong>.</li>
-<li>Read the result message rather than closing it automatically.</li>
+<li>Read the result message.</li>
 </ol>
-<p>The file list should now show only changes that were not included.</p>
+<div class="fragment">
+<p>The checkpoint now exists in the <strong>local repository</strong>.</p>
+<p>GitHub does not have it yet.</p>
+</div>
 </section>
-<section id="step-5-inspect-history" class="slide level2">
-<h2>Step 5 · Inspect history</h2>
-<p>Click the <strong>History</strong> clock in the Git tab or the <strong>History</strong> tab in Review Changes.</p>
-<p>For each commit, students should be able to see:</p>
+<section id="step-7-check-whether-the-remote-changed" class="slide level2 smaller">
+<h2>Step 7 · Check whether the remote changed</h2>
+<p>If another person or machine may have pushed while you worked:</p>
+<ol type="1">
+<li>confirm your work is committed;</li>
+<li>Pull from the intended remote;</li>
+<li>read the result; and</li>
+<li>resolve any new state before Push.</li>
+</ol>
+<p>For short individual work, the initial Pull may be sufficient. For shared or long-running work, check again before Push.</p>
+</section>
+<section id="step-8-push-the-commits-to-github" class="slide level2 smaller">
+<h2>Step 8 · Push the commits to GitHub</h2>
+<p>Click <strong>Push</strong> only after:</p>
 <ul>
-<li>the message;</li>
-<li>author and time;</li>
-<li>identifier; and</li>
-<li>files and lines changed.</li>
+<li>the files were reviewed;</li>
+<li>the intended changes were committed; and</li>
+<li>any required Pull completed successfully.</li>
 </ul>
-<p>History is evidence, not a list of backup filenames.</p>
+<p>Push copies commits—not uncommitted working files—to GitHub.</p>
 </section>
-<section id="step-6-pull-and-push-deliberately" class="slide level2 smaller">
-<h2>Step 6 · Pull and push deliberately</h2>
-<p>For the student’s private remote, <code>origin</code>:</p>
-<table class="caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Button</th>
-<th>Direction</th>
-<th>Safe question</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>Pull</strong> ↓</td>
-<td>GitHub → computer</td>
-<td>Does GitHub contain commits missing here?</td>
-</tr>
-<tr class="even">
-<td><strong>Push</strong> ↑</td>
-<td>computer → GitHub</td>
-<td>Have I committed and reviewed what I intend to share?</td>
-</tr>
-</tbody>
-</table>
-<p>Pull before working on another computer. Push after a meaningful commit.</p>
+<section id="step-9-verify-the-final-state" class="slide level2 smaller">
+<h2>Step 9 · Verify the final state</h2>
+<p>A finished work cycle has three pieces of evidence:</p>
+<ol type="1">
+<li>The Git pane contains no unexplained working changes.</li>
+<li>History contains the intended commit and message.</li>
+<li>Push reports success, so GitHub has the commit.</li>
+</ol>
+<div class="fragment">
+<p>Check GitHub only as confirmation—not as a substitute for reading local status.</p>
+</div>
 </section>
 <section id="one-complete-example" class="slide level2 smaller">
 <h2>One complete example</h2>
@@ -627,123 +904,186 @@ M  work/hw1/README.md
 <tr class="header">
 <th>Moment</th>
 <th>RStudio evidence</th>
-<th>Decision</th>
+<th>Meaning</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Before edit</td>
-<td>Git pane empty</td>
-<td>Safe starting point</td>
+<td>Start</td>
+<td>Git pane clean; Pull succeeds</td>
+<td>Current starting point</td>
 </tr>
 <tr class="even">
-<td>After save</td>
-<td><code>report.qmd</code> listed as modified</td>
-<td>Inspect it</td>
+<td>Save</td>
+<td><code>report.qmd</code> is Modified</td>
+<td>Working file differs</td>
 </tr>
 <tr class="odd">
-<td>After render</td>
-<td>HTML absent because ignored</td>
-<td>Keep generated output out</td>
+<td>Review</td>
+<td>Diff shows intended lines</td>
+<td>Change understood</td>
 </tr>
 <tr class="even">
-<td>After stage</td>
-<td>Checkbox selected</td>
-<td>Include source in next commit</td>
+<td>Stage</td>
+<td>Staged checkbox checked</td>
+<td>Current file version recorded for the next checkpoint</td>
 </tr>
 <tr class="odd">
-<td>After commit</td>
-<td>File disappears; history grows</td>
-<td>Checkpoint recorded</td>
+<td>Commit</td>
+<td>History gains a message</td>
+<td>Recorded locally</td>
 </tr>
 <tr class="even">
-<td>After push</td>
+<td>Push</td>
 <td>Push reports success</td>
-<td>Private remote updated</td>
+<td>GitHub updated</td>
+</tr>
+<tr class="odd">
+<td>Finish</td>
+<td>Status is understood</td>
+<td>Safe stopping point</td>
 </tr>
 </tbody>
 </table>
 </section></section>
 <section>
-<section id="decide-what-belongs-in-history" class="title-slide slide level1 section-divider center">
-<h1>4 · Decide what belongs in history</h1>
+<section id="multiple-machines-and-unexpected-states" class="title-slide slide level1 section-divider center">
+<h1>4 · Multiple machines and unexpected states</h1>
 
 </section>
-<section id="source-and-generated-output-are-different" class="slide level2 smaller">
-<h2>Source and generated output are different</h2>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Usually commit</th>
-<th>Usually ignore</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>.R</code>, <code>.Rmd</code>, <code>.qmd</code> source</td>
-<td>rendered HTML and cache folders</td>
-</tr>
-<tr class="even">
-<td>small synthetic teaching data</td>
-<td>replaceable intermediate data</td>
-</tr>
-<tr class="odd">
-<td>README and data dictionary</td>
-<td><code>.Rhistory</code>, <code>.RData</code>, <code>.Rproj.user/</code></td>
-</tr>
-<tr class="even">
-<td>configuration safe to share</td>
-<td><code>.Renviron</code>, tokens, credentials</td>
-</tr>
-</tbody>
-</table>
-<p>The exact rule depends on whether a file is necessary, safe, and reasonably sized—not merely on its extension.</p>
+<section id="a-two-machine-workflow-is-a-relay-not-automatic-synchronization" class="slide level2 smaller">
+<h2>A two-machine workflow is a relay, not automatic synchronization</h2>
+<div class="cell" data-reveal="true" data-layout-align="center">
+<div class="cell-output-display">
+<div>
+<p></p><figure class=""><p></p>
+<div>
+<pre class="mermaid mermaid-js">sequenceDiagram
+  participant L as Laptop
+  participant G as GitHub
+  participant A as ACCRE
+  L-&gt;&gt;G: Commit and Push
+  G-&gt;&gt;A: Pull before work
+  A-&gt;&gt;G: Commit and Push
+  G-&gt;&gt;L: Pull before continuing
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>Never edit the same unfinished change independently on both machines.</p>
 </section>
-<section id="gitignore-is-a-visibility-rule" class="slide level2">
-<h2><code>.gitignore</code> is a visibility rule</h2>
-<p>The Session 2 starter includes:</p>
-<pre class="text"><code>.Rhistory
-.RData
-.Rproj.user/
-*_cache/
-*_files/
-.Renviron</code></pre>
-<p>Ignored files stay on the computer but disappear from ordinary Git selection.</p>
+<section id="a-rejected-push-is-protection" class="slide level2 smaller">
+<h2>A rejected Push is protection</h2>
+<p>A rejected Push usually means GitHub has commits missing from this computer.</p>
+<p>Safe response:</p>
+<ol type="1">
+<li>Do not force Push.</li>
+<li>Confirm local work is committed.</li>
+<li>Pull from the intended remote.</li>
+<li>Read the result.</li>
+<li>Resolve any conflict, then Push again.</li>
+</ol>
 </section>
-<section id="large-or-restricted-data-may-live-elsewhere" class="slide level2 smaller">
-<h2>Large or restricted data may live elsewhere</h2>
-<p>An analysis can use an explicit data root:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a aria-hidden="true" tabindex="-1"></a>data_root <span class="ot">&lt;-</span> <span class="fu">Sys.getenv</span>(<span class="st">"BIOS6301_DATA"</span>)</span>
-<span id="cb4-2"><a aria-hidden="true" tabindex="-1"></a>input_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(data_root, <span class="st">"large_teaching_data.csv"</span>)</span>
-<span id="cb4-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">file.exists</span>(input_file))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Commit the code and data instructions—not credentials or restricted data.</p>
-<p>Absolute paths can be appropriate on managed storage, but keep machine-specific values outside shared source.</p>
+<section id="a-conflict-is-a-request-for-a-decision" class="slide level2 smaller">
+<h2>A conflict is a request for a decision</h2>
+<p>Git first tries to merge compatible changes automatically. It adds conflict markers only when it cannot safely determine the final content of a region.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb13-1"><a aria-hidden="true" tabindex="-1"></a> &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span>
+<span id="cb13-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">## Table 1: baseline characteristics</span></span>
+<span id="cb13-3"><a aria-hidden="true" tabindex="-1"></a> <span class="fu">=======</span></span>
+<span id="cb13-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">## Baseline characteristics by arm</span></span>
+<span id="cb13-5"><a aria-hidden="true" tabindex="-1"></a> <span class="at">&gt;&gt;&gt;&gt;&gt;&gt;&gt; origin/main</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Git preserved both versions so that you can construct the correct final text.</p>
+<ol type="1">
+<li>Edit the region to keep, combine, or rewrite the appropriate content.</li>
+<li>Delete the conflict-marker lines.</li>
+<li>Save and test the resolved file.</li>
+<li>Stage the resolved version and commit the merge.</li>
+</ol>
 </section>
-<section id="keep-the-repository-out-of-sync-folders" class="slide level2">
-<h2>Keep the repository out of sync folders</h2>
-<p>Do not place the working Git repository inside:</p>
+<section id="uncheck-staged-and-revert-are-very-different" class="slide level2 smaller">
+<h2>Uncheck Staged and Revert are very different</h2>
+<p>In Review Changes:</p>
 <ul>
-<li>OneDrive;</li>
-<li>Box Drive;</li>
-<li>Dropbox; or</li>
-<li>another automatic file-synchronization folder.</li>
+<li><strong>Uncheck Staged</strong>: the next commit will not record that staged snapshot; the working-file edit remains unchanged.</li>
+<li><strong>Revert</strong>: restore the working file toward its last committed version and erase the selected uncommitted edit.</li>
 </ul>
-<p>Use GitHub for repository synchronization. Use approved storage for large data.</p>
+<div class="callout callout-warning callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>Read the diff before <strong>Revert</strong>. Reverted uncommitted text may not be recoverable.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="git-history-is-not-a-replacement-for-data-backup" class="slide level2 smaller">
+<h2>Git history is not a replacement for data backup</h2>
+<p>Git and GitHub are well suited to versioned source files.</p>
+<p>They are not the correct system for:</p>
+<ul>
+<li>protected health information;</li>
+<li>very large raw or intermediate datasets;</li>
+<li>database snapshots; or</li>
+<li>files governed by institutional retention requirements.</li>
+</ul>
+<p>Use approved storage and backup systems for data; commit the code and documentation needed to locate and analyze them.</p>
 </section></section>
 <section>
-<section id="two-remotes-in-this-course" class="title-slide slide level1 section-divider center">
-<h1>5 · Two remotes in this course</h1>
+<section id="how-bios6301-uses-git" class="title-slide slide level1 section-divider center">
+<h1>5 · How BIOS6301 uses Git</h1>
 
 </section>
-<section id="origin-and-upstream-have-different-owners" class="slide level2">
-<h2><code>origin</code> and <code>upstream</code> have different owners</h2>
+<section id="the-lab-begins-by-cloning-through-rstudio" class="slide level2 smaller">
+<h2>The lab begins by cloning through RStudio</h2>
+<div class="columns">
+<div class="column" style="width:42%;">
+<p><img data-src="images/rstudio-new-project-wizard.png" alt="RStudio New Project Wizard showing Version Control as a project source" height="350"></p>
+</div><div class="column" style="width:58%;">
+<ol type="1">
+<li><p><strong>File → New Project</strong></p></li>
+<li><p><strong>Version Control → Git</strong></p></li>
+<li><p>Paste:</p>
+<pre class="text"><code>https://github.com/slzhao/BIOS6301-materials.git</code></pre></li>
+<li><p>Name the local directory <code>BIOS6301-mywork</code>.</p></li>
+<li><p>Select <strong>Create Project</strong>.</p></li>
+</ol>
+</div></div>
+</section>
+<section id="one-supplied-recipe-connects-the-private-repository" class="slide level2 smaller">
+<h2>One supplied recipe connects the private repository</h2>
+<p>Immediately after cloning, <code>origin</code> points to the instructor repository. In the RStudio Terminal, the supervised lab runs:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote rename origin upstream</span>
+<span id="cb15-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote add origin https://github.com/YOUR_USERNAME/BIOS6301-mywork.git</span>
+<span id="cb15-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>The instructor address is preserved as <code>upstream</code>.</li>
+<li>The student’s empty private repository becomes <code>origin</code>.</li>
+<li>The first Push copies the course history and tests HTTPS authentication.</li>
+</ul>
+<div class="callout callout-note callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>This is a setup recipe to copy—not command syntax to memorize.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="this-course-uses-two-remotes" class="slide level2">
+<h2>This course uses two remotes</h2>
 <div class="cell" data-reveal="true" data-layout-align="center">
 <div class="cell-output-display">
 <div>
 <p></p><figure class=""><p></p>
 <div>
 <pre class="mermaid mermaid-js">flowchart LR
-  U["upstream&lt;br/&gt;BIOS6301-materials&lt;br/&gt;instructor-managed"] --&gt;|course update recipe| L["student computer&lt;br/&gt;course + work"]
+  U["upstream&lt;br/&gt;public BIOS6301 materials&lt;br/&gt;instructor-managed"] --&gt;|course update recipe| L["student computer&lt;br/&gt;course + private work"]
   L --&gt;|RStudio Push| O["origin&lt;br/&gt;student private repository"]
   O --&gt;|RStudio Pull| L
 </pre>
@@ -753,129 +1093,90 @@ M  work/hw1/README.md
 </div>
 </div>
 <ul>
-<li><code>origin</code> is the student’s private backup and submission history.</li>
-<li><code>upstream</code> is the instructor’s published course material.</li>
+<li><code>origin</code> stores the student’s private history.</li>
+<li><code>upstream</code> provides instructor course updates.</li>
 </ul>
 </section>
-<section id="why-the-pull-button-is-not-the-course-update" class="slide level2 smaller">
-<h2>Why the Pull button is not the course update</h2>
-<p>After setup, RStudio’s <strong>Pull</strong> button follows the student’s current branch on <code>origin</code>.</p>
-<p>Course updates come from the separate <code>upstream</code> repository. Therefore:</p>
-<ol type="1">
-<li>Commit student work under <code>work/</code>.</li>
-<li>Run the supplied <strong>course update recipe</strong> in RStudio Terminal.</li>
-<li>Inspect the Git pane.</li>
-<li>Push the combined history to <code>origin</code>.</li>
-</ol>
-</section>
-<section id="ownership-prevents-most-conflicts" class="slide level2 smaller">
-<h2>Ownership prevents most conflicts</h2>
-<pre class="text"><code>course/   instructor-managed: read and copy, but do not edit
-work/     student-managed: edit, commit, and submit</code></pre>
-<p>When both sides edit different paths, an upstream update normally merges without a conflict.</p>
-<p>Always commit student work before requesting course updates.</p>
-</section></section>
-<section>
-<section id="stop-safely-when-state-is-unexpected" class="title-slide slide level1 section-divider center">
-<h1>6 · Stop safely when state is unexpected</h1>
-
-</section>
-<section id="start-with-the-visible-state" class="slide level2 smaller">
-<h2>Start with the visible state</h2>
+<section id="rstudio-pull-and-push-communicate-with-origin" class="slide level2 smaller">
+<h2>RStudio Pull and Push communicate with <code>origin</code></h2>
+<p>After the one-time setup:</p>
 <table class="caption-top">
 <thead>
 <tr class="header">
-<th>What you see</th>
-<th>First response</th>
+<th>RStudio action</th>
+<th>Direction</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Unwanted file is checked</td>
-<td>Uncheck <strong>Staged</strong></td>
+<td><strong>Pull</strong></td>
+<td>private <code>origin</code> → student computer</td>
 </tr>
 <tr class="even">
-<td>Unwanted edit is not checked</td>
-<td>Inspect Diff; keep it unless certain</td>
-</tr>
-<tr class="odd">
-<td>Wrong file was committed</td>
-<td>Stop and ask before rewriting history</td>
-</tr>
-<tr class="even">
-<td>Push is rejected</td>
-<td>Pull, inspect, and resolve; do not force push</td>
-</tr>
-<tr class="odd">
-<td>Conflict status appears</td>
-<td>Preserve files and resolve deliberately</td>
+<td><strong>Push</strong></td>
+<td>student computer → private <code>origin</code></td>
 </tr>
 </tbody>
 </table>
-<p>Do not use destructive recovery because an error message suggested urgency.</p>
+<p>Use this for the student’s normal multi-machine workflow and private backup.</p>
+<p>It does not automatically retrieve new instructor materials from <code>upstream</code>.</p>
 </section>
-<section id="unstage-is-safe-revert-discards-work" class="slide level2 smaller">
-<h2>Unstage is safe; Revert discards work</h2>
-<p>In Review Changes:</p>
-<ul>
-<li><strong>Uncheck Staged</strong>: removes the change from the next commit; edit remains.</li>
-<li><strong>Revert</strong>: discards the uncommitted edit from the working file.</li>
-</ul>
-<div class="callout callout-warning callout-titled callout-style-default">
+<section id="course-updates-use-a-supplied-recipe" class="slide level2 smaller">
+<h2>Course updates use a supplied recipe</h2>
+<p>First commit student work. Then run in the RStudio Terminal:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> fetch upstream</span>
+<span id="cb16-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> merge upstream/main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Translate the recipe:</p>
+<ol type="1">
+<li>Download new instructor commits.</li>
+<li>Add them to the current local history.</li>
+<li>Inspect status and render affected work.</li>
+<li>Push the combined history to private <code>origin</code>.</li>
+</ol>
+</section>
+<section id="folder-ownership-prevents-most-course-update-conflicts" class="slide level2 smaller">
+<h2>Folder ownership prevents most course-update conflicts</h2>
+<pre class="text"><code>course/   instructor-managed: read and copy, but do not edit
+work/     student-managed: create, edit, commit, and submit</code></pre>
+<p>When the instructor and student edit different paths, upstream updates usually merge without a conflict.</p>
+<p>Always commit student work before requesting course updates.</p>
+</section>
+<section id="the-first-private-push-completes-https-authentication" class="slide level2 smaller">
+<h2>The first private Push completes HTTPS authentication</h2>
+<ol type="1">
+<li>Run the supplied <code>git push -u origin main</code> setup line.</li>
+<li>Git Credential Manager—or GitHub CLI—opens GitHub in a browser.</li>
+<li>Sign in and complete two-factor authentication.</li>
+<li>Authorize the credential helper if GitHub asks.</li>
+<li>Return to RStudio and read the Push result.</li>
+<li>Open the private repository and confirm that its history is present.</li>
+</ol>
+<p>Later Pulls and Pushes should normally reuse the stored credential.</p>
+<div class="callout callout-warning callout-style-simple">
 <div class="callout-body">
-<div class="callout-title">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
-<p><strong>Warning</strong></p>
-</div>
 <div class="callout-content">
-<p>Read the diff before Revert. Uncommitted discarded text may not be recoverable.</p>
+<p>If the Terminal requests your ordinary GitHub account password, <strong>cancel and ask for help</strong>. Do not type a password or paste a personal access token.</p>
 </div>
 </div>
 </div>
 </section>
-<section id="a-rejected-push-is-protection" class="slide level2">
-<h2>A rejected push is protection</h2>
-<p>A rejected push usually means the remote has commits missing from this computer.</p>
-<p>Safe response:</p>
-<ol type="1">
-<li>Do not force push.</li>
-<li>Confirm local work is committed.</li>
-<li>Pull from the intended remote.</li>
-<li>Read the result.</li>
-<li>Resolve any conflict, then push again.</li>
-</ol>
-</section>
-<section id="a-conflict-is-a-request-for-a-decision" class="slide level2 smaller">
-<h2>A conflict is a request for a decision</h2>
-<p>Git may place both versions in the file:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a aria-hidden="true" tabindex="-1"></a>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span>
-<span id="cb6-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">## Table 1: baseline characteristics</span></span>
-<span id="cb6-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">=======</span></span>
-<span id="cb6-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">## Baseline characteristics by arm</span></span>
-<span id="cb6-5"><a aria-hidden="true" tabindex="-1"></a><span class="at">&gt;&gt;&gt;&gt;&gt;&gt;&gt; upstream/main</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<ol type="1">
-<li>Open the file and decide what the final text should be.</li>
-<li>Delete all three marker lines.</li>
-<li>Save and render.</li>
-<li>Select the resolved file in the Git pane and commit.</li>
-</ol>
-</section>
-<section id="security-is-part-of-the-workflow" class="slide level2">
+<section id="security-is-part-of-the-workflow" class="slide level2 smaller">
 <h2>Security is part of the workflow</h2>
 <p>Never commit:</p>
 <ul>
-<li>passwords or access tokens;</li>
+<li>passwords, access tokens, or private keys;</li>
 <li><code>.Renviron</code> containing secrets;</li>
 <li>protected health information;</li>
 <li>restricted research data; or</li>
-<li>private keys.</li>
+<li>identifiable participant-level teaching examples.</li>
 </ul>
-<p>If sensitive information is committed, deleting the visible line is not enough; contact the instructor or security support immediately.</p>
+<p>If sensitive information is committed, deleting the visible line is not enough. Contact the instructor or appropriate security support immediately.</p>
 </section>
-<section id="reference-only-buttons-and-commands" class="slide level2 smaller">
-<h2>Reference only · buttons and commands</h2>
+<section id="reference-only-rstudio-actions-and-commands" class="slide level2 smaller">
+<h2>Reference only · RStudio actions and commands</h2>
 <table class="caption-top">
 <thead>
 <tr class="header">
@@ -920,44 +1221,48 @@ work/     student-managed: edit, commit, and submit</code></pre>
 </table>
 <p>Understanding the left column is today’s requirement. The right column is a translation reference.</p>
 </section>
-<section id="summary" class="slide level2 smaller">
-<h2>Summary</h2>
+<section id="the-everyday-rule" class="slide level2 smaller">
+<h2>The everyday rule</h2>
+<div class="workflow">
+<p>status → pull → code → review → stage → commit → push</p>
+</div>
+<div class="fragment">
 <ul>
-<li>The Git pane shows files that differ from the current commit.</li>
+<li>Git records the history; GitHub connects machines.</li>
+<li>Status tells you what state the repository is in.</li>
 <li>Diff review is part of statistical quality control.</li>
-<li>Staging selects one coherent change; committing records it locally.</li>
-<li>Pull and Push synchronize the student’s private <code>origin</code>.</li>
-<li>Course updates use the supplied <code>upstream</code> recipe.</li>
+<li>A commit is local until Push succeeds.</li>
 <li>Unexpected or destructive states are reasons to stop and inspect.</li>
 </ul>
+</div>
 </section>
 <section id="exit-check" class="slide level2">
 <h2>Exit check</h2>
 <p>Without using a command, explain:</p>
 <ol type="1">
+<li>Why is <code>analysis-final2.R</code> weaker than a useful Git history?</li>
 <li>What changes when you check <strong>Staged</strong>?</li>
-<li>What changes when you click <strong>Commit</strong>?</li>
-<li>Why can a commit exist before GitHub receives it?</li>
-<li>Why does this course need both <code>origin</code> and <code>upstream</code>?</li>
-<li>When should you stop and ask for help?</li>
+<li>What is the difference between Commit and Push?</li>
+<li>Why should you check status before Pull?</li>
+<li>How do <code>origin</code> and <code>upstream</code> differ in this course?</li>
 </ol>
 </section>
 <section id="sources-and-next-step" class="slide level2 smaller">
 <h2>Sources and next step</h2>
 <ul>
 <li><a href="https://docs.posit.co/ide/user/ide/guide/tools/version-control.html">RStudio version-control interface</a></li>
-<li><a href="https://docs.posit.co/ide/user/ide/reference/shortcuts.html#git-svn">RStudio Git keyboard shortcuts</a></li>
+<li><a href="https://git-scm.com/doc">Git documentation</a></li>
 <li><a href="https://happygitwithr.com/">Happy Git and GitHub for the useR</a></li>
-<li><a href="https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git">GitHub HTTPS credential guidance</a></li>
+<li><a href="https://docs.github.com/en/authentication">GitHub authentication guidance</a></li>
 </ul>
-<p><strong>Next:</strong> use the RStudio interface to create and inspect three small commits in the guided lab.</p>
+<p><strong>Next:</strong> use RStudio to create, inspect, commit, and push small analytical changes in the guided lab.</p>
 
 
 </section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
-<p>BIOS 6301 · Session 2 · Version Control in RStudio</p>
+<p>BIOS 6301 · Session 2 · Git and GitHub</p>
 </div>
 </div></div>
 

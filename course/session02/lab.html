@@ -262,8 +262,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#goal" id="toc-goal" class="nav-link active" data-scroll-target="#goal">Goal</a></li>
-  <li><a href="#start-from-the-repository-root" id="toc-start-from-the-repository-root" class="nav-link" data-scroll-target="#start-from-the-repository-root">Start from the repository root</a></li>
-  <li><a href="#one-time-remote-check" id="toc-one-time-remote-check" class="nav-link" data-scroll-target="#one-time-remote-check">One-time remote check</a></li>
+  <li><a href="#setup-checkpoint-clone-connect-and-authenticate" id="toc-setup-checkpoint-clone-connect-and-authenticate" class="nav-link" data-scroll-target="#setup-checkpoint-clone-connect-and-authenticate">Setup checkpoint: clone, connect, and authenticate</a>
+  <ul class="collapse">
+  <li><a href="#part-a-clone-the-public-course-repository-in-rstudio" id="toc-part-a-clone-the-public-course-repository-in-rstudio" class="nav-link" data-scroll-target="#part-a-clone-the-public-course-repository-in-rstudio">Part A: clone the public course repository in RStudio</a></li>
+  <li><a href="#part-b-inspect-the-initial-remote" id="toc-part-b-inspect-the-initial-remote" class="nav-link" data-scroll-target="#part-b-inspect-the-initial-remote">Part B: inspect the initial remote</a></li>
+  <li><a href="#part-c-connect-the-private-origin-and-complete-the-first-push" id="toc-part-c-connect-the-private-origin-and-complete-the-first-push" class="nav-link" data-scroll-target="#part-c-connect-the-private-origin-and-complete-the-first-push">Part C: connect the private <code>origin</code> and complete the first Push</a></li>
+  <li><a href="#part-d-verify-the-two-remotes-arrangement" id="toc-part-d-verify-the-two-remotes-arrangement" class="nav-link" data-scroll-target="#part-d-verify-the-two-remotes-arrangement">Part D: verify the two-remotes arrangement</a></li>
+  </ul></li>
+  <li><a href="#start-the-core-lab-from-the-repository-root" id="toc-start-the-core-lab-from-the-repository-root" class="nav-link" data-scroll-target="#start-the-core-lab-from-the-repository-root">Start the core lab from the repository root</a></li>
   <li><a href="#checkpoint-1-read-the-git-pane" id="toc-checkpoint-1-read-the-git-pane" class="nav-link" data-scroll-target="#checkpoint-1-read-the-git-pane">Checkpoint 1: Read the Git pane</a></li>
   <li><a href="#checkpoint-2-commit-the-analysis-skeleton" id="toc-checkpoint-2-commit-the-analysis-skeleton" class="nav-link" data-scroll-target="#checkpoint-2-commit-the-analysis-skeleton">Checkpoint 2: Commit the analysis skeleton</a></li>
   <li><a href="#checkpoint-3-add-a-calculation" id="toc-checkpoint-3-add-a-calculation" class="nav-link" data-scroll-target="#checkpoint-3-add-a-calculation">Checkpoint 3: Add a calculation</a></li>
@@ -285,7 +291,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Session 2 guided lab</h1>
-<p class="subtitle lead">Create and inspect a small Git history through RStudio</p>
+<p class="subtitle lead">Set up course remotes and build a small Git history through RStudio</p>
 </div>
 
 
@@ -312,56 +318,112 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Suggested use:</strong> checkpoints 1–6 are the core route. They create three small commits entirely through the RStudio Git interface. The additional practice is a second, longer route that can be completed independently.</p>
+<p><strong>Suggested use:</strong> complete the supervised setup checkpoint first. Checkpoints 1–6 then create three small commits through the RStudio Git interface. The additional practice is a longer route that can be completed independently.</p>
 </div>
 </div>
 <section id="goal" class="level2">
 <h2 class="anchored" data-anchor-id="goal">Goal</h2>
-<p>Use RStudio to review, select, commit, and synchronize meaningful changes to a synthetic-data analysis. Explain the repository state after every action.</p>
+<p>Use RStudio to clone the course repository, connect a private GitHub repository through HTTPS, and review, stage, commit, and synchronize meaningful changes to a synthetic-data analysis. Explain the repository state after every action.</p>
 </section>
-<section id="start-from-the-repository-root" class="level2">
-<h2 class="anchored" data-anchor-id="start-from-the-repository-root">Start from the repository root</h2>
-<ol type="1">
-<li>Open the root <code>BIOS6301-materials.Rproj</code> file in your private course clone.</li>
-<li>Confirm that the project name shown in RStudio is the course-repository root.</li>
-<li>Open the <strong>Git</strong> tab. If it is missing, stop and ask for help.</li>
-<li>Copy the complete <code>course/session02/starter/</code> folder to <code>work/session02-git-lab/</code>.</li>
-<li>Keep the root course project open. Do not initialize another Git repository or open a second project inside the copied folder.</li>
-</ol>
-<p>The Git pane should now list the copied files as new or untracked.</p>
-</section>
-<section id="one-time-remote-check" class="level2">
-<h2 class="anchored" data-anchor-id="one-time-remote-check">One-time remote check</h2>
-<p>Open RStudio’s <strong>Terminal</strong> tab and run this read-only check:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote <span class="at">-v</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The intended result is:</p>
-<pre class="text"><code>origin    your private BIOS6301 repository
-upstream  the instructor BIOS6301-materials repository</code></pre>
-<p>If both names already point to the correct places, do not reconfigure them.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center collapsed" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<section id="setup-checkpoint-clone-connect-and-authenticate" class="level2">
+<h2 class="anchored" data-anchor-id="setup-checkpoint-clone-connect-and-authenticate">Setup checkpoint: clone, connect, and authenticate</h2>
+<p>Complete this checkpoint with the instructor or TA. The commands shown are a supplied one-time recipe; you are not expected to memorize them.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-title-container flex-fill">
-<span class="screen-reader-only">Note</span>One-time setup recipe, if the remotes are not configured
+Warning
 </div>
-<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
 </div>
-<div id="callout-2" class="callout-2-contents callout-collapse collapse">
 <div class="callout-body-container callout-body">
-<p>Run this only with the instructor or TA. Replace the username placeholder with your GitHub username. Use the plain HTTPS URL—without Markdown brackets or parentheses.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote rename origin upstream</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote add origin https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>These lines establish the course’s two-remotes arrangement. They are a supplied setup recipe, not commands you are expected to memorize. The first push may open a GitHub browser sign-in through Git Credential Manager or GitHub CLI. Complete authentication in the browser. If the terminal requests a GitHub password, cancel and ask for help; do not enter your account password.</p>
+<p>If you already have a course clone containing work, do not create another copy. Open its root <code>BIOS6301-materials.Rproj</code> and begin with <strong>Part B: inspect the initial remote</strong>.</p>
 </div>
+</div>
+<section id="part-a-clone-the-public-course-repository-in-rstudio" class="level3">
+<h3 class="anchored" data-anchor-id="part-a-clone-the-public-course-repository-in-rstudio">Part A: clone the public course repository in RStudio</h3>
+<ol type="1">
+<li><p>Select <strong>File → New Project → Version Control → Git</strong>.</p></li>
+<li><p>Use this repository URL:</p>
+<pre class="text"><code>https://github.com/slzhao/BIOS6301-materials.git</code></pre></li>
+<li><p>Use <code>BIOS6301-mywork</code> as the <strong>Project directory name</strong>.</p></li>
+<li><p>Choose the parent directory where you keep course projects.</p></li>
+<li><p>Select <strong>Create Project</strong> and wait for RStudio to open it.</p></li>
+</ol>
+<p>When the New Project Wizard appears, choose <strong>Version Control</strong>:</p>
+<p><img src="images/rstudio-new-project-wizard.png" class="img-fluid" style="width:76.0%" alt="RStudio New Project Wizard with Version Control as one of three project choices"></p>
+<p><em>Image source: <a href="https://docs.posit.co/ide/user/ide/guide/code/projects.html">Posit RStudio User Guide</a>. The next screens ask you to choose Git and paste the repository URL.</em></p>
+<p>After cloning, confirm that the root project is open and that the <strong>Git</strong> tab is visible. The exact filenames in your Git pane may differ from this example:</p>
+<p><img src="images/rstudio-vcs-pane-labeled.png" class="img-fluid" style="width:88.0%" alt="RStudio interface with the root project name, Git menu, and Git tab highlighted"></p>
+<p><em>Interface image source: <a href="https://docs.posit.co/ide/user/ide/guide/tools/version-control.html">Posit RStudio User Guide</a>.</em></p>
+</section>
+<section id="part-b-inspect-the-initial-remote" class="level3">
+<h3 class="anchored" data-anchor-id="part-b-inspect-the-initial-remote">Part B: inspect the initial remote</h3>
+<p>Open RStudio’s <strong>Terminal</strong> tab and run this read-only check:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote <span class="at">-v</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Immediately after cloning, <code>origin</code> normally points to the instructor repository:</p>
+<pre class="text"><code>origin  https://github.com/slzhao/BIOS6301-materials.git</code></pre>
+<p>This is expected. The next part preserves that address as <code>upstream</code> and assigns <code>origin</code> to your empty private repository.</p>
+<p>If <code>origin</code> already points to your private repository and <code>upstream</code> already points to the instructor repository, do not repeat the setup commands. Continue with <strong>Part D</strong>.</p>
+</section>
+<section id="part-c-connect-the-private-origin-and-complete-the-first-push" class="level3">
+<h3 class="anchored" data-anchor-id="part-c-connect-the-private-origin-and-complete-the-first-push">Part C: connect the private <code>origin</code> and complete the first Push</h3>
+<p>Replace the username placeholder with your GitHub username. Use the plain HTTPS URL without Markdown brackets, parentheses, or credentials:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote rename origin upstream</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote add origin https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The first private Push may open GitHub in a browser through Git Credential Manager. Sign in, complete two-factor authentication, and authorize the helper if requested. Then return to RStudio and read the Push result.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you prepared <strong>GitHub CLI</strong> on macOS or Linux, run <code>gh auth login</code> before the first Push. Choose <strong>GitHub.com → HTTPS → Yes → Login with a web browser</strong>.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If the Terminal requests your ordinary GitHub account password, cancel and ask for help. Do not type a password or paste a personal access token.</p>
 </div>
 </div>
 </section>
+<section id="part-d-verify-the-two-remotes-arrangement" class="level3">
+<h3 class="anchored" data-anchor-id="part-d-verify-the-two-remotes-arrangement">Part D: verify the two-remotes arrangement</h3>
+<p>Run:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote <span class="at">-v</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The addresses should have these roles:</p>
+<pre class="text"><code>origin    your private BIOS6301-mywork repository
+upstream  the public instructor BIOS6301-materials repository</code></pre>
+<p>Open your private repository on GitHub. Confirm that it now contains the course files and commit history. This successful Push is the evidence that HTTPS authentication works.</p>
+</section>
+</section>
+<section id="start-the-core-lab-from-the-repository-root" class="level2">
+<h2 class="anchored" data-anchor-id="start-the-core-lab-from-the-repository-root">Start the core lab from the repository root</h2>
+<ol type="1">
+<li>Keep the root <code>BIOS6301-materials.Rproj</code> open.</li>
+<li>Copy the complete <code>course/session02/starter/</code> folder to <code>work/session02-git-lab/</code>.</li>
+<li>In the copied <code>analysis/</code> folder, choose <code>report.Rmd</code> or <code>report.qmd</code> and delete the unused alternative from the <strong>copied work folder only</strong>.</li>
+<li>Do not initialize another Git repository or open a second project inside the copied folder.</li>
+</ol>
+<p>The Git pane should now list the copied files as new or untracked.</p>
+</section>
 <section id="checkpoint-1-read-the-git-pane" class="level2">
 <h2 class="anchored" data-anchor-id="checkpoint-1-read-the-git-pane">Checkpoint 1: Read the Git pane</h2>
-<p>Before selecting anything:</p>
+<p>Before staging anything:</p>
 <ol type="1">
 <li>Identify each copied file in the Git pane.</li>
 <li>State why it appears.</li>
@@ -374,10 +436,10 @@ upstream  the instructor BIOS6301-materials repository</code></pre>
 <h2 class="anchored" data-anchor-id="checkpoint-2-commit-the-analysis-skeleton">Checkpoint 2: Commit the analysis skeleton</h2>
 <ol type="1">
 <li>Click <strong>Commit</strong> to open <strong>Review Changes</strong>.</li>
-<li>Select one copied file and inspect its diff.</li>
+<li>Choose one copied file and inspect its diff.</li>
 <li>Check the <strong>Staged</strong> box only after reviewing the file.</li>
-<li>Repeat for <code>.gitignore</code>, <code>README.md</code>, <code>analysis/report.qmd</code>, and <code>data/study_summary.csv</code>.</li>
-<li>Switch between the <strong>Staged</strong> and <strong>Unstaged</strong> views. Confirm that the intended four files—and no others—are selected.</li>
+<li>Repeat for <code>.gitignore</code>, <code>README.md</code>, your chosen <code>analysis/report.Rmd</code> or <code>analysis/report.qmd</code>, and <code>data/study_summary.csv</code>.</li>
+<li>Switch between the <strong>Staged</strong> and <strong>Unstaged</strong> views. Confirm that staged snapshots exist for the intended four files—and no others.</li>
 <li>Enter the message <code>Add reproducible analysis skeleton</code>.</li>
 <li>Click <strong>Commit</strong> and read the result message.</li>
 <li>Open <strong>History</strong> and locate the new commit.</li>
@@ -386,14 +448,14 @@ upstream  the instructor BIOS6301-materials repository</code></pre>
 </section>
 <section id="checkpoint-3-add-a-calculation" class="level2">
 <h2 class="anchored" data-anchor-id="checkpoint-3-add-a-calculation">Checkpoint 3: Add a calculation</h2>
-<p>Open <code>work/session02-git-lab/analysis/report.qmd</code> and add a named object containing the mean outcome. Render and verify the result.</p>
+<p>Open your chosen <code>work/session02-git-lab/analysis/report.Rmd</code> or <code>report.qmd</code> and add a named object containing the mean outcome. Knit or Render and verify the result.</p>
 <p>Then use RStudio:</p>
 <ol type="1">
 <li>Return to the Git pane and refresh it.</li>
-<li>Confirm that <code>analysis/report.qmd</code> is listed as modified.</li>
+<li>Confirm that the chosen report source is listed as modified.</li>
 <li>Confirm that the rendered HTML is absent because it is ignored.</li>
 <li>Open <strong>Diff</strong> and identify the exact calculation added.</li>
-<li>Stage only the <code>.qmd</code> source.</li>
+<li>Stage only the chosen <code>.Rmd</code> or <code>.qmd</code> source.</li>
 <li>Commit with the message <code>Calculate mean outcome</code>.</li>
 <li>Verify that History now contains two lab commits.</li>
 </ol>
@@ -416,12 +478,12 @@ upstream  the instructor BIOS6301-materials repository</code></pre>
 <ol type="1">
 <li>Save and inspect the diff.</li>
 <li>Check <strong>Staged</strong>.</li>
-<li>Switch to the staged-diff view and confirm the sentence is selected.</li>
+<li>Switch to the staged-diff view and confirm that its snapshot contains the sentence.</li>
 <li>Uncheck <strong>Staged</strong>.</li>
 <li>Confirm that the sentence remains in the working file.</li>
 </ol>
-<p>This demonstrates that unstaging changes selection, not file contents.</p>
-<p>After inspecting it again, use <strong>Revert</strong> to discard this known disposable edit. Read the confirmation dialog before proceeding, and confirm that the file returns to its committed state.</p>
+<p>This demonstrates that unchecking <strong>Staged</strong> stops preparing that snapshot for the next commit; it does not change the working file.</p>
+<p>After inspecting it again, use <strong>Revert</strong> to erase this known disposable edit. Read the confirmation dialog before proceeding, and confirm that the file returns to its committed state.</p>
 </section>
 <section id="checkpoint-6-push-the-recorded-history" class="level2">
 <h2 class="anchored" data-anchor-id="checkpoint-6-push-the-recorded-history">Checkpoint 6: Push the recorded history</h2>
@@ -429,7 +491,7 @@ upstream  the instructor BIOS6301-materials repository</code></pre>
 <li>Confirm that the Git pane is empty.</li>
 <li>Open History and reread the three messages.</li>
 <li>Click <strong>Push</strong>.</li>
-<li>If GitHub opens in a browser, complete sign-in and two-factor authentication there, then return to RStudio.</li>
+<li>The saved HTTPS credential should normally be reused. If GitHub opens again, complete sign-in and two-factor authentication there, then return to RStudio.</li>
 <li>Read the result and confirm that the push succeeded.</li>
 <li>Open your private GitHub repository and locate the three commits.</li>
 </ol>
@@ -438,8 +500,8 @@ upstream  the instructor BIOS6301-materials repository</code></pre>
 <section id="course-update-recipe" class="level2">
 <h2 class="anchored" data-anchor-id="course-update-recipe">Course update recipe</h2>
 <p>Run this only when the Git pane is clean and your own work is committed:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> fetch upstream</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> merge upstream/main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> fetch upstream</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> merge upstream/main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Interpret the lines rather than memorizing them:</p>
 <ol type="1">
 <li>Download new instructor commits from <code>upstream</code>.</li>
@@ -450,7 +512,7 @@ upstream  the instructor BIOS6301-materials repository</code></pre>
 <section id="additional-practice-use-the-interface-deliberately" class="level2">
 <h2 class="anchored" data-anchor-id="additional-practice-use-the-interface-deliberately">Additional practice: use the interface deliberately</h2>
 <ol type="1">
-<li>Make one meaningful edit to <code>analysis/report.qmd</code> and a different edit to <code>README.md</code>. In Review Changes, stage only the analysis, commit it, then commit the documentation separately. Explain why two commits are clearer than one.</li>
+<li>Make one meaningful edit to your chosen report source and a different edit to <code>README.md</code>. In Review Changes, stage only the analysis, commit it, then commit the documentation separately. Explain why two commits are clearer than one.</li>
 <li>Open History and compare each new commit with its parent. Identify the exact commit that introduced the analysis change.</li>
 <li>Render the report again. Verify that the HTML remains on disk but absent from the Git pane. Explain the role of <code>.gitignore</code> without saying that it deletes anything.</li>
 <li>Add a disposable line, stage it, unstage it, and verify the working edit remains. Then remove it by editing normally rather than using Revert.</li>
@@ -469,7 +531,7 @@ upstream  the instructor BIOS6301-materials repository</code></pre>
 <ul>
 <li>an empty RStudio Git pane;</li>
 <li>History containing the three core commits;</li>
-<li>the line-by-line diff for one selected commit;</li>
+<li>the line-by-line diff for one chosen commit;</li>
 <li>a successful Push result; and</li>
 <li><code>git remote -v</code> showing private <code>origin</code> and instructor <code>upstream</code>.</li>
 </ul>

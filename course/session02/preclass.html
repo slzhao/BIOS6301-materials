@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Before Session 2: Git setup – BIOS6301 · Student Materials</title>
+<title>Before Session 2: prepare Git and GitHub – BIOS6301 · Student Materials</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -262,15 +262,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#verify-git" id="toc-verify-git" class="nav-link active" data-scroll-target="#verify-git">1. Verify Git</a></li>
-  <li><a href="#configure-your-identity" id="toc-configure-your-identity" class="nav-link" data-scroll-target="#configure-your-identity">2. Configure your identity</a></li>
-  <li><a href="#verify-rstudio-integration" id="toc-verify-rstudio-integration" class="nav-link" data-scroll-target="#verify-rstudio-integration">3. Verify RStudio integration</a></li>
-  <li><a href="#prepare-https-browser-authentication" id="toc-prepare-https-browser-authentication" class="nav-link" data-scroll-target="#prepare-https-browser-authentication">4. Prepare HTTPS browser authentication</a>
+  <li><a href="#configure-your-commit-identity" id="toc-configure-your-commit-identity" class="nav-link" data-scroll-target="#configure-your-commit-identity">2. Configure your commit identity</a></li>
+  <li><a href="#verify-rstudio-can-find-git" id="toc-verify-rstudio-can-find-git" class="nav-link" data-scroll-target="#verify-rstudio-can-find-git">3. Verify RStudio can find Git</a></li>
+  <li><a href="#prepare-and-check-https-browser-authentication" id="toc-prepare-and-check-https-browser-authentication" class="nav-link" data-scroll-target="#prepare-and-check-https-browser-authentication">4. Prepare and check HTTPS browser authentication</a>
   <ul class="collapse">
-  <li><a href="#windows" id="toc-windows" class="nav-link" data-scroll-target="#windows">Windows</a></li>
-  <li><a href="#macos-or-linux" id="toc-macos-or-linux" class="nav-link" data-scroll-target="#macos-or-linux">macOS or Linux</a></li>
+  <li><a href="#method-a-git-credential-manager" id="toc-method-a-git-credential-manager" class="nav-link" data-scroll-target="#method-a-git-credential-manager">Method A: Git Credential Manager</a></li>
+  <li><a href="#method-b-github-cli" id="toc-method-b-github-cli" class="nav-link" data-scroll-target="#method-b-github-cli">Method B: GitHub CLI</a></li>
   </ul></li>
-  <li><a href="#create-an-empty-private-repository" id="toc-create-an-empty-private-repository" class="nav-link" data-scroll-target="#create-an-empty-private-repository">5. Create an empty private repository</a></li>
-  <li><a href="#submit-the-check" id="toc-submit-the-check" class="nav-link" data-scroll-target="#submit-the-check">6. Submit the check</a></li>
+  <li><a href="#create-an-empty-private-github-repository" id="toc-create-an-empty-private-github-repository" class="nav-link" data-scroll-target="#create-an-empty-private-github-repository">5. Create an empty private GitHub repository</a></li>
+  <li><a href="#test-access-to-the-private-repository" id="toc-test-access-to-the-private-repository" class="nav-link" data-scroll-target="#test-access-to-the-private-repository">6. Test access to the private repository</a></li>
+  <li><a href="#bring-this-evidence-to-class" id="toc-bring-this-evidence-to-class" class="nav-link" data-scroll-target="#bring-this-evidence-to-class">7. Bring this evidence to class</a></li>
   </ul>
 </nav>
     </div>
@@ -279,8 +280,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Before Session 2: Git setup</h1>
-<p class="subtitle lead">Complete before class</p>
+<h1 class="title">Before Session 2: prepare Git and GitHub</h1>
+<p class="subtitle lead">Install and verify; we will clone and connect the course repository together</p>
 </div>
 
 
@@ -297,58 +298,160 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Do <strong>not</strong> clone <code>BIOS6301-materials</code> or configure course remotes for this preparation. The supervised Session 2 lab begins with those steps.</p>
+</div>
+</div>
 <section id="verify-git" class="level2">
 <h2 class="anchored" data-anchor-id="verify-git">1. Verify Git</h2>
 <p>The following commands are one-time setup checks, not syntax to memorize.</p>
-<p>In the RStudio Terminal, run:</p>
+<p>Open RStudio, select the <strong>Terminal</strong> tab, and run:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Copy the output. If the command is not recognized, install Git and restart RStudio.</p>
+<p>Copy the output. If the command is not recognized, install the current version of <a href="https://git-scm.com/download/">Git</a> and restart RStudio.</p>
+<p>On Windows, use the regular <strong>Git for Windows Setup</strong> installer and accept its default credential-helper option. Do not choose Portable Git for the standard course setup: portable or application-bundled Git copies may omit GCM or may not configure it for the Windows account.</p>
 </section>
-<section id="configure-your-identity" class="level2">
-<h2 class="anchored" data-anchor-id="configure-your-identity">2. Configure your identity</h2>
-<p>Use the name you want recorded in commit history:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.name <span class="st">"Your Name"</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.email <span class="st">"your.email@example.edu"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Verify:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> <span class="at">--list</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Do not place a password or access token in these commands.</p>
+<section id="configure-your-commit-identity" class="level2">
+<h2 class="anchored" data-anchor-id="configure-your-commit-identity">2. Configure your commit identity</h2>
+<p>First, check whether Git already has an identity for you:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config user.name</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config user.email</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If both values are present and correct, <strong>do not change them</strong>. Students with previous Git experience may already have appropriate settings.</p>
+<p>If either value is missing or incorrect, set the default identity for new commits on this computer:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.name <span class="st">"Your Name"</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config <span class="at">--global</span> user.email <span class="st">"EMAIL_ASSOCIATED_WITH_GITHUB"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then verify the effective values:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config user.name</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config user.email</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Important
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>This is <strong>not</strong> your GitHub username, password, or login.</p>
+<ul>
+<li><code>user.name</code> is normally your human-readable name.</li>
+<li><code>user.email</code> is recorded in every new commit together with your name.</li>
+<li>GitHub can connect the commit to your account when the email is verified on that account. You may instead use the private <code>noreply</code> address shown under <strong>GitHub → Settings → Emails</strong>.</li>
+<li>GitHub authentication is a separate browser sign-in covered in Step 4.</li>
+</ul>
+<p>Never place a password or access token in <code>user.name</code> or <code>user.email</code>.</p>
+</div>
+</div>
+<p>The <code>--global</code> option makes these values the default for repositories used by your computer account. A repository-specific setting can override them later. Changing the setting affects future commits; it does not rewrite earlier commits.</p>
 </section>
-<section id="verify-rstudio-integration" class="level2">
-<h2 class="anchored" data-anchor-id="verify-rstudio-integration">3. Verify RStudio integration</h2>
-<p>In RStudio, open <strong>Tools → Global Options → Git/SVN</strong> and confirm that a Git executable is detected. Then open the root <code>BIOS6301-materials.Rproj</code> in your course clone and confirm that the <strong>Git</strong> tab appears.</p>
+<section id="verify-rstudio-can-find-git" class="level2">
+<h2 class="anchored" data-anchor-id="verify-rstudio-can-find-git">3. Verify RStudio can find Git</h2>
+<p>In RStudio, open <strong>Tools → Global Options → Git/SVN</strong>.</p>
+<p>Confirm that:</p>
+<ol type="1">
+<li><strong>Enable version control interface for RStudio projects</strong> is checked; and</li>
+<li>a path appears beside <strong>Git executable</strong>.</li>
+</ol>
+<p><img src="images/rstudio-git-options.png" class="img-fluid" style="width:78.0%" alt="RStudio Git/SVN options showing the enabled version-control interface and a detected Git executable"></p>
+<p><em>The exact Git path depends on the operating system. The SSH-key field can remain empty because BIOS6301 uses HTTPS. Image source: <a href="https://docs.posit.co/ide/user/ide/guide/tools/version-control.html">Posit RStudio User Guide</a>.</em></p>
 </section>
-<section id="prepare-https-browser-authentication" class="level2">
-<h2 class="anchored" data-anchor-id="prepare-https-browser-authentication">4. Prepare HTTPS browser authentication</h2>
-<p>This course uses HTTPS repository URLs. GitHub does <strong>not</strong> accept your account password for Git pushes. We use a credential helper that opens GitHub in a browser and then stores the resulting credential securely.</p>
-<section id="windows" class="level3">
-<h3 class="anchored" data-anchor-id="windows">Windows</h3>
-<p>Current Git for Windows includes Git Credential Manager. Verify it in the RStudio Terminal:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> credential-manager <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>If the command is unavailable, update Git for Windows using the official installer and accept its default Git Credential Manager option.</p>
+<section id="prepare-and-check-https-browser-authentication" class="level2">
+<h2 class="anchored" data-anchor-id="prepare-and-check-https-browser-authentication">4. Prepare and check HTTPS browser authentication</h2>
+<p>This course uses HTTPS repository URLs. GitHub does <strong>not</strong> accept an ordinary account password for Git pushes. A credential helper will authenticate through GitHub in a browser and store the resulting credential securely.</p>
+<p>You need <strong>one</strong> of the following methods, not both.</p>
+<section id="method-a-git-credential-manager" class="level3">
+<h3 class="anchored" data-anchor-id="method-a-git-credential-manager">Method A: Git Credential Manager</h3>
+<p>Current Git for Windows includes Git Credential Manager (GCM), but GCM is not included with every Git installation on every operating system. Check for it:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> credential-manager <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>A successful check prints a version number. <strong>Blank output is not success.</strong> If a version is displayed, authenticate in a browser before class:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> credential-manager github login <span class="at">--username</span> YOUR_GITHUB_USERNAME <span class="at">--browser</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> credential-manager github list</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The second command should list the GitHub account saved by GCM. Do not display, copy, or submit any token.</p>
+<p>If <code>git credential-manager</code> is unavailable on Windows, update Git using the official <a href="https://git-scm.com/download/win">Git for Windows installer</a> and keep its default Git Credential Manager option. This includes cases where the command prints nothing. Alternatively, keep the portable Git copy and use Method B.</p>
 </section>
-<section id="macos-or-linux" class="level3">
-<h3 class="anchored" data-anchor-id="macos-or-linux">macOS or Linux</h3>
-<p>Use Git Credential Manager if it is already provided by your system. Otherwise, install <a href="https://cli.github.com/">GitHub CLI</a> and run:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> auth login</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Choose <strong>GitHub.com</strong>, <strong>HTTPS</strong>, <strong>Yes</strong> when asked to authenticate Git, and <strong>Login with a web browser</strong>. Do not create or paste a personal access token for this course setup.</p>
-<p>Sign in to the GitHub account approved for the course. Never save a credential in an R script, Quarto document, repository, or remote URL.</p>
+<section id="method-b-github-cli" class="level3">
+<h3 class="anchored" data-anchor-id="method-b-github-cli">Method B: GitHub CLI</h3>
+<p>GitHub CLI is a supported alternative on Windows, macOS, and Linux. Install <a href="https://cli.github.com/">GitHub CLI</a> and verify:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> <span class="at">--version</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Then authenticate through the browser and configure Git to use that login:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> auth login <span class="at">--hostname</span> github.com <span class="at">--git-protocol</span> https <span class="at">--web</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> auth setup-git</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ex">gh</span> auth status <span class="at">--active</span> <span class="at">--hostname</span> github.com</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>When asked whether Git should use your GitHub credentials, answer <strong>Yes</strong>. The final command should display the active GitHub username and report that the account is logged in. Do not use the <code>--show-token</code> option.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>There is no HTTPS username-and-password test analogous to <code>ssh -T git@github.com</code>. That command tests an <strong>SSH key</strong>, while this course uses HTTPS. Browser login followed by the GCM account list or <code>gh auth status</code> is the appropriate preparation check. The first Push to your private repository in the supervised lab remains the final end-to-end test.</p>
+</div>
+</div>
+<p>If neither method is ready, bring the error message to class. You can still complete local Git work, but the course’s browser-based private Push/Pull workflow is not ready until an HTTPS credential helper is configured.</p>
 </section>
 </section>
-<section id="create-an-empty-private-repository" class="level2">
-<h2 class="anchored" data-anchor-id="create-an-empty-private-repository">5. Create an empty private repository</h2>
-<p>On GitHub, create a private repository such as <code>BIOS6301-mywork</code>. Do not add a README, <code>.gitignore</code>, or license. We will connect the existing course clone to this empty repository during class so that its original history is preserved.</p>
-<p>Have its HTTPS URL available. It should have this form, without brackets or parentheses:</p>
+<section id="create-an-empty-private-github-repository" class="level2">
+<h2 class="anchored" data-anchor-id="create-an-empty-private-github-repository">5. Create an empty private GitHub repository</h2>
+<p>Open GitHub’s <a href="https://github.com/new?name=BIOS6301-mywork&amp;visibility=private">new-repository page</a> and create a private repository named <code>BIOS6301-mywork</code>.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="../../images/github-create-repository-official.png" class="img-fluid figure-img" style="width:92.0%"></p>
+<figcaption>GitHub’s new-repository form with the repository-name field highlighted</figcaption>
+</figure>
+</div>
+<p>Before selecting <strong>Create repository</strong>, verify:</p>
+<ul>
+<li><strong>Visibility:</strong> Private</li>
+<li><strong>Add README:</strong> Off</li>
+<li><strong>Add <code>.gitignore</code>:</strong> None</li>
+<li><strong>Choose a license:</strong> None</li>
+</ul>
+<p>Do not initialize the repository with any files. We will connect the instructor history to this empty repository during the supervised lab.</p>
+<p>Have its HTTPS URL available:</p>
 <pre class="text"><code>https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git</code></pre>
 <p>Do not paste credentials into the URL or any course file.</p>
-<p>Do not initialize a repository inside <code>work/</code>; the course clone is already the repository.</p>
 </section>
-<section id="submit-the-check" class="level2">
-<h2 class="anchored" data-anchor-id="submit-the-check">6. Submit the check</h2>
-<p>Submit the output from:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> <span class="at">--version</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config user.name</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config user.email</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>You may obscure part of the email address in a public discussion post.</p>
+<section id="test-access-to-the-private-repository" class="level2">
+<h2 class="anchored" data-anchor-id="test-access-to-the-private-repository">6. Test access to the private repository</h2>
+<p>After creating the empty private repository, run this read-only command with your username substituted:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> ls-remote https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Copy the command from the code block and replace only <code>YOUR_GITHUB_USERNAME</code>. The URL must be plain text: do not include Markdown brackets or parentheses such as <code>[https://...](https://...)</code>.</p>
+<p>This may open the browser sign-in prepared in Step 4. Because the repository is empty, a successful check may return to the Terminal prompt without listing any branches. <strong>No authentication error</strong> means that Git can read the private repository using the configured HTTPS helper. This command does not modify or clone the repository.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If the Terminal asks for <strong>Username</strong> and <strong>Password</strong> instead of opening a browser, press <code>Ctrl+C</code>. Do not enter your GitHub password: GitHub does not accept account passwords for Git operations. Return to Step 4, complete either the GCM browser login or the GitHub CLI browser login, and then retry this command.</p>
+</div>
+</div>
+<p>This is the closest useful HTTPS preparation test for this course. It tests the actual private repository rather than a public URL, which would not require authentication. The supervised first Push remains the test of write access.</p>
+</section>
+<section id="bring-this-evidence-to-class" class="level2">
+<h2 class="anchored" data-anchor-id="bring-this-evidence-to-class">7. Bring this evidence to class</h2>
+<p>Have the following available to show the instructor or TA:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> <span class="at">--version</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config user.name</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> config user.email</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Also have the empty private repository open in your browser. You may obscure part of the email address in a public discussion post.</p>
 
 
 </section>
