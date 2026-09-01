@@ -1,32 +1,58 @@
 ---
 title: "Session 2 guided lab"
-subtitle: "Create and inspect a small Git history through RStudio"
+subtitle: "Set up course remotes and build a small Git history through RStudio"
 ---
 
 ::: {.callout-note}
-**Suggested use:** checkpoints 1–6 are the core route. They create three small
-commits entirely through the RStudio Git interface. The additional practice is a
-second, longer route that can be completed independently.
+**Suggested use:** complete the supervised setup checkpoint first. Checkpoints
+1–6 then create three small commits through the RStudio Git interface. The
+additional practice is a longer route that can be completed independently.
 :::
 
 ## Goal
 
-Use RStudio to review, select, commit, and synchronize meaningful changes to a
-synthetic-data analysis. Explain the repository state after every action.
+Use RStudio to clone the course repository, connect a private GitHub repository
+through HTTPS, and review, stage, commit, and synchronize meaningful changes to
+a synthetic-data analysis. Explain the repository state after every action.
 
-## Start from the repository root
+## Setup checkpoint: clone, connect, and authenticate
 
-1. Open the root `BIOS6301-materials.Rproj` file in your private course clone.
-2. Confirm that the project name shown in RStudio is the course-repository root.
-3. Open the **Git** tab. If it is missing, stop and ask for help.
-4. Copy the complete `course/session02/starter/` folder to
-   `work/session02-git-lab/`.
-5. Keep the root course project open. Do not initialize another Git repository
-   or open a second project inside the copied folder.
+Complete this checkpoint with the instructor or TA. The commands shown are a
+supplied one-time recipe; you are not expected to memorize them.
 
-The Git pane should now list the copied files as new or untracked.
+::: {.callout-warning}
+If you already have a course clone containing work, do not create another copy.
+Open its root `BIOS6301-materials.Rproj` and begin with **Part B: inspect the
+initial remote**.
+:::
 
-## One-time remote check
+### Part A: clone the public course repository in RStudio
+
+1. Select **File → New Project → Version Control → Git**.
+2. Use this repository URL:
+
+   ```text
+   https://github.com/slzhao/BIOS6301-materials.git
+   ```
+
+3. Use `BIOS6301-mywork` as the **Project directory name**.
+4. Choose the parent directory where you keep course projects.
+5. Select **Create Project** and wait for RStudio to open it.
+
+When the New Project Wizard appears, choose **Version Control**:
+
+![](images/rstudio-new-project-wizard.png){fig-alt="RStudio New Project Wizard with Version Control as one of three project choices" width="76%"}
+
+*Image source: [Posit RStudio User Guide](https://docs.posit.co/ide/user/ide/guide/code/projects.html). The next screens ask you to choose Git and paste the repository URL.*
+
+After cloning, confirm that the root project is open and that the **Git** tab is
+visible. The exact filenames in your Git pane may differ from this example:
+
+![](images/rstudio-vcs-pane-labeled.png){fig-alt="RStudio interface with the root project name, Git menu, and Git tab highlighted" width="88%"}
+
+*Interface image source: [Posit RStudio User Guide](https://docs.posit.co/ide/user/ide/guide/tools/version-control.html).*
+
+### Part B: inspect the initial remote
 
 Open RStudio's **Terminal** tab and run this read-only check:
 
@@ -34,21 +60,23 @@ Open RStudio's **Terminal** tab and run this read-only check:
 git remote -v
 ```
 
-The intended result is:
+Immediately after cloning, `origin` normally points to the instructor repository:
 
 ```text
-origin    your private BIOS6301 repository
-upstream  the instructor BIOS6301-materials repository
+origin  https://github.com/slzhao/BIOS6301-materials.git
 ```
 
-If both names already point to the correct places, do not reconfigure them.
+This is expected. The next part preserves that address as `upstream` and assigns
+`origin` to your empty private repository.
 
-::: {.callout-note collapse="true"}
-## One-time setup recipe, if the remotes are not configured
+If `origin` already points to your private repository and `upstream` already
+points to the instructor repository, do not repeat the setup commands. Continue
+with **Part D**.
 
-Run this only with the instructor or TA. Replace the username placeholder with
-your GitHub username. Use the plain HTTPS URL—without Markdown brackets or
-parentheses.
+### Part C: connect the private `origin` and complete the first Push
+
+Replace the username placeholder with your GitHub username. Use the plain HTTPS
+URL without Markdown brackets, parentheses, or credentials:
 
 ```bash
 git remote rename origin upstream
@@ -56,16 +84,54 @@ git remote add origin https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.gi
 git push -u origin main
 ```
 
-These lines establish the course's two-remotes arrangement. They are a supplied
-setup recipe, not commands you are expected to memorize. The first push may open
-a GitHub browser sign-in through Git Credential Manager or GitHub CLI. Complete
-authentication in the browser. If the terminal requests a GitHub password,
-cancel and ask for help; do not enter your account password.
+The first private Push may open GitHub in a browser through Git Credential
+Manager. Sign in, complete two-factor authentication, and authorize the helper
+if requested. Then return to RStudio and read the Push result.
+
+::: {.callout-note}
+If you prepared **GitHub CLI** on macOS or Linux, run `gh auth login` before the
+first Push. Choose **GitHub.com → HTTPS → Yes → Login with a web browser**.
 :::
+
+::: {.callout-warning}
+If the Terminal requests your ordinary GitHub account password, cancel and ask
+for help. Do not type a password or paste a personal access token.
+:::
+
+### Part D: verify the two-remotes arrangement
+
+Run:
+
+```bash
+git remote -v
+```
+
+The addresses should have these roles:
+
+```text
+origin    your private BIOS6301-mywork repository
+upstream  the public instructor BIOS6301-materials repository
+```
+
+Open your private repository on GitHub. Confirm that it now contains the course
+files and commit history. This successful Push is the evidence that HTTPS
+authentication works.
+
+## Start the core lab from the repository root
+
+1. Keep the root `BIOS6301-materials.Rproj` open.
+2. Copy the complete `course/session02/starter/` folder to
+   `work/session02-git-lab/`.
+3. In the copied `analysis/` folder, choose `report.Rmd` or `report.qmd` and
+   delete the unused alternative from the **copied work folder only**.
+4. Do not initialize another Git repository or open a second project inside the
+   copied folder.
+
+The Git pane should now list the copied files as new or untracked.
 
 ## Checkpoint 1: Read the Git pane
 
-Before selecting anything:
+Before staging anything:
 
 1. Identify each copied file in the Git pane.
 2. State why it appears.
@@ -77,12 +143,12 @@ Do not check every box until you understand every path.
 ## Checkpoint 2: Commit the analysis skeleton
 
 1. Click **Commit** to open **Review Changes**.
-2. Select one copied file and inspect its diff.
+2. Choose one copied file and inspect its diff.
 3. Check the **Staged** box only after reviewing the file.
-4. Repeat for `.gitignore`, `README.md`, `analysis/report.qmd`, and
-   `data/study_summary.csv`.
-5. Switch between the **Staged** and **Unstaged** views. Confirm that the intended
-   four files—and no others—are selected.
+4. Repeat for `.gitignore`, `README.md`, your chosen `analysis/report.Rmd` or
+   `analysis/report.qmd`, and `data/study_summary.csv`.
+5. Switch between the **Staged** and **Unstaged** views. Confirm that staged
+   snapshots exist for the intended four files—and no others.
 6. Enter the message `Add reproducible analysis skeleton`.
 7. Click **Commit** and read the result message.
 8. Open **History** and locate the new commit.
@@ -91,16 +157,17 @@ Explain why this commit exists locally before it is pushed to GitHub.
 
 ## Checkpoint 3: Add a calculation
 
-Open `work/session02-git-lab/analysis/report.qmd` and add a named object containing
-the mean outcome. Render and verify the result.
+Open your chosen `work/session02-git-lab/analysis/report.Rmd` or `report.qmd` and
+add a named object containing the mean outcome. Knit or Render and verify the
+result.
 
 Then use RStudio:
 
 1. Return to the Git pane and refresh it.
-2. Confirm that `analysis/report.qmd` is listed as modified.
+2. Confirm that the chosen report source is listed as modified.
 3. Confirm that the rendered HTML is absent because it is ignored.
 4. Open **Diff** and identify the exact calculation added.
-5. Stage only the `.qmd` source.
+5. Stage only the chosen `.Rmd` or `.qmd` source.
 6. Commit with the message `Calculate mean outcome`.
 7. Verify that History now contains two lab commits.
 
@@ -126,13 +193,15 @@ Temporary staging practice.
 
 1. Save and inspect the diff.
 2. Check **Staged**.
-3. Switch to the staged-diff view and confirm the sentence is selected.
+3. Switch to the staged-diff view and confirm that its snapshot contains the
+   sentence.
 4. Uncheck **Staged**.
 5. Confirm that the sentence remains in the working file.
 
-This demonstrates that unstaging changes selection, not file contents.
+This demonstrates that unchecking **Staged** stops preparing that snapshot for
+the next commit; it does not change the working file.
 
-After inspecting it again, use **Revert** to discard this known disposable edit.
+After inspecting it again, use **Revert** to erase this known disposable edit.
 Read the confirmation dialog before proceeding, and confirm that the file returns
 to its committed state.
 
@@ -141,8 +210,8 @@ to its committed state.
 1. Confirm that the Git pane is empty.
 2. Open History and reread the three messages.
 3. Click **Push**.
-4. If GitHub opens in a browser, complete sign-in and two-factor authentication
-   there, then return to RStudio.
+4. The saved HTTPS credential should normally be reused. If GitHub opens again,
+   complete sign-in and two-factor authentication there, then return to RStudio.
 5. Read the result and confirm that the push succeeded.
 6. Open your private GitHub repository and locate the three commits.
 
@@ -168,9 +237,10 @@ click **Push** so the updated history is also stored in your private `origin`.
 
 ## Additional practice: use the interface deliberately
 
-1. Make one meaningful edit to `analysis/report.qmd` and a different edit to
-   `README.md`. In Review Changes, stage only the analysis, commit it, then commit
-   the documentation separately. Explain why two commits are clearer than one.
+1. Make one meaningful edit to your chosen report source and a different edit
+   to `README.md`. In Review Changes, stage only the analysis, commit it, then
+   commit the documentation separately. Explain why two commits are clearer
+   than one.
 2. Open History and compare each new commit with its parent. Identify the exact
    commit that introduced the analysis change.
 3. Render the report again. Verify that the HTML remains on disk but absent from
@@ -198,7 +268,7 @@ Show the instructor or TA:
 
 - an empty RStudio Git pane;
 - History containing the three core commits;
-- the line-by-line diff for one selected commit;
+- the line-by-line diff for one chosen commit;
 - a successful Push result; and
 - `git remote -v` showing private `origin` and instructor `upstream`.
 

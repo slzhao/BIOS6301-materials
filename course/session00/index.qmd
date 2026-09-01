@@ -13,14 +13,15 @@ After completing the diagnostic, you should be able to:
 - Start RStudio and identify the console and source editor.
 - Run an R expression and save instructions in a source file.
 - Open an RStudio project.
-- Create and render a Quarto document to HTML.
+- Knit an R Markdown document or Render a Quarto document to HTML.
 - Locate the source file and the rendered output.
 - Copy an error message when asking for help.
 
 ## Install in this order
 
-Use only the official links below. You do not need to install any R packages,
-GitHub Desktop, or a separate Git graphical interface.
+Use only the official links below. You do not need GitHub Desktop or a separate
+Git graphical interface. RStudio may offer to install the `rmarkdown` package
+the first time you Knit an `.Rmd` file; accept that prompt.
 
 ### 1. Install R
 
@@ -42,11 +43,12 @@ free, open-source edition from the official
 Install **R before RStudio**. Then start RStudio once and confirm that the Console
 opens without an error.
 
-### 3. Verify Quarto
+### 3. Verify document rendering
 
-Quarto turns a source document containing prose and R code into an HTML report.
-First try the rendering exercise below. If RStudio cannot render a `.qmd` file,
-use the official [Quarto installation page](https://quarto.org/docs/get-started/)
+R Markdown and Quarto both turn a source document containing prose and R code
+into an HTML report. You may use either format for this diagnostic. RStudio uses
+**Knit** for `.Rmd` and **Render** for `.qmd`. If RStudio cannot render a `.qmd`
+file, use the official [Quarto installation page](https://quarto.org/docs/get-started/)
 and then restart RStudio.
 
 ### 4. Install Git using the course recommendation
@@ -133,14 +135,15 @@ the console output is not the analytical record.
 ## Part 3: Open the project
 
 In your local course repository, open `course/session00/`. Copy
-`BIOS6301-setup.Rproj` and `diagnostic-starter.qmd` into a new folder named
-`BIOS6301-setup`, then open the copied `.Rproj` file.
+`BIOS6301-setup.Rproj` and **one** starter—`diagnostic-starter.Rmd` or
+`diagnostic-starter.qmd`—into a new folder named `BIOS6301-setup`, then open the
+copied `.Rproj` file.
 
 Confirm that the project name appears in the upper-right corner of RStudio.
 
-## Part 4: Render a Quarto document
+## Part 4: Knit or Render the diagnostic
 
-Open the copied `diagnostic-starter.qmd` and render it to HTML.
+Open the copied diagnostic. Select **Knit** for `.Rmd` or **Render** for `.qmd`.
 
 The document passes when:
 
@@ -148,7 +151,8 @@ The document passes when:
 - The HTML contains the value `6.7`.
 - The HTML contains a small scatterplot.
 - The Git check reports a line beginning with `git version`.
-- No error appears during rendering.
+- The title block shows the date and time of this render.
+- No error appears during Knit or Render.
 
 
 ## How to ask for help
