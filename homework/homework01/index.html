@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Session 4 guided lab – BIOS6301 · Student Materials</title>
+<title>Homework 1: Reproducible R objects – BIOS6301 · Student Materials</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -22,6 +22,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -237,12 +272,17 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#tasks" id="toc-tasks" class="nav-link active" data-scroll-target="#tasks">Tasks</a></li>
-  <li><a href="#additional-practice-reshape-and-validate-with-base-r" id="toc-additional-practice-reshape-and-validate-with-base-r" class="nav-link" data-scroll-target="#additional-practice-reshape-and-validate-with-base-r">Additional practice: reshape and validate with base R</a>
-  <ul class="collapse">
-  <li><a href="#independent-practice-check" id="toc-independent-practice-check" class="nav-link" data-scroll-target="#independent-practice-check">Independent-practice check</a></li>
-  </ul></li>
-  <li><a href="#exit-evidence" id="toc-exit-evidence" class="nav-link" data-scroll-target="#exit-evidence">Exit evidence</a></li>
+  <li><a href="#purpose" id="toc-purpose" class="nav-link active" data-scroll-target="#purpose">Purpose</a></li>
+  <li><a href="#what-to-submit" id="toc-what-to-submit" class="nav-link" data-scroll-target="#what-to-submit">What to submit</a></li>
+  <li><a href="#study-vectors" id="toc-study-vectors" class="nav-link" data-scroll-target="#study-vectors">Study vectors</a></li>
+  <li><a href="#part-1-inspect-before-changing-anything-10-points" id="toc-part-1-inspect-before-changing-anything-10-points" class="nav-link" data-scroll-target="#part-1-inspect-before-changing-anything-10-points">Part 1: Inspect before changing anything — 10 points</a></li>
+  <li><a href="#part-2-preserve-and-clean-the-raw-values-15-points" id="toc-part-2-preserve-and-clean-the-raw-values-15-points" class="nav-link" data-scroll-target="#part-2-preserve-and-clean-the-raw-values-15-points">Part 2: Preserve and clean the raw values — 15 points</a></li>
+  <li><a href="#part-3-named-indexing-and-a-documented-correction-15-points" id="toc-part-3-named-indexing-and-a-documented-correction-15-points" class="nav-link" data-scroll-target="#part-3-named-indexing-and-a-documented-correction-15-points">Part 3: Named indexing and a documented correction — 15 points</a></li>
+  <li><a href="#part-4-select-patients-with-logical-conditions-15-points" id="toc-part-4-select-patients-with-logical-conditions-15-points" class="nav-link" data-scroll-target="#part-4-select-patients-with-logical-conditions-15-points">Part 4: Select patients with logical conditions — 15 points</a></li>
+  <li><a href="#part-5-calculate-and-interpret-change-25-points" id="toc-part-5-calculate-and-interpret-change-25-points" class="nav-link" data-scroll-target="#part-5-calculate-and-interpret-change-25-points">Part 5: Calculate and interpret change — 25 points</a></li>
+  <li><a href="#part-6-reproducibility-and-git-20-points" id="toc-part-6-reproducibility-and-git-20-points" class="nav-link" data-scroll-target="#part-6-reproducibility-and-git-20-points">Part 6: Reproducibility and Git — 20 points</a></li>
+  <li><a href="#permitted-help" id="toc-permitted-help" class="nav-link" data-scroll-target="#permitted-help">Permitted help</a></li>
+  <li><a href="#grading-summary" id="toc-grading-summary" class="nav-link" data-scroll-target="#grading-summary">Grading summary</a></li>
   </ul>
 </nav>
     </div>
@@ -251,8 +291,8 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Session 4 guided lab</h1>
-<p class="subtitle lead">Build and check an analysis table with base R</p>
+<h1 class="title">Homework 1: Reproducible R objects</h1>
+<p class="subtitle lead">BIOS 6301 · Assigned after Session 3</p>
 </div>
 
 
@@ -269,51 +309,150 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p><strong>Suggested use:</strong> complete the seven core tasks first. Additional practice extends the same base-R table into reshaping, metadata matching, nested objects, and stronger checks; unfinished items may be completed independently.</p>
-</div>
-</div>
-<p>Choose one format and copy either <code>starter/base-data-lab.Rmd</code> or <code>starter/base-data-lab.qmd</code> to <code>work/session04/</code>. Knit the <code>.Rmd</code> file or Render the <code>.qmd</code> file.</p>
-<section id="tasks" class="level2">
-<h2 class="anchored" data-anchor-id="tasks">Tasks</h2>
+<section id="purpose" class="level2">
+<h2 class="anchored" data-anchor-id="purpose">Purpose</h2>
+<p>This homework brings together the first three sessions. You will create a reproducible report, work with a small collection of patient-level vectors, inspect R object types, repair deliberately messy values, use indexing, and record the work with Git.</p>
+<p>The goal is not merely to obtain numbers. Your source document should make it possible for another analyst to see what you did, rerun it, and understand your conclusions.</p>
+</section>
+<section id="what-to-submit" class="level2">
+<h2 class="anchored" data-anchor-id="what-to-submit">What to submit</h2>
+<p>Choose <strong>one</strong> authoring format:</p>
+<ul>
+<li><a href="starter/homework01.qmd" download="">Download the Quarto starter</a></li>
+<li><a href="starter/homework01.Rmd" download="">Download the R Markdown starter</a></li>
+</ul>
+<p>Do not complete both versions. Copy the chosen starter into <code>work/homework01/</code> in your course repository and rename it using the convention announced in class.</p>
+<p>Submit:</p>
 <ol type="1">
-<li>State the unit of observation and verify that <code>(id, week)</code> is unique.</li>
-<li>Compare <code>visit["marker"]</code>, <code>visit[["marker"]]</code>, and <code>visit$marker</code> using <code>class()</code>, <code>typeof()</code>, and <code>length()</code>.</li>
-<li>Select week-4 observations without removing rows that have missing markers.</li>
-<li>Add <code>observed</code> and <code>change_from_baseline</code> without overwriting supplied columns.</li>
-<li>Produce an arm-specific summary with total <code>n</code>, observed <code>n</code>, mean, and SD.</li>
-<li>Construct a participant-by-week marker matrix and preserve two dimensions when selecting one week.</li>
-<li>Add at least three checks for properties required by the analysis.</li>
+<li>your completed <code>.qmd</code> or <code>.Rmd</code> source file;</li>
+<li>the rendered <code>.html</code> file; and</li>
+<li>the final Git commit identifier requested by the instructor.</li>
+</ol>
+<p>Your document must render successfully after restarting R. Do not use loops, user-written functions, data frames, or tidyverse functions for this assignment. They are either unnecessary here or will be covered later.</p>
+</section>
+<section id="study-vectors" class="level2">
+<h2 class="anchored" data-anchor-id="study-vectors">Study vectors</h2>
+<p>The starter supplies four parallel vectors from a small, synthetic blood pressure study:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>patient_id <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"P%02d"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">12</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>arm <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"control"</span>, <span class="st">"treated"</span>), <span class="dv">6</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>baseline_sbp_text <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"142"</span>, <span class="st">"138"</span>, <span class="st">"not recorded"</span>, <span class="st">"151"</span>, <span class="st">"133"</span>, <span class="st">"145"</span>,</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"128"</span>, <span class="st">"160"</span>, <span class="st">"139"</span>, <span class="st">"147"</span>, <span class="st">"136"</span>, <span class="st">"154"</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>week4_sbp_raw <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">140</span>, <span class="dv">128</span>, <span class="dv">131</span>, <span class="dv">143</span>, <span class="dv">129</span>, <span class="dv">136</span>, <span class="dv">126</span>, <span class="dv">18</span>, <span class="dv">135</span>, <span class="dv">139</span>, <span class="cn">NA</span>, <span class="dv">142</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Each position refers to the same patient across all four vectors. The value <code>"not recorded"</code> represents a missing baseline measurement. Patient P08’s week-4 value was entered as <code>18</code>; source verification established that it should be <code>148</code>.</p>
+</section>
+<section id="part-1-inspect-before-changing-anything-10-points" class="level2">
+<h2 class="anchored" data-anchor-id="part-1-inspect-before-changing-anything-10-points">Part 1: Inspect before changing anything — 10 points</h2>
+<ol type="1">
+<li>Use <code>class()</code>, <code>typeof()</code>, and <code>length()</code> to inspect <code>baseline_sbp_text</code> and <code>week4_sbp_raw</code>.</li>
+<li>Verify that all four vectors have equal lengths.</li>
+<li>Predict the type of <code>c(baseline_sbp_text[1], week4_sbp_raw[1])</code>, then run it. Explain why R produces that type.</li>
 </ol>
 </section>
-<section id="additional-practice-reshape-and-validate-with-base-r" class="level2">
-<h2 class="anchored" data-anchor-id="additional-practice-reshape-and-validate-with-base-r">Additional practice: reshape and validate with base R</h2>
+<section id="part-2-preserve-and-clean-the-raw-values-15-points" class="level2">
+<h2 class="anchored" data-anchor-id="part-2-preserve-and-clean-the-raw-values-15-points">Part 2: Preserve and clean the raw values — 15 points</h2>
 <ol type="1">
-<li>Use base <code>reshape()</code> to create one row per participant with separate baseline and week-4 marker columns. Verify six rows and one row per ID.</li>
-<li>Reshape that object back to long form, order by ID and week, and compare its marker values with the original table.</li>
-<li>Create a participant metadata table containing ID, site, and enrollment age. Match or merge it onto <code>week4</code> while preserving exactly six analysis rows.</li>
-<li>Identify IDs present in only one input before merging. Add a deliberate extra metadata ID and demonstrate that it does not create an analysis row.</li>
-<li>Store the raw data, week-4 data, summary, and marker matrix in a named list. Extract the summary both with <code>[</code> and <code>[[</code>; explain the difference in result structure.</li>
-<li>Select one row and one matrix column using <code>drop = FALSE</code>; write checks showing that both results remain two-dimensional.</li>
-<li>Write a compact <code>audit_visit()</code> function that stops for duplicate <code>(id, week)</code> keys, unexpected weeks, or missing IDs, and run it on a deliberately broken copy.</li>
+<li>Create <code>baseline_sbp_clean</code> as a copy of <code>baseline_sbp_text</code>.</li>
+<li>Replace <code>"not recorded"</code> in the copy with <code>NA</code>.</li>
+<li>Convert the cleaned copy to a numeric vector named <code>baseline_sbp</code>.</li>
+<li>Demonstrate that <code>baseline_sbp_text</code> remains unchanged and verify the type of <code>baseline_sbp</code>.</li>
 </ol>
-<section id="independent-practice-check" class="level3">
-<h3 class="anchored" data-anchor-id="independent-practice-check">Independent-practice check</h3>
-<p>The long-to-wide-to-long round trip should preserve IDs, weeks, and marker values after sorting. The deliberate metadata-only ID must be reported but must not alter the week-4 analysis population.</p>
 </section>
+<section id="part-3-named-indexing-and-a-documented-correction-15-points" class="level2">
+<h2 class="anchored" data-anchor-id="part-3-named-indexing-and-a-documented-correction-15-points">Part 3: Named indexing and a documented correction — 15 points</h2>
+<ol type="1">
+<li>Create <code>week4_sbp</code> as a copy of <code>week4_sbp_raw</code>.</li>
+<li>Assign <code>patient_id</code> as the names of <code>week4_sbp</code>.</li>
+<li>Use the patient name—not its numeric position—to correct P08 from <code>18</code> to <code>148</code>.</li>
+<li>Print the corrected P08 value and count the missing week-4 measurements.</li>
+</ol>
+<p>In one sentence, explain why preserving <code>week4_sbp_raw</code> is preferable to overwriting it.</p>
 </section>
-<section id="exit-evidence" class="level2">
-<h2 class="anchored" data-anchor-id="exit-evidence">Exit evidence</h2>
-<p>Render the row/key statement, structure comparisons, analysis table, summary, matrix dimensions, and checks.</p>
+<section id="part-4-select-patients-with-logical-conditions-15-points" class="level2">
+<h2 class="anchored" data-anchor-id="part-4-select-patients-with-logical-conditions-15-points">Part 4: Select patients with logical conditions — 15 points</h2>
+<p>Use logical indexing to report:</p>
+<ol type="1">
+<li>the IDs of all patients in the treated arm;</li>
+<li>the IDs of patients with both baseline and week-4 measurements observed.</li>
+</ol>
+<p>Do not type the requested patient IDs manually.</p>
+</section>
+<section id="part-5-calculate-and-interpret-change-25-points" class="level2">
+<h2 class="anchored" data-anchor-id="part-5-calculate-and-interpret-change-25-points">Part 5: Calculate and interpret change — 25 points</h2>
+<ol type="1">
+<li>Calculate <code>sbp_change = week 4 − baseline</code> for every patient and give the resulting vector patient names.</li>
+<li>Calculate the mean observed change among all patients.</li>
+<li>Calculate the mean observed change among treated patients.</li>
+<li>Write three sentences interpreting the results. State the number of patients contributing to each mean and explain how missing values were handled. Do not make a causal or clinical-effectiveness claim from this small synthetic dataset.</li>
+</ol>
+</section>
+<section id="part-6-reproducibility-and-git-20-points" class="level2">
+<h2 class="anchored" data-anchor-id="part-6-reproducibility-and-git-20-points">Part 6: Reproducibility and Git — 20 points</h2>
+<ol type="1">
+<li><p>Before editing, follow the Session 2 course-update procedure and confirm that the RStudio Git pane is clean.</p></li>
+<li><p>End the report with <code>sessionInfo()</code>.</p></li>
+<li><p>Restart R and render the complete document again.</p></li>
+<li><p>Before each commit, inspect the diff and stage only the files intended for that checkpoint.</p></li>
+<li><p>Make at least three meaningful commits as the work develops. Suggested checkpoints are:</p>
+<ul>
+<li>create the homework document;</li>
+<li>complete inspection and cleaning; and</li>
+<li>complete analysis and interpretation.</li>
+</ul></li>
+<li><p>Push the final work to your private course repository. Confirm that the final commit appears on GitHub and report its short commit identifier with your submission.</p></li>
+<li><p>Provide the browser address of your private course repository, using this form without <code>.git</code>:</p>
+<pre class="text"><code>https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork</code></pre>
+<p>Confirm that you sent collaborator invitations to the instructor and TA as taught in Session 2. Do not make the repository public.</p></li>
+</ol>
+<p>Commit messages should describe completed work. Messages such as <code>changes</code> or <code>homework</code> do not provide useful history.</p>
+</section>
+<section id="permitted-help" class="level2">
+<h2 class="anchored" data-anchor-id="permitted-help">Permitted help</h2>
+<p>You may use course materials, R’s built-in help, and general conceptual discussion with classmates. Submitted code and explanations must be your own, and substantial help from another person must be acknowledged.</p>
+<p>Because this assignment occurs before the course’s AI-assisted coding session, GitHub Copilot, ChatGPT, and other generative-AI coding tools are <strong>not permitted</strong> for Homework 1.</p>
+</section>
+<section id="grading-summary" class="level2">
+<h2 class="anchored" data-anchor-id="grading-summary">Grading summary</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Component</th>
+<th style="text-align: right;">Points</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Inspection and coercion explanation</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="even">
+<td>Preservation and cleaning</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="odd">
+<td>Named indexing and correction</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="even">
+<td>Logical indexing</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="odd">
+<td>Calculation and interpretation</td>
+<td style="text-align: right;">25</td>
+</tr>
+<tr class="even">
+<td>Reproducibility and Git</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr class="odd">
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>100</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Correct output without reproducible code or adequate explanation may receive only partial credit.</p>
 
 
 </section>

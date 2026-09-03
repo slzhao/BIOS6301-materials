@@ -1383,14 +1383,14 @@
     "href": "course/session06/index.html",
     "title": "Session 6 · Tidy data and dplyr",
     "section": "",
-    "text": "State the tidy-data rules, use the core dplyr verbs, distinguish grouped mutation from grouped summarization, and translate a pipeline into equivalent base R logic."
+    "text": "State the tidy-data rules, use the core dplyr verbs—including if_else() and case_when()—distinguish grouped mutation from grouped summarization, and translate a pipeline into equivalent base R logic."
   },
   {
     "objectID": "course/session06/index.html#learning-goals",
     "href": "course/session06/index.html#learning-goals",
     "title": "Session 6 · Tidy data and dplyr",
     "section": "",
-    "text": "State the tidy-data rules, use the core dplyr verbs, distinguish grouped mutation from grouped summarization, and translate a pipeline into equivalent base R logic."
+    "text": "State the tidy-data rules, use the core dplyr verbs—including if_else() and case_when()—distinguish grouped mutation from grouped summarization, and translate a pipeline into equivalent base R logic."
   },
   {
     "objectID": "course/session06/index.html#materials",
@@ -1691,14 +1691,56 @@
     "href": "course/session03/slides.html#what-you-will-be-able-to-do",
     "title": "R Objects: Vectors, Types, and Coercion",
     "section": "What you will be able to do",
-    "text": "What you will be able to do\n\n1 Name the four atomic vector types and inspect any object with class(), typeof(), and str().\n2 Distinguish NA, NaN, Inf, and NULL, and predict how each propagates.\n3 Predict the type of a coerced vector, and explain how one stray \"NA\" turns a numeric column into text.\n4 Subset a vector by position, negation, logical condition, and name — and say what x[NA] returns.\n5 Recognise recycling, including the case where it produces a wrong answer silently.\n6 Write a vectorized conditional with ifelse(), and explain why it is not if.\n7 Diagnose a sentinel value such as -99 before it reaches a mean."
+    "text": "What you will be able to do\n\n1 Describe what R is used for, inspect the current R session, and find authoritative help without leaving RStudio.\n2 Name the four atomic vector types and inspect any object with class(), typeof(), and str().\n3 Distinguish NA, NaN, Inf, and NULL, and predict how each propagates.\n4 Predict the type of a coerced vector, and explain how one stray \"NA\" turns a numeric column into text.\n5 Subset a vector by position, negation, logical condition, and name — and say what x[NA] returns.\n6 Recognise recycling, including the case where it produces a wrong answer silently.\n7 Write a vectorized conditional with ifelse(), and explain why it is not if.\n8 Diagnose a sentinel value such as -99 before it reaches a mean."
   },
   {
     "objectID": "course/session03/slides.html#roadmap-for-today",
     "href": "course/session03/slides.html#roadmap-for-today",
     "title": "R Objects: Vectors, Types, and Coercion",
     "section": "Roadmap for today",
-    "text": "Roadmap for today\n\n\n\n\n\n\n\n\n\nBlock\nMinutes\n\n\n\n\n1\nEverything is a vector\n15\n\n\n2\nNA, NaN, Inf — three kinds of nothing\n10\n\n\n3\nCoercion, and the silent wrong answer\n20\n\n\n4\nNames and indexing\n20\n\n\n5\nRecycling\n10\n\n\n6\nVectorized conditionals: ifelse()\n15\n\n\n\n\nIn lab this session you clean two genuinely broken columns. Blocks 3 and 5 are the ones that make that possible."
+    "text": "Roadmap for today\n\n\n\n\n\n\n\n\n\nBlock\nMinutes\n\n\n\n\n0\nR as a computing environment\n12\n\n\n1\nEverything is a vector\n12\n\n\n2\nNA, NaN, Inf — three kinds of nothing\n10\n\n\n3\nCoercion, and the silent wrong answer\n18\n\n\n4\nNames and indexing\n20\n\n\n5\nRecycling\n8\n\n\n6\nVectorized conditionals: ifelse()\n10\n\n\n\n\nIn lab this session you clean two genuinely broken columns. Blocks 3 and 5 are the ones that make that possible."
+  },
+  {
+    "objectID": "course/session03/slides.html#what-biostatisticians-use-r-to-do",
+    "href": "course/session03/slides.html#what-biostatisticians-use-r-to-do",
+    "title": "R Objects: Vectors, Types, and Coercion",
+    "section": "What biostatisticians use R to do",
+    "text": "What biostatisticians use R to do\n\n\n\nImport and validate study data\nReshape and derive analysis variables\nSummarize cohorts and missingness\nFit statistical models\n\n\n\nCreate publication-quality graphics\nRun simulation and resampling studies\nAutomate repeated analyses\nProduce reproducible reports\n\n\n\n\n\n\n\n\n\nR is both a statistical language and a computing environment. The same language carries an analysis from raw data to a report that can be rerun."
+  },
+  {
+    "objectID": "course/session03/slides.html#an-r-session-is-a-running-process",
+    "href": "course/session03/slides.html#an-r-session-is-a-running-process",
+    "title": "R Objects: Vectors, Types, and Coercion",
+    "section": "An R session is a running process",
+    "text": "An R session is a running process\nThe current session contains temporary state:\n\n\n\nObjects held in memory\nAttached packages\nOptions and locale\n\n\n\nCurrent working directory\nOpen connections\nRandom-number-generator state\n\n\n\nSaved .R, .Rmd, .qmd, and data files remain after the session ends. Objects that exist only in memory do not."
+  },
+  {
+    "objectID": "course/session03/slides.html#inspect-the-workspace-before-trusting-it",
+    "href": "course/session03/slides.html#inspect-the-workspace-before-trusting-it",
+    "title": "R Objects: Vectors, Types, and Coercion",
+    "section": "Inspect the workspace before trusting it",
+    "text": "Inspect the workspace before trusting it\nage &lt;- c(54, 61, 72)\narm &lt;- c(\"A\", \"B\", \"A\")\n\nls()          # names of objects in the current environment\nclass(age)    # the object's user-facing class\ntypeof(age)   # how R stores it\nstr(age)      # compact structure and a preview\n\nThe Environment pane is a convenient view. These functions are the reproducible, scriptable view."
+  },
+  {
+    "objectID": "course/session03/slides.html#remove-an-objector-restart-the-process",
+    "href": "course/session03/slides.html#remove-an-objector-restart-the-process",
+    "title": "R Objects: Vectors, Types, and Coercion",
+    "section": "Remove an object—or restart the process",
+    "text": "Remove an object—or restart the process\nrm(arm)              # remove one named object\nls()\n\nrm(list = ls())      # remove all visible objects\n\nrm(list = ls()) does not reset attached packages, options, connections, the working directory, or every other form of session state.\n\n\n\n\n\n\nUse targeted rm() while exploring. Use Session → Restart R when testing whether an analysis really starts cleanly."
+  },
+  {
+    "objectID": "course/session03/slides.html#ask-r-for-authoritative-help",
+    "href": "course/session03/slides.html#ask-r-for-authoritative-help",
+    "title": "R Objects: Vectors, Types, and Coercion",
+    "section": "Ask R for authoritative help",
+    "text": "Ask R for authoritative help\n?mean\nhelp(mean)\nargs(mean)\nexample(mean)\n\nRead a help page in this order:\nUsage  →  Arguments  →  Value  →  Examples"
+  },
+  {
+    "objectID": "course/session03/slides.html#install-load-and-record-the-environment",
+    "href": "course/session03/slides.html#install-load-and-record-the-environment",
+    "title": "R Objects: Vectors, Types, and Coercion",
+    "section": "Install, load, and record the environment",
+    "text": "Install, load, and record the environment\ninstall.packages(\"knitr\")  # once per R library or machine\nlibrary(knitr)             # each new R session or document\nknitr::kable               # reach one name explicitly\n\nR.version.string\nsessionInfo()\n\n\n\n\n\n\n\nInstall packages interactively during setup. Put required library() calls—or explicit package::function() calls—in the analysis. Do not hide install.packages() inside a report."
   },
   {
     "objectID": "course/session03/slides.html#there-are-no-scalars",
@@ -1890,20 +1932,6 @@
     "text": "Three ways ifelse() surprises you\n\nifelse(c(TRUE, FALSE, NA), \"yes\", \"no\")\n\n[1] \"yes\" \"no\"  NA   \n\n\n\n\nifelse(c(TRUE, FALSE), c(1, 2, 3), 0)\n\n[1] 1 0\n\n\n\n\n\nifelse(c(FALSE, TRUE), 1, \"x\")\n\n[1] \"x\" \"1\"\n\n\n\n\n\nNA in the test gives NA out · the result is as long as the test, not the branches · and the branches are coerced to one type."
   },
   {
-    "objectID": "course/session03/slides.html#borrowed-session-6-if_else",
-    "href": "course/session03/slides.html#borrowed-session-6-if_else",
-    "title": "R Objects: Vectors, Types, and Coercion",
-    "section": "Borrowed — session 6: if_else()",
-    "text": "Borrowed — session 6: if_else()\nlibrary(dplyr)\n\n# Errors instead of coercing:\nif_else(c(TRUE, FALSE), 1, \"x\")\n#&gt; Error: Can't combine `true` &lt;double&gt; and `false` &lt;character&gt;.\n\n# Errors instead of truncating:\nif_else(c(TRUE, FALSE), c(1, 2, 3), 0)\n#&gt; Error: `true` must have size 2, not size 3.\n\n# And gives you somewhere to put the missing values:\nif_else(c(TRUE, FALSE, NA), 1, 0, missing = -1)\n#&gt; [1]  1  0 -1\n\n\n\n\n\n\ndplyr::if_else() is ifelse() with the three surprises turned into errors. You meet dplyr properly in session 6 — this is here so you recognise it."
-  },
-  {
-    "objectID": "course/session03/slides.html#borrowed-session-6-case_when",
-    "href": "course/session03/slides.html#borrowed-session-6-case_when",
-    "title": "R Objects: Vectors, Types, and Coercion",
-    "section": "Borrowed — session 6: case_when()",
-    "text": "Borrowed — session 6: case_when()\n# Conditions are checked top to bottom; first match wins.\nbp_group &lt;- case_when(\n  is.na(sbp_0)  ~ \"missing\",\n  sbp_0 &gt;= 160  ~ \"stage 2\",\n  sbp_0 &gt;= 140  ~ \"stage 1\",\n  sbp_0 &gt;= 130  ~ \"elevated\",\n  .default      = \"normal\"\n)\n\n\nThe base R way\nbp_group &lt;- rep(\"normal\", length(sbp_0))\nbp_group[sbp_0 &gt;= 130] &lt;- \"elevated\"\nbp_group[sbp_0 &gt;= 140] &lt;- \"stage 1\"\nbp_group[sbp_0 &gt;= 160] &lt;- \"stage 2\"\nbp_group[is.na(sbp_0)] &lt;- \"missing\""
-  },
-  {
     "objectID": "course/session03/slides.html#everything-today-was-a-silent-wrong-answer",
     "href": "course/session03/slides.html#everything-today-was-a-silent-wrong-answer",
     "title": "R Objects: Vectors, Types, and Coercion",
@@ -1936,7 +1964,7 @@
     "href": "course/session02/lab.html#setup-checkpoint-clone-connect-and-authenticate",
     "title": "Session 2 guided lab",
     "section": "Setup checkpoint: clone, connect, and authenticate",
-    "text": "Setup checkpoint: clone, connect, and authenticate\nComplete this checkpoint with the instructor or TA. The commands shown are a supplied one-time recipe; you are not expected to memorize them.\n\n\n\n\n\n\nWarning\n\n\n\nIf you already have a course clone containing work, do not create another copy. Open its root BIOS6301-materials.Rproj and begin with Part B: inspect the initial remote.\n\n\n\nPart A: clone the public course repository in RStudio\n\nSelect File → New Project → Version Control → Git.\nUse this repository URL:\nhttps://github.com/slzhao/BIOS6301-materials.git\nUse BIOS6301-mywork as the Project directory name.\nChoose the parent directory where you keep course projects.\nSelect Create Project and wait for RStudio to open it.\n\nWhen the New Project Wizard appears, choose Version Control:\n\nImage source: Posit RStudio User Guide. The next screens ask you to choose Git and paste the repository URL.\nAfter cloning, confirm that the root project is open and that the Git tab is visible. The exact filenames in your Git pane may differ from this example:\n\nInterface image source: Posit RStudio User Guide.\n\n\nPart B: inspect the initial remote\nOpen RStudio’s Terminal tab and run this read-only check:\ngit remote -v\nImmediately after cloning, origin normally points to the instructor repository:\norigin  https://github.com/slzhao/BIOS6301-materials.git\nThis is expected. The next part preserves that address as upstream and assigns origin to your empty private repository.\nIf origin already points to your private repository and upstream already points to the instructor repository, do not repeat the setup commands. Continue with Part D.\n\n\nPart C: connect the private origin and complete the first Push\nReplace the username placeholder with your GitHub username. Use the plain HTTPS URL without Markdown brackets, parentheses, or credentials:\ngit remote rename origin upstream\ngit remote add origin https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git\ngit push -u origin main\nThe first private Push may open GitHub in a browser through Git Credential Manager. Sign in, complete two-factor authentication, and authorize the helper if requested. Then return to RStudio and read the Push result.\n\n\n\n\n\n\nNote\n\n\n\nIf you prepared GitHub CLI on macOS or Linux, run gh auth login before the first Push. Choose GitHub.com → HTTPS → Yes → Login with a web browser.\n\n\n\n\n\n\n\n\nWarning\n\n\n\nIf the Terminal requests your ordinary GitHub account password, cancel and ask for help. Do not type a password or paste a personal access token.\n\n\n\n\nPart D: verify the two-remotes arrangement\nRun:\ngit remote -v\nThe addresses should have these roles:\norigin    your private BIOS6301-mywork repository\nupstream  the public instructor BIOS6301-materials repository\nOpen your private repository on GitHub. Confirm that it now contains the course files and commit history. This successful Push is the evidence that HTTPS authentication works."
+    "text": "Setup checkpoint: clone, connect, and authenticate\nComplete this checkpoint with the instructor or TA. The commands shown are a supplied one-time recipe; you are not expected to memorize them.\n\n\n\n\n\n\nWarning\n\n\n\nIf you already have a course clone containing work, do not create another copy. Open its root BIOS6301-materials.Rproj and begin with Part B: inspect the initial remote.\n\n\n\nPart A: clone the public course repository in RStudio\n\nSelect File → New Project → Version Control → Git.\nUse this repository URL:\nhttps://github.com/slzhao/BIOS6301-materials.git\nUse BIOS6301-mywork as the Project directory name.\nChoose the parent directory where you keep course projects.\nSelect Create Project and wait for RStudio to open it.\n\nWhen the New Project Wizard appears, choose Version Control:\n\nImage source: Posit RStudio User Guide. The next screens ask you to choose Git and paste the repository URL.\nAfter cloning, confirm that the root project is open and that the Git tab is visible. The exact filenames in your Git pane may differ from this example:\n\nInterface image source: Posit RStudio User Guide.\n\n\nPart B: inspect the initial remote\nOpen RStudio’s Terminal tab and run this read-only check:\ngit remote -v\nImmediately after cloning, origin normally points to the instructor repository:\norigin  https://github.com/slzhao/BIOS6301-materials.git\nThis is expected. The next part preserves that address as upstream and assigns origin to your empty private repository.\nIf origin already points to your private repository and upstream already points to the instructor repository, do not repeat the setup commands. Continue with Part D.\n\n\nPart C: connect the private origin and complete the first Push\nReplace the username placeholder with your GitHub username. Use the plain HTTPS URL without Markdown brackets, parentheses, or credentials:\ngit remote rename origin upstream\ngit remote add origin https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git\ngit push -u origin main\nThe first private Push may open GitHub in a browser through Git Credential Manager. Sign in, complete two-factor authentication, and authorize the helper if requested. Then return to RStudio and read the Push result.\n\n\n\n\n\n\nNote\n\n\n\nIf you prepared GitHub CLI on macOS or Linux, run gh auth login before the first Push. Choose GitHub.com → HTTPS → Yes → Login with a web browser.\n\n\n\n\n\n\n\n\nWarning\n\n\n\nIf the Terminal requests your ordinary GitHub account password, cancel and ask for help. Do not type a password or paste a personal access token.\n\n\n\n\nPart D: verify the two-remotes arrangement\nRun:\ngit remote -v\nThe addresses should have these roles:\norigin    your private BIOS6301-mywork repository\nupstream  the public instructor BIOS6301-materials repository\nOpen your private repository on GitHub. Confirm that it now contains the course files and commit history. This successful Push is the evidence that HTTPS authentication works.\n\n\nPart E: verify course-staff access\nIn the private repository on GitHub, open Settings → Collaborators. Confirm that invitations have been sent to:\n\ninstructor: slzhao; and\nTA: zongyue.teng@Vanderbilt.Edu.\n\nIf either invitation is absent, select Add people, search for the account or email address, and send the invitation. A Pending label is expected until the recipient accepts. Keep the repository private.\n\n\n\nGitHub repository header with the Settings tab highlighted\n\n\nImage and procedure source: GitHub Docs — Inviting collaborators to a personal repository."
   },
   {
     "objectID": "course/session02/lab.html#start-the-core-lab-from-the-repository-root",
@@ -2006,7 +2034,7 @@
     "href": "course/session02/lab.html#exit-evidence",
     "title": "Session 2 guided lab",
     "section": "Exit evidence",
-    "text": "Exit evidence\nShow the instructor or TA:\n\nan empty RStudio Git pane;\nHistory containing the three core commits;\nthe line-by-line diff for one chosen commit;\na successful Push result; and\ngit remote -v showing private origin and instructor upstream.\n\nExplain the difference between a saved edit, a staged change, a local commit, and a commit pushed to GitHub."
+    "text": "Exit evidence\nShow the instructor or TA:\n\nan empty RStudio Git pane;\nHistory containing the three core commits;\nthe line-by-line diff for one chosen commit;\na successful Push result; and\ngit remote -v showing private origin and instructor upstream;\nthe browser address of the private BIOS6301-mywork repository; and\nSettings → Collaborators showing invitations for the instructor and TA.\n\nExplain the difference between a saved edit, a staged change, a local commit, and a commit pushed to GitHub."
   },
   {
     "objectID": "course/session02/preclass.html",
@@ -2051,18 +2079,25 @@
     "text": "5. Create an empty private GitHub repository\nOpen GitHub’s new-repository page and create a private repository named BIOS6301-mywork.\n\n\n\nGitHub’s new-repository form with the repository-name field highlighted\n\n\nBefore selecting Create repository, verify:\n\nVisibility: Private\nAdd README: Off\nAdd .gitignore: None\nChoose a license: None\n\nDo not initialize the repository with any files. We will connect the instructor history to this empty repository during the supervised lab.\nHave its HTTPS URL available:\nhttps://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git\nDo not paste credentials into the URL or any course file."
   },
   {
+    "objectID": "course/session02/preclass.html#invite-the-instructor-and-ta",
+    "href": "course/session02/preclass.html#invite-the-instructor-and-ta",
+    "title": "Before Session 2: prepare Git and GitHub",
+    "section": "6. Invite the instructor and TA",
+    "text": "6. Invite the instructor and TA\nThe repository must remain private, but the instructor and TA need access to review homework and its Git history.\nOpen BIOS6301-mywork on GitHub and select Settings:\n\n\n\nGitHub repository header with the Settings tab highlighted\n\n\nThen:\n\nIn the left sidebar under Access, select Collaborators.\nSelect Add people.\nSearch for and invite the instructor: slzhao.\nSelect Add people again and invite the TA using zongyue.teng@Vanderbilt.Edu.\nConfirm that both invitations are listed. They may remain Pending until the recipients accept them.\n\nDo not make the repository public and do not invite classmates. On a private repository owned by a personal GitHub account, collaborator access includes write access. Course staff will use that access only to view and grade your course work; they will not edit your repository.\nInterface image and procedure source: GitHub Docs — Inviting collaborators to a personal repository. The appearance may change slightly over time."
+  },
+  {
     "objectID": "course/session02/preclass.html#test-access-to-the-private-repository",
     "href": "course/session02/preclass.html#test-access-to-the-private-repository",
     "title": "Before Session 2: prepare Git and GitHub",
-    "section": "6. Test access to the private repository",
-    "text": "6. Test access to the private repository\nAfter creating the empty private repository, run this read-only command with your username substituted:\ngit ls-remote https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git\nCopy the command from the code block and replace only YOUR_GITHUB_USERNAME. The URL must be plain text: do not include Markdown brackets or parentheses such as [https://...](https://...).\nThis may open the browser sign-in prepared in Step 4. Because the repository is empty, a successful check may return to the Terminal prompt without listing any branches. No authentication error means that Git can read the private repository using the configured HTTPS helper. This command does not modify or clone the repository.\n\n\n\n\n\n\nWarning\n\n\n\nIf the Terminal asks for Username and Password instead of opening a browser, press Ctrl+C. Do not enter your GitHub password: GitHub does not accept account passwords for Git operations. Return to Step 4, complete either the GCM browser login or the GitHub CLI browser login, and then retry this command.\n\n\nThis is the closest useful HTTPS preparation test for this course. It tests the actual private repository rather than a public URL, which would not require authentication. The supervised first Push remains the test of write access."
+    "section": "7. Test access to the private repository",
+    "text": "7. Test access to the private repository\nAfter creating the empty private repository, run this read-only command with your username substituted:\ngit ls-remote https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git\nCopy the command from the code block and replace only YOUR_GITHUB_USERNAME. The URL must be plain text: do not include Markdown brackets or parentheses such as [https://...](https://...).\nThis may open the browser sign-in prepared in Step 4. Because the repository is empty, a successful check may return to the Terminal prompt without listing any branches. No authentication error means that Git can read the private repository using the configured HTTPS helper. This command does not modify or clone the repository.\n\n\n\n\n\n\nWarning\n\n\n\nIf the Terminal asks for Username and Password instead of opening a browser, press Ctrl+C. Do not enter your GitHub password: GitHub does not accept account passwords for Git operations. Return to Step 4, complete either the GCM browser login or the GitHub CLI browser login, and then retry this command.\n\n\nThis is the closest useful HTTPS preparation test for this course. It tests the actual private repository rather than a public URL, which would not require authentication. The supervised first Push remains the test of write access."
   },
   {
     "objectID": "course/session02/preclass.html#bring-this-evidence-to-class",
     "href": "course/session02/preclass.html#bring-this-evidence-to-class",
     "title": "Before Session 2: prepare Git and GitHub",
-    "section": "7. Bring this evidence to class",
-    "text": "7. Bring this evidence to class\nHave the following available to show the instructor or TA:\ngit --version\ngit config user.name\ngit config user.email\nAlso have the empty private repository open in your browser. You may obscure part of the email address in a public discussion post."
+    "section": "8. Bring this evidence to class",
+    "text": "8. Bring this evidence to class\nHave the following available to show the instructor or TA:\ngit --version\ngit config user.name\ngit config user.email\nAlso have the empty private repository open in your browser and confirm that the two course-staff invitations appear under Settings → Collaborators. You may obscure part of the email address in a public discussion post."
   },
   {
     "objectID": "course/session01/lab.html",
@@ -2147,6 +2182,125 @@
     "title": "Session 1: Reproducible workflow",
     "section": "Materials",
     "text": "Materials\n\nInteractive HTML lecture slides\nGuided lab\n\n\n\n\n\n\n\nNote\n\n\n\nThe lecture begins in the RStudio workbench, moves from an .R script to a complete R Markdown document, and then applies that model in Quarto. The lab is a scrollable HTML handout. Students create a new RStudio project and every lab source file from scratch; no repository clone or downloaded starter is needed."
+  },
+  {
+    "objectID": "homework/homework01/index.html",
+    "href": "homework/homework01/index.html",
+    "title": "Homework 1: Reproducible R objects",
+    "section": "",
+    "text": "This homework brings together the first three sessions. You will create a reproducible report, work with a small collection of patient-level vectors, inspect R object types, repair deliberately messy values, use indexing, and record the work with Git.\nThe goal is not merely to obtain numbers. Your source document should make it possible for another analyst to see what you did, rerun it, and understand your conclusions."
+  },
+  {
+    "objectID": "homework/homework01/index.html#purpose",
+    "href": "homework/homework01/index.html#purpose",
+    "title": "Homework 1: Reproducible R objects",
+    "section": "",
+    "text": "This homework brings together the first three sessions. You will create a reproducible report, work with a small collection of patient-level vectors, inspect R object types, repair deliberately messy values, use indexing, and record the work with Git.\nThe goal is not merely to obtain numbers. Your source document should make it possible for another analyst to see what you did, rerun it, and understand your conclusions."
+  },
+  {
+    "objectID": "homework/homework01/index.html#what-to-submit",
+    "href": "homework/homework01/index.html#what-to-submit",
+    "title": "Homework 1: Reproducible R objects",
+    "section": "What to submit",
+    "text": "What to submit\nChoose one authoring format:\n\nDownload the Quarto starter\nDownload the R Markdown starter\n\nDo not complete both versions. Copy the chosen starter into work/homework01/ in your course repository and rename it using the convention announced in class.\nSubmit:\n\nyour completed .qmd or .Rmd source file;\nthe rendered .html file; and\nthe final Git commit identifier requested by the instructor.\n\nYour document must render successfully after restarting R. Do not use loops, user-written functions, data frames, or tidyverse functions for this assignment. They are either unnecessary here or will be covered later."
+  },
+  {
+    "objectID": "homework/homework01/index.html#study-vectors",
+    "href": "homework/homework01/index.html#study-vectors",
+    "title": "Homework 1: Reproducible R objects",
+    "section": "Study vectors",
+    "text": "Study vectors\nThe starter supplies four parallel vectors from a small, synthetic blood pressure study:\npatient_id &lt;- sprintf(\"P%02d\", 1:12)\narm &lt;- rep(c(\"control\", \"treated\"), 6)\nbaseline_sbp_text &lt;- c(\n  \"142\", \"138\", \"not recorded\", \"151\", \"133\", \"145\",\n  \"128\", \"160\", \"139\", \"147\", \"136\", \"154\"\n)\nweek4_sbp_raw &lt;- c(140, 128, 131, 143, 129, 136, 126, 18, 135, 139, NA, 142)\nEach position refers to the same patient across all four vectors. The value \"not recorded\" represents a missing baseline measurement. Patient P08’s week-4 value was entered as 18; source verification established that it should be 148."
+  },
+  {
+    "objectID": "homework/homework01/index.html#part-1-inspect-before-changing-anything-10-points",
+    "href": "homework/homework01/index.html#part-1-inspect-before-changing-anything-10-points",
+    "title": "Homework 1: Reproducible R objects",
+    "section": "Part 1: Inspect before changing anything — 10 points",
+    "text": "Part 1: Inspect before changing anything — 10 points\n\nUse class(), typeof(), and length() to inspect baseline_sbp_text and week4_sbp_raw.\nVerify that all four vectors have equal lengths.\nPredict the type of c(baseline_sbp_text[1], week4_sbp_raw[1]), then run it. Explain why R produces that type."
+  },
+  {
+    "objectID": "homework/homework01/index.html#part-2-preserve-and-clean-the-raw-values-15-points",
+    "href": "homework/homework01/index.html#part-2-preserve-and-clean-the-raw-values-15-points",
+    "title": "Homework 1: Reproducible R objects",
+    "section": "Part 2: Preserve and clean the raw values — 15 points",
+    "text": "Part 2: Preserve and clean the raw values — 15 points\n\nCreate baseline_sbp_clean as a copy of baseline_sbp_text.\nReplace \"not recorded\" in the copy with NA.\nConvert the cleaned copy to a numeric vector named baseline_sbp.\nDemonstrate that baseline_sbp_text remains unchanged and verify the type of baseline_sbp."
+  },
+  {
+    "objectID": "homework/homework01/index.html#part-3-named-indexing-and-a-documented-correction-15-points",
+    "href": "homework/homework01/index.html#part-3-named-indexing-and-a-documented-correction-15-points",
+    "title": "Homework 1: Reproducible R objects",
+    "section": "Part 3: Named indexing and a documented correction — 15 points",
+    "text": "Part 3: Named indexing and a documented correction — 15 points\n\nCreate week4_sbp as a copy of week4_sbp_raw.\nAssign patient_id as the names of week4_sbp.\nUse the patient name—not its numeric position—to correct P08 from 18 to 148.\nPrint the corrected P08 value and count the missing week-4 measurements.\n\nIn one sentence, explain why preserving week4_sbp_raw is preferable to overwriting it."
+  },
+  {
+    "objectID": "homework/homework01/index.html#part-4-select-patients-with-logical-conditions-15-points",
+    "href": "homework/homework01/index.html#part-4-select-patients-with-logical-conditions-15-points",
+    "title": "Homework 1: Reproducible R objects",
+    "section": "Part 4: Select patients with logical conditions — 15 points",
+    "text": "Part 4: Select patients with logical conditions — 15 points\nUse logical indexing to report:\n\nthe IDs of all patients in the treated arm;\nthe IDs of patients with both baseline and week-4 measurements observed.\n\nDo not type the requested patient IDs manually."
+  },
+  {
+    "objectID": "homework/homework01/index.html#part-5-calculate-and-interpret-change-25-points",
+    "href": "homework/homework01/index.html#part-5-calculate-and-interpret-change-25-points",
+    "title": "Homework 1: Reproducible R objects",
+    "section": "Part 5: Calculate and interpret change — 25 points",
+    "text": "Part 5: Calculate and interpret change — 25 points\n\nCalculate sbp_change = week 4 − baseline for every patient and give the resulting vector patient names.\nCalculate the mean observed change among all patients.\nCalculate the mean observed change among treated patients.\nWrite three sentences interpreting the results. State the number of patients contributing to each mean and explain how missing values were handled. Do not make a causal or clinical-effectiveness claim from this small synthetic dataset."
+  },
+  {
+    "objectID": "homework/homework01/index.html#part-6-reproducibility-and-git-20-points",
+    "href": "homework/homework01/index.html#part-6-reproducibility-and-git-20-points",
+    "title": "Homework 1: Reproducible R objects",
+    "section": "Part 6: Reproducibility and Git — 20 points",
+    "text": "Part 6: Reproducibility and Git — 20 points\n\nBefore editing, follow the Session 2 course-update procedure and confirm that the RStudio Git pane is clean.\nEnd the report with sessionInfo().\nRestart R and render the complete document again.\nBefore each commit, inspect the diff and stage only the files intended for that checkpoint.\nMake at least three meaningful commits as the work develops. Suggested checkpoints are:\n\ncreate the homework document;\ncomplete inspection and cleaning; and\ncomplete analysis and interpretation.\n\nPush the final work to your private course repository. Confirm that the final commit appears on GitHub and report its short commit identifier with your submission.\nProvide the browser address of your private course repository, using this form without .git:\nhttps://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork\nConfirm that you sent collaborator invitations to the instructor and TA as taught in Session 2. Do not make the repository public.\n\nCommit messages should describe completed work. Messages such as changes or homework do not provide useful history."
+  },
+  {
+    "objectID": "homework/homework01/index.html#permitted-help",
+    "href": "homework/homework01/index.html#permitted-help",
+    "title": "Homework 1: Reproducible R objects",
+    "section": "Permitted help",
+    "text": "Permitted help\nYou may use course materials, R’s built-in help, and general conceptual discussion with classmates. Submitted code and explanations must be your own, and substantial help from another person must be acknowledged.\nBecause this assignment occurs before the course’s AI-assisted coding session, GitHub Copilot, ChatGPT, and other generative-AI coding tools are not permitted for Homework 1."
+  },
+  {
+    "objectID": "homework/homework01/index.html#grading-summary",
+    "href": "homework/homework01/index.html#grading-summary",
+    "title": "Homework 1: Reproducible R objects",
+    "section": "Grading summary",
+    "text": "Grading summary\n\n\n\nComponent\nPoints\n\n\n\n\nInspection and coercion explanation\n10\n\n\nPreservation and cleaning\n15\n\n\nNamed indexing and correction\n15\n\n\nLogical indexing\n15\n\n\nCalculation and interpretation\n25\n\n\nReproducibility and Git\n20\n\n\nTotal\n100\n\n\n\nCorrect output without reproducible code or adequate explanation may receive only partial credit."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "BIOS6301: Introduction to Statistical Computing",
+    "section": "",
+    "text": "TipCourse code and lab starters\n\n\n\nUse this website as the primary source for course reading. To clone the code, synthetic data, and lab starters, use the public GitHub repository:\nhttps://github.com/slzhao/BIOS6301-materials"
+  },
+  {
+    "objectID": "index.html#start-here",
+    "href": "index.html#start-here",
+    "title": "BIOS6301: Introduction to Statistical Computing",
+    "section": "Start here",
+    "text": "Start here\n\nComplete Session 0 before the first class.\nRead the course syllabus.\nCopy each lab starter from course/ into the matching folder under work/.\nCommit work before merging instructor updates."
+  },
+  {
+    "objectID": "index.html#course-sequence",
+    "href": "index.html#course-sequence",
+    "title": "BIOS6301: Introduction to Statistical Computing",
+    "section": "Course sequence",
+    "text": "Course sequence\n\n\n\nSession\nTopic\nMain emphasis\n\n\n\n\n0\nSetup and orientation\nself-study diagnostic\n\n\n1\nReproducible documents and workflow\nRStudio, R Markdown, and Quarto\n\n\n2\nGit and GitHub\nversion control\n\n\n3\nR objects\nbase R foundations\n\n\n4\nData structures and base-R handling\ncontainers and base R\n\n\n5\nGetting data into R\nfiles, checks, and dates\n\n\n6\nTidy data and dplyr\ntidyverse + base verification\n\n\n7\nReshaping and joins\nrelational data\n\n\n8\nVisualization\nbase graphics + ggplot2\n\n\n9\nPositron and AI-assisted coding\nCopilot verification and policy\n\n\n10\nPython introduction for R users\ntranslation from familiar R\n\n\n11\nControl flow and functions\nbase R programming\n\n\n12\nDebugging and numerical reliability\nreliable code\n\n\n13\nIteration, vectorization, and functionals\nloops, base functionals, and purrr\n\n\n14\nRandom generation and simulation\nMonte Carlo studies\n\n\n15\nResampling\nbootstrap, permutation, CV\n\n\n16\nSelected Practical Topics in R\nstrings, regex, and flexible needs"
+  },
+  {
+    "objectID": "index.html#r-dialect-policy",
+    "href": "index.html#r-dialect-policy",
+    "title": "BIOS6301: Introduction to Statistical Computing",
+    "section": "R dialect policy",
+    "text": "R dialect policy\nBase R and tidyverse are both accepted. Some sessions target a specific tool for learning, but otherwise choose the style that makes the data meaning and checks easiest to audit. You should be able to read both and verify important results."
+  },
+  {
+    "objectID": "index.html#repository-boundary",
+    "href": "index.html#repository-boundary",
+    "title": "BIOS6301: Introduction to Statistical Computing",
+    "section": "Repository boundary",
+    "text": "Repository boundary\nThe repository has two ownership areas:\ncourse/    instructor-managed; read, render, and copy, but do not edit\nwork/      student-managed; create answers and commit your work here\nDo not change anything under course/. Copy the relevant starter file or folder from course/ to the matching location under work/ before editing it.\nBefore receiving course updates, save and commit work under work/. We will practice this workflow in Session 2.\ngit status\ngit add work/\ngit commit -m \"Save current work\"\ngit fetch upstream\ngit merge upstream/main\ngit push origin main\nDo not place credentials, protected data, or restricted research data in either directory."
   },
   {
     "objectID": "syllabus.html",
@@ -2238,41 +2392,6 @@
     "title": "BIOS6301: Introduction to Statistical Computing",
     "section": "Course communication and support",
     "text": "Course communication and support\nStudents should ask for help early when software installation, Git state, file paths, or rendering prevents progress. A useful technical help request includes:\n\nthe operating system and relevant software version;\nthe command or action attempted;\nthe complete error or warning as text; and\na minimal synthetic example when code is involved.\n\nScreenshots may supplement an error message but should not replace the text of the message.\nStudents are encouraged to discuss ideas and debugging strategies with classmates, but submitted code and explanations must be their own. When substantial help is received from another person, that collaboration should be acknowledged briefly in the submission.\nThe early sessions, especially Git, may feel unusually difficult. Installation, paths, and version-control states create friction for experienced analysts as well as beginners. Difficulty during these sessions is not evidence of an inability to program. Read error messages carefully and ask for help before a technical problem blocks the statistical work."
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "BIOS6301: Introduction to Statistical Computing",
-    "section": "",
-    "text": "TipCourse code and lab starters\n\n\n\nUse this website as the primary source for course reading. To clone the code, synthetic data, and lab starters, use the public GitHub repository:\nhttps://github.com/slzhao/BIOS6301-materials"
-  },
-  {
-    "objectID": "index.html#start-here",
-    "href": "index.html#start-here",
-    "title": "BIOS6301: Introduction to Statistical Computing",
-    "section": "Start here",
-    "text": "Start here\n\nComplete Session 0 before the first class.\nRead the course syllabus.\nCopy each lab starter from course/ into the matching folder under work/.\nCommit work before merging instructor updates."
-  },
-  {
-    "objectID": "index.html#course-sequence",
-    "href": "index.html#course-sequence",
-    "title": "BIOS6301: Introduction to Statistical Computing",
-    "section": "Course sequence",
-    "text": "Course sequence\n\n\n\nSession\nTopic\nMain emphasis\n\n\n\n\n0\nSetup and orientation\nself-study diagnostic\n\n\n1\nReproducible documents and workflow\nRStudio, R Markdown, and Quarto\n\n\n2\nGit and GitHub\nversion control\n\n\n3\nR objects\nbase R foundations\n\n\n4\nData structures and base-R handling\ncontainers and base R\n\n\n5\nGetting data into R\nfiles, checks, and dates\n\n\n6\nTidy data and dplyr\ntidyverse + base verification\n\n\n7\nReshaping and joins\nrelational data\n\n\n8\nVisualization\nbase graphics + ggplot2\n\n\n9\nPositron and AI-assisted coding\nCopilot verification and policy\n\n\n10\nPython introduction for R users\ntranslation from familiar R\n\n\n11\nControl flow and functions\nbase R programming\n\n\n12\nDebugging and numerical reliability\nreliable code\n\n\n13\nIteration, vectorization, and functionals\nloops, base functionals, and purrr\n\n\n14\nRandom generation and simulation\nMonte Carlo studies\n\n\n15\nResampling\nbootstrap, permutation, CV\n\n\n16\nSelected Practical Topics in R\nstrings, regex, and flexible needs"
-  },
-  {
-    "objectID": "index.html#r-dialect-policy",
-    "href": "index.html#r-dialect-policy",
-    "title": "BIOS6301: Introduction to Statistical Computing",
-    "section": "R dialect policy",
-    "text": "R dialect policy\nBase R and tidyverse are both accepted. Some sessions target a specific tool for learning, but otherwise choose the style that makes the data meaning and checks easiest to audit. You should be able to read both and verify important results."
-  },
-  {
-    "objectID": "index.html#repository-boundary",
-    "href": "index.html#repository-boundary",
-    "title": "BIOS6301: Introduction to Statistical Computing",
-    "section": "Repository boundary",
-    "text": "Repository boundary\nThe repository has two ownership areas:\ncourse/    instructor-managed; read, render, and copy, but do not edit\nwork/      student-managed; create answers and commit your work here\nDo not change anything under course/. Copy the relevant starter file or folder from course/ to the matching location under work/ before editing it.\nBefore receiving course updates, save and commit work under work/. We will practice this workflow in Session 2.\ngit status\ngit add work/\ngit commit -m \"Save current work\"\ngit fetch upstream\ngit merge upstream/main\ngit push origin main\nDo not place credentials, protected data, or restricted research data in either directory."
   },
   {
     "objectID": "course/session00/index.html",
@@ -2629,7 +2748,7 @@
     "href": "course/session02/index.html#learning-goals",
     "title": "Session 2: Version control in RStudio",
     "section": "Learning goals",
-    "text": "Learning goals\nBy the end of the session, students should be able to:\n\nRead file status in RStudio’s Git pane.\nDistinguish saved edits, staged changes, local commits, and pushed commits.\nClone the public course repository through RStudio.\nConnect and verify a private origin using HTTPS browser authentication.\nInspect line-level changes before staging their current versions.\nComplete the everyday edit–review–stage–commit–push cycle through RStudio.\nUse .gitignore appropriately.\nDistinguish the student’s private origin from the instructor’s upstream.\nStop safely when a conflict, rejected push, or destructive choice appears.\nKeep restricted data and credentials out of repositories."
+    "text": "Learning goals\nBy the end of the session, students should be able to:\n\nRead file status in RStudio’s Git pane.\nDistinguish saved edits, staged changes, local commits, and pushed commits.\nClone the public course repository through RStudio.\nConnect and verify a private origin using HTTPS browser authentication.\nInvite the instructor and TA to the private repository for grading access.\nInspect line-level changes before staging their current versions.\nComplete the everyday edit–review–stage–commit–push cycle through RStudio.\nUse .gitignore appropriately.\nDistinguish the student’s private origin from the instructor’s upstream.\nStop safely when a conflict, rejected push, or destructive choice appears.\nKeep restricted data and credentials out of repositories."
   },
   {
     "objectID": "course/session02/index.html#materials",
@@ -2650,7 +2769,7 @@
     "href": "course/session02/slides.html#what-you-should-be-able-to-do",
     "title": "Git and GitHub for Statistical Computing",
     "section": "What you should be able to do",
-    "text": "What you should be able to do\n1 Explain why version control matters for statistical work.\n2 Read Git status in the RStudio Git pane.\n3 Distinguish saved edits, staged changes, local commits, and pushed commits.\n4 Complete a safe Pull → Edit → Review → Commit → Push cycle.\n5 Stop safely when a conflict, rejected push, or sensitive file appears."
+    "text": "What you should be able to do\n1 Explain why version control matters for statistical work.\n2 Read Git status in the RStudio Git pane.\n3 Distinguish saved edits, staged changes, local commits, and pushed commits.\n4 Complete a safe Pull → Edit → Review → Commit → Push cycle.\n5 Stop safely when a conflict, rejected push, or sensitive file appears.\n6 Give course staff access to a private homework repository."
   },
   {
     "objectID": "course/session02/slides.html#saving-files-is-not-version-control",
@@ -3003,6 +3122,13 @@
     "text": "The first private Push completes HTTPS authentication\n\nRun the supplied git push -u origin main setup line.\nGit Credential Manager—or GitHub CLI—opens GitHub in a browser.\nSign in and complete two-factor authentication.\nAuthorize the credential helper if GitHub asks.\nReturn to RStudio and read the Push result.\nOpen the private repository and confirm that its history is present.\n\nLater Pulls and Pushes should normally reuse the stored credential.\n\n\n\n\n\n\nIf the Terminal requests your ordinary GitHub account password, cancel and ask for help. Do not type a password or paste a personal access token."
   },
   {
+    "objectID": "course/session02/slides.html#give-course-staff-access-without-making-the-repository-public",
+    "href": "course/session02/slides.html#give-course-staff-access-without-making-the-repository-public",
+    "title": "Git and GitHub for Statistical Computing",
+    "section": "Give course staff access without making the repository public",
+    "text": "Give course staff access without making the repository public\n\nIn BIOS6301-mywork:\n\nSettings → Collaborators → Add people\nInvite instructor slzhao.\nInvite TA zongyue.teng@Vanderbilt.Edu.\nLeave the repository Private.\n\nThe invitation may show Pending until course staff accept it."
+  },
+  {
     "objectID": "course/session02/slides.html#security-is-part-of-the-workflow",
     "href": "course/session02/slides.html#security-is-part-of-the-workflow",
     "title": "Git and GitHub for Statistical Computing",
@@ -3042,14 +3168,14 @@
     "href": "course/session03/index.html",
     "title": "Session 3 · R objects",
     "section": "",
-    "text": "By the end of this session, you should be able to predict the type and length of an R expression, diagnose unintended coercion, subset vectors safely, distinguish common missing/special values, and explain what a factor stores."
+    "text": "By the end of this session, you should be able to inspect and document an R session, find authoritative help, predict the type and length of an R expression, diagnose unintended coercion, subset vectors safely, and distinguish common missing and special values."
   },
   {
     "objectID": "course/session03/index.html#learning-goals",
     "href": "course/session03/index.html#learning-goals",
     "title": "Session 3 · R objects",
     "section": "",
-    "text": "By the end of this session, you should be able to predict the type and length of an R expression, diagnose unintended coercion, subset vectors safely, distinguish common missing/special values, and explain what a factor stores."
+    "text": "By the end of this session, you should be able to inspect and document an R session, find authoritative help, predict the type and length of an R expression, diagnose unintended coercion, subset vectors safely, and distinguish common missing and special values."
   },
   {
     "objectID": "course/session03/index.html#materials",
@@ -3406,14 +3532,14 @@
     "href": "course/session06/slides.html#what-you-will-be-able-to-do",
     "title": "Tidyverse Foundations and the dplyr Verbs",
     "section": "What you will be able to do",
-    "text": "What you will be able to do\n\n1 Explain what library() does, and diagnose a masked function in under a minute.\n2 Distinguish a tibble from a data.frame and say what actually differs.\n3 Write pipelines with |&gt; — and read %&gt;%.\n4 Use select, filter, arrange, mutate, rename, distinct, count.\n5 Compute grouped summaries with an honest n, and know when you still need ungroup().\n6 Translate a base-R data-handling script into dplyr, line by line.\n7 Explain why filter(trial, age &gt; 70) works with no quotes, and where that convenience bites."
+    "text": "What you will be able to do\n\n1 Explain what library() does, and diagnose a masked function in under a minute.\n2 Distinguish a tibble from a data.frame and say what actually differs.\n3 Write pipelines with |&gt; — and read %&gt;%.\n4 Use select, filter, arrange, mutate, if_else, case_when, rename, distinct, and count.\n5 Compute grouped summaries with an honest n, and know when you still need ungroup().\n6 Translate a base-R data-handling script into dplyr, line by line.\n7 Explain why filter(trial, age &gt; 70) works with no quotes, and where that convenience bites."
   },
   {
     "objectID": "course/session06/slides.html#roadmap-for-today",
     "href": "course/session06/slides.html#roadmap-for-today",
     "title": "Tidyverse Foundations and the dplyr Verbs",
     "section": "Roadmap for today",
-    "text": "Roadmap for today\n\n\n\n\n\n\n\n\n\nBlock\nMinutes\n\n\n\n\n1\nPackages, namespaces, and masking\n15\n\n\n2\nData frames and tibbles\n10\n\n\n3\nThe pipe, and the design principles\n10\n\n\n4\nThe verbs: select filter arrange mutate …\n25\n\n\n5\nGrouping: group_by summarise count across\n20\n\n\n6\nTranslating session 4, line by line\n5\n\n\n7\nTidy evaluation in ten minutes\n10\n\n\n\n\nSame 60-patient cohort as every other session. Three 12-week visits are missing, and that is deliberate."
+    "text": "Roadmap for today\n\n\n\n\n\n\n\n\n\nBlock\nMinutes\n\n\n\n\n1\nPackages, namespaces, and masking\n15\n\n\n2\nData frames and tibbles\n10\n\n\n3\nThe pipe, and the design principles\n10\n\n\n4\nThe verbs: select filter arrange mutate if_else case_when …\n25\n\n\n5\nGrouping: group_by summarise count across\n20\n\n\n6\nTranslating session 4, line by line\n5\n\n\n7\nTidy evaluation in ten minutes\n10\n\n\n\n\nSame 60-patient cohort as every other session. Three 12-week visits are missing, and that is deliberate."
   },
   {
     "objectID": "course/session06/slides.html#installed-loaded-or-reached-into",
@@ -3507,11 +3633,25 @@
     "text": "mutate()\n\ntrial &lt;- trial |&gt;\n  mutate(\n    change    = sbp_12 - sbp_0,\n    responder = change &lt; -10\n  )\ntrial |&gt; select(id, sbp_0, sbp_12, change, responder) |&gt; head(3)\n\n# A tibble: 3 x 5\n  id    sbp_0 sbp_12 change responder\n  &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;lgl&gt;    \n1 P001    160    144    -16 TRUE     \n2 P002    162    156     -6 FALSE    \n3 P003    157    156     -1 FALSE    \n\n\n\n\ntransform(trial, sbp_x2 = sbp_0 * 2, sbp_x3 = sbp_x2 + sbp_0)\n\nError in eval(substitute(list(...)), `_data`, parent.frame()): object 'sbp_x2' not found\n\n\n\n\n\n\n\n\nThe base R way\n\n\ntrial$change &lt;- trial$sbp_12 - trial$sbp_0\ntrial$responder &lt;- trial$change &lt; -10"
   },
   {
+    "objectID": "course/session06/slides.html#if_else-is-strict-where-ifelse-is-permissive",
+    "href": "course/session06/slides.html#if_else-is-strict-where-ifelse-is-permissive",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "if_else() is strict where ifelse() is permissive",
+    "text": "if_else() is strict where ifelse() is permissive\n\nifelse(c(TRUE, FALSE), 1, \"x\")\n\n[1] \"1\" \"x\"\n\nif_else(c(TRUE, FALSE), 1, \"x\")\n\nError in `if_else()`:\n! Can't combine `true` &lt;double&gt; and `false` &lt;character&gt;.\n\n\n\n\nif_else(c(TRUE, FALSE, NA), 1, 0, missing = -1)\n\n[1]  1  0 -1\n\n\n\n\n\n\n\n\nif_else() requires compatible types and sizes and gives missing conditions an explicit result. It stops where ifelse() might silently coerce or recycle."
+  },
+  {
     "objectID": "course/session06/slides.html#case_when",
     "href": "course/session06/slides.html#case_when",
     "title": "Tidyverse Foundations and the dplyr Verbs",
     "section": "case_when()",
     "text": "case_when()\n\ntrial |&gt;\n  mutate(bp_cat = case_when(\n    is.na(sbp_12) ~ \"missing\",\n    sbp_12 &lt;  120 ~ \"normal\",\n    sbp_12 &lt;  140 ~ \"elevated\",\n    .default      = \"hypertensive\"\n  )) |&gt;\n  count(bp_cat)\n\n# A tibble: 4 x 2\n  bp_cat           n\n  &lt;chr&gt;        &lt;int&gt;\n1 elevated        17\n2 hypertensive    35\n3 missing          3\n4 normal           5\n\n\n\n\nRead top to bottom: the first TRUE wins. Put is.na() first, or the missing values fall through into whichever category comes last."
+  },
+  {
+    "objectID": "course/session06/slides.html#the-base-r-category-assignment",
+    "href": "course/session06/slides.html#the-base-r-category-assignment",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "The base R category assignment",
+    "text": "The base R category assignment\n\nbp_cat &lt;- rep(\"hypertensive\", nrow(trial))\nbp_cat[trial$sbp_12 &lt; 140] &lt;- \"elevated\"\nbp_cat[trial$sbp_12 &lt; 120] &lt;- \"normal\"\nbp_cat[is.na(trial$sbp_12)] &lt;- \"missing\"\n\ntable(bp_cat)\n\nbp_cat\n    elevated hypertensive      missing       normal \n          17           35            3            5 \n\n\n\nThe base version initializes an output vector and replaces values in sequence. The order still matters—but here later assignments overwrite earlier ones."
   },
   {
     "objectID": "course/session06/slides.html#case_when-fails-loudly",
