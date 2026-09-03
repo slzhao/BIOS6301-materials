@@ -1,0 +1,157 @@
+---
+title: "Homework 1: Reproducible R objects"
+subtitle: "BIOS 6301 · Assigned after Session 3"
+---
+
+## Purpose
+
+This homework brings together the first three sessions. You will create a
+reproducible report, work with a small collection of patient-level vectors,
+inspect R object types, repair deliberately messy values, use indexing, and
+record the work with Git.
+
+The goal is not merely to obtain numbers. Your source document should make it
+possible for another analyst to see what you did, rerun it, and understand your
+conclusions.
+
+## What to submit
+
+Choose **one** authoring format:
+
+- <a href="starter/homework01.qmd" download>Download the Quarto starter</a>
+- <a href="starter/homework01.Rmd" download>Download the R Markdown starter</a>
+
+Do not complete both versions. Copy the chosen starter into
+`work/homework01/` in your course repository and rename it using the convention
+announced in class.
+
+Submit:
+
+1. your completed `.qmd` or `.Rmd` source file;
+2. the rendered `.html` file; and
+3. the final Git commit identifier requested by the instructor.
+
+Your document must render successfully after restarting R. Do not use loops,
+user-written functions, data frames, or tidyverse functions for this assignment.
+They are either unnecessary here or will be covered later.
+
+## Study vectors
+
+The starter supplies four parallel vectors from a small, synthetic blood
+pressure study:
+
+```r
+patient_id <- sprintf("P%02d", 1:12)
+arm <- rep(c("control", "treated"), 6)
+baseline_sbp_text <- c(
+  "142", "138", "not recorded", "151", "133", "145",
+  "128", "160", "139", "147", "136", "154"
+)
+week4_sbp_raw <- c(140, 128, 131, 143, 129, 136, 126, 18, 135, 139, NA, 142)
+```
+
+Each position refers to the same patient across all four vectors. The value
+`"not recorded"` represents a missing baseline measurement. Patient P08's
+week-4 value was entered as `18`; source verification established that it
+should be `148`.
+
+## Part 1: Inspect before changing anything — 10 points
+
+1. Use `class()`, `typeof()`, and `length()` to inspect
+   `baseline_sbp_text` and `week4_sbp_raw`.
+2. Verify that all four vectors have equal lengths.
+3. Predict the type of `c(baseline_sbp_text[1], week4_sbp_raw[1])`, then run it.
+   Explain why R produces that type.
+
+## Part 2: Preserve and clean the raw values — 15 points
+
+1. Create `baseline_sbp_clean` as a copy of `baseline_sbp_text`.
+2. Replace `"not recorded"` in the copy with `NA`.
+3. Convert the cleaned copy to a numeric vector named `baseline_sbp`.
+4. Demonstrate that `baseline_sbp_text` remains unchanged and verify the type
+   of `baseline_sbp`.
+
+## Part 3: Named indexing and a documented correction — 15 points
+
+1. Create `week4_sbp` as a copy of `week4_sbp_raw`.
+2. Assign `patient_id` as the names of `week4_sbp`.
+3. Use the patient name—not its numeric position—to correct P08 from `18` to
+   `148`.
+4. Print the corrected P08 value and count the missing week-4 measurements.
+
+In one sentence, explain why preserving `week4_sbp_raw` is preferable to
+overwriting it.
+
+## Part 4: Select patients with logical conditions — 15 points
+
+Use logical indexing to report:
+
+1. the IDs of all patients in the treated arm;
+2. the IDs of patients with both baseline and week-4 measurements observed.
+
+Do not type the requested patient IDs manually.
+
+## Part 5: Calculate and interpret change — 25 points
+
+1. Calculate `sbp_change = week 4 − baseline` for every patient and give the
+   resulting vector patient names.
+2. Calculate the mean observed change among all patients.
+3. Calculate the mean observed change among treated patients.
+4. Write three sentences interpreting the results. State the number of
+   patients contributing to each mean and explain how missing values were
+   handled. Do not make a causal or clinical-effectiveness claim from this
+   small synthetic dataset.
+
+## Part 6: Reproducibility and Git — 20 points
+
+1. Before editing, follow the Session 2 course-update procedure and confirm that
+   the RStudio Git pane is clean.
+2. End the report with `sessionInfo()`.
+3. Restart R and render the complete document again.
+4. Before each commit, inspect the diff and stage only the files intended for
+   that checkpoint.
+5. Make at least three meaningful commits as the work develops. Suggested
+   checkpoints are:
+   - create the homework document;
+   - complete inspection and cleaning; and
+   - complete analysis and interpretation.
+6. Push the final work to your private course repository. Confirm that the final
+   commit appears on GitHub and report its short commit identifier with your
+   submission.
+7. Provide the browser address of your private course repository, using this
+   form without `.git`:
+
+   ```text
+   https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork
+   ```
+
+   Confirm that you sent collaborator invitations to the instructor and TA as
+   taught in Session 2. Do not make the repository public.
+
+Commit messages should describe completed work. Messages such as `changes` or
+`homework` do not provide useful history.
+
+## Permitted help
+
+You may use course materials, R's built-in help, and general conceptual
+discussion with classmates. Submitted code and explanations must be your own,
+and substantial help from another person must be acknowledged.
+
+Because this assignment occurs before the course's AI-assisted coding session,
+GitHub Copilot, ChatGPT, and other generative-AI coding tools are **not
+permitted** for Homework 1.
+
+## Grading summary
+
+| Component | Points |
+|---|---:|
+| Inspection and coercion explanation | 10 |
+| Preservation and cleaning | 15 |
+| Named indexing and correction | 15 |
+| Logical indexing | 15 |
+| Calculation and interpretation | 25 |
+| Reproducibility and Git | 20 |
+| **Total** | **100** |
+
+Correct output without reproducible code or adequate explanation may receive
+only partial credit.

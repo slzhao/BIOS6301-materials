@@ -70,25 +70,28 @@ Today's deck develops one part of the current arc; later-session tools are named
 ## What you will be able to do {.smaller}
 
 ::: {.smaller}
-[1]{.objective-num} **Name** the four atomic vector types and inspect any object
+[1]{.objective-num} **Describe** what R is used for, inspect the current R
+session, and find authoritative help without leaving RStudio.
+
+[2]{.objective-num} **Name** the four atomic vector types and inspect any object
 with `class()`, `typeof()`, and `str()`.
 
-[2]{.objective-num} **Distinguish** `NA`, `NaN`, `Inf`, and `NULL`, and predict
+[3]{.objective-num} **Distinguish** `NA`, `NaN`, `Inf`, and `NULL`, and predict
 how each propagates.
 
-[3]{.objective-num} **Predict** the type of a coerced vector, and explain how one
+[4]{.objective-num} **Predict** the type of a coerced vector, and explain how one
 stray `"NA"` turns a numeric column into text.
 
-[4]{.objective-num} **Subset** a vector by position, negation, logical condition,
+[5]{.objective-num} **Subset** a vector by position, negation, logical condition,
 and name — and say what `x[NA]` returns.
 
-[5]{.objective-num} **Recognise** recycling, including the case where it produces
+[6]{.objective-num} **Recognise** recycling, including the case where it produces
 a wrong answer silently.
 
-[6]{.objective-num} **Write** a vectorized conditional with `ifelse()`, and
+[7]{.objective-num} **Write** a vectorized conditional with `ifelse()`, and
 explain why it is not `if`.
 
-[7]{.objective-num} **Diagnose** a sentinel value such as `-99` before it reaches
+[8]{.objective-num} **Diagnose** a sentinel value such as `-99` before it reaches
 a mean.
 :::
 
@@ -97,12 +100,13 @@ a mean.
 
 | | Block | Minutes |
 |---|---|---|
-| 1 | Everything is a vector | 15 |
+| 0 | R as a computing environment | 12 |
+| 1 | Everything is a vector | 12 |
 | 2 | `NA`, `NaN`, `Inf` — three kinds of nothing | 10 |
-| 3 | **Coercion**, and the silent wrong answer | 20 |
+| 3 | **Coercion**, and the silent wrong answer | 18 |
 | 4 | Names and indexing | 20 |
-| 5 | **Recycling** | 10 |
-| 6 | Vectorized conditionals: `ifelse()` | 15 |
+| 5 | **Recycling** | 8 |
+| 6 | Vectorized conditionals: `ifelse()` | 10 |
 
 : {tbl-colwidths="[6,64,30]"}
 
@@ -110,6 +114,134 @@ a mean.
 
 **In lab this session** you clean two genuinely broken columns. Blocks 3 and 5 are
 the ones that make that possible.
+
+
+# 0 · R as a computing environment {.section-divider}
+
+## What biostatisticians use R to do {.smaller}
+
+::: columns
+::: {.column width="48%"}
+- Import and validate study data
+- Reshape and derive analysis variables
+- Summarize cohorts and missingness
+- Fit statistical models
+:::
+
+::: {.column width="48%"}
+- Create publication-quality graphics
+- Run simulation and resampling studies
+- Automate repeated analyses
+- Produce reproducible reports
+:::
+:::
+
+. . .
+
+::: {.callout-note appearance="simple"}
+R is both a **statistical language** and a **computing environment**. The same
+language carries an analysis from raw data to a report that can be rerun.
+:::
+
+
+## An R session is a running process {.smaller}
+
+The current session contains temporary state:
+
+::: columns
+::: {.column width="48%"}
+- Objects held in memory
+- Attached packages
+- Options and locale
+:::
+
+::: {.column width="48%"}
+- Current working directory
+- Open connections
+- Random-number-generator state
+:::
+:::
+
+. . .
+
+Saved `.R`, `.Rmd`, `.qmd`, and data files remain after the session ends. Objects
+that exist only in memory do not.
+
+
+## Inspect the workspace before trusting it {.smaller}
+
+```r
+age <- c(54, 61, 72)
+arm <- c("A", "B", "A")
+
+ls()          # names of objects in the current environment
+class(age)    # the object's user-facing class
+typeof(age)   # how R stores it
+str(age)      # compact structure and a preview
+```
+
+. . .
+
+The **Environment pane** is a convenient view. These functions are the
+reproducible, scriptable view.
+
+
+## Remove an object—or restart the process {.smaller}
+
+```r
+rm(arm)              # remove one named object
+ls()
+
+rm(list = ls())      # remove all visible objects
+```
+
+. . .
+
+`rm(list = ls())` does **not** reset attached packages, options, connections,
+the working directory, or every other form of session state.
+
+::: {.callout-tip appearance="simple"}
+Use targeted `rm()` while exploring. Use **Session → Restart R** when testing
+whether an analysis really starts cleanly.
+:::
+
+
+## Ask R for authoritative help {.smaller}
+
+```r
+?mean
+help(mean)
+args(mean)
+example(mean)
+```
+
+. . .
+
+Read a help page in this order:
+
+```text
+Usage  →  Arguments  →  Value  →  Examples
+```
+
+
+## Install, load, and record the environment {.smaller}
+
+```r
+install.packages("knitr")  # once per R library or machine
+library(knitr)             # each new R session or document
+knitr::kable               # reach one name explicitly
+
+R.version.string
+sessionInfo()
+```
+
+. . .
+
+::: {.callout-important appearance="simple"}
+Install packages interactively during setup. Put required `library()` calls—or
+explicit `package::function()` calls—in the analysis. Do not hide
+`install.packages()` inside a report.
+:::
 
 
 # 1 · Everything is a vector {.section-divider}
@@ -804,58 +936,6 @@ ifelse(c(FALSE, TRUE), 1, "x")
 ::: {.smaller}
 `NA` in the test gives `NA` out · the result is as long as the **test**, not the
 branches · and the branches are **coerced to one type**.
-:::
-
-
-## Borrowed — session 6: `if_else()` {.smaller}
-
-```r
-library(dplyr)
-
-# Errors instead of coercing:
-if_else(c(TRUE, FALSE), 1, "x")
-#> Error: Can't combine `true` <double> and `false` <character>.
-
-# Errors instead of truncating:
-if_else(c(TRUE, FALSE), c(1, 2, 3), 0)
-#> Error: `true` must have size 2, not size 3.
-
-# And gives you somewhere to put the missing values:
-if_else(c(TRUE, FALSE, NA), 1, 0, missing = -1)
-#> [1]  1  0 -1
-```
-
-::: {.callout-note appearance="simple"}
-`dplyr::if_else()` is `ifelse()` with the three surprises turned into errors.
-You meet dplyr properly in **session 6** — this is here so you recognise it.
-:::
-
-
-## Borrowed — session 6: `case_when()` {.smaller}
-
-```r
-# Conditions are checked top to bottom; first match wins.
-bp_group <- case_when(
-  is.na(sbp_0)  ~ "missing",
-  sbp_0 >= 160  ~ "stage 2",
-  sbp_0 >= 140  ~ "stage 1",
-  sbp_0 >= 130  ~ "elevated",
-  .default      = "normal"
-)
-```
-
-. . .
-
-::: {.smaller}
-**The base R way**
-
-```r
-bp_group <- rep("normal", length(sbp_0))
-bp_group[sbp_0 >= 130] <- "elevated"
-bp_group[sbp_0 >= 140] <- "stage 1"
-bp_group[sbp_0 >= 160] <- "stage 2"
-bp_group[is.na(sbp_0)] <- "missing"
-```
 :::
 
 

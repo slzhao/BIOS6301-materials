@@ -32,7 +32,27 @@ course history is pushed to it.
 
 *Image source: [GitHub Docs](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository). The appearance may change slightly over time.*
 
-## 2. Clone the public course repository through RStudio
+## 2. Give course staff access to the private repository
+
+Open `BIOS6301-mywork` on GitHub and select **Settings**:
+
+![GitHub repository header with the Settings tab highlighted](course/session02/images/github-repository-settings.png)
+
+Under **Access**, select **Collaborators → Add people**. Send invitations to:
+
+- instructor: `slzhao`; and
+- TA: `zongyue.teng@Vanderbilt.Edu`.
+
+An invitation may remain **Pending** until the recipient accepts it. Keep the
+repository private. Course staff need access to read the submitted files and Git
+history. For a private repository owned by a personal account, GitHub grants
+collaborators write access as well; course staff will not edit student
+repositories.
+
+See [GitHub's collaborator instructions](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/repository-access-and-collaboration/inviting-collaborators-to-a-personal-repository)
+if the interface differs from the screenshot.
+
+## 3. Clone the public course repository through RStudio
 
 In RStudio, select **File → New Project → Version Control → Git**.
 
@@ -69,7 +89,7 @@ Then open `BIOS6301-materials.Rproj` in RStudio.
 
 </details>
 
-## 3. Connect the private repository and authenticate
+## 4. Connect the private repository and authenticate
 
 Immediately after a new clone, the name `origin` points to the public instructor
 repository. Preserve it as `upstream`, then connect the empty private repository
@@ -102,7 +122,7 @@ If the Terminal requests your ordinary GitHub account password, cancel. GitHub
 does not accept account passwords for Git operations; do not paste a password or
 personal access token.
 
-## 4. Verify the two remotes
+## 5. Verify the two remotes
 
 ```bash
 git remote -v

@@ -88,8 +88,8 @@ actually differs.
 
 [3]{.objective-num} **Write** pipelines with `|>` — and **read** `%>%`.
 
-[4]{.objective-num} **Use** `select`, `filter`, `arrange`, `mutate`, `rename`,
-`distinct`, `count`.
+[4]{.objective-num} **Use** `select`, `filter`, `arrange`, `mutate`, `if_else`,
+`case_when`, `rename`, `distinct`, and `count`.
 
 [5]{.objective-num} **Compute** grouped summaries with an honest *n*, and know
 when you still need `ungroup()`.
@@ -110,7 +110,7 @@ quotes, and where that convenience bites.
 | 1 | Packages, namespaces, and masking | 15 |
 | 2 | Data frames and tibbles | 10 |
 | 3 | The pipe, and the design principles | 10 |
-| 4 | The verbs: `select` `filter` `arrange` `mutate` … | 25 |
+| 4 | The verbs: `select` `filter` `arrange` `mutate` `if_else` `case_when` … | 25 |
 | 5 | Grouping: `group_by` `summarise` `count` `across` | 20 |
 | 6 | Translating session 4, line by line | 5 |
 | 7 | Tidy evaluation in ten minutes | 10 |
@@ -426,6 +426,28 @@ trial$responder <- trial$change < -10
 :::
 
 
+## `if_else()` is strict where `ifelse()` is permissive {.smaller}
+
+```{r}
+#| label: if-else-strict
+#| error: true
+ifelse(c(TRUE, FALSE), 1, "x")
+if_else(c(TRUE, FALSE), 1, "x")
+```
+
+. . .
+
+```{r}
+#| label: if-else-missing
+if_else(c(TRUE, FALSE, NA), 1, 0, missing = -1)
+```
+
+::: {.callout-note appearance="simple"}
+`if_else()` requires compatible types and sizes and gives missing conditions an
+explicit result. It stops where `ifelse()` might silently coerce or recycle.
+:::
+
+
 ## `case_when()` {.smaller}
 
 ```{r}
@@ -446,6 +468,24 @@ trial |>
 Read top to bottom: **the first `TRUE` wins**. Put `is.na()` first, or the
 missing values fall through into whichever category comes last.
 :::
+
+
+## The base R category assignment {.smaller}
+
+```{r}
+#| label: case-when-base
+bp_cat <- rep("hypertensive", nrow(trial))
+bp_cat[trial$sbp_12 < 140] <- "elevated"
+bp_cat[trial$sbp_12 < 120] <- "normal"
+bp_cat[is.na(trial$sbp_12)] <- "missing"
+
+table(bp_cat)
+```
+
+. . .
+
+The base version initializes an output vector and replaces values in sequence.
+The order still matters—but here **later assignments overwrite earlier ones**.
 
 
 ## `case_when()` fails loudly {.smaller}
