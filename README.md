@@ -23,7 +23,7 @@ and create `BIOS6301-mywork`.
 Before selecting **Create repository**, verify:
 
 - **Visibility:** Private
-- **Add README:** Off
+- **Add a README:** Off 
 - **Add `.gitignore`:** None
 - **Choose a license:** None
 
