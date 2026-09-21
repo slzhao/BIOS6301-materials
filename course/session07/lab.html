@@ -279,7 +279,7 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Suggested use:</strong> tasks 1–8 are the core reshape-and-join route. Additional practice examines failed relationships, unmatched records, missing combinations, and multi-measure reshaping. It may be completed independently after lab.</p>
+<p><strong>Suggested use:</strong> tasks 1–8 are the core reshape-and-join route. Additional practice reinforces the join, reshape, and window-function tools introduced in Session 7. It may be completed independently after lab.</p>
 </div>
 </div>
 <p>Choose one format and copy either <code>starter/reshape-joins-lab.Rmd</code> or <code>starter/reshape-joins-lab.qmd</code> to <code>work/session07/</code>. Knit the <code>.Rmd</code> file or Render the <code>.qmd</code> file.</p>
@@ -287,12 +287,12 @@ Note
 <h2 class="anchored" data-anchor-id="tasks">Tasks</h2>
 <ol type="1">
 <li>State the row unit and candidate key for both supplied tables.</li>
-<li>Detect the deliberate duplicate participant key before joining.</li>
+<li>Detect the deliberate duplicate participant key with <code>count()</code> before joining.</li>
 <li>Resolve it using the supplied adjudication rule; do not merely use <code>distinct()</code>.</li>
 <li>Reshape marker columns from wide to long and parse week as integer.</li>
-<li>Predict and perform a many-to-one join with participant metadata.</li>
-<li>Validate row count, key uniqueness, and unmatched IDs.</li>
-<li>Calculate within-participant change after ordering visits.</li>
+<li>Predict and perform a many-to-one join with participant metadata. State which table supplies the rows that the join preserves.</li>
+<li>Validate row count and key uniqueness, and audit unmatched IDs in both directions with <code>anti_join()</code>.</li>
+<li>After arranging by ID and week, calculate within-participant change with grouped <code>lag()</code>.</li>
 <li>Pivot back to wide and verify values against the original marker columns.</li>
 </ol>
 </section>
@@ -300,17 +300,17 @@ Note
 <h2 class="anchored" data-anchor-id="additional-practice-make-join-failures-visible">Additional practice: make join failures visible</h2>
 <ol type="1">
 <li>Join the unresolved participant table deliberately and quantify its row multiplication. Identify exactly which key produced the additional rows.</li>
-<li>Request a many-to-one relationship in a join before adjudication and capture the resulting error as evidence that the relationship check works.</li>
+<li>Request a many-to-one relationship in a join before adjudication. Read and explain the resulting error; no error-catching code is required.</li>
 <li>Produce separate reports for marker IDs without metadata and metadata IDs without marker measurements using anti-joins or base-R set operations.</li>
-<li>Add a week-8 marker column to a copy of the wide table, reshape all three weeks, and create the complete expected <code>(id, week)</code> grid.</li>
-<li>Identify missing participant-week combinations separately from rows whose marker is present as an explicit <code>NA</code>.</li>
-<li>Add parallel <code>se_w0</code>, <code>se_w4</code>, and <code>se_w8</code> columns and reshape marker and SE together using the <code>.value</code> convention or a documented base-R equivalent.</li>
-<li>Return the multi-measure table to wide form and verify a complete round trip for both marker and SE.</li>
+<li>Compare <code>left_join()</code> with <code>inner_join()</code>. Explain why <code>P05</code> is retained by one result and excluded by the other.</li>
+<li>Add a week-8 marker column to a copy of the wide table and reshape all three weeks with the same <code>pivot_longer()</code> pattern.</li>
+<li>Create a small table with <code>marker_0</code>, <code>marker_4</code>, <code>se_0</code>, and <code>se_4</code>. Reshape the two facts encoded in each name into <code>measure</code> and <code>week</code> with <code>names_sep = "_"</code>.</li>
+<li>On the three-visit long table, create visit number, previous marker, change from baseline, and cumulative number of observed markers with <code>row_number()</code>, <code>lag()</code>, <code>first()</code>, and <code>cumsum()</code>.</li>
 <li>Write a short join contract stating row unit, left and right keys, expected relationship, allowed unmatched records, and post-join checks.</li>
 </ol>
 <section id="independent-practice-check" class="level3">
 <h3 class="anchored" data-anchor-id="independent-practice-check">Independent-practice check</h3>
-<p>The unresolved join must fail or visibly multiply rows. The adjudicated join must preserve the intended participant-visit key, and unmatched IDs must remain in an explicit audit table.</p>
+<p>The unresolved join must fail or visibly multiply rows. The adjudicated join must preserve the intended participant-visit key, and unmatched IDs must remain in explicit audit tables.</p>
 </section>
 </section>
 <section id="exit-evidence" class="level2">

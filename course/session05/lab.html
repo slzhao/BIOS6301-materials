@@ -238,7 +238,7 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#tasks" id="toc-tasks" class="nav-link active" data-scroll-target="#tasks">Tasks</a></li>
-  <li><a href="#additional-practice-audit-a-second-delivery" id="toc-additional-practice-audit-a-second-delivery" class="nav-link" data-scroll-target="#additional-practice-audit-a-second-delivery">Additional practice: audit a second delivery</a>
+  <li><a href="#additional-practice-repeat-the-import-workflow" id="toc-additional-practice-repeat-the-import-workflow" class="nav-link" data-scroll-target="#additional-practice-repeat-the-import-workflow">Additional practice: repeat the import workflow</a>
   <ul class="collapse">
   <li><a href="#independent-practice-check" id="toc-independent-practice-check" class="nav-link" data-scroll-target="#independent-practice-check">Independent-practice check</a></li>
   </ul></li>
@@ -279,41 +279,41 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Suggested use:</strong> tasks 1–7 form the core import audit. Additional practice simulates a second delivery and a stricter data contract. The instructor may set the in-class stopping point; remaining work is suitable for independent practice.</p>
+<p><strong>Suggested use:</strong> tasks 1–7 form the core import audit. Additional practice repeats the same import, parsing, date, and export concepts with deliberately different file problems. The instructor may set the in-class stopping point.</p>
 </div>
 </div>
 <p>Choose one format and copy either <code>starter/import-lab.Rmd</code> or <code>starter/import-lab.qmd</code> to <code>work/session05/</code>. Knit the <code>.Rmd</code> file or Render the <code>.qmd</code> file.</p>
 <section id="tasks" class="level2">
 <h2 class="anchored" data-anchor-id="tasks">Tasks</h2>
 <ol type="1">
-<li>Import the supplied temporary CSV with documented missing-value codes.</li>
-<li>Verify dimensions, names, types, key uniqueness, expected IDs, and missingness.</li>
-<li>Diagnose every marker value that cannot be converted to numeric.</li>
+<li>Import the supplied temporary CSV twice: first preserve every field as raw character text, then make an analysis import using the documented missing-value codes and column classes.</li>
+<li>Verify dimensions, names, types, expected IDs, one row per ID, and missingness. Use <code>table()</code> and <code>%in%</code> rather than relying only on visual inspection.</li>
+<li>Use the raw and analysis imports together to display every marker entry that became missing during parsing.</li>
 <li>Parse dates using the documented formats and flag ambiguous or invalid values.</li>
-<li>Create a cleaned object without overwriting the raw import.</li>
+<li>Create a cleaned object that retains the original marker and date text; do not overwrite the raw import.</li>
 <li>Export the cleaned rectangular table as CSV and RDS, read both back, and compare the preserved classes.</li>
 <li>Optional: repeat the import with <code>readr::read_csv()</code> and compare diagnostics.</li>
 </ol>
 </section>
-<section id="additional-practice-audit-a-second-delivery" class="level2">
-<h2 class="anchored" data-anchor-id="additional-practice-audit-a-second-delivery">Additional practice: audit a second delivery</h2>
+<section id="additional-practice-repeat-the-import-workflow" class="level2">
+<h2 class="anchored" data-anchor-id="additional-practice-repeat-the-import-workflow">Additional practice: repeat the import workflow</h2>
 <ol type="1">
-<li>Create a second synthetic CSV containing one new ID, one repeated ID, leading or trailing whitespace, an additional missing-value spelling, and one date outside the expected study window.</li>
-<li>Import both files with an explicit contract for column names and classes. Add <code>source_file</code> and <code>source_row</code> so every record retains provenance.</li>
-<li>Standardize whitespace and documented missing-value spellings without overwriting the raw imported columns.</li>
-<li>Append the deliveries and produce a duplicate-ID report. Do not resolve the duplicate until you have stated an adjudication rule.</li>
-<li>Write checks for the expected schema, unique post-adjudication IDs, allowed date range, numeric marker range, and complete provenance fields.</li>
-<li>Record file size, modification time, and an MD5 checksum for each input. State what a checksum can and cannot establish.</li>
-<li>Export the combined clean data as CSV and RDS, read both back, and compare values as well as classes. Explain which format is preferable for the next R analysis and which is preferable for broad interchange.</li>
+<li>Import the supplied semicolon/decimal-comma file with ordinary <code>read.csv()</code>. Diagnose the result, then re-import it with the correct <code>sep</code> and <code>dec</code>.</li>
+<li>Re-import the main file with only <code>"."</code> declared missing. Use <code>str()</code> and the raw values to explain why the marker column does not become numeric.</li>
+<li>Re-import the main file with every column declared character. Compare this explicit raw contract with the typed analysis import.</li>
+<li>Parse <code>c("2026-01-03", "04-Jan-2026", "2026-01-05")</code> in two passes, repairing only values missed by the ISO parse.</li>
+<li>Parse <code>"03/04/2026"</code> once as month/day/year and once as day/month/year. Explain why successful parsing cannot determine which interpretation is correct.</li>
+<li>Create a small object containing a factor and a <code>Date</code>. Export it as CSV and RDS, read both back, and compare <code>str()</code> output.</li>
+<li>Optional: use <code>readr::read_csv()</code> with explicit column types and inspect its parsing specification and any reported problems.</li>
 </ol>
 <section id="independent-practice-check" class="level3">
 <h3 class="anchored" data-anchor-id="independent-practice-check">Independent-practice check</h3>
-<p>Your duplicate report must show the source file and source row for both copies. Changing one input byte should change its checksum; it should not, by itself, tell you whether the changed file is scientifically correct.</p>
+<p>Your work should demonstrate that a successful import can still use the wrong delimiter, missing-value rule, type, or date interpretation.</p>
 </section>
 </section>
 <section id="exit-evidence" class="level2">
 <h2 class="anchored" data-anchor-id="exit-evidence">Exit evidence</h2>
-<p>Render the import contract, audit results, problem records, cleaned structure, and CSV/RDS comparison.</p>
+<p>Render the import contract, audit results, problem records, cleaned structure, and CSV/RDS comparison. Additional practice should also show the corrected semicolon/decimal-comma import and the two date-parsing demonstrations.</p>
 
 
 </section>

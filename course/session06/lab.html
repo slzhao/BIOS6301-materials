@@ -279,36 +279,36 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Suggested use:</strong> tasks 1–7 are the core analysis-table route. Additional practice repeats important transformations in a second dialect and adds missingness, ordering, and longitudinal checks; unfinished items may be completed after lab.</p>
+<p><strong>Suggested use:</strong> tasks 1–7 are the core analysis-table route. Additional practice repeats only the verbs and ideas introduced in Session 6; unfinished items may be completed after lab.</p>
 </div>
 </div>
 <p>Choose one format and copy either <code>starter/dplyr-lab.Rmd</code> or <code>starter/dplyr-lab.qmd</code> to <code>work/session06/</code>. Knit the <code>.Rmd</code> file or Render the <code>.qmd</code> file.</p>
 <section id="tasks" class="level2">
 <h2 class="anchored" data-anchor-id="tasks">Tasks</h2>
 <ol type="1">
-<li>Confirm that one row represents one participant-visit and that the proposed key <code>(id, week)</code> is unique.</li>
+<li>State what one row represents. Use <code>count()</code> and <code>filter()</code> to confirm that <code>(id, week)</code> is unique.</li>
 <li>Define the week-4 analysis population in one sentence, then implement it.</li>
-<li>Create observed/missing flags and a clinically named marker category.</li>
-<li>Produce one row per arm with total <code>n</code>, observed <code>n</code>, mean, SD, and proportion observed.</li>
-<li>Center marker values within arm without changing the row count.</li>
-<li>Solve using either dplyr or base R, then verify the arm-specific observed counts using the other dialect.</li>
-<li>Explain the unit of observation for every output table.</li>
+<li>Create an <code>observed</code> flag and a <code>marker_band</code> category with the values <code>"missing"</code>, <code>"high"</code>, and <code>"lower"</code>. Put the missing-value condition first.</li>
+<li>Produce one row per arm with total <code>n</code>, observed <code>n</code>, mean, SD, and proportion observed. Return an explicitly ungrouped result.</li>
+<li>Center marker values within arm with grouped <code>mutate()</code>, then <code>ungroup()</code>. Confirm that the transformation did not change the row count.</li>
+<li>Arrange the analysis table by arm, put missing marker values last, and select the columns needed for review.</li>
+<li>Verify the arm-specific observed counts with base R and explain the unit of observation in the analysis table and summary table.</li>
 </ol>
 </section>
 <section id="additional-practice-interrogate-the-pipeline" class="level2">
 <h2 class="anchored" data-anchor-id="additional-practice-interrogate-the-pipeline">Additional practice: interrogate the pipeline</h2>
 <ol type="1">
-<li>Recreate the complete week-4 analysis table in the dialect you did not use for the core route. Compare row order, names, classes, and values—not only printed output.</li>
+<li>Recreate the week-4 analysis table with base R. Sort both versions by ID and inspect them side by side.</li>
 <li>Produce a missingness table by arm and week with total rows, observed marker rows, missing rows, and proportion observed.</li>
-<li>Within each arm, rank week-4 participants by observed marker while placing missing values last. Verify that ranking does not remove participants.</li>
-<li>Starting from the two-visit table, calculate baseline, week-4 marker, and change for every participant. Retain participants whose week-4 value is missing.</li>
-<li>Produce a participant-level change summary by arm and distinguish enrolled <code>n</code> from complete-change <code>n</code>.</li>
-<li>Demonstrate the grouping state after <code>group_by()</code>/<code>summarise()</code> and after a <code>.by</code> summary. Explicitly remove grouping before a downstream operation.</li>
-<li>Add checks that every participant has at most one baseline and one week-4 row, the participant-level output has one row per ID, and no filtering changed the randomized-arm counts.</li>
+<li>Use <code>count()</code> to tabulate <code>marker_band</code> within arm. Confirm that the explicit <code>"missing"</code> category appears.</li>
+<li>Use <code>select()</code> helpers and <code>rename()</code> to make a compact review table with a clearly named marker column.</li>
+<li>Use <code>across()</code> to count missing values in the numeric columns <code>week</code> and <code>marker</code>.</li>
+<li>Summarize by arm and week with <code>.groups = "drop"</code>. State the row unit of the result and why dropping the grouping is useful.</li>
+<li>Append one identical duplicate row, diagnose it with <code>count()</code>, and remove it with <code>distinct()</code> only after confirming that the entire row is duplicated.</li>
 </ol>
 <section id="independent-practice-check" class="level3">
 <h3 class="anchored" data-anchor-id="independent-practice-check">Independent-practice check</h3>
-<p>The base-R and dplyr week-4 tables should be equivalent after deliberate sorting. The participant-level table must retain all six IDs, including IDs without a complete change.</p>
+<p>The base-R and dplyr week-4 tables should agree after deliberate sorting. The grouped transformation must preserve all six week-4 rows.</p>
 </section>
 </section>
 <section id="exit-evidence" class="level2">

@@ -9,9 +9,19 @@ format: html
 visit <- data.frame(
   id = rep(sprintf("P%02d", 1:6), each = 2),
   arm = rep(rep(c("control", "treated"), each = 3), each = 2),
+  grade = rep(c("mild", "moderate", "severe",
+                "mild", "moderate", "severe"), each = 2),
   week = rep(c(0, 4), 6),
   marker = c(4.1, 4.4, 5.0, NA, 4.6, 4.8,
              5.2, 4.6, 6.0, 5.1, 5.6, NA)
+)
+
+# Supplied so the lab can focus on matrix behavior rather than reshaping syntax.
+marker_matrix <- matrix(
+  visit$marker,
+  nrow = 6,
+  byrow = TRUE,
+  dimnames = list(sprintf("P%02d", 1:6), c("week0", "week4"))
 )
 ```
 
@@ -21,20 +31,27 @@ visit <- data.frame(
 # Inspect and compare the three marker extractions.
 ```
 
-## 2. Week-4 analysis data
+## 2. Factor levels and safe reordering
 
 ```{r}
-# Select rows and add observed/change variables.
+# Create grade_factor with all four protocol levels.
+# Safely reverse the level order, then contrast it with levels(x) <- ... .
 ```
 
-## 3. Arm summary and matrix
+## 3. Week-4 analysis data
 
 ```{r}
-# Use split/lapply or another transparent base-R approach.
+# Select rows and add observed/marker_at_least_5 variables.
 ```
 
-## 4. Checks
+## 4. Arm summaries and matrix behavior
 
 ```{r}
-# Encode at least three required properties with stopifnot().
+# Use table() and tapply(), then select one matrix column with drop = FALSE.
+```
+
+## 5. Five checks
+
+```{r}
+# Use str(), dim(), summary(), table(..., useNA = "ifany"), and colSums().
 ```

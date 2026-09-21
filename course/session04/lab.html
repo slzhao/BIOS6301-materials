@@ -238,7 +238,7 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#tasks" id="toc-tasks" class="nav-link active" data-scroll-target="#tasks">Tasks</a></li>
-  <li><a href="#additional-practice-reshape-and-validate-with-base-r" id="toc-additional-practice-reshape-and-validate-with-base-r" class="nav-link" data-scroll-target="#additional-practice-reshape-and-validate-with-base-r">Additional practice: reshape and validate with base R</a>
+  <li><a href="#additional-practice-repeat-the-base-r-workflow" id="toc-additional-practice-repeat-the-base-r-workflow" class="nav-link" data-scroll-target="#additional-practice-repeat-the-base-r-workflow">Additional practice: repeat the base-R workflow</a>
   <ul class="collapse">
   <li><a href="#independent-practice-check" id="toc-independent-practice-check" class="nav-link" data-scroll-target="#independent-practice-check">Independent-practice check</a></li>
   </ul></li>
@@ -279,41 +279,42 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Suggested use:</strong> complete the seven core tasks first. Additional practice extends the same base-R table into reshaping, metadata matching, nested objects, and stronger checks; unfinished items may be completed independently.</p>
+<p><strong>Suggested use:</strong> complete the eight core tasks first. Additional practice provides a second pass through the same containers, indexing, factor, ordering, and grouped-summary concepts; unfinished items may be completed independently.</p>
 </div>
 </div>
 <p>Choose one format and copy either <code>starter/base-data-lab.Rmd</code> or <code>starter/base-data-lab.qmd</code> to <code>work/session04/</code>. Knit the <code>.Rmd</code> file or Render the <code>.qmd</code> file.</p>
 <section id="tasks" class="level2">
 <h2 class="anchored" data-anchor-id="tasks">Tasks</h2>
 <ol type="1">
-<li>State the unit of observation and verify that <code>(id, week)</code> is unique.</li>
+<li>State the unit of observation. Use <code>table()</code> to confirm that there is one row for every <code>(id, week)</code> combination.</li>
 <li>Compare <code>visit["marker"]</code>, <code>visit[["marker"]]</code>, and <code>visit$marker</code> using <code>class()</code>, <code>typeof()</code>, and <code>length()</code>.</li>
-<li>Select week-4 observations without removing rows that have missing markers.</li>
-<li>Add <code>observed</code> and <code>change_from_baseline</code> without overwriting supplied columns.</li>
-<li>Produce an arm-specific summary with total <code>n</code>, observed <code>n</code>, mean, and SD.</li>
-<li>Construct a participant-by-week marker matrix and preserve two dimensions when selecting one week.</li>
-<li>Add at least three checks for properties required by the analysis.</li>
+<li>Convert <code>visit$grade</code> to a factor with the protocol levels <code>mild</code>, <code>moderate</code>, <code>severe</code>, and <code>life-threatening</code>, in that order. Use <code>levels()</code> and <code>table()</code> to show that an unobserved protocol category is still retained.</li>
+<li>Safely reverse the complete grade-level order by rebuilding the factor from its character labels. Verify that the observed labels did not change. Then make a separate copy and try the tempting but incorrect <code>levels(x) &lt;- ...</code> approach; display several rows and explain what it changed.</li>
+<li>Select week-4 observations without removing rows that have missing markers. Add <code>observed</code> and <code>marker_at_least_5</code> without overwriting supplied columns.</li>
+<li>Use <code>table()</code> and <code>tapply()</code> to report, separately by arm, total <code>n</code>, observed <code>n</code>, and mean observed marker.</li>
+<li>Inspect the supplied participant-by-week marker matrix. Select week 4 using <code>drop = FALSE</code> and explain why its dimensions are preserved.</li>
+<li>Apply the five-check routine from class: <code>str()</code>, <code>dim()</code>, <code>summary()</code>, <code>table(..., useNA = "ifany")</code>, and <code>colSums(is.na(...))</code>.</li>
 </ol>
 </section>
-<section id="additional-practice-reshape-and-validate-with-base-r" class="level2">
-<h2 class="anchored" data-anchor-id="additional-practice-reshape-and-validate-with-base-r">Additional practice: reshape and validate with base R</h2>
+<section id="additional-practice-repeat-the-base-r-workflow" class="level2">
+<h2 class="anchored" data-anchor-id="additional-practice-repeat-the-base-r-workflow">Additional practice: repeat the base-R workflow</h2>
 <ol type="1">
-<li>Use base <code>reshape()</code> to create one row per participant with separate baseline and week-4 marker columns. Verify six rows and one row per ID.</li>
-<li>Reshape that object back to long form, order by ID and week, and compare its marker values with the original table.</li>
-<li>Create a participant metadata table containing ID, site, and enrollment age. Match or merge it onto <code>week4</code> while preserving exactly six analysis rows.</li>
-<li>Identify IDs present in only one input before merging. Add a deliberate extra metadata ID and demonstrate that it does not create an analysis row.</li>
-<li>Store the raw data, week-4 data, summary, and marker matrix in a named list. Extract the summary both with <code>[</code> and <code>[[</code>; explain the difference in result structure.</li>
-<li>Select one row and one matrix column using <code>drop = FALSE</code>; write checks showing that both results remain two-dimensional.</li>
-<li>Write a compact <code>audit_visit()</code> function that stops for duplicate <code>(id, week)</code> keys, unexpected weeks, or missing IDs, and run it on a deliberately broken copy.</li>
+<li>Store <code>visit</code>, <code>week4</code>, the arm means, and <code>marker_matrix</code> in a named list. Extract the arm means with <code>[</code>, <code>[[</code>, and <code>$</code>; describe the resulting structures.</li>
+<li>Convert <code>visit$arm</code> to a factor whose first level is <code>control</code>, then use <code>relevel()</code> to make <code>treated</code> the reference. Verify that the observed labels remain unchanged while the level order changes.</li>
+<li>Subset the relevelled factor to treated observations, then use <code>droplevels()</code> and compare the levels before and after dropping the unused level.</li>
+<li>Select one row from <code>week4</code> and one column from <code>marker_matrix</code>, both with <code>drop = FALSE</code>. Report their classes and dimensions.</li>
+<li>Sort <code>week4</code> first by arm and then by decreasing marker, keeping all columns together so that each row remains one participant record.</li>
+<li>Calculate the arm-specific observed mean once with <code>tapply()</code> and once with <code>aggregate()</code>. State what rows with missing marker contribute to each result.</li>
+<li>Make a copy with one impossible marker value of <code>-10</code>. Use <code>summary()</code> to find the problem, repair the copy, and confirm the original object was unchanged.</li>
 </ol>
 <section id="independent-practice-check" class="level3">
 <h3 class="anchored" data-anchor-id="independent-practice-check">Independent-practice check</h3>
-<p>The long-to-wide-to-long round trip should preserve IDs, weeks, and marker values after sorting. The deliberate metadata-only ID must be reported but must not alter the week-4 analysis population.</p>
+<p>Your results should show how the choice among <code>[</code>, <code>[[</code>, and <code>$</code> changes the returned structure, how <code>drop = FALSE</code> preserves dimensions, and why safe factor reordering differs from assigning new text directly to <code>levels()</code>.</p>
 </section>
 </section>
 <section id="exit-evidence" class="level2">
 <h2 class="anchored" data-anchor-id="exit-evidence">Exit evidence</h2>
-<p>Render the row/key statement, structure comparisons, analysis table, summary, matrix dimensions, and checks.</p>
+<p>Render the row/key statement, structure comparisons, factor levels and label comparison, analysis table, summary, matrix dimensions, and five-check output.</p>
 
 
 </section>

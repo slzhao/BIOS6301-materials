@@ -1355,21 +1355,21 @@
     "href": "course/session06/lab.html",
     "title": "Session 6 guided lab",
     "section": "",
-    "text": "Note\n\n\n\nSuggested use: tasks 1–7 are the core analysis-table route. Additional practice repeats important transformations in a second dialect and adds missingness, ordering, and longitudinal checks; unfinished items may be completed after lab.\nChoose one format and copy either starter/dplyr-lab.Rmd or starter/dplyr-lab.qmd to work/session06/. Knit the .Rmd file or Render the .qmd file."
+    "text": "Note\n\n\n\nSuggested use: tasks 1–7 are the core analysis-table route. Additional practice repeats only the verbs and ideas introduced in Session 6; unfinished items may be completed after lab.\nChoose one format and copy either starter/dplyr-lab.Rmd or starter/dplyr-lab.qmd to work/session06/. Knit the .Rmd file or Render the .qmd file."
   },
   {
     "objectID": "course/session06/lab.html#tasks",
     "href": "course/session06/lab.html#tasks",
     "title": "Session 6 guided lab",
     "section": "Tasks",
-    "text": "Tasks\n\nConfirm that one row represents one participant-visit and that the proposed key (id, week) is unique.\nDefine the week-4 analysis population in one sentence, then implement it.\nCreate observed/missing flags and a clinically named marker category.\nProduce one row per arm with total n, observed n, mean, SD, and proportion observed.\nCenter marker values within arm without changing the row count.\nSolve using either dplyr or base R, then verify the arm-specific observed counts using the other dialect.\nExplain the unit of observation for every output table."
+    "text": "Tasks\n\nState what one row represents. Use count() and filter() to confirm that (id, week) is unique.\nDefine the week-4 analysis population in one sentence, then implement it.\nCreate an observed flag and a marker_band category with the values \"missing\", \"high\", and \"lower\". Put the missing-value condition first.\nProduce one row per arm with total n, observed n, mean, SD, and proportion observed. Return an explicitly ungrouped result.\nCenter marker values within arm with grouped mutate(), then ungroup(). Confirm that the transformation did not change the row count.\nArrange the analysis table by arm, put missing marker values last, and select the columns needed for review.\nVerify the arm-specific observed counts with base R and explain the unit of observation in the analysis table and summary table."
   },
   {
     "objectID": "course/session06/lab.html#additional-practice-interrogate-the-pipeline",
     "href": "course/session06/lab.html#additional-practice-interrogate-the-pipeline",
     "title": "Session 6 guided lab",
     "section": "Additional practice: interrogate the pipeline",
-    "text": "Additional practice: interrogate the pipeline\n\nRecreate the complete week-4 analysis table in the dialect you did not use for the core route. Compare row order, names, classes, and values—not only printed output.\nProduce a missingness table by arm and week with total rows, observed marker rows, missing rows, and proportion observed.\nWithin each arm, rank week-4 participants by observed marker while placing missing values last. Verify that ranking does not remove participants.\nStarting from the two-visit table, calculate baseline, week-4 marker, and change for every participant. Retain participants whose week-4 value is missing.\nProduce a participant-level change summary by arm and distinguish enrolled n from complete-change n.\nDemonstrate the grouping state after group_by()/summarise() and after a .by summary. Explicitly remove grouping before a downstream operation.\nAdd checks that every participant has at most one baseline and one week-4 row, the participant-level output has one row per ID, and no filtering changed the randomized-arm counts.\n\n\nIndependent-practice check\nThe base-R and dplyr week-4 tables should be equivalent after deliberate sorting. The participant-level table must retain all six IDs, including IDs without a complete change."
+    "text": "Additional practice: interrogate the pipeline\n\nRecreate the week-4 analysis table with base R. Sort both versions by ID and inspect them side by side.\nProduce a missingness table by arm and week with total rows, observed marker rows, missing rows, and proportion observed.\nUse count() to tabulate marker_band within arm. Confirm that the explicit \"missing\" category appears.\nUse select() helpers and rename() to make a compact review table with a clearly named marker column.\nUse across() to count missing values in the numeric columns week and marker.\nSummarize by arm and week with .groups = \"drop\". State the row unit of the result and why dropping the grouping is useful.\nAppend one identical duplicate row, diagnose it with count(), and remove it with distinct() only after confirming that the entire row is duplicated.\n\n\nIndependent-practice check\nThe base-R and dplyr week-4 tables should agree after deliberate sorting. The grouped transformation must preserve all six week-4 rows."
   },
   {
     "objectID": "course/session06/lab.html#exit-evidence",
@@ -1635,28 +1635,28 @@
     "href": "course/session04/lab.html",
     "title": "Session 4 guided lab",
     "section": "",
-    "text": "Note\n\n\n\nSuggested use: complete the seven core tasks first. Additional practice extends the same base-R table into reshaping, metadata matching, nested objects, and stronger checks; unfinished items may be completed independently.\nChoose one format and copy either starter/base-data-lab.Rmd or starter/base-data-lab.qmd to work/session04/. Knit the .Rmd file or Render the .qmd file."
+    "text": "Note\n\n\n\nSuggested use: complete the eight core tasks first. Additional practice provides a second pass through the same containers, indexing, factor, ordering, and grouped-summary concepts; unfinished items may be completed independently.\nChoose one format and copy either starter/base-data-lab.Rmd or starter/base-data-lab.qmd to work/session04/. Knit the .Rmd file or Render the .qmd file."
   },
   {
     "objectID": "course/session04/lab.html#tasks",
     "href": "course/session04/lab.html#tasks",
     "title": "Session 4 guided lab",
     "section": "Tasks",
-    "text": "Tasks\n\nState the unit of observation and verify that (id, week) is unique.\nCompare visit[\"marker\"], visit[[\"marker\"]], and visit$marker using class(), typeof(), and length().\nSelect week-4 observations without removing rows that have missing markers.\nAdd observed and change_from_baseline without overwriting supplied columns.\nProduce an arm-specific summary with total n, observed n, mean, and SD.\nConstruct a participant-by-week marker matrix and preserve two dimensions when selecting one week.\nAdd at least three checks for properties required by the analysis."
+    "text": "Tasks\n\nState the unit of observation. Use table() to confirm that there is one row for every (id, week) combination.\nCompare visit[\"marker\"], visit[[\"marker\"]], and visit$marker using class(), typeof(), and length().\nConvert visit$grade to a factor with the protocol levels mild, moderate, severe, and life-threatening, in that order. Use levels() and table() to show that an unobserved protocol category is still retained.\nSafely reverse the complete grade-level order by rebuilding the factor from its character labels. Verify that the observed labels did not change. Then make a separate copy and try the tempting but incorrect levels(x) &lt;- ... approach; display several rows and explain what it changed.\nSelect week-4 observations without removing rows that have missing markers. Add observed and marker_at_least_5 without overwriting supplied columns.\nUse table() and tapply() to report, separately by arm, total n, observed n, and mean observed marker.\nInspect the supplied participant-by-week marker matrix. Select week 4 using drop = FALSE and explain why its dimensions are preserved.\nApply the five-check routine from class: str(), dim(), summary(), table(..., useNA = \"ifany\"), and colSums(is.na(...))."
   },
   {
-    "objectID": "course/session04/lab.html#additional-practice-reshape-and-validate-with-base-r",
-    "href": "course/session04/lab.html#additional-practice-reshape-and-validate-with-base-r",
+    "objectID": "course/session04/lab.html#additional-practice-repeat-the-base-r-workflow",
+    "href": "course/session04/lab.html#additional-practice-repeat-the-base-r-workflow",
     "title": "Session 4 guided lab",
-    "section": "Additional practice: reshape and validate with base R",
-    "text": "Additional practice: reshape and validate with base R\n\nUse base reshape() to create one row per participant with separate baseline and week-4 marker columns. Verify six rows and one row per ID.\nReshape that object back to long form, order by ID and week, and compare its marker values with the original table.\nCreate a participant metadata table containing ID, site, and enrollment age. Match or merge it onto week4 while preserving exactly six analysis rows.\nIdentify IDs present in only one input before merging. Add a deliberate extra metadata ID and demonstrate that it does not create an analysis row.\nStore the raw data, week-4 data, summary, and marker matrix in a named list. Extract the summary both with [ and [[; explain the difference in result structure.\nSelect one row and one matrix column using drop = FALSE; write checks showing that both results remain two-dimensional.\nWrite a compact audit_visit() function that stops for duplicate (id, week) keys, unexpected weeks, or missing IDs, and run it on a deliberately broken copy.\n\n\nIndependent-practice check\nThe long-to-wide-to-long round trip should preserve IDs, weeks, and marker values after sorting. The deliberate metadata-only ID must be reported but must not alter the week-4 analysis population."
+    "section": "Additional practice: repeat the base-R workflow",
+    "text": "Additional practice: repeat the base-R workflow\n\nStore visit, week4, the arm means, and marker_matrix in a named list. Extract the arm means with [, [[, and $; describe the resulting structures.\nConvert visit$arm to a factor whose first level is control, then use relevel() to make treated the reference. Verify that the observed labels remain unchanged while the level order changes.\nSubset the relevelled factor to treated observations, then use droplevels() and compare the levels before and after dropping the unused level.\nSelect one row from week4 and one column from marker_matrix, both with drop = FALSE. Report their classes and dimensions.\nSort week4 first by arm and then by decreasing marker, keeping all columns together so that each row remains one participant record.\nCalculate the arm-specific observed mean once with tapply() and once with aggregate(). State what rows with missing marker contribute to each result.\nMake a copy with one impossible marker value of -10. Use summary() to find the problem, repair the copy, and confirm the original object was unchanged.\n\n\nIndependent-practice check\nYour results should show how the choice among [, [[, and $ changes the returned structure, how drop = FALSE preserves dimensions, and why safe factor reordering differs from assigning new text directly to levels()."
   },
   {
     "objectID": "course/session04/lab.html#exit-evidence",
     "href": "course/session04/lab.html#exit-evidence",
     "title": "Session 4 guided lab",
     "section": "Exit evidence",
-    "text": "Exit evidence\nRender the row/key statement, structure comparisons, analysis table, summary, matrix dimensions, and checks."
+    "text": "Exit evidence\nRender the row/key statement, structure comparisons, factor levels and label comparison, analysis table, summary, matrix dimensions, and five-check output."
   },
   {
     "objectID": "course/session04/index.html",
@@ -3224,7 +3224,7 @@
     "href": "course/session03/lab.html",
     "title": "Session 3 guided lab",
     "section": "",
-    "text": "Note\n\n\n\nSuggested use: tasks 1–7 are the core route. The additional route provides a second pass through coercion, indexing, lists, factors, and validation and may be completed independently after lab."
+    "text": "Note\n\n\n\nSuggested use: tasks 1–7 are the core route. The additional route provides a second pass through the same vector concepts and may be completed independently after lab."
   },
   {
     "objectID": "course/session03/lab.html#goal",
@@ -3245,21 +3245,21 @@
     "href": "course/session03/lab.html#tasks",
     "title": "Session 3 guided lab",
     "section": "Tasks",
-    "text": "Tasks\n\nUse str(), typeof(), class(), and length() to inspect every object.\nIdentify why dose_mg is character and list every nonnumeric entry.\nConvert the documented sentinel \"not measured\" to NA, then convert safely.\nSelect complete treated-group doses using base R.\nCreate arm as a factor with control as its reference level.\nReport the number missing and the mean observed dose; write one sentence explaining what na.rm = TRUE does.\nOptional: express task 4 with dplyr::filter() and verify the same patient IDs."
+    "text": "Tasks\n\nUse str(), typeof(), class(), and length() to inspect every object.\nMake a trial numeric conversion of dose_mg. Use the resulting missing positions to display the original entries that did not convert.\nConvert the documented sentinel \"not measured\" to NA, then convert safely.\nGive the cleaned dose vector patient-ID names, then select complete treated-group doses using logical indexing.\nReport the number of treated patients and the number of treated patients with an observed dose.\nReport the total number missing and the mean observed dose; write one sentence explaining what na.rm = TRUE does.\nUse ifelse() to create a vector containing \"missing\" or \"observed\" for every patient."
   },
   {
     "objectID": "course/session03/lab.html#additional-practice-object-behavior-under-pressure",
     "href": "course/session03/lab.html#additional-practice-object-behavior-under-pressure",
     "title": "Session 3 guided lab",
     "section": "Additional practice: object behavior under pressure",
-    "text": "Additional practice: object behavior under pressure\n\nPredict the type and values of c(dose_clean, \"pending\"), then run it and explain the coercion.\nGive dose_clean patient-ID names. Retrieve the treated doses once by integer positions, once by names, and once by a logical vector; verify identical values.\nCreate a named list patient_record holding one ID, arm, and dose. Compare patient_record[\"dose\"] with patient_record[[\"dose\"]] using str().\nExtend a copy of dose_mg with the sentinels \"\" and \"unknown\". Write one explicit cleaning rule that maps all documented sentinels to missing without changing the original vector.\nConstruct a data frame containing patient_id, factor arm, original dose, and numeric dose. Verify equal column lengths and unique IDs.\nCalculate observed dose summaries by arm while retaining the number missing in each arm. State the row unit of the summary.\nDrop the treated level from a subset, use droplevels(), and explain why the original factor and subset may legitimately have different level sets.\n\n\nIndependent-practice check\nYour report should demonstrate, with output, when [ ] preserves a container, when [[ ]] extracts an element, and when coercion changes values indirectly by changing their type."
+    "text": "Additional practice: object behavior under pressure\n\nPredict the type and values of c(dose_clean, \"pending\"), then run it and explain the coercion.\nRetrieve the complete treated doses once by integer positions, once by patient names, and once by a logical vector. Display all three results.\nUse which() to report the positions and patient IDs of missing doses.\nExtend a copy of dose_mg with the sentinels \"\" and \"unknown\". Write one explicit cleaning rule that maps all documented sentinels to missing without changing the original vector.\nPredict and then run dose_clean + c(0, 5). Explain why R gives no recycling warning and why the result is not a sensible patient-level adjustment.\nCreate an explicit adjustment with ifelse() that adds 5 only for treated patients. Confirm that missing doses remain missing.\nCompare dose_clean == NA with is.na(dose_clean) and explain why only one is appropriate for selecting missing values.\n\n\nIndependent-practice check\nYour report should demonstrate, with output, the three vector-indexing methods, the effect of coercion, and a correct missing-value check."
   },
   {
     "objectID": "course/session03/lab.html#exit-evidence",
     "href": "course/session03/lab.html#exit-evidence",
     "title": "Session 3 guided lab",
     "section": "Exit evidence",
-    "text": "Exit evidence\nYour rendered report must include the diagnostic values, repaired vector, selected IDs, factor levels, numerical summary, and interpretation."
+    "text": "Exit evidence\nYour rendered report must include the diagnostic values, repaired vector, selected IDs, numerical summary, ifelse() result, and interpretation."
   },
   {
     "objectID": "course/session04/slides.html#where-we-are",
@@ -3339,18 +3339,46 @@
     "text": "The levels are the point\n\ntable(trial$grade)\n\n\n            mild         moderate           severe life-threatening \n              29               18               13                0 \n\n\n\nNobody was life-threatening. The level is still there — and that is correct. The study protocol defined four grades; your sample happened to contain three.\n\n\n\ntable(droplevels(trial$grade))\n\n\n    mild moderate   severe \n      29       18       13"
   },
   {
+    "objectID": "course/session04/slides.html#level-order-is-metadata",
+    "href": "course/session04/slides.html#level-order-is-metadata",
+    "title": "Data Structures and Base-R Data Handling",
+    "section": "Level order is metadata",
+    "text": "Level order is metadata\n\narm &lt;- factor(trial$arm, levels = c(\"Placebo\", \"Treatment\"))\narm_treatment_ref &lt;- relevel(arm, ref = \"Treatment\")\n\nlevels(arm)\n\n[1] \"Placebo\"   \"Treatment\"\n\nlevels(arm_treatment_ref)\n\n[1] \"Treatment\" \"Placebo\"  \n\nshow_rows &lt;- c(1, 31)  # one patient from each arm\ndata.frame(\n  before = as.character(arm[show_rows]),\n  after = as.character(arm_treatment_ref[show_rows]),\n  before_code = as.integer(arm[show_rows]),\n  after_code = as.integer(arm_treatment_ref[show_rows])\n)\n\n     before     after before_code after_code\n1   Placebo   Placebo           1          2\n2 Treatment Treatment           2          1\n\n\n\n\n\n\n\n\n\nChanging level order changes the factor’s metadata and integer codes—not the observed labels. With R’s default treatment contrasts, the first level is the model reference."
+  },
+  {
+    "objectID": "course/session04/slides.html#safely-set-the-complete-level-order",
+    "href": "course/session04/slides.html#safely-set-the-complete-level-order",
+    "title": "Data Structures and Base-R Data Handling",
+    "section": "Safely set the complete level order",
+    "text": "Safely set the complete level order\n\nnew_order &lt;- c(\"life-threatening\", \"severe\", \"moderate\", \"mild\")\ngrade_reordered &lt;- factor(\n  as.character(trial$grade),\n  levels = new_order\n)\n\nlevels(trial$grade)\n\n[1] \"mild\"             \"moderate\"         \"severe\"           \"life-threatening\"\n\nlevels(grade_reordered)\n\n[1] \"life-threatening\" \"severe\"           \"moderate\"         \"mild\"            \n\nidentical(as.character(trial$grade), as.character(grade_reordered))\n\n[1] TRUE\n\n\n\n\n\n\n\n\n\nfactor(as.character(x), levels = new_order) rebuilds the factor from its labels. The observations stay in the same categories; only the complete level order and internal codes change."
+  },
+  {
+    "objectID": "course/session04/slides.html#levelsx---...-relabels-the-data",
+    "href": "course/session04/slides.html#levelsx---...-relabels-the-data",
+    "title": "Data Structures and Base-R Data Handling",
+    "section": "levels(x) <- ... relabels the data",
+    "text": "levels(x) &lt;- ... relabels the data\n\narm1 &lt;- arm\nlevels(arm1) &lt;- c(\"Treatment\", \"Placebo\")\n\ndata.frame(\n  id = trial$id[show_rows],\n  before = as.character(arm[show_rows]),\n  after = as.character(arm1[show_rows])\n)\n\n    id    before     after\n1 P001   Placebo Treatment\n2 P031 Treatment   Placebo\n\n\n\n\n\n\n\n\n\nThis did not reorder the level dictionary while preserving the data. It renamed code 1 as Treatment and code 2 as Placebo, so the displayed group for every patient changed.\n\n\n\n\n\nUse relevel() to change the reference. Use levels(x) &lt;- ... only when you intentionally mean to rename categories."
+  },
+  {
+    "objectID": "course/session04/slides.html#first-inspect-dose_mg",
+    "href": "course/session04/slides.html#first-inspect-dose_mg",
+    "title": "Data Structures and Base-R Data Handling",
+    "section": "First inspect dose_mg",
+    "text": "First inspect dose_mg\n\nhead(trial[trial$arm == \"Treatment\", c(\"id\", \"arm\", \"dose_mg\")], 8)\n\n     id       arm dose_mg\n31 P031 Treatment      40\n32 P032 Treatment      40\n33 P033 Treatment      40\n34 P034 Treatment      20\n35 P035 Treatment       5\n36 P036 Treatment      10\n37 P037 Treatment      20\n38 P038 Treatment       5\n\nstr(trial$dose_mg)\n\n chr [1:60] \"0\" \"0\" \"0\" \"0\" \"0\" \"0\" \"0\" \"0\" \"0\" \"0\" \"0\" \"0\" \"0\" \"0\" \"0\" \"0\" ...\n\nsort(unique(trial$dose_mg))\n\n[1] \"0\"  \"10\" \"20\" \"40\" \"5\" \n\n\n\n\n\n\n\n\n\nThe values look numeric, but the vector is character text. Its sorted order is lexicographic: \"5\" comes after \"40\"."
+  },
+  {
     "objectID": "course/session04/slides.html#the-catastrophe",
     "href": "course/session04/slides.html#the-catastrophe",
     "title": "Data Structures and Base-R Data Handling",
     "section": "The catastrophe",
-    "text": "The catastrophe\ndose_mg came off the CRF as text. Somebody needs it numeric.\n\nwrong &lt;- as.numeric(as.factor(trial$dose_mg))\ndata.frame(text = trial$dose_mg, wrong = wrong)[31:36, ]\n\n   text wrong\n31   40     4\n32   40     4\n33   40     4\n34   20     3\n35    5     5\n36   10     2\n\n\n\n\n\n\n\n\n\n40 mg became 4. 20 mg became 3. 5 mg became 5, which is right by accident and makes it harder to spot."
+    "text": "The catastrophe\ndose_mg came off the CRF as character text. Somebody converts it to a factor first and later needs it numeric.\n\nwrong &lt;- as.numeric(as.factor(trial$dose_mg))\ndata.frame(text = trial$dose_mg, wrong = wrong)[31:36, ]\n\n   text wrong\n31   40     4\n32   40     4\n33   40     4\n34   20     3\n35    5     5\n36   10     2\n\n\n\n\n\n\n\n\n\n40 mg became 4. 20 mg became 3. 5 mg became 5, which is right by accident and makes it harder to spot."
   },
   {
     "objectID": "course/session04/slides.html#how-bad-quantitatively",
     "href": "course/session04/slides.html#how-bad-quantitatively",
     "title": "Data Structures and Base-R Data Handling",
     "section": "How bad, quantitatively",
-    "text": "How bad, quantitatively\n\nmean(as.numeric(as.factor(trial$dose_mg)))   # wrong\n\n[1] 2.333333\n\nmean(as.numeric(as.character(trial$dose_mg))) # right\n\n[1] 8.666667\n\n\n\n\n\n\n\n\n\nThe fix\n\n\nas.numeric(as.character(x)) — go back to the text, then to the number. Better still: never let it become a factor.\n\n\n\n\n\n\nAnd check afterwards. as.numeric() on genuinely non-numeric text gives NA with a warning — so sum(is.na(x)) before and after tells you whether the conversion lost anything."
+    "text": "How bad, quantitatively\n\nmean(as.numeric(as.factor(trial$dose_mg)))   # wrong\n\n[1] 2.333333\n\nmean(as.numeric(as.character(trial$dose_mg))) # right\n\n[1] 8.666667\n\n\n\n\n\n\n\n\n\nThe fix\n\n\nIf x is character, use as.numeric(x). If x is already a factor, use as.numeric(as.character(x)): recover the labels, then convert them.\n\n\n\n\n\n\nAnd check afterwards. as.numeric() on genuinely non-numeric text gives NA with a warning — so sum(is.na(x)) before and after tells you whether the conversion lost anything."
   },
   {
     "objectID": "course/session04/slides.html#where-factors-come-from-now",
@@ -3409,11 +3437,25 @@
     "text": "subset()\n\nsubset(trial, arm == \"Treatment\" & age &gt; 70,\n       select = c(id, age, sbp_12))\n\n     id age sbp_12\n36 P036  75     97\n38 P038  77    140\n45 P045  73    105\n55 P055  71    112\n56 P056  78    161\n60 P060  76    150\n\n\n\n\nColumns unquoted, rows as a plain condition, and NA rows dropped for you. Compare the alternative:\n\ntrial[which(trial$arm == \"Treatment\" & trial$age &gt; 70), c(\"id\", \"age\", \"sbp_12\")]"
   },
   {
-    "objectID": "course/session04/slides.html#subsets-two-hazards",
-    "href": "course/session04/slides.html#subsets-two-hazards",
+    "objectID": "course/session04/slides.html#subset-hazard-1-is-not",
+    "href": "course/session04/slides.html#subset-hazard-1-is-not",
     "title": "Data Structures and Base-R Data Handling",
-    "section": "subset()’s two hazards",
-    "text": "subset()’s two hazards\n\nnrow(subset(trial, arm = \"Treatment\"))\n\nWarning: In subset.data.frame(trial, arm = \"Treatment\") :\n extra argument 'arm' will be disregarded\n\n\n[1] 60\n\n\n\nOne = instead of ==. A warning, and all 60 rows back.\n\n\n\n\n\n\n\n\nsubset() is a convenience for interactive work. In a script that matters, [ with an explicit condition is more predictable — R’s own documentation says so.\n\n\n\n\ntrial &lt;- transform(trial,\n  change = sbp_12 - sbp_0,\n  responder = sbp_12 &lt; 130\n)\nhead(trial[, c(\"id\", \"sbp_0\", \"sbp_12\", \"change\", \"responder\")], 3)\n\n    id sbp_0 sbp_12 change responder\n1 P001   144    160     16     FALSE\n2 P002   119    103    -16      TRUE\n3 P003   155    157      2     FALSE\n\n\n\n\n\nThe equivalent, and what you will see far more often:\n\ntrial$change &lt;- trial$sbp_12 - trial$sbp_0\ntrial$responder &lt;- trial$sbp_12 &lt; 130"
+    "section": "subset() hazard 1: = is not ==",
+    "text": "subset() hazard 1: = is not ==\n\nnrow(subset(trial, arm = \"Treatment\"))\n\nWarning: In subset.data.frame(trial, arm = \"Treatment\") :\n extra argument 'arm' will be disregarded\n\n\n[1] 60\n\n\n\nOne = instead of ==. A warning, and all 60 rows back.\n\n\n\n\n\n\n\n\nThe call runs and returns a data frame. Without checking the warning or row count, this can look like a successful filter."
+  },
+  {
+    "objectID": "course/session04/slides.html#subset-hazard-2-bare-names-have-two-homes",
+    "href": "course/session04/slides.html#subset-hazard-2-bare-names-have-two-homes",
+    "title": "Data Structures and Base-R Data Handling",
+    "section": "subset() hazard 2: bare names have two homes",
+    "text": "subset() hazard 2: bare names have two homes\n\nage_cutoff &lt;- 70\nnrow(subset(trial, age &gt; age_cutoff))\n\n[1] 11\n\ntrial_with_cutoff &lt;- trial\ntrial_with_cutoff$age_cutoff &lt;- 100\nnrow(subset(trial_with_cutoff, age &gt; age_cutoff))\n\n[1] 0\n\n\n\nThe expression is identical, but subset() looks inside the data frame first. After a column named age_cutoff appears, it wins over the external object.\n\n\n\n\n\n\n\n\nsubset() is convenient for interactive work. In a script that matters, use [ with explicit names such as trial$age so the source of every value is visible."
+  },
+  {
+    "objectID": "course/session04/slides.html#adding-columns-with-transform",
+    "href": "course/session04/slides.html#adding-columns-with-transform",
+    "title": "Data Structures and Base-R Data Handling",
+    "section": "Adding columns with transform()",
+    "text": "Adding columns with transform()\n\ntrial &lt;- transform(trial,\n  change = sbp_12 - sbp_0,\n  responder = sbp_12 &lt; 130\n)\nhead(trial[, c(\"id\", \"sbp_0\", \"sbp_12\", \"change\", \"responder\")], 3)\n\n    id sbp_0 sbp_12 change responder\n1 P001   144    160     16     FALSE\n2 P002   119    103    -16      TRUE\n3 P003   155    157      2     FALSE\n\n\n\n\nThe equivalent, and what you will see far more often:\n\ntrial$change &lt;- trial$sbp_12 - trial$sbp_0\ntrial$responder &lt;- trial$sbp_12 &lt; 130"
   },
   {
     "objectID": "course/session04/slides.html#sorting-with-order",
@@ -3437,11 +3479,25 @@
     "text": "The pattern\n\n\n\n\n\nflowchart LR\n  D[\"&lt;b&gt;trial&lt;/b&gt;&lt;br/&gt;60 rows\"] --&gt; S1[\"Placebo&lt;br/&gt;30 rows\"]\n  D --&gt; S2[\"Treatment&lt;br/&gt;30 rows\"]\n  S1 --&gt; A1[\"mean(sbp_12)\"]\n  S2 --&gt; A2[\"mean(sbp_12)\"]\n  A1 --&gt; C[\"&lt;b&gt;result&lt;/b&gt;&lt;br/&gt;2 rows\"]\n  A2 --&gt; C\n  style D fill:#f4efe4,stroke:#CFAE70\n  style C fill:#CFAE70,stroke:#8a7448,color:#fff\n\n\n\n\n\n\n\n\nSplit the data by a grouping variable · apply a summary to each piece · combine the answers into one table. Almost every table in almost every paper is this."
   },
   {
-    "objectID": "course/session04/slides.html#tapply",
-    "href": "course/session04/slides.html#tapply",
+    "objectID": "course/session04/slides.html#split-form-one-piece-per-group",
+    "href": "course/session04/slides.html#split-form-one-piece-per-group",
     "title": "Data Structures and Base-R Data Handling",
-    "section": "tapply()",
-    "text": "tapply()\n\ntapply(trial$sbp_12, trial$arm, mean)\n\n  Placebo Treatment \n       NA        NA \n\n\n\nThree missing values, so both means are NA. The NA is information, not an obstacle:\n\ntapply(trial$sbp_12, trial$arm, mean, na.rm = TRUE)\n\n  Placebo Treatment \n 146.8929  136.6552 \n\n\n\n\n\nround(tapply(trial$sbp_12, list(trial$arm, trial$sex), mean, na.rm = TRUE), 1)\n\n              F     M\nPlacebo   145.0 149.4\nTreatment 134.4 138.8"
+    "section": "Split: form one piece per group",
+    "text": "Split: form one piece per group\n\nbp_by_arm &lt;- split(trial$sbp_12, trial$arm)\n\nnames(bp_by_arm)\n\n[1] \"Placebo\"   \"Treatment\"\n\nlength(bp_by_arm$Placebo)\n\n[1] 30\n\nlength(bp_by_arm$Treatment)\n\n[1] 30\n\nhead(bp_by_arm$Placebo, 4)\n\n[1] 160 103 157 143\n\nhead(bp_by_arm$Treatment, 4)\n\n[1] 145 182 151 117\n\n\n\n\nThe grouping vector, trial$arm, has one label for every value in trial$sbp_12. split() returns a named list: one vector per distinct arm. Values stay in their original within-group order, and missing values stay present."
+  },
+  {
+    "objectID": "course/session04/slides.html#apply-then-combine",
+    "href": "course/session04/slides.html#apply-then-combine",
+    "title": "Data Structures and Base-R Data Handling",
+    "section": "Apply, then combine",
+    "text": "Apply, then combine\n\nplacebo_mean &lt;- mean(bp_by_arm$Placebo, na.rm = TRUE)\ntreatment_mean &lt;- mean(bp_by_arm$Treatment, na.rm = TRUE)\n\narm_means &lt;- c(\n  Placebo = placebo_mean,\n  Treatment = treatment_mean\n)\narm_means\n\n  Placebo Treatment \n 146.8929  136.6552 \n\n\n\n\nApply: ask the same question—mean(..., na.rm = TRUE)—of every group.\nCombine: place the separate answers into one named result. The result has one value per group, not one value per patient."
+  },
+  {
+    "objectID": "course/session04/slides.html#tapply-all-three-steps-in-one-call",
+    "href": "course/session04/slides.html#tapply-all-three-steps-in-one-call",
+    "title": "Data Structures and Base-R Data Handling",
+    "section": "tapply(): all three steps in one call",
+    "text": "tapply(): all three steps in one call\n\nsum(is.na(trial$sbp_12))\n\n[1] 3\n\ntapply(trial$sbp_12, trial$arm, mean, na.rm = TRUE)\n\n  Placebo Treatment \n 146.8929  136.6552 \n\n\n\nFirst document the three missing outcomes; then calculate the observed-value mean for each arm. What happens if na.rm = TRUE is omitted?\n\ntapply(trial$sbp_12, trial$arm, mean)\n\n  Placebo Treatment \n       NA        NA \n\n\n\n\nEach arm contains at least one missing value, so its mean is NA. This is a diagnostic result, not a software failure.\n\n\n\ntapply(X, INDEX, FUN, ...)\n\nX: the values to split\nINDEX: one group label per value\nFUN: the function applied to each group\n...: extra arguments passed to FUN, such as na.rm = TRUE"
   },
   {
     "objectID": "course/session04/slides.html#aggregate-the-formula-interface",
@@ -3525,28 +3581,28 @@
     "href": "course/session05/lab.html",
     "title": "Session 5 guided lab",
     "section": "",
-    "text": "Note\n\n\n\nSuggested use: tasks 1–7 form the core import audit. Additional practice simulates a second delivery and a stricter data contract. The instructor may set the in-class stopping point; remaining work is suitable for independent practice.\nChoose one format and copy either starter/import-lab.Rmd or starter/import-lab.qmd to work/session05/. Knit the .Rmd file or Render the .qmd file."
+    "text": "Note\n\n\n\nSuggested use: tasks 1–7 form the core import audit. Additional practice repeats the same import, parsing, date, and export concepts with deliberately different file problems. The instructor may set the in-class stopping point.\nChoose one format and copy either starter/import-lab.Rmd or starter/import-lab.qmd to work/session05/. Knit the .Rmd file or Render the .qmd file."
   },
   {
     "objectID": "course/session05/lab.html#tasks",
     "href": "course/session05/lab.html#tasks",
     "title": "Session 5 guided lab",
     "section": "Tasks",
-    "text": "Tasks\n\nImport the supplied temporary CSV with documented missing-value codes.\nVerify dimensions, names, types, key uniqueness, expected IDs, and missingness.\nDiagnose every marker value that cannot be converted to numeric.\nParse dates using the documented formats and flag ambiguous or invalid values.\nCreate a cleaned object without overwriting the raw import.\nExport the cleaned rectangular table as CSV and RDS, read both back, and compare the preserved classes.\nOptional: repeat the import with readr::read_csv() and compare diagnostics."
+    "text": "Tasks\n\nImport the supplied temporary CSV twice: first preserve every field as raw character text, then make an analysis import using the documented missing-value codes and column classes.\nVerify dimensions, names, types, expected IDs, one row per ID, and missingness. Use table() and %in% rather than relying only on visual inspection.\nUse the raw and analysis imports together to display every marker entry that became missing during parsing.\nParse dates using the documented formats and flag ambiguous or invalid values.\nCreate a cleaned object that retains the original marker and date text; do not overwrite the raw import.\nExport the cleaned rectangular table as CSV and RDS, read both back, and compare the preserved classes.\nOptional: repeat the import with readr::read_csv() and compare diagnostics."
   },
   {
-    "objectID": "course/session05/lab.html#additional-practice-audit-a-second-delivery",
-    "href": "course/session05/lab.html#additional-practice-audit-a-second-delivery",
+    "objectID": "course/session05/lab.html#additional-practice-repeat-the-import-workflow",
+    "href": "course/session05/lab.html#additional-practice-repeat-the-import-workflow",
     "title": "Session 5 guided lab",
-    "section": "Additional practice: audit a second delivery",
-    "text": "Additional practice: audit a second delivery\n\nCreate a second synthetic CSV containing one new ID, one repeated ID, leading or trailing whitespace, an additional missing-value spelling, and one date outside the expected study window.\nImport both files with an explicit contract for column names and classes. Add source_file and source_row so every record retains provenance.\nStandardize whitespace and documented missing-value spellings without overwriting the raw imported columns.\nAppend the deliveries and produce a duplicate-ID report. Do not resolve the duplicate until you have stated an adjudication rule.\nWrite checks for the expected schema, unique post-adjudication IDs, allowed date range, numeric marker range, and complete provenance fields.\nRecord file size, modification time, and an MD5 checksum for each input. State what a checksum can and cannot establish.\nExport the combined clean data as CSV and RDS, read both back, and compare values as well as classes. Explain which format is preferable for the next R analysis and which is preferable for broad interchange.\n\n\nIndependent-practice check\nYour duplicate report must show the source file and source row for both copies. Changing one input byte should change its checksum; it should not, by itself, tell you whether the changed file is scientifically correct."
+    "section": "Additional practice: repeat the import workflow",
+    "text": "Additional practice: repeat the import workflow\n\nImport the supplied semicolon/decimal-comma file with ordinary read.csv(). Diagnose the result, then re-import it with the correct sep and dec.\nRe-import the main file with only \".\" declared missing. Use str() and the raw values to explain why the marker column does not become numeric.\nRe-import the main file with every column declared character. Compare this explicit raw contract with the typed analysis import.\nParse c(\"2026-01-03\", \"04-Jan-2026\", \"2026-01-05\") in two passes, repairing only values missed by the ISO parse.\nParse \"03/04/2026\" once as month/day/year and once as day/month/year. Explain why successful parsing cannot determine which interpretation is correct.\nCreate a small object containing a factor and a Date. Export it as CSV and RDS, read both back, and compare str() output.\nOptional: use readr::read_csv() with explicit column types and inspect its parsing specification and any reported problems.\n\n\nIndependent-practice check\nYour work should demonstrate that a successful import can still use the wrong delimiter, missing-value rule, type, or date interpretation."
   },
   {
     "objectID": "course/session05/lab.html#exit-evidence",
     "href": "course/session05/lab.html#exit-evidence",
     "title": "Session 5 guided lab",
     "section": "Exit evidence",
-    "text": "Exit evidence\nRender the import contract, audit results, problem records, cleaned structure, and CSV/RDS comparison."
+    "text": "Exit evidence\nRender the import contract, audit results, problem records, cleaned structure, and CSV/RDS comparison. Additional practice should also show the corrected semicolon/decimal-comma import and the two date-parsing demonstrations."
   },
   {
     "objectID": "course/session06/slides.html#where-we-are",
@@ -3791,21 +3847,21 @@
     "href": "course/session07/lab.html",
     "title": "Session 7 guided lab",
     "section": "",
-    "text": "Note\n\n\n\nSuggested use: tasks 1–8 are the core reshape-and-join route. Additional practice examines failed relationships, unmatched records, missing combinations, and multi-measure reshaping. It may be completed independently after lab.\nChoose one format and copy either starter/reshape-joins-lab.Rmd or starter/reshape-joins-lab.qmd to work/session07/. Knit the .Rmd file or Render the .qmd file."
+    "text": "Note\n\n\n\nSuggested use: tasks 1–8 are the core reshape-and-join route. Additional practice reinforces the join, reshape, and window-function tools introduced in Session 7. It may be completed independently after lab.\nChoose one format and copy either starter/reshape-joins-lab.Rmd or starter/reshape-joins-lab.qmd to work/session07/. Knit the .Rmd file or Render the .qmd file."
   },
   {
     "objectID": "course/session07/lab.html#tasks",
     "href": "course/session07/lab.html#tasks",
     "title": "Session 7 guided lab",
     "section": "Tasks",
-    "text": "Tasks\n\nState the row unit and candidate key for both supplied tables.\nDetect the deliberate duplicate participant key before joining.\nResolve it using the supplied adjudication rule; do not merely use distinct().\nReshape marker columns from wide to long and parse week as integer.\nPredict and perform a many-to-one join with participant metadata.\nValidate row count, key uniqueness, and unmatched IDs.\nCalculate within-participant change after ordering visits.\nPivot back to wide and verify values against the original marker columns."
+    "text": "Tasks\n\nState the row unit and candidate key for both supplied tables.\nDetect the deliberate duplicate participant key with count() before joining.\nResolve it using the supplied adjudication rule; do not merely use distinct().\nReshape marker columns from wide to long and parse week as integer.\nPredict and perform a many-to-one join with participant metadata. State which table supplies the rows that the join preserves.\nValidate row count and key uniqueness, and audit unmatched IDs in both directions with anti_join().\nAfter arranging by ID and week, calculate within-participant change with grouped lag().\nPivot back to wide and verify values against the original marker columns."
   },
   {
     "objectID": "course/session07/lab.html#additional-practice-make-join-failures-visible",
     "href": "course/session07/lab.html#additional-practice-make-join-failures-visible",
     "title": "Session 7 guided lab",
     "section": "Additional practice: make join failures visible",
-    "text": "Additional practice: make join failures visible\n\nJoin the unresolved participant table deliberately and quantify its row multiplication. Identify exactly which key produced the additional rows.\nRequest a many-to-one relationship in a join before adjudication and capture the resulting error as evidence that the relationship check works.\nProduce separate reports for marker IDs without metadata and metadata IDs without marker measurements using anti-joins or base-R set operations.\nAdd a week-8 marker column to a copy of the wide table, reshape all three weeks, and create the complete expected (id, week) grid.\nIdentify missing participant-week combinations separately from rows whose marker is present as an explicit NA.\nAdd parallel se_w0, se_w4, and se_w8 columns and reshape marker and SE together using the .value convention or a documented base-R equivalent.\nReturn the multi-measure table to wide form and verify a complete round trip for both marker and SE.\nWrite a short join contract stating row unit, left and right keys, expected relationship, allowed unmatched records, and post-join checks.\n\n\nIndependent-practice check\nThe unresolved join must fail or visibly multiply rows. The adjudicated join must preserve the intended participant-visit key, and unmatched IDs must remain in an explicit audit table."
+    "text": "Additional practice: make join failures visible\n\nJoin the unresolved participant table deliberately and quantify its row multiplication. Identify exactly which key produced the additional rows.\nRequest a many-to-one relationship in a join before adjudication. Read and explain the resulting error; no error-catching code is required.\nProduce separate reports for marker IDs without metadata and metadata IDs without marker measurements using anti-joins or base-R set operations.\nCompare left_join() with inner_join(). Explain why P05 is retained by one result and excluded by the other.\nAdd a week-8 marker column to a copy of the wide table and reshape all three weeks with the same pivot_longer() pattern.\nCreate a small table with marker_0, marker_4, se_0, and se_4. Reshape the two facts encoded in each name into measure and week with names_sep = \"_\".\nOn the three-visit long table, create visit number, previous marker, change from baseline, and cumulative number of observed markers with row_number(), lag(), first(), and cumsum().\nWrite a short join contract stating row unit, left and right keys, expected relationship, allowed unmatched records, and post-join checks.\n\n\nIndependent-practice check\nThe unresolved join must fail or visibly multiply rows. The adjudicated join must preserve the intended participant-visit key, and unmatched IDs must remain in explicit audit tables."
   },
   {
     "objectID": "course/session07/lab.html#exit-evidence",

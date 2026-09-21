@@ -281,7 +281,7 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Suggested use:</strong> tasks 1–7 are the core route. The additional route provides a second pass through coercion, indexing, lists, factors, and validation and may be completed independently after lab.</p>
+<p><strong>Suggested use:</strong> tasks 1–7 are the core route. The additional route provides a second pass through the same vector concepts and may be completed independently after lab.</p>
 </div>
 </div>
 <section id="goal" class="level2">
@@ -296,33 +296,33 @@ Note
 <h2 class="anchored" data-anchor-id="tasks">Tasks</h2>
 <ol type="1">
 <li>Use <code>str()</code>, <code>typeof()</code>, <code>class()</code>, and <code>length()</code> to inspect every object.</li>
-<li>Identify why <code>dose_mg</code> is character and list every nonnumeric entry.</li>
+<li>Make a trial numeric conversion of <code>dose_mg</code>. Use the resulting missing positions to display the original entries that did not convert.</li>
 <li>Convert the documented sentinel <code>"not measured"</code> to <code>NA</code>, then convert safely.</li>
-<li>Select complete treated-group doses using base R.</li>
-<li>Create <code>arm</code> as a factor with <code>control</code> as its reference level.</li>
-<li>Report the number missing and the mean observed dose; write one sentence explaining what <code>na.rm = TRUE</code> does.</li>
-<li>Optional: express task 4 with <code>dplyr::filter()</code> and verify the same patient IDs.</li>
+<li>Give the cleaned dose vector patient-ID names, then select complete treated-group doses using logical indexing.</li>
+<li>Report the number of treated patients and the number of treated patients with an observed dose.</li>
+<li>Report the total number missing and the mean observed dose; write one sentence explaining what <code>na.rm = TRUE</code> does.</li>
+<li>Use <code>ifelse()</code> to create a vector containing <code>"missing"</code> or <code>"observed"</code> for every patient.</li>
 </ol>
 </section>
 <section id="additional-practice-object-behavior-under-pressure" class="level2">
 <h2 class="anchored" data-anchor-id="additional-practice-object-behavior-under-pressure">Additional practice: object behavior under pressure</h2>
 <ol type="1">
 <li>Predict the type and values of <code>c(dose_clean, "pending")</code>, then run it and explain the coercion.</li>
-<li>Give <code>dose_clean</code> patient-ID names. Retrieve the treated doses once by integer positions, once by names, and once by a logical vector; verify identical values.</li>
-<li>Create a named list <code>patient_record</code> holding one ID, arm, and dose. Compare <code>patient_record["dose"]</code> with <code>patient_record[["dose"]]</code> using <code>str()</code>.</li>
+<li>Retrieve the complete treated doses once by integer positions, once by patient names, and once by a logical vector. Display all three results.</li>
+<li>Use <code>which()</code> to report the positions and patient IDs of missing doses.</li>
 <li>Extend a copy of <code>dose_mg</code> with the sentinels <code>""</code> and <code>"unknown"</code>. Write one explicit cleaning rule that maps all documented sentinels to missing without changing the original vector.</li>
-<li>Construct a data frame containing <code>patient_id</code>, factor <code>arm</code>, original dose, and numeric dose. Verify equal column lengths and unique IDs.</li>
-<li>Calculate observed dose summaries by arm while retaining the number missing in each arm. State the row unit of the summary.</li>
-<li>Drop the treated level from a subset, use <code>droplevels()</code>, and explain why the original factor and subset may legitimately have different level sets.</li>
+<li>Predict and then run <code>dose_clean + c(0, 5)</code>. Explain why R gives no recycling warning and why the result is not a sensible patient-level adjustment.</li>
+<li>Create an explicit adjustment with <code>ifelse()</code> that adds 5 only for treated patients. Confirm that missing doses remain missing.</li>
+<li>Compare <code>dose_clean == NA</code> with <code>is.na(dose_clean)</code> and explain why only one is appropriate for selecting missing values.</li>
 </ol>
 <section id="independent-practice-check" class="level3">
 <h3 class="anchored" data-anchor-id="independent-practice-check">Independent-practice check</h3>
-<p>Your report should demonstrate, with output, when <code>[ ]</code> preserves a container, when <code>[[ ]]</code> extracts an element, and when coercion changes values indirectly by changing their type.</p>
+<p>Your report should demonstrate, with output, the three vector-indexing methods, the effect of coercion, and a correct missing-value check.</p>
 </section>
 </section>
 <section id="exit-evidence" class="level2">
 <h2 class="anchored" data-anchor-id="exit-evidence">Exit evidence</h2>
-<p>Your rendered report must include the diagnostic values, repaired vector, selected IDs, factor levels, numerical summary, and interpretation.</p>
+<p>Your rendered report must include the diagnostic values, repaired vector, selected IDs, numerical summary, <code>ifelse()</code> result, and interpretation.</p>
 
 
 </section>

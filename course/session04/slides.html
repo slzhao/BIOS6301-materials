@@ -594,12 +594,157 @@ Levels: mild moderate severe life-threatening</code></pre>
 </div>
 </div>
 </section>
+<section id="level-order-is-metadata" class="slide level2 smaller">
+<h2>Level order is metadata</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a aria-hidden="true" tabindex="-1"></a>arm <span class="ot">&lt;-</span> <span class="fu">factor</span>(trial<span class="sc">$</span>arm, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Placebo"</span>, <span class="st">"Treatment"</span>))</span>
+<span id="cb31-2"><a aria-hidden="true" tabindex="-1"></a>arm_treatment_ref <span class="ot">&lt;-</span> <span class="fu">relevel</span>(arm, <span class="at">ref =</span> <span class="st">"Treatment"</span>)</span>
+<span id="cb31-3"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(arm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Placebo"   "Treatment"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(arm_treatment_ref)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Treatment" "Placebo"  </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a aria-hidden="true" tabindex="-1"></a>show_rows <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">31</span>)  <span class="co"># one patient from each arm</span></span>
+<span id="cb35-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb35-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">before =</span> <span class="fu">as.character</span>(arm[show_rows]),</span>
+<span id="cb35-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">after =</span> <span class="fu">as.character</span>(arm_treatment_ref[show_rows]),</span>
+<span id="cb35-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">before_code =</span> <span class="fu">as.integer</span>(arm[show_rows]),</span>
+<span id="cb35-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">after_code =</span> <span class="fu">as.integer</span>(arm_treatment_ref[show_rows])</span>
+<span id="cb35-7"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     before     after before_code after_code
+1   Placebo   Placebo           1          2
+2 Treatment Treatment           2          1</code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-tip callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>Changing level order changes the factor’s metadata and integer codes—<strong>not the observed labels</strong>. With R’s default treatment contrasts, the first level is the model reference.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="safely-set-the-complete-level-order" class="slide level2 smaller">
+<h2>Safely set the complete level order</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a aria-hidden="true" tabindex="-1"></a>new_order <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"life-threatening"</span>, <span class="st">"severe"</span>, <span class="st">"moderate"</span>, <span class="st">"mild"</span>)</span>
+<span id="cb37-2"><a aria-hidden="true" tabindex="-1"></a>grade_reordered <span class="ot">&lt;-</span> <span class="fu">factor</span>(</span>
+<span id="cb37-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.character</span>(trial<span class="sc">$</span>grade),</span>
+<span id="cb37-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">levels =</span> new_order</span>
+<span id="cb37-5"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb37-6"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(trial<span class="sc">$</span>grade)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "mild"             "moderate"         "severe"           "life-threatening"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(grade_reordered)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "life-threatening" "severe"           "moderate"         "mild"            </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">identical</span>(<span class="fu">as.character</span>(trial<span class="sc">$</span>grade), <span class="fu">as.character</span>(grade_reordered))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-tip callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p><code>factor(as.character(x), levels = new_order)</code> rebuilds the factor from its labels. The observations stay in the same categories; only the complete level order and internal codes change.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="levelsx---...-relabels-the-data" class="slide level2 smaller">
+<h2><code>levels(x) &lt;- ...</code> relabels the data</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a>arm1 <span class="ot">&lt;-</span> arm</span>
+<span id="cb43-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(arm1) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Treatment"</span>, <span class="st">"Placebo"</span>)</span>
+<span id="cb43-3"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb43-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> trial<span class="sc">$</span>id[show_rows],</span>
+<span id="cb43-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">before =</span> <span class="fu">as.character</span>(arm[show_rows]),</span>
+<span id="cb43-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">after =</span> <span class="fu">as.character</span>(arm1[show_rows])</span>
+<span id="cb43-8"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    id    before     after
+1 P001   Placebo Treatment
+2 P031 Treatment   Placebo</code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-warning callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>This did <strong>not</strong> reorder the level dictionary while preserving the data. It renamed code 1 as <code>Treatment</code> and code 2 as <code>Placebo</code>, so the displayed group for every patient changed.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="fragment">
+<p>Use <code>relevel()</code> to change the reference. Use <code>levels(x) &lt;- ...</code> only when you intentionally mean to <strong>rename</strong> categories.</p>
+</div>
+</section>
+<section id="first-inspect-dose_mg" class="slide level2 smaller">
+<h2>First inspect <code>dose_mg</code></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial[trial<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"Treatment"</span>, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"dose_mg"</span>)], <span class="dv">8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     id       arm dose_mg
+31 P031 Treatment      40
+32 P032 Treatment      40
+33 P033 Treatment      40
+34 P034 Treatment      20
+35 P035 Treatment       5
+36 P036 Treatment      10
+37 P037 Treatment      20
+38 P038 Treatment       5</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(trial<span class="sc">$</span>dose_mg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> chr [1:60] "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" "0" ...</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(<span class="fu">unique</span>(trial<span class="sc">$</span>dose_mg))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "0"  "10" "20" "40" "5" </code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="callout callout-note callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p>The values <em>look</em> numeric, but the vector is character text. Its sorted order is lexicographic: <code>"5"</code> comes after <code>"40"</code>.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
 <section id="the-catastrophe" class="slide level2 smaller">
 <h2>The catastrophe</h2>
-<p><code>dose_mg</code> came off the CRF as text. Somebody needs it numeric.</p>
+<p><code>dose_mg</code> came off the CRF as character text. Somebody converts it to a factor first and later needs it numeric.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a aria-hidden="true" tabindex="-1"></a>wrong <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">as.factor</span>(trial<span class="sc">$</span>dose_mg))</span>
-<span id="cb31-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">text =</span> trial<span class="sc">$</span>dose_mg, <span class="at">wrong =</span> wrong)[<span class="dv">31</span><span class="sc">:</span><span class="dv">36</span>, ]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a aria-hidden="true" tabindex="-1"></a>wrong <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(<span class="fu">as.factor</span>(trial<span class="sc">$</span>dose_mg))</span>
+<span id="cb51-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">text =</span> trial<span class="sc">$</span>dose_mg, <span class="at">wrong =</span> wrong)[<span class="dv">31</span><span class="sc">:</span><span class="dv">36</span>, ]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   text wrong
 31   40     4
@@ -626,11 +771,11 @@ Levels: mild moderate severe life-threatening</code></pre>
 <section id="how-bad-quantitatively" class="slide level2 smaller">
 <h2>How bad, quantitatively</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">as.numeric</span>(<span class="fu">as.factor</span>(trial<span class="sc">$</span>dose_mg)))   <span class="co"># wrong</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">as.numeric</span>(<span class="fu">as.factor</span>(trial<span class="sc">$</span>dose_mg)))   <span class="co"># wrong</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2.333333</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">as.numeric</span>(<span class="fu">as.character</span>(trial<span class="sc">$</span>dose_mg))) <span class="co"># right</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(<span class="fu">as.numeric</span>(<span class="fu">as.character</span>(trial<span class="sc">$</span>dose_mg))) <span class="co"># right</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 8.666667</code></pre>
 </div>
@@ -645,7 +790,7 @@ Levels: mild moderate severe life-threatening</code></pre>
 <p><strong>The fix</strong></p>
 </div>
 <div class="callout-content">
-<p><code>as.numeric(as.character(x))</code> — go back to the text, <em>then</em> to the number. Better still: never let it become a factor.</p>
+<p>If <code>x</code> is character, use <code>as.numeric(x)</code>. If <code>x</code> is already a factor, use <code>as.numeric(as.character(x))</code>: recover the labels, <em>then</em> convert them.</p>
 </div>
 </div>
 </div>
@@ -708,7 +853,7 @@ Levels: mild moderate severe life-threatening</code></pre>
 <section id="rows-first-then-columns" class="slide level2 smaller">
 <h2>Rows first, then columns</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a aria-hidden="true" tabindex="-1"></a>trial[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"sbp_12"</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a aria-hidden="true" tabindex="-1"></a>trial[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"sbp_12"</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    id     arm sbp_12
 1 P001 Placebo    160
@@ -718,7 +863,7 @@ Levels: mild moderate severe life-threatening</code></pre>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a>trial[trial<span class="sc">$</span>age <span class="sc">&gt;</span> <span class="dv">80</span>, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"age"</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a aria-hidden="true" tabindex="-1"></a>trial[trial<span class="sc">$</span>age <span class="sc">&gt;</span> <span class="dv">80</span>, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"age"</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     id age
 10 P010  87</code></pre>
@@ -734,19 +879,19 @@ Levels: mild moderate severe life-threatening</code></pre>
 <section id="four-ways-to-ask-for-a-column" class="slide level2 smaller">
 <h2>Four ways to ask for a column</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(trial<span class="sc">$</span>age)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(trial<span class="sc">$</span>age)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "numeric"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(trial[[<span class="st">"age"</span>]])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(trial[[<span class="st">"age"</span>]])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "numeric"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(trial[, <span class="st">"age"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(trial[, <span class="st">"age"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "numeric"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(trial[<span class="st">"age"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(trial[<span class="st">"age"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "data.frame"</code></pre>
 </div>
@@ -758,7 +903,7 @@ Levels: mild moderate severe life-threatening</code></pre>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(trial[<span class="st">"age"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(trial[<span class="st">"age"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in mean.default(trial["age"]): argument is not numeric or logical:
 returning NA</code></pre>
@@ -772,11 +917,11 @@ returning NA</code></pre>
 <section id="the-drop-surprise" class="slide level2 smaller">
 <h2>The <code>drop</code> surprise</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(trial[, <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"sbp_0"</span>)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(trial[, <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"sbp_0"</span>)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "data.frame"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(trial[, <span class="st">"age"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(trial[, <span class="st">"age"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "numeric"</code></pre>
 </div>
@@ -786,7 +931,7 @@ returning NA</code></pre>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(trial[, <span class="st">"age"</span>, <span class="at">drop =</span> <span class="cn">FALSE</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(trial[, <span class="st">"age"</span>, <span class="at">drop =</span> <span class="cn">FALSE</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "data.frame"</code></pre>
 </div>
@@ -796,7 +941,7 @@ returning NA</code></pre>
 <section id="is-convenient-and-slightly-dangerous" class="slide level2 smaller">
 <h2><code>$</code> is convenient, and slightly dangerous</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial<span class="sc">$</span>ag, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial<span class="sc">$</span>ag, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 57 63 55</code></pre>
 </div>
@@ -806,7 +951,7 @@ returning NA</code></pre>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a aria-hidden="true" tabindex="-1"></a>trial<span class="sc">$</span>sbp</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a aria-hidden="true" tabindex="-1"></a>trial<span class="sc">$</span>sbp</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>NULL</code></pre>
 </div>
@@ -819,12 +964,12 @@ returning NA</code></pre>
 <section id="selecting-rows-by-condition" class="slide level2 smaller">
 <h2>Selecting rows by condition</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a aria-hidden="true" tabindex="-1"></a>low <span class="ot">&lt;-</span> trial[trial<span class="sc">$</span>sbp_12 <span class="sc">&lt;</span> <span class="dv">120</span>, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"sbp_12"</span>)]</span>
-<span id="cb62-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(low)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a aria-hidden="true" tabindex="-1"></a>low <span class="ot">&lt;-</span> trial[trial<span class="sc">$</span>sbp_12 <span class="sc">&lt;</span> <span class="dv">120</span>, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"sbp_12"</span>)]</span>
+<span id="cb82-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(low)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 11</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(low, <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(low, <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       id     arm sbp_12
 2    P002 Placebo    103
@@ -842,7 +987,7 @@ NA.1 &lt;NA&gt;    &lt;NA&gt;     NA</code></pre>
 <section id="the-na-row-trap" class="slide level2 smaller">
 <h2>The <code>NA</code> row trap</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a aria-hidden="true" tabindex="-1"></a>trial[trial<span class="sc">$</span>sbp_12 <span class="sc">&lt;</span> <span class="dv">120</span>, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"sbp_12"</span>)][<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, ]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a aria-hidden="true" tabindex="-1"></a>trial[trial<span class="sc">$</span>sbp_12 <span class="sc">&lt;</span> <span class="dv">120</span>, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"sbp_12"</span>)][<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, ]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       id sbp_12
 2    P002    103
@@ -856,11 +1001,11 @@ NA.1 &lt;NA&gt;     NA</code></pre>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(trial[trial<span class="sc">$</span>sbp_12 <span class="sc">&lt;</span> <span class="dv">120</span>, ])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(trial[trial<span class="sc">$</span>sbp_12 <span class="sc">&lt;</span> <span class="dv">120</span>, ])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 11</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(trial[<span class="fu">which</span>(trial<span class="sc">$</span>sbp_12 <span class="sc">&lt;</span> <span class="dv">120</span>), ])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(trial[<span class="fu">which</span>(trial<span class="sc">$</span>sbp_12 <span class="sc">&lt;</span> <span class="dv">120</span>), ])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 8</code></pre>
 </div>
@@ -875,8 +1020,8 @@ NA.1 &lt;NA&gt;     NA</code></pre>
 <section id="subset" class="slide level2 smaller">
 <h2><code>subset()</code></h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">subset</span>(trial, arm <span class="sc">==</span> <span class="st">"Treatment"</span> <span class="sc">&amp;</span> age <span class="sc">&gt;</span> <span class="dv">70</span>,</span>
-<span id="cb72-2"><a aria-hidden="true" tabindex="-1"></a>       <span class="at">select =</span> <span class="fu">c</span>(id, age, sbp_12))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">subset</span>(trial, arm <span class="sc">==</span> <span class="st">"Treatment"</span> <span class="sc">&amp;</span> age <span class="sc">&gt;</span> <span class="dv">70</span>,</span>
+<span id="cb92-2"><a aria-hidden="true" tabindex="-1"></a>       <span class="at">select =</span> <span class="fu">c</span>(id, age, sbp_12))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     id age sbp_12
 36 P036  75     97
@@ -891,13 +1036,13 @@ NA.1 &lt;NA&gt;     NA</code></pre>
 <div class="smaller">
 <p>Columns unquoted, rows as a plain condition, and <strong><code>NA</code> rows dropped for you</strong>. Compare the alternative:</p>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a aria-hidden="true" tabindex="-1"></a>trial[<span class="fu">which</span>(trial<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"Treatment"</span> <span class="sc">&amp;</span> trial<span class="sc">$</span>age <span class="sc">&gt;</span> <span class="dv">70</span>), <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"age"</span>, <span class="st">"sbp_12"</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a aria-hidden="true" tabindex="-1"></a>trial[<span class="fu">which</span>(trial<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"Treatment"</span> <span class="sc">&amp;</span> trial<span class="sc">$</span>age <span class="sc">&gt;</span> <span class="dv">70</span>), <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"age"</span>, <span class="st">"sbp_12"</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="subsets-two-hazards" class="slide level2 smaller">
-<h2><code>subset()</code>’s two hazards</h2>
+<section id="subset-hazard-1-is-not" class="slide level2 smaller">
+<h2><code>subset()</code> hazard 1: <code>=</code> is not <code>==</code></h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">subset</span>(trial, <span class="at">arm =</span> <span class="st">"Treatment"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">subset</span>(trial, <span class="at">arm =</span> <span class="st">"Treatment"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: In subset.data.frame(trial, arm = "Treatment") :
  extra argument 'arm' will be disregarded</code></pre>
@@ -916,16 +1061,51 @@ NA.1 &lt;NA&gt;     NA</code></pre>
 <i class="callout-icon"></i>
 </div>
 <div class="callout-content">
-<p><code>subset()</code> is a convenience for interactive work. In a script that matters, <code>[</code> with an explicit condition is more predictable — R’s own documentation says so.</p>
+<p>The call runs and returns a data frame. Without checking the warning or row count, this can look like a successful filter.</p>
 </div>
 </div>
 </div>
+</div>
+</section>
+<section id="subset-hazard-2-bare-names-have-two-homes" class="slide level2 smaller">
+<h2><code>subset()</code> hazard 2: bare names have two homes</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a aria-hidden="true" tabindex="-1"></a>trial <span class="ot">&lt;-</span> <span class="fu">transform</span>(trial,</span>
-<span id="cb78-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">change =</span> sbp_12 <span class="sc">-</span> sbp_0,</span>
-<span id="cb78-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">responder =</span> sbp_12 <span class="sc">&lt;</span> <span class="dv">130</span></span>
-<span id="cb78-4"><a aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb78-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial[, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"sbp_0"</span>, <span class="st">"sbp_12"</span>, <span class="st">"change"</span>, <span class="st">"responder"</span>)], <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a aria-hidden="true" tabindex="-1"></a>age_cutoff <span class="ot">&lt;-</span> <span class="dv">70</span></span>
+<span id="cb98-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">subset</span>(trial, age <span class="sc">&gt;</span> age_cutoff))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 11</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a aria-hidden="true" tabindex="-1"></a>trial_with_cutoff <span class="ot">&lt;-</span> trial</span>
+<span id="cb100-2"><a aria-hidden="true" tabindex="-1"></a>trial_with_cutoff<span class="sc">$</span>age_cutoff <span class="ot">&lt;-</span> <span class="dv">100</span></span>
+<span id="cb100-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">subset</span>(trial_with_cutoff, age <span class="sc">&gt;</span> age_cutoff))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>The expression is identical, but <code>subset()</code> looks inside the data frame first. After a column named <code>age_cutoff</code> appears, it wins over the external object.</p>
+</div>
+<div class="fragment">
+<div class="callout callout-warning callout-style-simple">
+<div class="callout-body">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-content">
+<p><code>subset()</code> is convenient for interactive work. In a script that matters, use <code>[</code> with explicit names such as <code>trial$age</code> so the source of every value is visible.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="adding-columns-with-transform" class="slide level2 smaller">
+<h2>Adding columns with <code>transform()</code></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a aria-hidden="true" tabindex="-1"></a>trial <span class="ot">&lt;-</span> <span class="fu">transform</span>(trial,</span>
+<span id="cb102-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">change =</span> sbp_12 <span class="sc">-</span> sbp_0,</span>
+<span id="cb102-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">responder =</span> sbp_12 <span class="sc">&lt;</span> <span class="dv">130</span></span>
+<span id="cb102-4"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb102-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial[, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"sbp_0"</span>, <span class="st">"sbp_12"</span>, <span class="st">"change"</span>, <span class="st">"responder"</span>)], <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    id sbp_0 sbp_12 change responder
 1 P001   144    160     16     FALSE
@@ -933,19 +1113,18 @@ NA.1 &lt;NA&gt;     NA</code></pre>
 3 P003   155    157      2     FALSE</code></pre>
 </div>
 </div>
-</div>
 <div class="fragment">
 <div class="smaller">
 <p>The equivalent, and what you will see far more often:</p>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a aria-hidden="true" tabindex="-1"></a>trial<span class="sc">$</span>change <span class="ot">&lt;-</span> trial<span class="sc">$</span>sbp_12 <span class="sc">-</span> trial<span class="sc">$</span>sbp_0</span>
-<span id="cb80-2"><a aria-hidden="true" tabindex="-1"></a>trial<span class="sc">$</span>responder <span class="ot">&lt;-</span> trial<span class="sc">$</span>sbp_12 <span class="sc">&lt;</span> <span class="dv">130</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a aria-hidden="true" tabindex="-1"></a>trial<span class="sc">$</span>change <span class="ot">&lt;-</span> trial<span class="sc">$</span>sbp_12 <span class="sc">-</span> trial<span class="sc">$</span>sbp_0</span>
+<span id="cb104-2"><a aria-hidden="true" tabindex="-1"></a>trial<span class="sc">$</span>responder <span class="ot">&lt;-</span> trial<span class="sc">$</span>sbp_12 <span class="sc">&lt;</span> <span class="dv">130</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="sorting-with-order" class="slide level2 smaller">
 <h2>Sorting with <code>order()</code></h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial[<span class="fu">order</span>(trial<span class="sc">$</span>sbp_12), <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"sbp_12"</span>)], <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial[<span class="fu">order</span>(trial<span class="sc">$</span>sbp_12), <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"sbp_12"</span>)], <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     id       arm sbp_12
 36 P036 Treatment     97
@@ -956,7 +1135,7 @@ NA.1 &lt;NA&gt;     NA</code></pre>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial[<span class="fu">order</span>(trial<span class="sc">$</span>arm, <span class="sc">-</span>trial<span class="sc">$</span>sbp_0), <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"sbp_0"</span>)], <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial[<span class="fu">order</span>(trial<span class="sc">$</span>arm, <span class="sc">-</span>trial<span class="sc">$</span>sbp_0), <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"sbp_0"</span>)], <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     id     arm sbp_0
 5  P005 Placebo   179
@@ -972,16 +1151,16 @@ NA.1 &lt;NA&gt;     NA</code></pre>
 <section id="sort-order-rank" class="slide level2 smaller">
 <h2><code>sort</code>, <code>order</code>, <code>rank</code></h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">10</span>, <span class="dv">20</span>)</span>
-<span id="cb85-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">10</span>, <span class="dv">20</span>)</span>
+<span id="cb109-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 10 20 30</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">order</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">order</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2 3 1</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rank</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rank</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 3 1 2</code></pre>
 </div>
@@ -1055,40 +1234,103 @@ NA.1 &lt;NA&gt;     NA</code></pre>
 </div>
 </div>
 </section>
-<section id="tapply" class="slide level2 smaller">
-<h2><code>tapply()</code></h2>
+<section id="split-form-one-piece-per-group" class="slide level2 smaller">
+<h2>Split: form one piece per group</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(trial<span class="sc">$</span>sbp_12, trial<span class="sc">$</span>arm, mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb115"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a aria-hidden="true" tabindex="-1"></a>bp_by_arm <span class="ot">&lt;-</span> <span class="fu">split</span>(trial<span class="sc">$</span>sbp_12, trial<span class="sc">$</span>arm)</span>
+<span id="cb115-2"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb115-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(bp_by_arm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  Placebo Treatment 
-       NA        NA </code></pre>
+<pre><code>[1] "Placebo"   "Treatment"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb117"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb117-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(bp_by_arm<span class="sc">$</span>Placebo)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 30</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb119"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(bp_by_arm<span class="sc">$</span>Treatment)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 30</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb121"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb121-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bp_by_arm<span class="sc">$</span>Placebo, <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 160 103 157 143</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb123"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bp_by_arm<span class="sc">$</span>Treatment, <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 145 182 151 117</code></pre>
 </div>
 </div>
 <div class="fragment">
-<p>Three missing values, so both means are <code>NA</code>. The <code>NA</code> is <strong>information</strong>, not an obstacle:</p>
+<div class="smaller">
+<p>The grouping vector, <code>trial$arm</code>, has one label for every value in <code>trial$sbp_12</code>. <code>split()</code> returns a <strong>named list</strong>: one vector per distinct arm. Values stay in their original within-group order, and missing values stay present.</p>
+</div>
+</div>
+</section>
+<section id="apply-then-combine" class="slide level2 smaller">
+<h2>Apply, then combine</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(trial<span class="sc">$</span>sbp_12, trial<span class="sc">$</span>arm, mean, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb125"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a aria-hidden="true" tabindex="-1"></a>placebo_mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(bp_by_arm<span class="sc">$</span>Placebo, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb125-2"><a aria-hidden="true" tabindex="-1"></a>treatment_mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(bp_by_arm<span class="sc">$</span>Treatment, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb125-3"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb125-4"><a aria-hidden="true" tabindex="-1"></a>arm_means <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb125-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">Placebo =</span> placebo_mean,</span>
+<span id="cb125-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">Treatment =</span> treatment_mean</span>
+<span id="cb125-7"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb125-8"><a aria-hidden="true" tabindex="-1"></a>arm_means</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  Placebo Treatment 
  146.8929  136.6552 </code></pre>
 </div>
 </div>
+<div class="fragment">
+<div class="smaller">
+<p><strong>Apply:</strong> ask the same question—<code>mean(..., na.rm = TRUE)</code>—of every group.</p>
+<p><strong>Combine:</strong> place the separate answers into one named result. The result has one value per group, not one value per patient.</p>
+</div>
+</div>
+</section>
+<section id="tapply-all-three-steps-in-one-call" class="slide level2 smaller">
+<h2><code>tapply()</code>: all three steps in one call</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb127"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb127-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(trial<span class="sc">$</span>sbp_12))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb129"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb129-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(trial<span class="sc">$</span>sbp_12, trial<span class="sc">$</span>arm, mean, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Placebo Treatment 
+ 146.8929  136.6552 </code></pre>
+</div>
 </div>
 <div class="fragment">
+<p>First document the three missing outcomes; then calculate the observed-value mean for each arm. What happens if <code>na.rm = TRUE</code> is omitted?</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">tapply</span>(trial<span class="sc">$</span>sbp_12, <span class="fu">list</span>(trial<span class="sc">$</span>arm, trial<span class="sc">$</span>sex), mean, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb131"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb131-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(trial<span class="sc">$</span>sbp_12, trial<span class="sc">$</span>arm, mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>              F     M
-Placebo   145.0 149.4
-Treatment 134.4 138.8</code></pre>
+<pre><code>  Placebo Treatment 
+       NA        NA </code></pre>
 </div>
+</div>
+</div>
+<div class="fragment">
+<p>Each arm contains at least one missing value, so its mean is <code>NA</code>. This is a diagnostic result, not a software failure.</p>
+</div>
+<div class="fragment">
+<div class="smaller">
+<p><code>tapply(X, INDEX, FUN, ...)</code></p>
+<ul>
+<li><code>X</code>: the values to split</li>
+<li><code>INDEX</code>: one group label per value</li>
+<li><code>FUN</code>: the function applied to each group</li>
+<li><code>...</code>: extra arguments passed to <code>FUN</code>, such as <code>na.rm = TRUE</code></li>
+</ul>
 </div>
 </div>
 </section>
 <section id="aggregate-the-formula-interface" class="slide level2 smaller">
 <h2><code>aggregate()</code>: the formula interface</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(sbp_12 <span class="sc">~</span> arm, <span class="at">data =</span> trial, <span class="at">FUN =</span> mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb133"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb133-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(sbp_12 <span class="sc">~</span> arm, <span class="at">data =</span> trial, <span class="at">FUN =</span> mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>        arm   sbp_12
 1   Placebo 146.8929
@@ -1097,7 +1339,7 @@ Treatment 134.4 138.8</code></pre>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(<span class="fu">cbind</span>(sbp_0, sbp_12) <span class="sc">~</span> arm <span class="sc">+</span> sex, <span class="at">data =</span> trial, <span class="at">FUN =</span> mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb135"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb135-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(<span class="fu">cbind</span>(sbp_0, sbp_12) <span class="sc">~</span> arm <span class="sc">+</span> sex, <span class="at">data =</span> trial, <span class="at">FUN =</span> mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>        arm sex    sbp_0   sbp_12
 1   Placebo   F 147.2500 145.0000
@@ -1114,7 +1356,7 @@ Treatment 134.4 138.8</code></pre>
 <section id="aggregate-drops-rows-quietly" class="slide level2 smaller">
 <h2><code>aggregate()</code> drops rows quietly</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(sbp_12 <span class="sc">~</span> arm, <span class="at">data =</span> trial, <span class="at">FUN =</span> length)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb137"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb137-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(sbp_12 <span class="sc">~</span> arm, <span class="at">data =</span> trial, <span class="at">FUN =</span> length)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>        arm sbp_12
 1   Placebo     28
@@ -1126,8 +1368,8 @@ Treatment 134.4 138.8</code></pre>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(sbp_12 <span class="sc">~</span> arm, <span class="at">data =</span> trial, <span class="at">FUN =</span> mean,</span>
-<span id="cb103-2"><a aria-hidden="true" tabindex="-1"></a>          <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">na.action =</span> na.pass)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb139"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(sbp_12 <span class="sc">~</span> arm, <span class="at">data =</span> trial, <span class="at">FUN =</span> mean,</span>
+<span id="cb139-2"><a aria-hidden="true" tabindex="-1"></a>          <span class="at">na.rm =</span> <span class="cn">TRUE</span>, <span class="at">na.action =</span> na.pass)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>        arm   sbp_12
 1   Placebo 146.8929
@@ -1139,7 +1381,7 @@ Treatment 134.4 138.8</code></pre>
 <section id="counting-table-and-friends" class="slide level2 smaller">
 <h2>Counting: <code>table()</code> and friends</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(trial<span class="sc">$</span>arm, trial<span class="sc">$</span>grade)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb141"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb141-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(trial<span class="sc">$</span>arm, trial<span class="sc">$</span>grade)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           
             mild moderate severe life-threatening
@@ -1149,7 +1391,7 @@ Treatment 134.4 138.8</code></pre>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">prop.table</span>(<span class="fu">table</span>(trial<span class="sc">$</span>arm, trial<span class="sc">$</span>sex), <span class="at">margin =</span> <span class="dv">1</span>), <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb143"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb143-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">prop.table</span>(<span class="fu">table</span>(trial<span class="sc">$</span>arm, trial<span class="sc">$</span>sex), <span class="at">margin =</span> <span class="dv">1</span>), <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>           
                F    M
@@ -1165,7 +1407,7 @@ Treatment 134.4 138.8</code></pre>
 <section id="you-are-learning-the-pattern-not-the-syntax" class="slide level2 smaller">
 <h2>You are learning the pattern, not the syntax</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(sbp_12 <span class="sc">~</span> arm, <span class="at">data =</span> trial, <span class="at">FUN =</span> mean, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb145"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb145-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(sbp_12 <span class="sc">~</span> arm, <span class="at">data =</span> trial, <span class="at">FUN =</span> mean, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>        arm   sbp_12
 1   Placebo 146.8929
@@ -1174,9 +1416,9 @@ Treatment 134.4 138.8</code></pre>
 </div>
 <div class="fragment">
 <p>The same question in session 6 — <strong>not executed here, you have not been taught it</strong>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a aria-hidden="true" tabindex="-1"></a>trial <span class="sc">|&gt;</span></span>
-<span id="cb111-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(arm) <span class="sc">|&gt;</span></span>
-<span id="cb111-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">sbp_12 =</span> <span class="fu">mean</span>(sbp_12, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb147"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb147-1"><a aria-hidden="true" tabindex="-1"></a>trial <span class="sc">|&gt;</span></span>
+<span id="cb147-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(arm) <span class="sc">|&gt;</span></span>
+<span id="cb147-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">sbp_12 =</span> <span class="fu">mean</span>(sbp_12, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="fragment">
 <div class="callout callout-important callout-style-simple">
@@ -1199,7 +1441,7 @@ Treatment 134.4 138.8</code></pre>
 <section id="str-first-always" class="slide level2 smaller">
 <h2><code>str()</code> first, always</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(trial[, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"age"</span>, <span class="st">"sbp_12"</span>, <span class="st">"dose_mg"</span>, <span class="st">"grade"</span>)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb148"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb148-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(trial[, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"age"</span>, <span class="st">"sbp_12"</span>, <span class="st">"dose_mg"</span>, <span class="st">"grade"</span>)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>'data.frame':   60 obs. of  6 variables:
  $ id     : chr  "P001" "P002" "P003" "P004" ...
@@ -1217,11 +1459,11 @@ Treatment 134.4 138.8</code></pre>
 <section id="five-checks-on-any-new-data-frame" class="slide level2 smaller">
 <h2>Five checks on any new data frame</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(trial)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb150"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb150-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(trial)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 60 12</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(trial[, <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"sbp_0"</span>, <span class="st">"sbp_12"</span>, <span class="st">"dose_mg"</span>)]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb152"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb152-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(trial[, <span class="fu">c</span>(<span class="st">"age"</span>, <span class="st">"sbp_0"</span>, <span class="st">"sbp_12"</span>, <span class="st">"dose_mg"</span>)]))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    age   sbp_0  sbp_12 dose_mg 
       0       0       3       0 </code></pre>

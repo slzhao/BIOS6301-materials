@@ -5,6 +5,8 @@ output: html_document
 ---
 
 ```{r}
+library(dplyr)
+
 visit <- data.frame(
   id = rep(sprintf("P%02d", 1:6), each = 2),
   arm = rep(rep(c("control", "treated"), each = 3), each = 2),
@@ -17,7 +19,7 @@ visit <- data.frame(
 ## 1. Validate structure and key
 
 ```{r}
-# Confirm row meaning and key uniqueness.
+# State the row unit in prose, then use count() and filter() to inspect duplicates.
 ```
 
 ## 2. Analysis population and derived variables
@@ -25,17 +27,29 @@ visit <- data.frame(
 Write the inclusion rule here.
 
 ```{r}
-# Use dplyr or base R.
+# Filter to week 4. Create observed and marker_band with mutate() and case_when().
 ```
 
-## 3. Arm summary and centered values
+## 3. Arm summary
 
 ```{r}
-# Report n, observed n, mean, SD, and proportion observed.
+# Use group_by(), summarise(), and .groups = "drop".
 ```
 
-## 4. Cross-dialect verification
+## 4. Grouped transformation and review table
 
 ```{r}
-# Verify observed counts using the other dialect.
+# Center marker within arm, ungroup, arrange, and select review columns.
+```
+
+## 5. Base-R verification
+
+```{r}
+# Verify the arm-specific observed counts with tapply().
+```
+
+## 6. Additional practice
+
+```{r}
+# Continue with any additional-practice tasks assigned during lab.
 ```
