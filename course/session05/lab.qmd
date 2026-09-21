@@ -5,8 +5,8 @@ subtitle: "Import and audit a synthetic visit file"
 
 ::: {.callout-note}
 **Suggested use:** tasks 1–7 form the core import audit. Additional practice
-simulates a second delivery and a stricter data contract. The instructor may set
-the in-class stopping point; remaining work is suitable for independent practice.
+repeats the same import, parsing, date, and export concepts with deliberately
+different file problems. The instructor may set the in-class stopping point.
 :::
 
 Choose one format and copy either `starter/import-lab.Rmd` or
@@ -15,41 +15,44 @@ Choose one format and copy either `starter/import-lab.Rmd` or
 
 ## Tasks
 
-1. Import the supplied temporary CSV with documented missing-value codes.
-2. Verify dimensions, names, types, key uniqueness, expected IDs, and missingness.
-3. Diagnose every marker value that cannot be converted to numeric.
+1. Import the supplied temporary CSV twice: first preserve every field as raw
+   character text, then make an analysis import using the documented
+   missing-value codes and column classes.
+2. Verify dimensions, names, types, expected IDs, one row per ID, and missingness.
+   Use `table()` and `%in%` rather than relying only on visual inspection.
+3. Use the raw and analysis imports together to display every marker entry that
+   became missing during parsing.
 4. Parse dates using the documented formats and flag ambiguous or invalid values.
-5. Create a cleaned object without overwriting the raw import.
+5. Create a cleaned object that retains the original marker and date text; do not
+   overwrite the raw import.
 6. Export the cleaned rectangular table as CSV and RDS, read both back, and compare
    the preserved classes.
 7. Optional: repeat the import with `readr::read_csv()` and compare diagnostics.
 
-## Additional practice: audit a second delivery
+## Additional practice: repeat the import workflow
 
-1. Create a second synthetic CSV containing one new ID, one repeated ID, leading
-   or trailing whitespace, an additional missing-value spelling, and one date
-   outside the expected study window.
-2. Import both files with an explicit contract for column names and classes. Add
-   `source_file` and `source_row` so every record retains provenance.
-3. Standardize whitespace and documented missing-value spellings without
-   overwriting the raw imported columns.
-4. Append the deliveries and produce a duplicate-ID report. Do not resolve the
-   duplicate until you have stated an adjudication rule.
-5. Write checks for the expected schema, unique post-adjudication IDs, allowed
-   date range, numeric marker range, and complete provenance fields.
-6. Record file size, modification time, and an MD5 checksum for each input. State
-   what a checksum can and cannot establish.
-7. Export the combined clean data as CSV and RDS, read both back, and compare
-   values as well as classes. Explain which format is preferable for the next R
-   analysis and which is preferable for broad interchange.
+1. Import the supplied semicolon/decimal-comma file with ordinary `read.csv()`.
+   Diagnose the result, then re-import it with the correct `sep` and `dec`.
+2. Re-import the main file with only `"."` declared missing. Use `str()` and the
+   raw values to explain why the marker column does not become numeric.
+3. Re-import the main file with every column declared character. Compare this
+   explicit raw contract with the typed analysis import.
+4. Parse `c("2026-01-03", "04-Jan-2026", "2026-01-05")` in two passes, repairing
+   only values missed by the ISO parse.
+5. Parse `"03/04/2026"` once as month/day/year and once as day/month/year. Explain
+   why successful parsing cannot determine which interpretation is correct.
+6. Create a small object containing a factor and a `Date`. Export it as CSV and
+   RDS, read both back, and compare `str()` output.
+7. Optional: use `readr::read_csv()` with explicit column types and inspect its
+   parsing specification and any reported problems.
 
 ### Independent-practice check
 
-Your duplicate report must show the source file and source row for both copies.
-Changing one input byte should change its checksum; it should not, by itself,
-tell you whether the changed file is scientifically correct.
+Your work should demonstrate that a successful import can still use the wrong
+delimiter, missing-value rule, type, or date interpretation.
 
 ## Exit evidence
 
 Render the import contract, audit results, problem records, cleaned structure, and
-CSV/RDS comparison.
+CSV/RDS comparison. Additional practice should also show the corrected
+semicolon/decimal-comma import and the two date-parsing demonstrations.

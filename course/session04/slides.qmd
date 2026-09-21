@@ -301,9 +301,106 @@ table(droplevels(trial$grade))
 ```
 
 
+## Level order is metadata {.smaller}
+
+```{r}
+#| label: factor-relevel
+arm <- factor(trial$arm, levels = c("Placebo", "Treatment"))
+arm_treatment_ref <- relevel(arm, ref = "Treatment")
+
+levels(arm)
+levels(arm_treatment_ref)
+show_rows <- c(1, 31)  # one patient from each arm
+data.frame(
+  before = as.character(arm[show_rows]),
+  after = as.character(arm_treatment_ref[show_rows]),
+  before_code = as.integer(arm[show_rows]),
+  after_code = as.integer(arm_treatment_ref[show_rows])
+)
+```
+
+. . .
+
+::: {.callout-tip appearance="simple"}
+Changing level order changes the factor's metadata and integer codes—**not the
+observed labels**. With R's default treatment contrasts, the first level is the
+model reference.
+:::
+
+
+## Safely set the complete level order {.smaller}
+
+```{r}
+#| label: factor-complete-order
+new_order <- c("life-threatening", "severe", "moderate", "mild")
+grade_reordered <- factor(
+  as.character(trial$grade),
+  levels = new_order
+)
+
+levels(trial$grade)
+levels(grade_reordered)
+identical(as.character(trial$grade), as.character(grade_reordered))
+```
+
+. . .
+
+::: {.callout-tip appearance="simple"}
+`factor(as.character(x), levels = new_order)` rebuilds the factor from its labels.
+The observations stay in the same categories; only the complete level order and
+internal codes change.
+:::
+
+
+## `levels(x) <- ...` relabels the data {.smaller}
+
+```{r}
+#| label: factor-wrong-reorder
+arm1 <- arm
+levels(arm1) <- c("Treatment", "Placebo")
+
+data.frame(
+  id = trial$id[show_rows],
+  before = as.character(arm[show_rows]),
+  after = as.character(arm1[show_rows])
+)
+```
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+This did **not** reorder the level dictionary while preserving the data. It
+renamed code 1 as `Treatment` and code 2 as `Placebo`, so the displayed group for
+every patient changed.
+:::
+
+. . .
+
+Use `relevel()` to change the reference. Use `levels(x) <- ...` only when you
+intentionally mean to **rename** categories.
+
+
+## First inspect `dose_mg` {.smaller}
+
+```{r}
+#| label: dose-before-factor
+head(trial[trial$arm == "Treatment", c("id", "arm", "dose_mg")], 8)
+str(trial$dose_mg)
+sort(unique(trial$dose_mg))
+```
+
+. . .
+
+::: {.callout-note appearance="simple"}
+The values *look* numeric, but the vector is character text. Its sorted order is
+lexicographic: `"5"` comes after `"40"`.
+:::
+
+
 ## The catastrophe {.smaller}
 
-`dose_mg` came off the CRF as text. Somebody needs it numeric.
+`dose_mg` came off the CRF as character text. Somebody converts it to a factor
+first and later needs it numeric.
 
 ```{r}
 #| label: catastrophe
@@ -331,8 +428,8 @@ mean(as.numeric(as.character(trial$dose_mg))) # right
 
 ::: {.callout-tip appearance="simple"}
 ## The fix
-`as.numeric(as.character(x))` — go back to the text, *then* to the number.
-Better still: never let it become a factor.
+If `x` is character, use `as.numeric(x)`. If `x` is already a factor, use
+`as.numeric(as.character(x))`: recover the labels, *then* convert them.
 :::
 
 . . .
@@ -518,7 +615,7 @@ trial[which(trial$arm == "Treatment" & trial$age > 70), c("id", "age", "sbp_12")
 ```
 
 
-## `subset()`'s two hazards {.smaller}
+## `subset()` hazard 1: `=` is not `==` {.smaller}
 
 ```{r}
 #| label: subset-eq
@@ -533,10 +630,37 @@ One `=` instead of `==`. A warning, and **all 60 rows back**.
 . . .
 
 ::: {.callout-warning appearance="simple"}
-`subset()` is a convenience for interactive work. In a script that matters, `[`
-with an explicit condition is more predictable — R's own documentation says so.
+The call runs and returns a data frame. Without checking the warning or row count,
+this can look like a successful filter.
 :::
 
+
+## `subset()` hazard 2: bare names have two homes {.smaller}
+
+```{r}
+#| label: subset-name-lookup
+age_cutoff <- 70
+nrow(subset(trial, age > age_cutoff))
+
+trial_with_cutoff <- trial
+trial_with_cutoff$age_cutoff <- 100
+nrow(subset(trial_with_cutoff, age > age_cutoff))
+```
+
+. . .
+
+The expression is identical, but `subset()` looks inside the data frame first.
+After a column named `age_cutoff` appears, it wins over the external object.
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+`subset()` is convenient for interactive work. In a script that matters, use `[`
+with explicit names such as `trial$age` so the source of every value is visible.
+:::
+
+
+## Adding columns with `transform()` {.smaller}
 
 ```{r}
 #| label: transform
@@ -627,7 +751,64 @@ is this.
 :::
 
 
-## `tapply()` {.smaller}
+## Split: form one piece per group {.smaller}
+
+```{r}
+#| label: split-one-variable
+bp_by_arm <- split(trial$sbp_12, trial$arm)
+
+names(bp_by_arm)
+length(bp_by_arm$Placebo)
+length(bp_by_arm$Treatment)
+head(bp_by_arm$Placebo, 4)
+head(bp_by_arm$Treatment, 4)
+```
+
+. . .
+
+::: {.smaller}
+The grouping vector, `trial$arm`, has one label for every value in
+`trial$sbp_12`. `split()` returns a **named list**: one vector per distinct arm.
+Values stay in their original within-group order, and missing values stay present.
+:::
+
+
+## Apply, then combine {.smaller}
+
+```{r}
+#| label: apply-combine-manual
+placebo_mean <- mean(bp_by_arm$Placebo, na.rm = TRUE)
+treatment_mean <- mean(bp_by_arm$Treatment, na.rm = TRUE)
+
+arm_means <- c(
+  Placebo = placebo_mean,
+  Treatment = treatment_mean
+)
+arm_means
+```
+
+. . .
+
+::: {.smaller}
+**Apply:** ask the same question—`mean(..., na.rm = TRUE)`—of every group.
+
+**Combine:** place the separate answers into one named result. The result has one
+value per group, not one value per patient.
+:::
+
+
+## `tapply()`: all three steps in one call {.smaller}
+
+```{r}
+#| label: tapply-correct
+sum(is.na(trial$sbp_12))
+tapply(trial$sbp_12, trial$arm, mean, na.rm = TRUE)
+```
+
+. . .
+
+First document the three missing outcomes; then calculate the observed-value mean
+for each arm. What happens if `na.rm = TRUE` is omitted?
 
 ```{r}
 #| label: tapply-na
@@ -636,20 +817,19 @@ tapply(trial$sbp_12, trial$arm, mean)
 
 . . .
 
-Three missing values, so both means are `NA`. The `NA` is **information**, not an
-obstacle:
-
-```{r}
-#| label: tapply-narm
-tapply(trial$sbp_12, trial$arm, mean, na.rm = TRUE)
-```
+Each arm contains at least one missing value, so its mean is `NA`. This is a
+diagnostic result, not a software failure.
 
 . . .
 
-```{r}
-#| label: tapply-two
-round(tapply(trial$sbp_12, list(trial$arm, trial$sex), mean, na.rm = TRUE), 1)
-```
+::: {.smaller}
+`tapply(X, INDEX, FUN, ...)`
+
+- `X`: the values to split
+- `INDEX`: one group label per value
+- `FUN`: the function applied to each group
+- `...`: extra arguments passed to `FUN`, such as `na.rm = TRUE`
+:::
 
 
 ## `aggregate()`: the formula interface {.smaller}

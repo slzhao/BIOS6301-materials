@@ -5,9 +5,8 @@ subtitle: "Build and audit an analysis table"
 
 ::: {.callout-note}
 **Suggested use:** tasks 1–7 are the core analysis-table route. Additional
-practice repeats important transformations in a second dialect and adds
-missingness, ordering, and longitudinal checks; unfinished items may be completed
-after lab.
+practice repeats only the verbs and ideas introduced in Session 6; unfinished
+items may be completed after lab.
 :::
 
 Choose one format and copy either `starter/dplyr-lab.Rmd` or
@@ -16,41 +15,41 @@ Choose one format and copy either `starter/dplyr-lab.Rmd` or
 
 ## Tasks
 
-1. Confirm that one row represents one participant-visit and that the proposed
-   key `(id, week)` is unique.
+1. State what one row represents. Use `count()` and `filter()` to confirm that
+   `(id, week)` is unique.
 2. Define the week-4 analysis population in one sentence, then implement it.
-3. Create observed/missing flags and a clinically named marker category.
+3. Create an `observed` flag and a `marker_band` category with the values
+   `"missing"`, `"high"`, and `"lower"`. Put the missing-value condition first.
 4. Produce one row per arm with total `n`, observed `n`, mean, SD, and proportion
-   observed.
-5. Center marker values within arm without changing the row count.
-6. Solve using either dplyr or base R, then verify the arm-specific observed counts
-   using the other dialect.
-7. Explain the unit of observation for every output table.
+   observed. Return an explicitly ungrouped result.
+5. Center marker values within arm with grouped `mutate()`, then `ungroup()`.
+   Confirm that the transformation did not change the row count.
+6. Arrange the analysis table by arm, put missing marker values last, and select
+   the columns needed for review.
+7. Verify the arm-specific observed counts with base R and explain the unit of
+   observation in the analysis table and summary table.
 
 ## Additional practice: interrogate the pipeline
 
-1. Recreate the complete week-4 analysis table in the dialect you did not use for
-   the core route. Compare row order, names, classes, and values—not only printed
-   output.
+1. Recreate the week-4 analysis table with base R. Sort both versions by ID and
+   inspect them side by side.
 2. Produce a missingness table by arm and week with total rows, observed marker
    rows, missing rows, and proportion observed.
-3. Within each arm, rank week-4 participants by observed marker while placing
-   missing values last. Verify that ranking does not remove participants.
-4. Starting from the two-visit table, calculate baseline, week-4 marker, and
-   change for every participant. Retain participants whose week-4 value is missing.
-5. Produce a participant-level change summary by arm and distinguish enrolled
-   `n` from complete-change `n`.
-6. Demonstrate the grouping state after `group_by()`/`summarise()` and after a
-   `.by` summary. Explicitly remove grouping before a downstream operation.
-7. Add checks that every participant has at most one baseline and one week-4 row,
-   the participant-level output has one row per ID, and no filtering changed the
-   randomized-arm counts.
+3. Use `count()` to tabulate `marker_band` within arm. Confirm that the explicit
+   `"missing"` category appears.
+4. Use `select()` helpers and `rename()` to make a compact review table with a
+   clearly named marker column.
+5. Use `across()` to count missing values in the numeric columns `week` and
+   `marker`.
+6. Summarize by arm and week with `.groups = "drop"`. State the row unit of the
+   result and why dropping the grouping is useful.
+7. Append one identical duplicate row, diagnose it with `count()`, and remove it
+   with `distinct()` only after confirming that the entire row is duplicated.
 
 ### Independent-practice check
 
-The base-R and dplyr week-4 tables should be equivalent after deliberate sorting.
-The participant-level table must retain all six IDs, including IDs without a
-complete change.
+The base-R and dplyr week-4 tables should agree after deliberate sorting. The
+grouped transformation must preserve all six week-4 rows.
 
 ## Exit evidence
 

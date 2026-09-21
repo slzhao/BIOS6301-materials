@@ -14,6 +14,14 @@ source_table <- data.frame(
 )
 csv_path <- tempfile(fileext = ".csv")
 write.csv(source_table, csv_path, row.names = FALSE)
+
+site_table <- data.frame(
+  id = c("P11", "P12", "P13"),
+  marker = c(4.2, 5.1, 6.3)
+)
+site_path <- tempfile(fileext = ".csv")
+write.table(site_table, site_path, sep = ";", dec = ",",
+            row.names = FALSE)
 ```
 
 Documented rules: `.` and `not measured` mean missing marker. Dates are intended
@@ -22,13 +30,13 @@ to be ISO `YYYY-MM-DD`; the non-ISO and impossible values require review.
 ## 1. Import contract and audit
 
 ```{r}
-# Import, then check dimensions, names, types, IDs, key, and missingness.
+# Create a raw character import and a typed analysis import, then audit both.
 ```
 
 ## 2. Diagnose and clean
 
 ```{r}
-# Preserve raw text; create parsed marker and date columns.
+# Retain raw text beside the parsed marker and date columns.
 ```
 
 ## 3. Export and round-trip check

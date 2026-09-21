@@ -5,6 +5,9 @@ output: html_document
 ---
 
 ```{r}
+library(dplyr)
+library(tidyr)
+
 participants <- data.frame(
   id = c("P01", "P02", "P02", "P03", "P04"),
   arm = c("control", "treated", "treated", "treated", "control"),
@@ -23,23 +26,29 @@ record. `P05` intentionally has no participant record.
 ## 1. Key audit and resolution
 
 ```{r}
-# Use dplyr or base R.
+# Use count() to find duplicate IDs, then apply the stated adjudication rule.
 ```
 
 ## 2. Reshape and join
 
 ```{r}
-# Create one row per participant-visit and join metadata.
+# Use pivot_longer(), parse week as integer, and request a many-to-one join.
 ```
 
 ## 3. Validate and calculate change
 
 ```{r}
-# Check invariants and calculate within-participant change.
+# Check row count, duplicate keys, and unmatched IDs. Then arrange, group, and lag.
 ```
 
 ## 4. Round-trip check
 
 ```{r}
-# Return to wide and compare marker values.
+# Return to wide and compare the marker columns with markers_wide.
+```
+
+## 5. Additional practice
+
+```{r}
+# Continue with any additional-practice tasks assigned during lab.
 ```

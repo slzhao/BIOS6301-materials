@@ -4,9 +4,9 @@ subtitle: "Build and check an analysis table with base R"
 ---
 
 ::: {.callout-note}
-**Suggested use:** complete the seven core tasks first. Additional practice
-extends the same base-R table into reshaping, metadata matching, nested objects,
-and stronger checks; unfinished items may be completed independently.
+**Suggested use:** complete the eight core tasks first. Additional practice
+provides a second pass through the same containers, indexing, factor, ordering,
+and grouped-summary concepts; unfinished items may be completed independently.
 :::
 
 Choose one format and copy either `starter/base-data-lab.Rmd` or
@@ -15,41 +15,51 @@ the `.qmd` file.
 
 ## Tasks
 
-1. State the unit of observation and verify that `(id, week)` is unique.
+1. State the unit of observation. Use `table()` to confirm that there is one row
+   for every `(id, week)` combination.
 2. Compare `visit["marker"]`, `visit[["marker"]]`, and `visit$marker` using
    `class()`, `typeof()`, and `length()`.
-3. Select week-4 observations without removing rows that have missing markers.
-4. Add `observed` and `change_from_baseline` without overwriting supplied columns.
-5. Produce an arm-specific summary with total `n`, observed `n`, mean, and SD.
-6. Construct a participant-by-week marker matrix and preserve two dimensions when
-   selecting one week.
-7. Add at least three checks for properties required by the analysis.
+3. Convert `visit$grade` to a factor with the protocol levels `mild`, `moderate`,
+   `severe`, and `life-threatening`, in that order. Use `levels()` and `table()`
+   to show that an unobserved protocol category is still retained.
+4. Safely reverse the complete grade-level order by rebuilding the factor from
+   its character labels. Verify that the observed labels did not change. Then make
+   a separate copy and try the tempting but incorrect `levels(x) <- ...` approach;
+   display several rows and explain what it changed.
+5. Select week-4 observations without removing rows that have missing markers.
+   Add `observed` and `marker_at_least_5` without overwriting supplied columns.
+6. Use `table()` and `tapply()` to report, separately by arm, total `n`, observed
+   `n`, and mean observed marker.
+7. Inspect the supplied participant-by-week marker matrix. Select week 4 using
+   `drop = FALSE` and explain why its dimensions are preserved.
+8. Apply the five-check routine from class: `str()`, `dim()`, `summary()`,
+   `table(..., useNA = "ifany")`, and `colSums(is.na(...))`.
 
-## Additional practice: reshape and validate with base R
+## Additional practice: repeat the base-R workflow
 
-1. Use base `reshape()` to create one row per participant with separate baseline
-   and week-4 marker columns. Verify six rows and one row per ID.
-2. Reshape that object back to long form, order by ID and week, and compare its
-   marker values with the original table.
-3. Create a participant metadata table containing ID, site, and enrollment age.
-   Match or merge it onto `week4` while preserving exactly six analysis rows.
-4. Identify IDs present in only one input before merging. Add a deliberate extra
-   metadata ID and demonstrate that it does not create an analysis row.
-5. Store the raw data, week-4 data, summary, and marker matrix in a named list.
-   Extract the summary both with `[` and `[[`; explain the difference in result
-   structure.
-6. Select one row and one matrix column using `drop = FALSE`; write checks showing
-   that both results remain two-dimensional.
-7. Write a compact `audit_visit()` function that stops for duplicate `(id, week)`
-   keys, unexpected weeks, or missing IDs, and run it on a deliberately broken copy.
+1. Store `visit`, `week4`, the arm means, and `marker_matrix` in a named list.
+   Extract the arm means with `[`, `[[`, and `$`; describe the resulting structures.
+2. Convert `visit$arm` to a factor whose first level is `control`, then use
+   `relevel()` to make `treated` the reference. Verify that the observed labels
+   remain unchanged while the level order changes.
+3. Subset the relevelled factor to treated observations, then use `droplevels()` and compare
+   the levels before and after dropping the unused level.
+4. Select one row from `week4` and one column from `marker_matrix`, both with
+   `drop = FALSE`. Report their classes and dimensions.
+5. Sort `week4` first by arm and then by decreasing marker, keeping all columns
+   together so that each row remains one participant record.
+6. Calculate the arm-specific observed mean once with `tapply()` and once with
+   `aggregate()`. State what rows with missing marker contribute to each result.
+7. Make a copy with one impossible marker value of `-10`. Use `summary()` to find
+   the problem, repair the copy, and confirm the original object was unchanged.
 
 ### Independent-practice check
 
-The long-to-wide-to-long round trip should preserve IDs, weeks, and marker values
-after sorting. The deliberate metadata-only ID must be reported but must not alter
-the week-4 analysis population.
+Your results should show how the choice among `[`, `[[`, and `$` changes the
+returned structure, how `drop = FALSE` preserves dimensions, and why safe factor
+reordering differs from assigning new text directly to `levels()`.
 
 ## Exit evidence
 
-Render the row/key statement, structure comparisons, analysis table, summary,
-matrix dimensions, and checks.
+Render the row/key statement, structure comparisons, factor levels and label
+comparison, analysis table, summary, matrix dimensions, and five-check output.

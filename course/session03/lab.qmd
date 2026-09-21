@@ -5,8 +5,8 @@ subtitle: "Diagnose a contaminated clinical vector"
 
 ::: {.callout-note}
 **Suggested use:** tasks 1–7 are the core route. The additional route provides a
-second pass through coercion, indexing, lists, factors, and validation and may be
-completed independently after lab.
+second pass through the same vector concepts and may be completed independently
+after lab.
 :::
 
 ## Goal
@@ -23,39 +23,41 @@ chosen copy and Knit (`.Rmd`) or Render (`.qmd`) it once before editing.
 ## Tasks
 
 1. Use `str()`, `typeof()`, `class()`, and `length()` to inspect every object.
-2. Identify why `dose_mg` is character and list every nonnumeric entry.
+2. Make a trial numeric conversion of `dose_mg`. Use the resulting missing
+   positions to display the original entries that did not convert.
 3. Convert the documented sentinel `"not measured"` to `NA`, then convert safely.
-4. Select complete treated-group doses using base R.
-5. Create `arm` as a factor with `control` as its reference level.
-6. Report the number missing and the mean observed dose; write one sentence
+4. Give the cleaned dose vector patient-ID names, then select complete
+   treated-group doses using logical indexing.
+5. Report the number of treated patients and the number of treated patients with
+   an observed dose.
+6. Report the total number missing and the mean observed dose; write one sentence
    explaining what `na.rm = TRUE` does.
-7. Optional: express task 4 with `dplyr::filter()` and verify the same patient IDs.
+7. Use `ifelse()` to create a vector containing `"missing"` or `"observed"` for
+   every patient.
 
 ## Additional practice: object behavior under pressure
 
 1. Predict the type and values of `c(dose_clean, "pending")`, then run it and
    explain the coercion.
-2. Give `dose_clean` patient-ID names. Retrieve the treated doses once by integer
-   positions, once by names, and once by a logical vector; verify identical values.
-3. Create a named list `patient_record` holding one ID, arm, and dose. Compare
-   `patient_record["dose"]` with `patient_record[["dose"]]` using `str()`.
+2. Retrieve the complete treated doses once by integer positions, once by patient
+   names, and once by a logical vector. Display all three results.
+3. Use `which()` to report the positions and patient IDs of missing doses.
 4. Extend a copy of `dose_mg` with the sentinels `""` and `"unknown"`. Write one
    explicit cleaning rule that maps all documented sentinels to missing without
    changing the original vector.
-5. Construct a data frame containing `patient_id`, factor `arm`, original dose,
-   and numeric dose. Verify equal column lengths and unique IDs.
-6. Calculate observed dose summaries by arm while retaining the number missing in
-   each arm. State the row unit of the summary.
-7. Drop the treated level from a subset, use `droplevels()`, and explain why the
-   original factor and subset may legitimately have different level sets.
+5. Predict and then run `dose_clean + c(0, 5)`. Explain why R gives no recycling
+   warning and why the result is not a sensible patient-level adjustment.
+6. Create an explicit adjustment with `ifelse()` that adds 5 only for treated
+   patients. Confirm that missing doses remain missing.
+7. Compare `dose_clean == NA` with `is.na(dose_clean)` and explain why only one is
+   appropriate for selecting missing values.
 
 ### Independent-practice check
 
-Your report should demonstrate, with output, when `[ ]` preserves a container,
-when `[[ ]]` extracts an element, and when coercion changes values indirectly by
-changing their type.
+Your report should demonstrate, with output, the three vector-indexing methods,
+the effect of coercion, and a correct missing-value check.
 
 ## Exit evidence
 
 Your rendered report must include the diagnostic values, repaired vector, selected
-IDs, factor levels, numerical summary, and interpretation.
+IDs, numerical summary, `ifelse()` result, and interpretation.
