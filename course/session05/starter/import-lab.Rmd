@@ -47,3 +47,28 @@ to be ISO `YYYY-MM-DD`; the non-ISO and impossible values require review.
 ## 4. Interpretation
 
 List the records requiring source clarification and explain why.
+## 5. File-layout checkpoint
+
+```{r}
+layout_path <- tempfile(fileext = ".csv")
+writeLines(c(
+  "Synthetic clinic export",
+  "Prepared 2026-09-26",
+  "export_row,export_row,id,weight_kg",
+  "1,1,001,62.4",
+  "2,2,002,71.8",
+  "3,3,003,68.0",
+  "TOTAL,,,202.2"
+), layout_path)
+```
+
+Both `export_row` columns are export counters, not participant identifiers.
+Read the text first, then import the three observations and keep the IDs intact.
+
+```{r}
+# Inspect with readLines(); specify skip, nrows, check.names, and colClasses.
+# Remove only the documented export-counter columns, then check names and types.
+```
+
+If a workbook used yellow highlighting to mean "exclude from analysis", what
+explicit columns should replace that visual convention?

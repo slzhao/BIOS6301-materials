@@ -238,6 +238,7 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#tasks" id="toc-tasks" class="nav-link active" data-scroll-target="#tasks">Tasks</a></li>
+  <li><a href="#file-layout-checkpoint-inspect-before-importing" id="toc-file-layout-checkpoint-inspect-before-importing" class="nav-link" data-scroll-target="#file-layout-checkpoint-inspect-before-importing">File-layout checkpoint: inspect before importing</a></li>
   <li><a href="#additional-practice-repeat-the-import-workflow" id="toc-additional-practice-repeat-the-import-workflow" class="nav-link" data-scroll-target="#additional-practice-repeat-the-import-workflow">Additional practice: repeat the import workflow</a>
   <ul class="collapse">
   <li><a href="#independent-practice-check" id="toc-independent-practice-check" class="nav-link" data-scroll-target="#independent-practice-check">Independent-practice check</a></li>
@@ -283,6 +284,7 @@ Note
 </div>
 </div>
 <p>Choose one format and copy either <code>starter/import-lab.Rmd</code> or <code>starter/import-lab.qmd</code> to <code>work/session05/</code>. Knit the <code>.Rmd</code> file or Render the <code>.qmd</code> file.</p>
+<p>Work in <strong>BIOS6301-mywork.Rproj</strong>. Paths under <code>work/</code> below belong to your personal repository. Copy starters from the separate <code>BIOS6301-materials</code> clone, leaving the course originals unchanged.</p>
 <section id="tasks" class="level2">
 <h2 class="anchored" data-anchor-id="tasks">Tasks</h2>
 <ol type="1">
@@ -294,6 +296,18 @@ Note
 <li>Export the cleaned rectangular table as CSV and RDS, read both back, and compare the preserved classes.</li>
 <li>Optional: repeat the import with <code>readr::read_csv()</code> and compare diagnostics.</li>
 </ol>
+</section>
+<section id="file-layout-checkpoint-inspect-before-importing" class="level2">
+<h2 class="anchored" data-anchor-id="file-layout-checkpoint-inspect-before-importing">File-layout checkpoint: inspect before importing</h2>
+<p>The starter creates <code>layout_path</code>, a small synthetic export containing a title, a date note, a header, three records, and a total row.</p>
+<ol type="1">
+<li>Display it with <code>readLines(layout_path)</code>. Identify the header and data rows.</li>
+<li>Import only the three observations using <code>skip</code> and <code>nrows</code>; preserve IDs such as <code>"001"</code> as character.</li>
+<li>Inspect the two <code>export_row</code> columns. They are documented export counters, not subject IDs. Use <code>check.names = FALSE</code> to see the original names; inspect <code>names()</code>, then remove only those documented counter columns.</li>
+<li>Verify that three IDs remain and that <code>weight_kg</code> is numeric.</li>
+<li>Explain why an exclusion recorded only by yellow highlighting would be lost in a plain CSV. Propose explicit columns to store the decision.</li>
+</ol>
+<p>The file documents its layout for this exercise. In real work, recheck row boundaries when an export changes; do not reuse a fixed row count blindly.</p>
 </section>
 <section id="additional-practice-repeat-the-import-workflow" class="level2">
 <h2 class="anchored" data-anchor-id="additional-practice-repeat-the-import-workflow">Additional practice: repeat the import workflow</h2>

@@ -397,8 +397,8 @@ analysis-final-revised-SZ.R</code></pre>
 <section id="a-repository-is-a-project-with-recorded-history" class="slide level2 smaller">
 <h2>A repository is a project with recorded history</h2>
 <pre class="text"><code>BIOS6301-mywork/
-├── BIOS6301-materials.Rproj
-├── course/
+├── BIOS6301-mywork.Rproj
+├── README.md
 ├── work/
 └── .git/                    ← repository history and settings</code></pre>
 <p>Open the <strong>root RStudio project</strong> so RStudio can find the repository.</p>
@@ -764,7 +764,7 @@ Commit                  → the new commit contains B</code></pre>
 <section id="step-0-open-the-correct-project-and-read-status" class="slide level2 smaller">
 <h2>Step 0 · Open the correct project and read status</h2>
 <ol type="1">
-<li>Open <code>BIOS6301-materials.Rproj</code> at the repository root.</li>
+<li>Open <code>BIOS6301-mywork.Rproj</code> at your personal repository root.</li>
 <li>Open the <strong>Git</strong> tab.</li>
 <li>Refresh if needed.</li>
 <li>Explain every listed file before doing anything else.</li>
@@ -1038,128 +1038,131 @@ Commit                  → the new commit contains B</code></pre>
 <h1>5 · How BIOS6301 uses Git</h1>
 
 </section>
-<section id="the-lab-begins-by-cloning-through-rstudio" class="slide level2 smaller">
-<h2>The lab begins by cloning through RStudio</h2>
+<section id="two-projects-two-independent-histories" class="slide level2 smaller">
+<h2>Two projects, two independent histories</h2>
+<pre class="text"><code>BIOS6301/
+├── BIOS6301-materials/    instructor's course clone
+│   └── BIOS6301-materials.Rproj
+└── BIOS6301-mywork/       your private work clone
+    ├── BIOS6301-mywork.Rproj
+    └── work/</code></pre>
+<ul>
+<li><strong>Materials:</strong> read and copy files; Pull before each class.</li>
+<li><strong>My work:</strong> edit copied labs and homework; Stage, Commit, Push.</li>
+<li>Each project has its own <code>origin</code> pointing to its GitHub repository.</li>
+</ul>
+</section>
+<section id="first-clone-the-course-materials" class="slide level2 smaller">
+<h2>First clone: the course materials</h2>
 <div class="columns">
 <div class="column" style="width:42%;">
-<p><img data-src="images/rstudio-new-project-wizard.png" alt="RStudio New Project Wizard showing Version Control as a project source" height="350"></p>
+<p><img data-src="images/rstudio-new-project-wizard.png" alt="RStudio New Project Wizard" height="350"></p>
 </div><div class="column" style="width:58%;">
 <ol type="1">
-<li><p><strong>File → New Project</strong></p></li>
-<li><p><strong>Version Control → Git</strong></p></li>
-<li><p>Paste:</p>
-<pre class="text"><code>https://github.com/slzhao/BIOS6301-materials.git</code></pre></li>
-<li><p>Name the local directory <code>BIOS6301-mywork</code>.</p></li>
-<li><p>Select <strong>Create Project</strong>.</p></li>
+<li><strong>File → New Project → Version Control → Git</strong></li>
+<li>Paste the course URL:</li>
+</ol>
+<pre class="text"><code>https://github.com/slzhao/BIOS6301-materials.git</code></pre>
+<ol start="3" type="1">
+<li>Directory: <code>BIOS6301-materials</code></li>
+<li>Open its root project.</li>
+<li>Keep these files unchanged.</li>
 </ol>
 </div></div>
 </section>
-<section id="one-supplied-recipe-connects-the-private-repository" class="slide level2 smaller">
-<h2>One supplied recipe connects the private repository</h2>
-<p>Immediately after cloning, <code>origin</code> points to the instructor repository. In the RStudio Terminal, the supervised lab runs:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote rename origin upstream</span>
-<span id="cb15-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote add origin https://github.com/YOUR_USERNAME/BIOS6301-mywork.git</span>
-<span id="cb15-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="create-your-independent-private-repository" class="slide level2 smaller">
+<h2>Create your independent private repository</h2>
+<p>On GitHub, create <strong>BIOS6301-mywork</strong>:</p>
 <ul>
-<li>The instructor address is preserved as <code>upstream</code>.</li>
-<li>The student’s empty private repository becomes <code>origin</code>.</li>
-<li>The first Push copies the course history and tests HTTPS authentication.</li>
+<li>Visibility: <strong>Private</strong></li>
+<li>Add README: <strong>On</strong></li>
+<li>Add .gitignore: <strong>R</strong></li>
+<li>License: none required</li>
 </ul>
+<p>Then clone <strong>your own HTTPS URL</strong> through RStudio’s same New Project wizard.</p>
+<p>Place <code>BIOS6301-mywork</code> beside the materials folder.</p>
+</section>
+<section id="check-the-project-before-pull-or-push" class="slide level2 smaller">
+<h2>Check the project before Pull or Push</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Open RStudio project</th>
+<th>Its origin</th>
+<th>Routine</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>BIOS6301-materials</td>
+<td>Instructor’s course repository</td>
+<td>Pull before class</td>
+</tr>
+<tr class="even">
+<td>BIOS6301-mywork</td>
+<td>Your private repository</td>
+<td>Pull, edit, Commit, Push</td>
+</tr>
+</tbody>
+</table>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Optional read-only check in each project's Terminal</span></span>
+<span id="cb16-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote <span class="at">-v</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The nickname <code>origin</code> is local to each repository.</p>
+</section>
+<section id="before-class-update-the-materials" class="slide level2 smaller">
+<h2>Before class: update the materials</h2>
+<ol type="1">
+<li>Open <strong>BIOS6301-materials.Rproj</strong>.</li>
+<li>Confirm that its Git pane is empty.</li>
+<li>Click <strong>Pull</strong> and read the result.</li>
+<li>Read the updated instructions.</li>
+<li>Switch to <strong>BIOS6301-mywork.Rproj</strong> to work.</li>
+</ol>
 <div class="callout callout-note callout-style-simple">
 <div class="callout-body">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-content">
-<p>This is a setup recipe to copy—not command syntax to memorize.</p>
+<p>If course files show edits, preserve them and ask for help before updating.</p>
 </div>
 </div>
 </div>
 </section>
-<section id="this-course-uses-two-remotes" class="slide level2">
-<h2>This course uses two remotes</h2>
-<div class="cell" data-reveal="true" data-layout-align="center">
-<div class="cell-output-display">
-<div>
-<p></p><figure class=""><p></p>
-<div>
-<pre class="mermaid mermaid-js">flowchart LR
-  U["upstream&lt;br/&gt;public BIOS6301 materials&lt;br/&gt;instructor-managed"] --&gt;|course update recipe| L["student computer&lt;br/&gt;course + private work"]
-  L --&gt;|RStudio Push| O["origin&lt;br/&gt;student private repository"]
-  O --&gt;|RStudio Pull| L
-</pre>
-</div>
-<p></p></figure><p></p>
-</div>
-</div>
-</div>
+<section id="copy-a-starter-then-edit-your-copy" class="slide level2 smaller">
+<h2>Copy a starter, then edit your copy</h2>
+<pre class="text"><code>FROM: BIOS6301-materials/course/session02/starter/
+TO:   BIOS6301-mywork/work/session02-git-lab/</code></pre>
 <ul>
-<li><code>origin</code> stores the student’s private history.</li>
-<li><code>upstream</code> provides instructor course updates.</li>
+<li>Copy the required starter and synthetic data.</li>
+<li>Open your personal root project.</li>
+<li>Choose the Rmd or Qmd report and edit that copy.</li>
+<li>Review, Stage, Commit, and Push your own work.</li>
+<li>Preserve answers when a revised starter is released.</li>
 </ul>
 </section>
-<section id="rstudio-pull-and-push-communicate-with-origin" class="slide level2 smaller">
-<h2>RStudio Pull and Push communicate with <code>origin</code></h2>
-<p>After the one-time setup:</p>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>RStudio action</th>
-<th>Direction</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><strong>Pull</strong></td>
-<td>private <code>origin</code> → student computer</td>
-</tr>
-<tr class="even">
-<td><strong>Push</strong></td>
-<td>student computer → private <code>origin</code></td>
-</tr>
-</tbody>
-</table>
-<p>Use this for the student’s normal multi-machine workflow and private backup.</p>
-<p>It does not automatically retrieve new instructor materials from <code>upstream</code>.</p>
-</section>
-<section id="course-updates-use-a-supplied-recipe" class="slide level2 smaller">
-<h2>Course updates use a supplied recipe</h2>
-<p>First commit student work. Then run in the RStudio Terminal:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb16-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> fetch upstream</span>
-<span id="cb16-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> merge upstream/main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Translate the recipe:</p>
+<section id="https-authentication-for-your-private-project" class="slide level2 smaller">
+<h2>HTTPS authentication for your private project</h2>
 <ol type="1">
-<li>Download new instructor commits.</li>
-<li>Add them to the current local history.</li>
-<li>Inspect status and render affected work.</li>
-<li>Push the combined history to private <code>origin</code>.</li>
+<li>Clone your private repository through RStudio.</li>
+<li>Complete browser sign-in through Git Credential Manager or GitHub CLI.</li>
+<li>Make and commit your lab changes.</li>
+<li>Click <strong>Push</strong>.</li>
+<li>Confirm your files and new commit on GitHub.</li>
 </ol>
-</section>
-<section id="folder-ownership-prevents-most-course-update-conflicts" class="slide level2 smaller">
-<h2>Folder ownership prevents most course-update conflicts</h2>
-<pre class="text"><code>course/   instructor-managed: read and copy, but do not edit
-work/     student-managed: create, edit, commit, and submit</code></pre>
-<p>When the instructor and student edit different paths, upstream updates usually merge without a conflict.</p>
-<p>Always commit student work before requesting course updates.</p>
-</section>
-<section id="the-first-private-push-completes-https-authentication" class="slide level2 smaller">
-<h2>The first private Push completes HTTPS authentication</h2>
-<ol type="1">
-<li>Run the supplied <code>git push -u origin main</code> setup line.</li>
-<li>Git Credential Manager—or GitHub CLI—opens GitHub in a browser.</li>
-<li>Sign in and complete two-factor authentication.</li>
-<li>Authorize the credential helper if GitHub asks.</li>
-<li>Return to RStudio and read the Push result.</li>
-<li>Open the private repository and confirm that its history is present.</li>
-</ol>
-<p>Later Pulls and Pushes should normally reuse the stored credential.</p>
+<p>Later Pulls and Pushes normally reuse the stored credential.</p>
 <div class="callout callout-warning callout-style-simple">
 <div class="callout-body">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
 </div>
 <div class="callout-content">
-<p>If the Terminal requests your ordinary GitHub account password, <strong>cancel and ask for help</strong>. Do not type a password or paste a personal access token.</p>
+<p>GitHub account passwords do not work for Git operations. If prompted for one, cancel and follow the preclass authentication guide.</p>
 </div>
 </div>
 </div>
@@ -1257,7 +1260,7 @@ work/     student-managed: create, edit, commit, and submit</code></pre>
 <li>What changes when you check <strong>Staged</strong>?</li>
 <li>What is the difference between Commit and Push?</li>
 <li>Why should you check status before Pull?</li>
-<li>How do <code>origin</code> and <code>upstream</code> differ in this course?</li>
+<li>Which project do you open for course updates, and which for your own work?</li>
 </ol>
 </section>
 <section id="sources-and-next-step" class="slide level2 smaller">

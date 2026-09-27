@@ -23,41 +23,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
@@ -273,22 +238,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#goal" id="toc-goal" class="nav-link active" data-scroll-target="#goal">Goal</a></li>
-  <li><a href="#setup-checkpoint-clone-connect-and-authenticate" id="toc-setup-checkpoint-clone-connect-and-authenticate" class="nav-link" data-scroll-target="#setup-checkpoint-clone-connect-and-authenticate">Setup checkpoint: clone, connect, and authenticate</a>
+  <li><a href="#setup-checkpoint-two-separate-clones" id="toc-setup-checkpoint-two-separate-clones" class="nav-link" data-scroll-target="#setup-checkpoint-two-separate-clones">Setup checkpoint: two separate clones</a>
   <ul class="collapse">
-  <li><a href="#part-a-clone-the-public-course-repository-in-rstudio" id="toc-part-a-clone-the-public-course-repository-in-rstudio" class="nav-link" data-scroll-target="#part-a-clone-the-public-course-repository-in-rstudio">Part A: clone the public course repository in RStudio</a></li>
-  <li><a href="#part-b-inspect-the-initial-remote" id="toc-part-b-inspect-the-initial-remote" class="nav-link" data-scroll-target="#part-b-inspect-the-initial-remote">Part B: inspect the initial remote</a></li>
-  <li><a href="#part-c-connect-the-private-origin-and-complete-the-first-push" id="toc-part-c-connect-the-private-origin-and-complete-the-first-push" class="nav-link" data-scroll-target="#part-c-connect-the-private-origin-and-complete-the-first-push">Part C: connect the private <code>origin</code> and complete the first Push</a></li>
-  <li><a href="#part-d-verify-the-two-remotes-arrangement" id="toc-part-d-verify-the-two-remotes-arrangement" class="nav-link" data-scroll-target="#part-d-verify-the-two-remotes-arrangement">Part D: verify the two-remotes arrangement</a></li>
-  <li><a href="#part-e-verify-course-staff-access" id="toc-part-e-verify-course-staff-access" class="nav-link" data-scroll-target="#part-e-verify-course-staff-access">Part E: verify course-staff access</a></li>
+  <li><a href="#part-a-clone-the-course-materials" id="toc-part-a-clone-the-course-materials" class="nav-link" data-scroll-target="#part-a-clone-the-course-materials">Part A: clone the course materials</a></li>
+  <li><a href="#part-b-clone-your-independent-private-repository" id="toc-part-b-clone-your-independent-private-repository" class="nav-link" data-scroll-target="#part-b-clone-your-independent-private-repository">Part B: clone your independent private repository</a></li>
+  <li><a href="#part-c-verify-staff-access" id="toc-part-c-verify-staff-access" class="nav-link" data-scroll-target="#part-c-verify-staff-access">Part C: verify staff access</a></li>
+  <li><a href="#already-using-the-earlier-combined-setup" id="toc-already-using-the-earlier-combined-setup" class="nav-link" data-scroll-target="#already-using-the-earlier-combined-setup">Already using the earlier combined setup?</a></li>
   </ul></li>
-  <li><a href="#start-the-core-lab-from-the-repository-root" id="toc-start-the-core-lab-from-the-repository-root" class="nav-link" data-scroll-target="#start-the-core-lab-from-the-repository-root">Start the core lab from the repository root</a></li>
+  <li><a href="#start-the-core-lab-in-your-personal-project" id="toc-start-the-core-lab-in-your-personal-project" class="nav-link" data-scroll-target="#start-the-core-lab-in-your-personal-project">Start the core lab in your personal project</a></li>
   <li><a href="#checkpoint-1-read-the-git-pane" id="toc-checkpoint-1-read-the-git-pane" class="nav-link" data-scroll-target="#checkpoint-1-read-the-git-pane">Checkpoint 1: Read the Git pane</a></li>
   <li><a href="#checkpoint-2-commit-the-analysis-skeleton" id="toc-checkpoint-2-commit-the-analysis-skeleton" class="nav-link" data-scroll-target="#checkpoint-2-commit-the-analysis-skeleton">Checkpoint 2: Commit the analysis skeleton</a></li>
   <li><a href="#checkpoint-3-add-a-calculation" id="toc-checkpoint-3-add-a-calculation" class="nav-link" data-scroll-target="#checkpoint-3-add-a-calculation">Checkpoint 3: Add a calculation</a></li>
   <li><a href="#checkpoint-4-add-an-interpretation" id="toc-checkpoint-4-add-an-interpretation" class="nav-link" data-scroll-target="#checkpoint-4-add-an-interpretation">Checkpoint 4: Add an interpretation</a></li>
   <li><a href="#checkpoint-5-stage-and-unstage-safely" id="toc-checkpoint-5-stage-and-unstage-safely" class="nav-link" data-scroll-target="#checkpoint-5-stage-and-unstage-safely">Checkpoint 5: Stage and unstage safely</a></li>
   <li><a href="#checkpoint-6-push-the-recorded-history" id="toc-checkpoint-6-push-the-recorded-history" class="nav-link" data-scroll-target="#checkpoint-6-push-the-recorded-history">Checkpoint 6: Push the recorded history</a></li>
-  <li><a href="#course-update-recipe" id="toc-course-update-recipe" class="nav-link" data-scroll-target="#course-update-recipe">Course update recipe</a></li>
+  <li><a href="#update-the-course-before-each-class" id="toc-update-the-course-before-each-class" class="nav-link" data-scroll-target="#update-the-course-before-each-class">Update the course before each class</a></li>
   <li><a href="#additional-practice-use-the-interface-deliberately" id="toc-additional-practice-use-the-interface-deliberately" class="nav-link" data-scroll-target="#additional-practice-use-the-interface-deliberately">Additional practice: use the interface deliberately</a>
   <ul class="collapse">
   <li><a href="#independent-practice-check" id="toc-independent-practice-check" class="nav-link" data-scroll-target="#independent-practice-check">Independent-practice check</a></li>
@@ -303,7 +267,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Session 2 guided lab</h1>
-<p class="subtitle lead">Set up course remotes and build a small Git history through RStudio</p>
+<p class="subtitle lead">Set up separate course and personal projects through RStudio</p>
 </div>
 
 
@@ -335,119 +299,64 @@ Note
 </div>
 <section id="goal" class="level2">
 <h2 class="anchored" data-anchor-id="goal">Goal</h2>
-<p>Use RStudio to clone the course repository, connect a private GitHub repository through HTTPS, and review, stage, commit, and synchronize meaningful changes to a synthetic-data analysis. Explain the repository state after every action.</p>
+<p>Use separate RStudio projects for course updates and your own work.</p>
 </section>
-<section id="setup-checkpoint-clone-connect-and-authenticate" class="level2">
-<h2 class="anchored" data-anchor-id="setup-checkpoint-clone-connect-and-authenticate">Setup checkpoint: clone, connect, and authenticate</h2>
-<p>Complete this checkpoint with the instructor or TA. The commands shown are a supplied one-time recipe; you are not expected to memorize them.</p>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Warning
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>If you already have a course clone containing work, do not create another copy. Open its root <code>BIOS6301-materials.Rproj</code> and begin with <strong>Part B: inspect the initial remote</strong>.</p>
-</div>
-</div>
-<section id="part-a-clone-the-public-course-repository-in-rstudio" class="level3">
-<h3 class="anchored" data-anchor-id="part-a-clone-the-public-course-repository-in-rstudio">Part A: clone the public course repository in RStudio</h3>
+<section id="setup-checkpoint-two-separate-clones" class="level2">
+<h2 class="anchored" data-anchor-id="setup-checkpoint-two-separate-clones">Setup checkpoint: two separate clones</h2>
+<section id="part-a-clone-the-course-materials" class="level3">
+<h3 class="anchored" data-anchor-id="part-a-clone-the-course-materials">Part A: clone the course materials</h3>
 <ol type="1">
-<li><p>Select <strong>File → New Project → Version Control → Git</strong>.</p></li>
-<li><p>Use this repository URL:</p>
-<pre class="text"><code>https://github.com/slzhao/BIOS6301-materials.git</code></pre></li>
-<li><p>Use <code>BIOS6301-mywork</code> as the <strong>Project directory name</strong>.</p></li>
-<li><p>Choose the parent directory where you keep course projects.</p></li>
-<li><p>Select <strong>Create Project</strong> and wait for RStudio to open it.</p></li>
+<li>Select <strong>File → New Project → Version Control → Git</strong>.</li>
+<li>Paste <code>https://github.com/slzhao/BIOS6301-materials.git</code>.</li>
+<li>Name the directory <code>BIOS6301-materials</code> and select <strong>Create Project</strong>.</li>
+<li>Open <code>BIOS6301-materials.Rproj</code>; check that the Git pane is empty.</li>
+<li>Click <strong>Pull</strong> and read the result. Repeat this before every class.</li>
 </ol>
-<p>When the New Project Wizard appears, choose <strong>Version Control</strong>:</p>
-<p><img src="images/rstudio-new-project-wizard.png" class="img-fluid" style="width:76.0%" alt="RStudio New Project Wizard with Version Control as one of three project choices"></p>
-<p><em>Image source: <a href="https://docs.posit.co/ide/user/ide/guide/code/projects.html">Posit RStudio User Guide</a>. The next screens ask you to choose Git and paste the repository URL.</em></p>
-<p>After cloning, confirm that the root project is open and that the <strong>Git</strong> tab is visible. The exact filenames in your Git pane may differ from this example:</p>
-<p><img src="images/rstudio-vcs-pane-labeled.png" class="img-fluid" style="width:88.0%" alt="RStudio interface with the root project name, Git menu, and Git tab highlighted"></p>
-<p><em>Interface image source: <a href="https://docs.posit.co/ide/user/ide/guide/tools/version-control.html">Posit RStudio User Guide</a>.</em></p>
+<p><img src="images/rstudio-new-project-wizard.png" class="img-fluid" style="width:76.0%" alt="RStudio New Project Wizard"></p>
+<p><img src="images/rstudio-vcs-pane-labeled.png" class="img-fluid" style="width:88.0%" alt="RStudio project and Git controls"></p>
+<p><em>Images: <a href="https://docs.posit.co/ide/user/ide/guide/tools/version-control.html">Posit RStudio User Guide</a>.</em></p>
+<p>In this project’s Terminal, <code>git remote -v</code> should show the instructor’s <code>BIOS6301-materials</code> address as <code>origin</code>. Leave all course files unchanged.</p>
 </section>
-<section id="part-b-inspect-the-initial-remote" class="level3">
-<h3 class="anchored" data-anchor-id="part-b-inspect-the-initial-remote">Part B: inspect the initial remote</h3>
-<p>Open RStudio’s <strong>Terminal</strong> tab and run this read-only check:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote <span class="at">-v</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Immediately after cloning, <code>origin</code> normally points to the instructor repository:</p>
-<pre class="text"><code>origin  https://github.com/slzhao/BIOS6301-materials.git</code></pre>
-<p>This is expected. The next part preserves that address as <code>upstream</code> and assigns <code>origin</code> to your empty private repository.</p>
-<p>If <code>origin</code> already points to your private repository and <code>upstream</code> already points to the instructor repository, do not repeat the setup commands. Continue with <strong>Part D</strong>.</p>
+<section id="part-b-clone-your-independent-private-repository" class="level3">
+<h3 class="anchored" data-anchor-id="part-b-clone-your-independent-private-repository">Part B: clone your independent private repository</h3>
+<p>Use the private <code>BIOS6301-mywork</code> repository prepared before class, containing a README and the R <code>.gitignore</code>. If it is empty, add a README on GitHub first.</p>
+<ol type="1">
+<li>Select <strong>File → New Project → Version Control → Git</strong> again.</li>
+<li>Paste <code>https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git</code>.</li>
+<li>Name the directory <code>BIOS6301-mywork</code>.</li>
+<li>Place it <strong>beside</strong> the course clone, never inside it.</li>
+<li>Complete browser authentication if requested.</li>
+<li>Open <code>BIOS6301-mywork.Rproj</code>. If necessary, create this root project with <strong>File → New Project → Existing Directory</strong> in the cloned folder.</li>
+</ol>
+<p>Check <code>git remote -v</code>: this project’s <code>origin</code> must point to your private repository. No instructor remote is needed. Each project has its own <code>origin</code>; always check the open project before using Pull or Push.</p>
+<p>If Git asks for your ordinary GitHub password, cancel and return to the <a href="../../course/session02/preclass.html">HTTPS preparation guide</a>.</p>
 </section>
-<section id="part-c-connect-the-private-origin-and-complete-the-first-push" class="level3">
-<h3 class="anchored" data-anchor-id="part-c-connect-the-private-origin-and-complete-the-first-push">Part C: connect the private <code>origin</code> and complete the first Push</h3>
-<p>Replace the username placeholder with your GitHub username. Use the plain HTTPS URL without Markdown brackets, parentheses, or credentials:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote rename origin upstream</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote add origin https://github.com/YOUR_GITHUB_USERNAME/BIOS6301-mywork.git</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> push <span class="at">-u</span> origin main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The first private Push may open GitHub in a browser through Git Credential Manager. Sign in, complete two-factor authentication, and authorize the helper if requested. Then return to RStudio and read the Push result.</p>
-<div class="callout callout-style-default callout-note callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Note
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>If you prepared <strong>GitHub CLI</strong> on macOS or Linux, run <code>gh auth login</code> before the first Push. Choose <strong>GitHub.com → HTTPS → Yes → Login with a web browser</strong>.</p>
-</div>
-</div>
-<div class="callout callout-style-default callout-warning callout-titled">
-<div class="callout-header d-flex align-content-center">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-title-container flex-fill">
-Warning
-</div>
-</div>
-<div class="callout-body-container callout-body">
-<p>If the Terminal requests your ordinary GitHub account password, cancel and ask for help. Do not type a password or paste a personal access token.</p>
-</div>
-</div>
-</section>
-<section id="part-d-verify-the-two-remotes-arrangement" class="level3">
-<h3 class="anchored" data-anchor-id="part-d-verify-the-two-remotes-arrangement">Part D: verify the two-remotes arrangement</h3>
-<p>Run:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> remote <span class="at">-v</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>The addresses should have these roles:</p>
-<pre class="text"><code>origin    your private BIOS6301-mywork repository
-upstream  the public instructor BIOS6301-materials repository</code></pre>
-<p>Open your private repository on GitHub. Confirm that it now contains the course files and commit history. This successful Push is the evidence that HTTPS authentication works.</p>
-</section>
-<section id="part-e-verify-course-staff-access" class="level3">
-<h3 class="anchored" data-anchor-id="part-e-verify-course-staff-access">Part E: verify course-staff access</h3>
-<p>In the private repository on GitHub, open <strong>Settings → Collaborators</strong>. Confirm that invitations have been sent to:</p>
-<ul>
-<li>instructor: <code>slzhao</code>; and</li>
-<li>TA: <code>zongyue.teng@Vanderbilt.Edu</code>.</li>
-</ul>
-<p>If either invitation is absent, select <strong>Add people</strong>, search for the account or email address, and send the invitation. A <strong>Pending</strong> label is expected until the recipient accepts. Keep the repository private.</p>
+<section id="part-c-verify-staff-access" class="level3">
+<h3 class="anchored" data-anchor-id="part-c-verify-staff-access">Part C: verify staff access</h3>
+<p>In your private repository, select <strong>Settings → Collaborators → Add people</strong>. Invite <code>slzhao</code> and <code>zongyue.teng@Vanderbilt.Edu</code>. Keep it private.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
 <p><img src="images/github-repository-settings.png" class="img-fluid figure-img" style="width:100.0%"></p>
-<figcaption>GitHub repository header with the Settings tab highlighted</figcaption>
+<figcaption>GitHub Settings tab</figcaption>
 </figure>
 </div>
-<p><em>Image and procedure source: <a href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/repository-access-and-collaboration/inviting-collaborators-to-a-personal-repository">GitHub Docs — Inviting collaborators to a personal repository</a>.</em></p>
+<p><em>Source: <a href="https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/repository-access-and-collaboration/inviting-collaborators-to-a-personal-repository">GitHub collaborator instructions</a>.</em></p>
+</section>
+<section id="already-using-the-earlier-combined-setup" class="level3">
+<h3 class="anchored" data-anchor-id="already-using-the-earlier-combined-setup">Already using the earlier combined setup?</h3>
+<p>Preserve the existing folder and all answers. Ask the TA to help establish a separate course clone and personal project. Do not overwrite work or delete history to follow these instructions.</p>
 </section>
 </section>
-<section id="start-the-core-lab-from-the-repository-root" class="level2">
-<h2 class="anchored" data-anchor-id="start-the-core-lab-from-the-repository-root">Start the core lab from the repository root</h2>
+<section id="start-the-core-lab-in-your-personal-project" class="level2">
+<h2 class="anchored" data-anchor-id="start-the-core-lab-in-your-personal-project">Start the core lab in your personal project</h2>
 <ol type="1">
-<li>Keep the root <code>BIOS6301-materials.Rproj</code> open.</li>
-<li>Copy the complete <code>course/session02/starter/</code> folder to <code>work/session02-git-lab/</code>.</li>
-<li>In the copied <code>analysis/</code> folder, choose <code>report.Rmd</code> or <code>report.qmd</code> and delete the unused alternative from the <strong>copied work folder only</strong>.</li>
-<li>Do not initialize another Git repository or open a second project inside the copied folder.</li>
+<li>Copy the complete <code>BIOS6301-materials/course/session02/starter/</code> folder to <code>BIOS6301-mywork/work/session02-git-lab/</code> using your file manager.</li>
+<li>Keep <strong>BIOS6301-mywork.Rproj</strong> open in RStudio.</li>
+<li>In the copied <code>analysis/</code> folder, choose <code>report.Rmd</code> or <code>report.qmd</code> and remove the unused alternative from the copy.</li>
+<li>If RStudio created a root project file, commit it first with <code>Add personal RStudio project</code>. The three lab commits below are separate.</li>
+<li>Do not create another Git repository inside the lab folder.</li>
 </ol>
-<p>The Git pane should now list the copied files as new or untracked.</p>
+<p>The Git pane should now list the copied lab files as new or untracked.</p>
 </section>
 <section id="checkpoint-1-read-the-git-pane" class="level2">
 <h2 class="anchored" data-anchor-id="checkpoint-1-read-the-git-pane">Checkpoint 1: Read the Git pane</h2>
@@ -525,17 +434,15 @@ upstream  the public instructor BIOS6301-materials repository</code></pre>
 </ol>
 <p>If the push is rejected, do not force push. Preserve the local work and ask the instructor or TA to help identify which remote contains additional commits.</p>
 </section>
-<section id="course-update-recipe" class="level2">
-<h2 class="anchored" data-anchor-id="course-update-recipe">Course update recipe</h2>
-<p>Run this only when the Git pane is clean and your own work is committed:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> fetch upstream</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">git</span> merge upstream/main</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Interpret the lines rather than memorizing them:</p>
+<section id="update-the-course-before-each-class" class="level2">
+<h2 class="anchored" data-anchor-id="update-the-course-before-each-class">Update the course before each class</h2>
 <ol type="1">
-<li>Download new instructor commits from <code>upstream</code>.</li>
-<li>Add those commits to the current branch.</li>
+<li>Save your personal work and open <strong>BIOS6301-materials.Rproj</strong>.</li>
+<li>Confirm its Git pane is empty, click <strong>Pull</strong>, and read the result.</li>
+<li>Read the updated materials.</li>
+<li>Switch back to <strong>BIOS6301-mywork.Rproj</strong> to work.</li>
 </ol>
-<p>Afterward, inspect the Git pane and the terminal result. If the update succeeds, click <strong>Push</strong> so the updated history is also stored in your private <code>origin</code>.</p>
+<p>Course updates affect only the course clone. Copy new starters deliberately; never overwrite a completed lab with a fresh starter.</p>
 </section>
 <section id="additional-practice-use-the-interface-deliberately" class="level2">
 <h2 class="anchored" data-anchor-id="additional-practice-use-the-interface-deliberately">Additional practice: use the interface deliberately</h2>
@@ -545,7 +452,7 @@ upstream  the public instructor BIOS6301-materials repository</code></pre>
 <li>Render the report again. Verify that the HTML remains on disk but absent from the Git pane. Explain the role of <code>.gitignore</code> without saying that it deletes anything.</li>
 <li>Add a disposable line, stage it, unstage it, and verify the working edit remains. Then remove it by editing normally rather than using Revert.</li>
 <li>Draw the three locations—working files, local commit history, and private GitHub <code>origin</code>—and label which RStudio action moves information between them.</li>
-<li>Explain why RStudio <strong>Pull</strong> communicates with <code>origin</code> while the supplied course-update recipe communicates with <code>upstream</code>.</li>
+<li>Check each project’s <code>origin</code> and explain why Pull updates different files depending on which RStudio project is open.</li>
 <li>Examine this situation without performing any recovery: a file is modified, the Push button reports a rejection, and a classmate suggests force push. Write the safe next steps and explain why force push is inappropriate.</li>
 </ol>
 <section id="independent-practice-check" class="level3">
@@ -561,7 +468,7 @@ upstream  the public instructor BIOS6301-materials repository</code></pre>
 <li>History containing the three core commits;</li>
 <li>the line-by-line diff for one chosen commit;</li>
 <li>a successful Push result; and</li>
-<li><code>git remote -v</code> showing private <code>origin</code> and instructor <code>upstream</code>;</li>
+<li><code>git remote -v</code> in each project showing its separate, correct <code>origin</code>;</li>
 <li>the browser address of the private <code>BIOS6301-mywork</code> repository; and</li>
 <li><strong>Settings → Collaborators</strong> showing invitations for the instructor and TA.</li>
 </ul>
