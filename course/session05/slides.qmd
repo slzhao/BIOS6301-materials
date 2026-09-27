@@ -41,8 +41,7 @@ trial <- data.frame(
   age       = round(rnorm(n, 61, 9)),
   sex       = sample(c("F", "M"), n, replace = TRUE),
   weight_kg = round(rnorm(n, 82, 15), 1),
-  sbp_0     = round(rnorm(n, 148, 14)),
-  stringsAsFactors = FALSE
+  sbp_0     = round(rnorm(n, 148, 14))
 )
 trial$sbp_12 <- round(trial$sbp_0 -
   ifelse(trial$arm == "Treatment", rnorm(n, 14, 8), rnorm(n, 3, 8)))
@@ -79,8 +78,7 @@ export <- data.frame(
   creat    = as.character(round(rnorm(n, 0.95, 0.25), 2)),
   visit_0  = format(visit_0, "%m/%d/%Y"),
   visit_12 = format(visit_12, "%m/%d/%Y"),
-  dob_ser  = as.numeric(dob - as.Date("1899-12-30")),
-  stringsAsFactors = FALSE
+  dob_ser  = as.numeric(dob - as.Date("1899-12-30"))
 )
 export$creat[c(2, 23, 41)]    <- "NA"
 export$creat[c(12, 55)]       <- "<0.30"
@@ -247,7 +245,7 @@ str(raw)
 #| label: colclasses
 raw <- read.csv(
   "data/trial_export.csv",
-  colClasses = c(id = "character", arm = "factor", sex = "factor",
+  colClasses = c(id = "character", arm = "character", sex = "character",
                  wt = "numeric", sbp12 = "integer", creat = "character",
                  visit_0 = "character", visit_12 = "character",
                  dob_ser = "integer")
@@ -258,35 +256,9 @@ str(raw[, c("id", "arm", "sbp12")])
 . . .
 
 ::: {.smaller}
-`colClasses` is a **contract**. If the file changes shape — a new value in a
-numeric column, a renamed field — you find out at import instead of three chunks
-later.
-:::
-
-
-## `stringsAsFactors`: what changed in R 4.0 {.smaller}
-
-::: {style="font-size:0.9em"}
-| | Before R 4.0 | R 4.0 and later |
-|---|---|---|
-| `read.csv()` default | character → **factor** | character stays **character** |
-| `data.frame()` default | character → **factor** | character stays **character** |
-:::
-
-. . .
-
-::: {.smaller}
-So a script written in 2018 and run today gives you *different objects*. Symptoms:
-`levels()` returning `NULL`, a model with a numeric term where a categorical one
-was intended, and the `as.numeric(as.factor(x))` catastrophe from session 4 —
-which used to happen by accident and now takes effort.
-:::
-
-. . .
-
-::: {.callout-note appearance="simple"}
-Write `stringsAsFactors = FALSE` explicitly in inherited code you are repairing.
-Not because you need it — because it documents that you noticed.
+`colClasses` makes expected types explicit. An incompatible value in a declared
+numeric column fails at import. Check column names and dimensions separately;
+type declarations do not validate the whole file structure.
 :::
 
 
@@ -380,6 +352,74 @@ str(read.csv("data/site4_export.csv", sep = ";", dec = ","))
 ```
 
 
+## Inspect the file before writing the import {.smaller}
+
+- Where is the actual header? Where is the first observation?
+- Is there one table, or several tables on the same sheet?
+- Are units or descriptions placed under the column names?
+- Are headers repeated halfway down the file?
+- Are there totals, notes, blank separators, or hidden rows?
+- Which columns identify observations, and what are their units?
+
+
+## A title row is not a variable name {.smaller}
+
+```text
+Clinic export — synthetic example
+Prepared for BIOS6301
+id,weight_kg
+001,62.4
+002,71.8
+TOTAL,134.2
+```
+
+```r
+readLines("clinic.csv", n = 6)
+d <- read.csv("clinic.csv", skip = 2, nrows = 2,
+              colClasses = c(id = "character", weight_kg = "numeric"))
+```
+
+Here, `skip = 2` reaches the header; `nrows = 2` reads the two observations.
+
+
+## Several header rows need a deliberate plan {.smaller}
+
+```text
+id,weight,height
+participant ID,kg,cm
+001,62.4,168
+002,71.8,175
+```
+
+Read the names separately, then skip the description row:
+
+```r
+header <- names(read.csv("measurements.csv", nrows = 0,
+                         check.names = FALSE))
+d <- read.csv("measurements.csv", skip = 2, header = FALSE,
+              col.names = header, colClasses = c("character", "numeric", "numeric"))
+```
+
+Keep units in a data dictionary. A repeated header inside the observations also
+needs to be identified and handled explicitly.
+
+
+## Row numbers are not participant identifiers {.smaller}
+
+Repeated exports may produce `X`, `X.1`, or `...1` columns.
+
+```r
+names(d)
+head(d)
+rownames(d)
+```
+
+- Determine whether these are export counters or real identifiers.
+- Keep real IDs in an explicit column; preserve leading zeros as text.
+- Remove an extra column only after confirming its meaning.
+- Export with `write.csv(d, "clean.csv", row.names = FALSE)`.
+
+
 ## Header junk, and names R rewrites {.smaller}
 
 ```{r}
@@ -443,12 +483,81 @@ labs <- read_excel(
 
 . . .
 
-::: {.callout-warning appearance="simple"}
-Excel is a **data-entry application**, not a file format. It silently reformats
-IDs as numbers, turns gene names into dates, stores a date as a number whose
-origin depends on which decade the workbook was made in, and lets a total row sit
-below the data.
+::: {.callout-note appearance="simple"}
+Excel workbooks are usable inputs when the sheet, range, types, and meaning are
+documented. The example above illustrates an import contract for a hypothetical
+workbook.
 :::
+
+
+## Why spreadsheet appearance is not enough {.smaller}
+
+| Workbook feature | What the analysis needs |
+|---|---|
+| Yellow highlight means exclude | An explicit `exclude` flag and reason |
+| Bold row means subtotal | A documented rule excluding summary rows |
+| Merged cells show a group | A group value for every observation |
+| Multiple sheets named Final/Final2 | A specified source sheet and version |
+| A formula displays a result | A documented calculation reproducible in code |
+
+Ordinary `read_excel()` imports cell values, not the meaning of colors or styles.
+
+
+## Names and types: inspect what actually arrived {.smaller}
+
+- Blank or duplicate column names may be repaired during import.
+- Names like `Weight (kg)` need careful access or documented renaming.
+- `00123` can become `123` if the source treats an ID as numeric.
+- A displayed date or rounded value may hide a different stored value.
+
+```r
+names(d)
+anyDuplicated(names(d))
+str(d)
+# Preserve a source name, then rename deliberately:
+d[["Weight (kg)"]]
+```
+
+
+## Reading the intended Excel rectangle {.smaller}
+
+```r
+# Illustrative workbook: names in row 4, descriptions in row 5
+header <- names(readxl::read_excel(
+  "study.xlsx", sheet = "Labs", skip = 3, n_max = 0
+))
+labs <- readxl::read_excel(
+  "study.xlsx", sheet = "Labs", skip = 5,
+  col_names = header, col_types = c("text", "numeric", "numeric")
+)
+```
+
+For a fixed data block, use `range = "Labs!A6:C20", col_names = header` instead
+of `skip`. This excludes both the names and description rows.
+Do not include footer notes in that rectangle.
+
+
+## A better data handoff {.smaller}
+
+Ask for a single rectangular table and a data dictionary:
+
+- one variable per column and observation per row;
+- unique, meaningful column names;
+- explicit units, IDs, missing codes, and exclusion flags;
+- a documented sheet or table, without embedded totals.
+
+Keep the original workbook. Import and clean in code. A validated CSV/TSV is
+convenient for a rectangular table, but still needs type and missingness checks.
+
+
+## Reading: organizing and importing spreadsheets {.smaller}
+
+- Broman KW, Woo KH (2018). [Data Organization in Spreadsheets](https://doi.org/10.1080/00031305.2017.1375989).
+  *The American Statistician*, 72(1), 2–10.
+- [Broman's practical data-organization guide](https://kbroman.org/dataorg/)
+- readxl: [Multiple header rows](https://readxl.tidyverse.org/articles/multiple-header-rows.html)
+- readxl: [Sheet geometry](https://readxl.tidyverse.org/articles/sheet-geometry.html)
+- readxl: [Column names](https://readxl.tidyverse.org/articles/column-names.html)
 
 
 ## SPSS and Stata via `haven` {.smaller}

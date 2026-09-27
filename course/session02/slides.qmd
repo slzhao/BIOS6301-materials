@@ -236,8 +236,8 @@ sized**—not only on its extension.
 
 ```text
 BIOS6301-mywork/
-├── BIOS6301-materials.Rproj
-├── course/
+├── BIOS6301-mywork.Rproj
+├── README.md
 ├── work/
 └── .git/                    ← repository history and settings
 ```
@@ -507,7 +507,7 @@ status → pull → code → review → stage → commit → push
 
 ## Step 0 · Open the correct project and read status {.smaller}
 
-1. Open `BIOS6301-materials.Rproj` at the repository root.
+1. Open `BIOS6301-mywork.Rproj` at your personal repository root.
 2. Open the **Git** tab.
 3. Refresh if needed.
 4. Explain every listed file before doing anything else.
@@ -746,121 +746,112 @@ documentation needed to locate and analyze them.
 
 # 5 · How BIOS6301 uses Git {.section-divider}
 
-## The lab begins by cloning through RStudio {.smaller}
+## Two projects, two independent histories {.smaller}
+
+```text
+BIOS6301/
+├── BIOS6301-materials/    instructor's course clone
+│   └── BIOS6301-materials.Rproj
+└── BIOS6301-mywork/       your private work clone
+    ├── BIOS6301-mywork.Rproj
+    └── work/
+```
+
+- **Materials:** read and copy files; Pull before each class.
+- **My work:** edit copied labs and homework; Stage, Commit, Push.
+- Each project has its own `origin` pointing to its GitHub repository.
+
+
+## First clone: the course materials {.smaller}
 
 :::: {.columns}
-
 ::: {.column width="42%"}
-![](images/rstudio-new-project-wizard.png){fig-alt="RStudio New Project Wizard showing Version Control as a project source" height="350px"}
+![](images/rstudio-new-project-wizard.png){fig-alt="RStudio New Project Wizard" height="350px"}
 :::
-
 ::: {.column width="58%"}
-1. **File → New Project**
-2. **Version Control → Git**
-3. Paste:
+1. **File → New Project → Version Control → Git**
+2. Paste the course URL:
 
-   ```text
-   https://github.com/slzhao/BIOS6301-materials.git
-   ```
+```text
+https://github.com/slzhao/BIOS6301-materials.git
+```
 
-4. Name the local directory `BIOS6301-mywork`.
-5. Select **Create Project**.
+3. Directory: `BIOS6301-materials`
+4. Open its root project.
+5. Keep these files unchanged.
 :::
-
 ::::
 
 
-## One supplied recipe connects the private repository {.smaller}
+## Create your independent private repository {.smaller}
 
-Immediately after cloning, `origin` points to the instructor repository. In the
-RStudio Terminal, the supervised lab runs:
+On GitHub, create **BIOS6301-mywork**:
+
+- Visibility: **Private**
+- Add README: **On**
+- Add .gitignore: **R**
+- License: none required
+
+Then clone **your own HTTPS URL** through RStudio's same New Project wizard.
+
+Place `BIOS6301-mywork` beside the materials folder.
+
+
+## Check the project before Pull or Push {.smaller}
+
+| Open RStudio project | Its origin | Routine |
+|---|---|---|
+| BIOS6301-materials | Instructor's course repository | Pull before class |
+| BIOS6301-mywork | Your private repository | Pull, edit, Commit, Push |
 
 ```bash
-git remote rename origin upstream
-git remote add origin https://github.com/YOUR_USERNAME/BIOS6301-mywork.git
-git push -u origin main
+# Optional read-only check in each project's Terminal
+git remote -v
 ```
 
-- The instructor address is preserved as `upstream`.
-- The student's empty private repository becomes `origin`.
-- The first Push copies the course history and tests HTTPS authentication.
+The nickname `origin` is local to each repository.
+
+
+## Before class: update the materials {.smaller}
+
+1. Open **BIOS6301-materials.Rproj**.
+2. Confirm that its Git pane is empty.
+3. Click **Pull** and read the result.
+4. Read the updated instructions.
+5. Switch to **BIOS6301-mywork.Rproj** to work.
 
 ::: {.callout-note appearance="simple"}
-This is a setup recipe to copy—not command syntax to memorize.
+If course files show edits, preserve them and ask for help before updating.
 :::
 
 
-## This course uses two remotes
-
-```{mermaid}
-flowchart LR
-  U["upstream<br/>public BIOS6301 materials<br/>instructor-managed"] -->|course update recipe| L["student computer<br/>course + private work"]
-  L -->|RStudio Push| O["origin<br/>student private repository"]
-  O -->|RStudio Pull| L
-```
-
-- `origin` stores the student's private history.
-- `upstream` provides instructor course updates.
-
-
-## RStudio Pull and Push communicate with `origin` {.smaller}
-
-After the one-time setup:
-
-| RStudio action | Direction |
-|---|---|
-| **Pull** | private `origin` → student computer |
-| **Push** | student computer → private `origin` |
-
-Use this for the student's normal multi-machine workflow and private backup.
-
-It does not automatically retrieve new instructor materials from `upstream`.
-
-
-## Course updates use a supplied recipe {.smaller}
-
-First commit student work. Then run in the RStudio Terminal:
-
-```bash
-git fetch upstream
-git merge upstream/main
-```
-
-Translate the recipe:
-
-1. Download new instructor commits.
-2. Add them to the current local history.
-3. Inspect status and render affected work.
-4. Push the combined history to private `origin`.
-
-
-## Folder ownership prevents most course-update conflicts {.smaller}
+## Copy a starter, then edit your copy {.smaller}
 
 ```text
-course/   instructor-managed: read and copy, but do not edit
-work/     student-managed: create, edit, commit, and submit
+FROM: BIOS6301-materials/course/session02/starter/
+TO:   BIOS6301-mywork/work/session02-git-lab/
 ```
 
-When the instructor and student edit different paths, upstream updates usually
-merge without a conflict.
+- Copy the required starter and synthetic data.
+- Open your personal root project.
+- Choose the Rmd or Qmd report and edit that copy.
+- Review, Stage, Commit, and Push your own work.
+- Preserve answers when a revised starter is released.
 
-Always commit student work before requesting course updates.
 
+## HTTPS authentication for your private project {.smaller}
 
-## The first private Push completes HTTPS authentication {.smaller}
+1. Clone your private repository through RStudio.
+2. Complete browser sign-in through Git Credential Manager or GitHub CLI.
+3. Make and commit your lab changes.
+4. Click **Push**.
+5. Confirm your files and new commit on GitHub.
 
-1. Run the supplied `git push -u origin main` setup line.
-2. Git Credential Manager—or GitHub CLI—opens GitHub in a browser.
-3. Sign in and complete two-factor authentication.
-4. Authorize the credential helper if GitHub asks.
-5. Return to RStudio and read the Push result.
-6. Open the private repository and confirm that its history is present.
-
-Later Pulls and Pushes should normally reuse the stored credential.
+Later Pulls and Pushes normally reuse the stored credential.
 
 ::: {.callout-warning appearance="simple"}
-If the Terminal requests your ordinary GitHub account password, **cancel and ask
-for help**. Do not type a password or paste a personal access token.
+GitHub account passwords do not work for Git operations. If prompted for one,
+cancel and follow the preclass authentication guide.
 :::
 
 
@@ -932,7 +923,7 @@ Without using a command, explain:
 2. What changes when you check **Staged**?
 3. What is the difference between Commit and Push?
 4. Why should you check status before Pull?
-5. How do `origin` and `upstream` differ in this course?
+5. Which project do you open for course updates, and which for your own work?
 
 
 ## Sources and next step {.smaller}

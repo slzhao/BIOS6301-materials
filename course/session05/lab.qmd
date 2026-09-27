@@ -13,6 +13,10 @@ Choose one format and copy either `starter/import-lab.Rmd` or
 `starter/import-lab.qmd` to `work/session05/`. Knit the `.Rmd` file or Render the
 `.qmd` file.
 
+Work in **BIOS6301-mywork.Rproj**. Paths under `work/` below belong to your
+personal repository. Copy starters from the separate `BIOS6301-materials` clone,
+leaving the course originals unchanged.
+
 ## Tasks
 
 1. Import the supplied temporary CSV twice: first preserve every field as raw
@@ -28,6 +32,25 @@ Choose one format and copy either `starter/import-lab.Rmd` or
 6. Export the cleaned rectangular table as CSV and RDS, read both back, and compare
    the preserved classes.
 7. Optional: repeat the import with `readr::read_csv()` and compare diagnostics.
+
+
+## File-layout checkpoint: inspect before importing
+
+The starter creates `layout_path`, a small synthetic export containing a title,
+a date note, a header, three records, and a total row.
+
+1. Display it with `readLines(layout_path)`. Identify the header and data rows.
+2. Import only the three observations using `skip` and `nrows`; preserve IDs
+   such as `"001"` as character.
+3. Inspect the two `export_row` columns. They are documented export counters,
+   not subject IDs. Use `check.names = FALSE` to see the original names;
+   inspect `names()`, then remove only those documented counter columns.
+4. Verify that three IDs remain and that `weight_kg` is numeric.
+5. Explain why an exclusion recorded only by yellow highlighting would be lost
+   in a plain CSV. Propose explicit columns to store the decision.
+
+The file documents its layout for this exercise. In real work, recheck row
+boundaries when an export changes; do not reuse a fixed row count blindly.
 
 ## Additional practice: repeat the import workflow
 
