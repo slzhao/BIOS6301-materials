@@ -5,15 +5,21 @@ date-format: "YYYY-MM-DD HH:mm:ss Z"
 format: html
 ---
 
+The first chunk creates synthetic practice files. Run it unchanged; writing this
+setup is not a lab task. Work only on the copy in your personal repository.
+
 ```{r}
 source_table <- data.frame(
   id = c("P01", "P02", "P03", "P04", "P05"),
   visit_date = c("2026-01-03", "01/04/2026", "2026-01-05",
                  "2026-02-30", "2026-01-07"),
-  marker = c("4.1", ".", "6.2", "not measured", "6.5")
+  marker = c("4.1", ".", "6.2", "NM", "6.5")
 )
 csv_path <- tempfile(fileext = ".csv")
-write.csv(source_table, csv_path, row.names = FALSE)
+write.csv(source_table, csv_path, row.names = FALSE, quote = FALSE)
+# Output paths supplied for Task 3.
+csv_out <- tempfile(fileext = ".csv")
+rds_out <- tempfile(fileext = ".rds")
 
 site_table <- data.frame(
   id = c("P11", "P12", "P13"),
@@ -24,31 +30,61 @@ write.table(site_table, site_path, sep = ";", dec = ",",
             row.names = FALSE)
 ```
 
-Documented rules: `.` and `not measured` mean missing marker. Dates are intended
+Documented rules: `.` and `NM` mean missing marker. Dates are intended
 to be ISO `YYYY-MM-DD`; the non-ISO and impossible values require review.
+
+## Input-file record
+
+Include this table in your rendered report before importing the CSV.
+
+```{r}
+input_md5 <- tools::md5sum(csv_path)
+stopifnot(!is.na(input_md5))
+data.frame(
+  file = basename(csv_path),
+  md5 = unname(input_md5)
+)
+```
+
+This exercise creates a temporary file; a real analysis should record its actual
+input filename. Keep the rendered report to preserve the checksum from this run.
+A different checksum means different file contents, not necessarily different
+analytical values or an error in the data.
 
 ## 1. Import contract and audit
 
 ```{r}
-# Create a raw character import and a typed analysis import, then audit both.
+# Preview: readLines(csv_path, n = 6)
+# Import raw with colClasses = "character".
+# Import analysis_import with the documented na.strings and named colClasses.
+# Check dim(), names(), str(), table(id), and colSums(is.na(...)).
+# Expected IDs: c("P01", "P02", "P03", "P04", "P05"); use %in%.
 ```
 
 ## 2. Diagnose and clean
 
 ```{r}
-# Retain raw text beside the parsed marker and date columns.
+# Show raw id/marker rows where is.na(analysis_import$marker).
+# Parse visit_date with as.Date(..., format = "%Y-%m-%d").
+# Show raw id/visit_date rows for failed dates; do not guess corrections.
+# Copy analysis_import to clean; add marker_raw and visit_date_raw using $.
+# Replace clean$visit_date with the parsed dates.
 ```
 
 ## 3. Export and round-trip check
 
 ```{r}
-# Write temporary CSV and RDS files, read them back, and compare classes.
+# write.csv(clean, csv_out, row.names = FALSE)
+# saveRDS(clean, rds_out)
+# Read back with read.csv() and readRDS(); compare str() output.
 ```
 
 ## 4. Interpretation
 
 List the records requiring source clarification and explain why.
 ## 5. File-layout checkpoint
+
+Run the following file-generation chunk unchanged.
 
 ```{r}
 layout_path <- tempfile(fileext = ".csv")
@@ -73,3 +109,14 @@ Read the text first, then import the three observations and keep the IDs intact.
 
 If a workbook used yellow highlighting to mean "exclude from analysis", what
 explicit columns should replace that visual convention?
+
+## 6. Additional practice (optional)
+
+Choose any tasks from the lab page: delimiter/decimal settings, incomplete missing
+codes, all-character import, mixed or ambiguous dates, and CSV/RDS comparison.
+The optional readr task needs only the import example shown in class, `str()`,
+and missing-value counts. No optional-reference-slide content is required.
+
+```{r}
+# Add your chosen additional-practice code here.
+```
