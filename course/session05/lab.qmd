@@ -42,50 +42,7 @@ what a different checksum would tell you—and what it would not tell you.
 4. Use `as.Date(..., format = "%Y-%m-%d")` and `is.na()` to find dates
    that did not parse. Show their original text. Do not guess a correction.
 5. Copy `analysis_import` to `clean`. Add `marker_raw` and
-   `visit_date_raw` columns from `raw` using `---
-title: "Session 5 guided lab"
-subtitle: "Import and audit a synthetic visit file"
----
-
-::: {.callout-note}
-**Suggested use:** tasks 1–7 form the core import audit. Additional practice
-repeats the same import, parsing, date, and export concepts with deliberately
-different file problems. The instructor may set the in-class stopping point. All student-written code uses
-Sessions 3–4 and the main Session 5 slides, not the optional reference section.
-:::
-
-Choose one format and copy either `starter/import-lab.Rmd` or
-`starter/import-lab.qmd` to `work/session05/`. Knit the `.Rmd` file or Render the
-`.qmd` file.
-
-Work in **BIOS6301-mywork.Rproj**. Paths under `work/` below belong to your
-personal repository. Copy starters from the separate `BIOS6301-materials` clone,
-leaving the course originals unchanged.
-
-The file-generation chunks are **supplied setup**: run them unchanged.
-You do not need to write `tempfile()`, `writeLines()`, or `write.table()` code.
-The starter also supplies output paths for saving your results.
-
-## Record the input file
-
-Run the supplied `tools::md5sum(csv_path)` chunk before importing the CSV. Include
-the filename and checksum in the rendered report and keep the report. Explain
-what a different checksum would tell you—and what it would not tell you.
-
-## Tasks
-
-1. Inspect `readLines(csv_path, n = 6)`. Import the CSV as `raw` using
-   `read.csv(csv_path, colClasses = "character")`. Then import it as
-   `analysis_import` with `na.strings = c(".", "NM")` and
-   `colClasses = c(id = "character", visit_date = "character", marker = "numeric")`.
-2. Verify dimensions, names, types, expected IDs, one row per ID, and missingness.
-   Use `dim()`, `names()`, `str()`, `table()`, `%in%`, and
-   `colSums(is.na(...))`. The expected IDs are P01, P02, P03, P04, and P05.
-3. Use the raw and analysis imports together to display every marker entry that
-   became missing during parsing.
-4. Use `as.Date(..., format = "%Y-%m-%d")` and `is.na()` to find dates
-   that did not parse. Show their original text. Do not guess a correction.
-. Replace only
+   `visit_date_raw` columns from `raw` using `$`. Replace only
    `clean$visit_date` with the parsed dates.
 6. Export the cleaned rectangular table as CSV and RDS, read both back, and compare
    the preserved classes using `str()`. Use the supplied `csv_out` and `rds_out`
