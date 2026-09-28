@@ -259,8 +259,8 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <p><span class="objective-num">1</span> <strong>Import</strong> a delimited file with <code>read.csv()</code>, and <strong>state</strong> rather than guess what type each column should be.</p>
 <p><span class="objective-num">2</span> <strong>Convert</strong> missing-value codes to <code>NA</code> at import, and say why the door is the right place to do it.</p>
 <p><span class="objective-num">3</span> <strong>Diagnose</strong> a file that is not what it claims to be — wrong delimiter, header junk, wrong encoding.</p>
-<p><span class="objective-num">4</span> <strong>Read</strong> Excel, SPSS and Stata files, and know what each format drags along with it.</p>
-<p><span class="objective-num">5</span> <strong>Choose</strong> between <code>write.csv()</code> and <code>saveRDS()</code>, and explain why the workspace is never saved.</p>
+<p><span class="objective-num">4</span> <strong>Read</strong> a selected Excel table, a compressed CSV, or a large text file.</p>
+<p><span class="objective-num">5</span> <strong>Choose</strong> between <code>write.csv()</code> and <code>saveRDS()</code>, and explain when saving several objects or a workspace is useful.</p>
 <p><span class="objective-num">6</span> <strong>Parse</strong> dates, do arithmetic on them, and rescue Excel serial numbers.</p>
 <p><span class="objective-num">7</span> <strong>Recognise</strong> the import failures that produce a wrong answer rather than an error.</p>
 </div>
@@ -283,33 +283,33 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <tbody>
 <tr class="odd">
 <td>1</td>
-<td>A file is not a data frame: <code>read.csv()</code> and its arguments</td>
-<td>15</td>
+<td>Inspect a file and make a first import</td>
+<td>12</td>
 </tr>
 <tr class="even">
 <td>2</td>
-<td>Missing-value codes, handled at the door</td>
-<td>12</td>
-</tr>
-<tr class="odd">
-<td>3</td>
-<td>When the file is not a friendly CSV</td>
-<td>15</td>
-</tr>
-<tr class="even">
-<td>4</td>
-<td>Excel, SPSS, Stata — and <code>readr</code></td>
+<td>Missing codes and simple checks</td>
 <td>10</td>
 </tr>
 <tr class="odd">
+<td>3</td>
+<td>Worksheet examples: titles, tables, and headers</td>
+<td>25</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Excel, compressed files, and large CSV files</td>
+<td>12</td>
+</tr>
+<tr class="odd">
 <td>5</td>
-<td>Getting data back out; never saving the workspace</td>
-<td>8</td>
+<td>Save objects and record data checksums</td>
+<td>10</td>
 </tr>
 <tr class="even">
 <td>6</td>
-<td>Dates and times</td>
-<td>25</td>
+<td>Read and check dates</td>
+<td>16</td>
 </tr>
 <tr class="odd">
 <td>7</td>
@@ -356,107 +356,20 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="look-at-the-file-before-you-read-it" class="slide level2 smaller">
 <h2>Look at the file before you read it</h2>
+
+<img data-src="images/inspect-sheet.svg" style="width:88.0%" alt="Illustrative worksheet with text IDs, ambiguous dates, weight -99 and creatinine NA and less than 0.30" class="r-stretch"><p>Before importing: What does <code>-99</code> mean? Is the date month-first? Should <code>001</code> stay as text?</p>
+</section>
+<section id="a-quick-look-at-a-large-text-file" class="slide level2 smaller">
+<h2>A quick look at a large text file</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">readLines</span>(<span class="st">"data/trial_export.csv"</span>, <span class="at">n =</span> <span class="dv">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">readLines</span>(<span class="st">"data/trial_export.csv"</span>, <span class="at">n =</span> <span class="dv">3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>"id","arm","sex","wt","sbp12","creat","visit_0","visit_12","dob_ser"
 "P001","Placebo","M",90,144,"1.29","01/15/2023","04/12/2023",27512
-"P002","Placebo","M",67.8,156,"NA","05/31/2023","08/24/2023",23496
-"P003","Placebo","M",-99,156,"1.16","04/08/2023","06/30/2023",22594</code></pre>
+"P002","Placebo","M",67.8,156,"NA","05/31/2023","08/24/2023",23496</code></pre>
 </div>
 </div>
-<div class="fragment">
-<div class="smaller">
-<p>Four lines of raw text, and already visible:</p>
-<ul>
-<li><strong>quoted</strong> character fields, unquoted numbers — so <code>write.csv()</code> made this</li>
-<li><code>"NA"</code> as <em>text</em>, in a creatinine column</li>
-<li><code>-99</code> where a weight should be</li>
-<li>dates as <code>04/08/2023</code> — <strong>month first, or day first?</strong></li>
-</ul>
-</div>
-</div>
-</section>
-<section id="read.csv-argument-by-argument" class="slide level2 smaller">
-<h2><code>read.csv()</code>, argument by argument</h2>
-<div style="font-size:0.80em">
-<table class="caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Argument</th>
-<th>Default</th>
-<th>Set it when</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>file</code></td>
-<td>—</td>
-<td>Always. A <strong>relative</strong> path, via <code>here::here()</code></td>
-</tr>
-<tr class="even">
-<td><code>header</code></td>
-<td><code>TRUE</code></td>
-<td>The file has no header row → <code>FALSE</code>, then set <code>col.names</code></td>
-</tr>
-<tr class="odd">
-<td><code>sep</code></td>
-<td><code>","</code></td>
-<td>Tabs (<code>"\t"</code>), semicolons (<code>";"</code>), pipes (<code>"|"</code>)</td>
-</tr>
-<tr class="even">
-<td><code>dec</code></td>
-<td><code>"."</code></td>
-<td>A European export uses a decimal comma → <code>","</code></td>
-</tr>
-<tr class="odd">
-<td><code>na.strings</code></td>
-<td><code>"NA"</code></td>
-<td><strong>Almost always.</strong> Block 2</td>
-</tr>
-<tr class="even">
-<td><code>colClasses</code></td>
-<td>guessed</td>
-<td>You know what the types should be. Block 1</td>
-</tr>
-<tr class="odd">
-<td><code>skip</code></td>
-<td><code>0</code></td>
-<td>Metadata lines sit above the header</td>
-</tr>
-<tr class="even">
-<td><code>nrows</code></td>
-<td><code>-1</code></td>
-<td>Peeking at a large file, or a junk footer</td>
-</tr>
-<tr class="odd">
-<td><code>check.names</code></td>
-<td><code>TRUE</code></td>
-<td>You want the original column names → <code>FALSE</code></td>
-</tr>
-<tr class="even">
-<td><code>fileEncoding</code></td>
-<td>native</td>
-<td>Accented characters arrive as rubbish. Block 3</td>
-</tr>
-<tr class="odd">
-<td><code>strip.white</code></td>
-<td><code>FALSE</code></td>
-<td>Unquoted fields have padding spaces</td>
-</tr>
-<tr class="even">
-<td><code>comment.char</code></td>
-<td><code>""</code></td>
-<td>A <code>#</code> legend at the foot of the file</td>
-</tr>
-</tbody>
-</table>
-</div>
+<p>Read a few lines first. Check the separator, column names, and unusual values.</p>
 </section>
 <section id="what-type-guessing-gave-you" class="slide level2 smaller">
 <h2>What type guessing gave you</h2>
@@ -685,29 +598,47 @@ P061;90,4;160</code></pre>
 </section>
 <section id="a-title-row-is-not-a-variable-name" class="slide level2 smaller">
 <h2>A title row is not a variable name</h2>
-<pre class="text"><code>Clinic export — synthetic example
-Prepared for BIOS6301
-id,weight_kg
-001,62.4
-002,71.8
-TOTAL,134.2</code></pre>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">readLines</span>(<span class="st">"clinic.csv"</span>, <span class="at">n =</span> <span class="dv">6</span>)</span>
-<span id="cb26-2"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"clinic.csv"</span>, <span class="at">skip =</span> <span class="dv">2</span>, <span class="at">nrows =</span> <span class="dv">2</span>,</span>
-<span id="cb26-3"><a aria-hidden="true" tabindex="-1"></a>              <span class="at">colClasses =</span> <span class="fu">c</span>(<span class="at">id =</span> <span class="st">"character"</span>, <span class="at">weight_kg =</span> <span class="st">"numeric"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Here, <code>skip = 2</code> reaches the header; <code>nrows = 2</code> reads the two observations.</p>
+
+<img data-src="images/title-rows.svg" style="width:79.0%" alt="Illustrative sheet with two title rows, names on row 3, data on rows 4 and 5, and a total on row 6" class="r-stretch"><p>Read <strong>A3:C5</strong>: column names plus observations. Exclude the title and total.</p>
 </section>
-<section id="several-header-rows-need-a-deliberate-plan" class="slide level2 smaller">
-<h2>Several header rows need a deliberate plan</h2>
-<pre class="text"><code>id,weight,height
-participant ID,kg,cm
-001,62.4,168
-002,71.8,175</code></pre>
-<p>Read the names separately, then skip the description row:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a aria-hidden="true" tabindex="-1"></a>header <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">read.csv</span>(<span class="st">"measurements.csv"</span>, <span class="at">nrows =</span> <span class="dv">0</span>,</span>
-<span id="cb28-2"><a aria-hidden="true" tabindex="-1"></a>                         <span class="at">check.names =</span> <span class="cn">FALSE</span>))</span>
-<span id="cb28-3"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"measurements.csv"</span>, <span class="at">skip =</span> <span class="dv">2</span>, <span class="at">header =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb28-4"><a aria-hidden="true" tabindex="-1"></a>              <span class="at">col.names =</span> header, <span class="at">colClasses =</span> <span class="fu">c</span>(<span class="st">"character"</span>, <span class="st">"numeric"</span>, <span class="st">"numeric"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Keep units in a data dictionary. A repeated header inside the observations also needs to be identified and handled explicitly.</p>
+<section id="tell-r-where-the-table-starts-and-ends" class="slide level2 smaller">
+<h2>Tell R where the table starts and ends</h2>
+<p>For the worksheet on the previous slide:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"clinic.xlsx"</span>, <span class="at">range =</span> <span class="st">"A3:C5"</span>,</span>
+<span id="cb25-2"><a aria-hidden="true" tabindex="-1"></a>                       <span class="at">col_types =</span> <span class="fu">c</span>(<span class="st">"text"</span>, <span class="st">"numeric"</span>, <span class="st">"date"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For a CSV export of the same layout:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"clinic.csv"</span>, <span class="at">skip =</span> <span class="dv">2</span>, <span class="at">nrows =</span> <span class="dv">2</span>,</span>
+<span id="cb26-2"><a aria-hidden="true" tabindex="-1"></a>              <span class="at">colClasses =</span> <span class="fu">c</span>(<span class="at">id =</span> <span class="st">"character"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The Excel example assumes date cells are stored as Excel dates. Recheck the range when a new file arrives.</p>
+</section>
+<section id="two-tables-on-the-same-sheet" class="slide level2 smaller">
+<h2>Two tables on the same sheet</h2>
+
+<img data-src="images/two-tables.svg" style="width:90.0%" alt="Illustrative sheet: participant ages in A1:B5 and unrelated site targets in D1:E4" class="r-stretch"><p>A shared row number does <strong>not</strong> mean these records belong together.</p>
+</section>
+<section id="import-each-table-separately" class="slide level2 smaller">
+<h2>Import each table separately</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a aria-hidden="true" tabindex="-1"></a>participants <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"study.xlsx"</span>, <span class="at">range =</span> <span class="st">"A1:B5"</span>,</span>
+<span id="cb27-2"><a aria-hidden="true" tabindex="-1"></a>                                 <span class="at">col_types =</span> <span class="fu">c</span>(<span class="st">"text"</span>, <span class="st">"numeric"</span>))</span>
+<span id="cb27-3"><a aria-hidden="true" tabindex="-1"></a>sites <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"study.xlsx"</span>, <span class="at">range =</span> <span class="st">"D1:E4"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>Prefer one table per sheet when requesting a new export.</li>
+<li>Preserve the original; document the selected ranges in code.</li>
+<li>Combine tables using a meaningful key—not row position.</li>
+</ul>
+</section>
+<section id="mixed-single-and-multiple-header-rows" class="slide level2 smaller">
+<h2>Mixed single and multiple header rows</h2>
+
+<img data-src="images/mixed-headers.svg" style="width:90.0%" alt="Illustrative sheet with id spanning two header rows and Baseline and Week 12 above repeated weight_kg and sbp headers" class="r-stretch"><p>Which header row should R use? Neither row alone identifies every variable.</p>
+</section>
+<section id="give-every-column-one-unambiguous-name" class="slide level2 smaller">
+<h2>Give every column one unambiguous name</h2>
+
+<img data-src="images/flat-headers.svg" style="width:90.0%" alt="Equivalent rectangular table with unique names id, weight_0, sbp_0, weight_12, sbp_12" class="r-stretch"><p>Keep the source. Assign names when reading its data rows:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"visits.xlsx"</span>, <span class="at">skip =</span> <span class="dv">2</span>,</span>
+<span id="cb28-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">col_names =</span> <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"weight_0"</span>, <span class="st">"sbp_0"</span>, <span class="st">"weight_12"</span>, <span class="st">"sbp_12"</span>),</span>
+<span id="cb28-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">col_types =</span> <span class="fu">c</span>(<span class="st">"text"</span>, <span class="fu">rep</span>(<span class="st">"numeric"</span>, <span class="dv">4</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="row-numbers-are-not-participant-identifiers" class="slide level2 smaller">
 <h2>Row numbers are not participant identifiers</h2>
@@ -749,46 +680,27 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 </div>
 </div>
 </div>
-</section>
-<section id="encodings" class="slide level2 smaller">
-<h2>Encodings</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a aria-hidden="true" tabindex="-1"></a>lines <span class="ot">&lt;-</span> <span class="fu">readLines</span>(<span class="st">"data/clinicians.csv"</span>)</span>
-<span id="cb38-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">validUTF8</span>(lines)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1]  TRUE FALSE</code></pre>
-</div>
-</div>
-<div class="fragment">
-<div class="smaller">
-<p>Line 2 is not valid UTF-8. It is <strong>Latin-1</strong> — one byte per character — and R read it as though it were UTF-8.</p>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the fix: tell the reader what the bytes mean</span></span>
-<span id="cb40-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/clinicians.csv"</span>, <span class="at">fileEncoding =</span> <span class="st">"latin1"</span>)</span>
-<span id="cb40-3"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     id      clinician</span></span>
-<span id="cb40-4"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 P061  Björn André</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
 </section></section>
 <section>
-<section id="excel-spss-stata-and-readr" class="title-slide slide level1 section-divider center">
-<h1>4 · Excel, SPSS, Stata — and readr</h1>
+<section id="reading-excel-and-large-text-files" class="title-slide slide level1 section-divider center">
+<h1>4 · Reading Excel and large text files</h1>
 
 </section>
 <section id="excel-via-readxl" class="slide level2 smaller">
 <h2>Excel via <code>readxl</code></h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
-<span id="cb41-2"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-3"><a aria-hidden="true" tabindex="-1"></a><span class="co"># What sheets are in here?</span></span>
-<span id="cb41-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">excel_sheets</span>(<span class="st">"data/study42.xlsx"</span>)</span>
-<span id="cb41-5"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] "ReadMe"  "Enrolment"  "Labs"  "Sheet3"</span></span>
-<span id="cb41-6"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-7"><a aria-hidden="true" tabindex="-1"></a>labs <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(</span>
-<span id="cb41-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="st">"data/study42.xlsx"</span>,</span>
-<span id="cb41-9"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">sheet =</span> <span class="st">"Labs"</span>,</span>
-<span id="cb41-10"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">range =</span> <span class="st">"A4:H210"</span>,              <span class="co"># skip the title block, stop before the totals</span></span>
-<span id="cb41-11"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">col_types =</span> <span class="fu">c</span>(<span class="st">"text"</span>, <span class="st">"text"</span>, <span class="st">"date"</span>, <span class="fu">rep</span>(<span class="st">"numeric"</span>, <span class="dv">5</span>)),</span>
-<span id="cb41-12"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">na =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"NA"</span>, <span class="st">"-99"</span>)</span>
-<span id="cb41-13"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb38-2"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-3"><a aria-hidden="true" tabindex="-1"></a><span class="co"># What sheets are in here?</span></span>
+<span id="cb38-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">excel_sheets</span>(<span class="st">"data/study42.xlsx"</span>)</span>
+<span id="cb38-5"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; [1] "ReadMe"  "Enrolment"  "Labs"  "Sheet3"</span></span>
+<span id="cb38-6"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb38-7"><a aria-hidden="true" tabindex="-1"></a>labs <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(</span>
+<span id="cb38-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="st">"data/study42.xlsx"</span>,</span>
+<span id="cb38-9"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">sheet =</span> <span class="st">"Labs"</span>,</span>
+<span id="cb38-10"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">range =</span> <span class="st">"A4:H210"</span>,              <span class="co"># skip the title block, stop before the totals</span></span>
+<span id="cb38-11"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">col_types =</span> <span class="fu">c</span>(<span class="st">"text"</span>, <span class="st">"text"</span>, <span class="st">"date"</span>, <span class="fu">rep</span>(<span class="st">"numeric"</span>, <span class="dv">5</span>)),</span>
+<span id="cb38-12"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">na =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"NA"</span>, <span class="st">"-99"</span>)</span>
+<span id="cb38-13"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <div class="callout callout-note callout-style-simple">
 <div class="callout-body">
@@ -802,43 +714,10 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 </div>
 </div>
 </section>
-<section id="why-spreadsheet-appearance-is-not-enough" class="slide level2 smaller">
-<h2>Why spreadsheet appearance is not enough</h2>
-<table class="caption-top">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Workbook feature</th>
-<th>What the analysis needs</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Yellow highlight means exclude</td>
-<td>An explicit <code>exclude</code> flag and reason</td>
-</tr>
-<tr class="even">
-<td>Bold row means subtotal</td>
-<td>A documented rule excluding summary rows</td>
-</tr>
-<tr class="odd">
-<td>Merged cells show a group</td>
-<td>A group value for every observation</td>
-</tr>
-<tr class="even">
-<td>Multiple sheets named Final/Final2</td>
-<td>A specified source sheet and version</td>
-</tr>
-<tr class="odd">
-<td>A formula displays a result</td>
-<td>A documented calculation reproducible in code</td>
-</tr>
-</tbody>
-</table>
-<p>Ordinary <code>read_excel()</code> imports cell values, not the meaning of colors or styles.</p>
+<section id="highlighting-and-totals-are-not-observations" class="slide level2 smaller">
+<h2>Highlighting and totals are not observations</h2>
+
+<img data-src="images/color-and-totals.svg" style="width:80.0%" alt="Illustrative sheet with participant 002 highlighted yellow and a separate mean row" class="r-stretch"><p>If yellow means “exclude,” add an <code>exclude</code> column and a reason. Keep the mean row out of the participant data.</p>
 </section>
 <section id="names-and-types-inspect-what-actually-arrived" class="slide level2 smaller">
 <h2>Names and types: inspect what actually arrived</h2>
@@ -848,23 +727,11 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 <li><code>00123</code> can become <code>123</code> if the source treats an ID as numeric.</li>
 <li>A displayed date or rounded value may hide a different stored value.</li>
 </ul>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(d)</span>
-<span id="cb42-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">anyDuplicated</span>(<span class="fu">names</span>(d))</span>
-<span id="cb42-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(d)</span>
-<span id="cb42-4"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Preserve a source name, then rename deliberately:</span></span>
-<span id="cb42-5"><a aria-hidden="true" tabindex="-1"></a>d[[<span class="st">"Weight (kg)"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="reading-the-intended-excel-rectangle" class="slide level2 smaller">
-<h2>Reading the intended Excel rectangle</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Illustrative workbook: names in row 4, descriptions in row 5</span></span>
-<span id="cb43-2"><a aria-hidden="true" tabindex="-1"></a>header <span class="ot">&lt;-</span> <span class="fu">names</span>(readxl<span class="sc">::</span><span class="fu">read_excel</span>(</span>
-<span id="cb43-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="st">"study.xlsx"</span>, <span class="at">sheet =</span> <span class="st">"Labs"</span>, <span class="at">skip =</span> <span class="dv">3</span>, <span class="at">n_max =</span> <span class="dv">0</span></span>
-<span id="cb43-4"><a aria-hidden="true" tabindex="-1"></a>))</span>
-<span id="cb43-5"><a aria-hidden="true" tabindex="-1"></a>labs <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(</span>
-<span id="cb43-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="st">"study.xlsx"</span>, <span class="at">sheet =</span> <span class="st">"Labs"</span>, <span class="at">skip =</span> <span class="dv">5</span>,</span>
-<span id="cb43-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">col_names =</span> header, <span class="at">col_types =</span> <span class="fu">c</span>(<span class="st">"text"</span>, <span class="st">"numeric"</span>, <span class="st">"numeric"</span>)</span>
-<span id="cb43-8"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>For a fixed data block, use <code>range = "Labs!A6:C20", col_names = header</code> instead of <code>skip</code>. This excludes both the names and description rows. Do not include footer notes in that rectangle.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(d)</span>
+<span id="cb39-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">anyDuplicated</span>(<span class="fu">names</span>(d))</span>
+<span id="cb39-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(d)</span>
+<span id="cb39-4"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Preserve a source name, then rename deliberately:</span></span>
+<span id="cb39-5"><a aria-hidden="true" tabindex="-1"></a>d[[<span class="st">"Weight (kg)"</span>]]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="a-better-data-handoff" class="slide level2 smaller">
 <h2>A better data handoff</h2>
@@ -877,55 +744,48 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 </ul>
 <p>Keep the original workbook. Import and clean in code. A validated CSV/TSV is convenient for a rectangular table, but still needs type and missingness checks.</p>
 </section>
-<section id="reading-organizing-and-importing-spreadsheets" class="slide level2 smaller">
-<h2>Reading: organizing and importing spreadsheets</h2>
-<ul>
-<li>Broman KW, Woo KH (2018). <a href="https://doi.org/10.1080/00031305.2017.1375989">Data Organization in Spreadsheets</a>. <em>The American Statistician</em>, 72(1), 2–10.</li>
-<li><a href="https://kbroman.org/dataorg/">Broman’s practical data-organization guide</a></li>
-<li>readxl: <a href="https://readxl.tidyverse.org/articles/multiple-header-rows.html">Multiple header rows</a></li>
-<li>readxl: <a href="https://readxl.tidyverse.org/articles/sheet-geometry.html">Sheet geometry</a></li>
-<li>readxl: <a href="https://readxl.tidyverse.org/articles/column-names.html">Column names</a></li>
-</ul>
-</section>
-<section id="spss-and-stata-via-haven" class="slide level2 smaller">
-<h2>SPSS and Stata via <code>haven</code></h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven)</span>
-<span id="cb44-2"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb44-3"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_sav</span>(<span class="st">"data/study42.sav"</span>)     <span class="co"># SPSS   .sav</span></span>
-<span id="cb44-4"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(<span class="st">"data/study42.dta"</span>)     <span class="co"># Stata  .dta</span></span>
-<span id="cb44-5"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_xpt</span>(<span class="st">"data/adsl.xpt"</span>)        <span class="co"># SAS transport  .xpt</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<div class="smaller">
-<p>These formats carry <strong>metadata R has no native place for</strong>: variable labels, value labels, user-defined missing codes. <code>haven</code> keeps them on a <code>labelled</code> column.</p>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">attr</span>(d<span class="sc">$</span>arm, <span class="st">"labels"</span>)      <span class="co">#  Placebo = 1, Treatment = 2</span></span>
-<span id="cb45-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as_factor</span>(d<span class="sc">$</span>arm)           <span class="co">#  labelled -&gt; factor, using the labels</span></span>
-<span id="cb45-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">zap_labels</span>(d<span class="sc">$</span>arm)          <span class="co">#  labelled -&gt; plain numeric, labels discarded</span></span>
-<span id="cb45-4"><a aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>sex <span class="ot">&lt;-</span> <span class="fu">as_factor</span>(d<span class="sc">$</span>sex)  <span class="co">#  do this once, deliberately, at import</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</section>
 <section id="readrread_csv" class="slide level2 smaller">
 <h2><code>readr::read_csv()</code></h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
-<span id="cb46-2"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/trial_export.csv"</span>)</span>
-<span id="cb46-3"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rows: 60 Columns: 9</span></span>
-<span id="cb46-4"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; -- Column specification ------------------------------------</span></span>
-<span id="cb46-5"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; chr (6): id, arm, sex, creat, visit_0, visit_12</span></span>
-<span id="cb46-6"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; dbl (3): wt, sbp12, dob_ser</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb40-2"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/trial_export.csv"</span>)</span>
+<span id="cb40-3"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Rows: 60 Columns: 9</span></span>
+<span id="cb40-4"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; -- Column specification ------------------------------------</span></span>
+<span id="cb40-5"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; chr (6): id, arm, sex, creat, visit_0, visit_12</span></span>
+<span id="cb40-6"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; dbl (3): wt, sbp12, dob_ser</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <div class="smaller">
 <p>That message is the <strong>best thing about it</strong> — the parser tells you what it decided, every time. Then you replace the guess with a contract:</p>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
-<span id="cb47-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="st">"data/trial_export.csv"</span>,</span>
-<span id="cb47-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">col_types =</span> <span class="fu">cols</span>(<span class="at">id =</span> <span class="fu">col_character</span>(), <span class="at">wt =</span> <span class="fu">col_double</span>(),</span>
-<span id="cb47-4"><a aria-hidden="true" tabindex="-1"></a>                   <span class="at">visit_0 =</span> <span class="fu">col_date</span>(<span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)),</span>
-<span id="cb47-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">na =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"NA"</span>, <span class="st">"-99"</span>)</span>
-<span id="cb47-6"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way</span></span>
-<span id="cb48-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/trial_export.csv"</span>, <span class="at">colClasses =</span> <span class="fu">c</span>(<span class="at">id =</span> <span class="st">"character"</span>),</span>
-<span id="cb48-3"><a aria-hidden="true" tabindex="-1"></a>         <span class="at">na.strings =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"NA"</span>, <span class="st">"-99"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(</span>
+<span id="cb41-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="st">"data/trial_export.csv"</span>,</span>
+<span id="cb41-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">col_types =</span> <span class="fu">cols</span>(<span class="at">id =</span> <span class="fu">col_character</span>(), <span class="at">wt =</span> <span class="fu">col_double</span>(),</span>
+<span id="cb41-4"><a aria-hidden="true" tabindex="-1"></a>                   <span class="at">visit_0 =</span> <span class="fu">col_date</span>(<span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)),</span>
+<span id="cb41-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">na =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"NA"</span>, <span class="st">"-99"</span>)</span>
+<span id="cb41-6"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way</span></span>
+<span id="cb42-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/trial_export.csv"</span>, <span class="at">colClasses =</span> <span class="fu">c</span>(<span class="at">id =</span> <span class="st">"character"</span>),</span>
+<span id="cb42-3"><a aria-hidden="true" tabindex="-1"></a>         <span class="at">na.strings =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"NA"</span>, <span class="st">"-99"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+</section>
+<section id="compressed-csv-files-.csv.gz" class="slide level2 smaller">
+<h2>Compressed CSV files: <code>.csv.gz</code></h2>
+<p><code>.gz</code> means the file is compressed. It does not change the table’s meaning.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"visits.csv.gz"</span>,</span>
+<span id="cb43-2"><a aria-hidden="true" tabindex="-1"></a>              <span class="at">colClasses =</span> <span class="fu">c</span>(<span class="at">id =</span> <span class="st">"character"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>R can read this directly; you do not need to unzip it first. Use the same checks for names, types, and missing values.</p>
+</section>
+<section id="large-csv-files-data.tablefread" class="slide level2 smaller">
+<h2>Large CSV files: <code>data.table::fread()</code></h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># install.packages("data.table")  # once</span></span>
+<span id="cb44-2"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> data.table<span class="sc">::</span><span class="fu">fread</span>(<span class="st">"large_visits.csv"</span>,</span>
+<span id="cb44-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">colClasses =</span> <span class="fu">c</span>(<span class="at">id =</span> <span class="st">"character"</span>),</span>
+<span id="cb44-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">data.table =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb44-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>A useful fast reader for large CSV/TSV files—not Excel workbooks.</li>
+<li><code>data.table = FALSE</code> returns the familiar data frame.</li>
+<li>Faster reading does not replace checking the result.</li>
+</ul>
 </section></section>
 <section>
 <section id="getting-data-back-out" class="title-slide slide level1 section-divider center">
@@ -935,11 +795,11 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 <section id="what-csv-cannot-carry" class="slide level2 smaller">
 <h2>What CSV cannot carry</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a aria-hidden="true" tabindex="-1"></a>small <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">mrn =</span> <span class="fu">c</span>(<span class="st">"0042"</span>, <span class="st">"0007"</span>),</span>
-<span id="cb49-2"><a aria-hidden="true" tabindex="-1"></a>                    <span class="at">visit =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">"2024-01-03"</span>, <span class="st">"2024-02-11"</span>)),</span>
-<span id="cb49-3"><a aria-hidden="true" tabindex="-1"></a>                    <span class="at">arm =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"Placebo"</span>, <span class="st">"Treatment"</span>)))</span>
-<span id="cb49-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(small, <span class="st">"data/small.csv"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb49-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(<span class="fu">read.csv</span>(<span class="st">"data/small.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a>small <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">mrn =</span> <span class="fu">c</span>(<span class="st">"0042"</span>, <span class="st">"0007"</span>),</span>
+<span id="cb45-2"><a aria-hidden="true" tabindex="-1"></a>                    <span class="at">visit =</span> <span class="fu">as.Date</span>(<span class="fu">c</span>(<span class="st">"2024-01-03"</span>, <span class="st">"2024-02-11"</span>)),</span>
+<span id="cb45-3"><a aria-hidden="true" tabindex="-1"></a>                    <span class="at">arm =</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"Placebo"</span>, <span class="st">"Treatment"</span>)))</span>
+<span id="cb45-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(small, <span class="st">"data/small.csv"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb45-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(<span class="fu">read.csv</span>(<span class="st">"data/small.csv"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>'data.frame':   2 obs. of  3 variables:
  $ mrn  : int  42 7
@@ -956,8 +816,8 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 <section id="saverds-for-r-objects" class="slide level2 smaller">
 <h2><code>saveRDS()</code> for R objects</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(small, <span class="st">"data/small.rds"</span>)</span>
-<span id="cb51-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(<span class="fu">readRDS</span>(<span class="st">"data/small.rds"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(small, <span class="st">"data/small.rds"</span>)</span>
+<span id="cb47-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(<span class="fu">readRDS</span>(<span class="st">"data/small.rds"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>'data.frame':   2 obs. of  3 variables:
  $ mrn  : chr  "0042" "0007"
@@ -999,39 +859,64 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 <td><code>save()</code> / <code>load()</code></td>
 <td>several objects at once</td>
 <td>yes</td>
-<td>R only — <strong>and it renames your objects</strong></td>
+<td>R only — restores saved object names</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 </section>
-<section id="never-save-the-workspace" class="slide level2 smaller">
-<h2>Never save the workspace</h2>
-<div class="smaller">
+<section id="save-a-workspace-when-there-is-a-reason" class="slide level2 smaller">
+<h2>Save a workspace when there is a reason</h2>
 <ul>
-<li><code>.RData</code> restored at startup means your session begins with objects <strong>no code in your project created</strong></li>
-<li>The object in memory and the code on the page drift apart, and nothing warns you</li>
-<li><code>save.image()</code> at the end of a script is the same bug, made deliberate</li>
+<li>Useful when several related objects are needed to resume an analysis.</li>
+<li>Especially helpful after expensive calculations or when preserving a result checkpoint together with its intermediate objects.</li>
+<li>Save deliberately to a named file; document what it contains and when to load it.</li>
+<li>Keep the generating code, input data, and software-version information too.</li>
 </ul>
+<p>A workspace snapshot preserves R objects—not the entire computing environment. It supports reproducibility; it does not establish it by itself.</p>
+</section>
+<section id="several-objects-save-and-restore-explicitly" class="slide level2 smaller">
+<h2>Several objects: save and restore explicitly</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Illustrative objects from a completed analysis:</span></span>
+<span id="cb49-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">save</span>(clean_data, fitted_model, results,</span>
+<span id="cb49-3"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">file =</span> <span class="st">"analysis-checkpoint.RData"</span>)</span>
+<span id="cb49-4"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-5"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Later, in a fresh R session:</span></span>
+<span id="cb49-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"analysis-checkpoint.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>save()</code> stores selected objects under their current names.</li>
+<li><code>save.image("workspace-checkpoint.RData")</code> stores the global workspace.</li>
+<li><code>load()</code> restores saved names and can overwrite existing objects.</li>
+<li>Record <code>sessionInfo()</code> in the report to document R and package versions.</li>
+</ul>
+</section>
+<section id="which-exact-data-file-produced-this-report" class="slide level2 smaller">
+<h2>Which exact data file produced this report?</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a aria-hidden="true" tabindex="-1"></a>data_file <span class="ot">&lt;-</span> <span class="st">"data/trial_export.csv"</span></span>
+<span id="cb50-2"><a aria-hidden="true" tabindex="-1"></a>data_md5 <span class="ot">&lt;-</span> tools<span class="sc">::</span><span class="fu">md5sum</span>(data_file)</span>
+<span id="cb50-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="sc">!</span><span class="fu">is.na</span>(data_md5))</span>
+<span id="cb50-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(</span>
+<span id="cb50-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">file =</span> <span class="fu">basename</span>(data_file),</span>
+<span id="cb50-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">md5 =</span> <span class="fu">unname</span>(data_md5)</span>
+<span id="cb50-7"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              file                              md5
+1 trial_export.csv 6d06f10032c2327361a9a00e091ce6eb</code></pre>
 </div>
-<div class="fragment">
-<div class="callout callout-important callout-style-simple">
-<div class="callout-body">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
 </div>
-<div class="callout-content">
-<p>Tools → Global Options → <strong>Restore .RData: never</strong>, <strong>Save workspace: never</strong>.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="fragment">
-<div class="smaller">
-<p>The reproducible alternative, already yours since session 1: <strong>the script is the state.</strong> Anything you need, you re-create by running code. Anything expensive, you cache with <code>saveRDS()</code> and a named file you can point at.</p>
-</div>
-</div>
+<p>Put this chunk in the <code>.Rmd</code> or <code>.qmd</code> report <strong>before importing the file</strong>. The rendered table records a fingerprint of the input file’s contents.</p>
+</section>
+<section id="use-the-checksum-as-a-record-not-a-data-quality-test" class="slide level2 smaller">
+<h2>Use the checksum as a record, not a data-quality test</h2>
+<ul>
+<li>Different MD5 values mean the file contents differ.</li>
+<li>The same MD5 is strong practical evidence of unchanged bytes for routine version checking, not a security guarantee.</li>
+<li>A filename change alone does not change the checksum.</li>
+<li>Formatting, line endings, or workbook metadata can change it even when the analytical values appear unchanged.</li>
+<li>A checksum neither validates the data nor replaces keeping the original file.</li>
+</ul>
 </section></section>
 <section>
 <section id="dates-and-times" class="title-slide slide level1 section-divider center">
@@ -1041,16 +926,16 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 <section id="a-date-is-a-number" class="slide level2 smaller">
 <h2>A date is a number</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="st">"2024-03-04"</span>)</span>
-<span id="cb53-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="st">"2024-03-04"</span>)</span>
+<span id="cb52-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Date"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 19786</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a aria-hidden="true" tabindex="-1"></a>d <span class="sc">+</span> <span class="dv">84</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a aria-hidden="true" tabindex="-1"></a>d <span class="sc">+</span> <span class="dv">84</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "2024-05-27"</code></pre>
 </div>
@@ -1076,19 +961,19 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 <section id="parsing-with-as.date" class="slide level2 smaller">
 <h2>Parsing with <code>as.Date()</code></h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(<span class="st">"2024-03-04"</span>)                              <span class="co"># ISO: no format needed</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(<span class="st">"2024-03-04"</span>)                              <span class="co"># ISO: no format needed</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "2024-03-04"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(<span class="st">"03/04/2024"</span>, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(<span class="st">"03/04/2024"</span>, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "2024-03-04"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(<span class="st">"04-Mar-2024"</span>, <span class="at">format =</span> <span class="st">"%d-%b-%Y"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(<span class="st">"04-Mar-2024"</span>, <span class="at">format =</span> <span class="st">"%d-%b-%Y"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "2024-03-04"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(<span class="st">"Mar 4, 2024"</span>, <span class="at">format =</span> <span class="st">"%b %d, %Y"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(<span class="st">"Mar 4, 2024"</span>, <span class="at">format =</span> <span class="st">"%b %d, %Y"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "2024-03-04"</code></pre>
 </div>
@@ -1140,12 +1025,12 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 <section id="section" class="slide level2 smaller">
 <h2><code>3/4/24</code></h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"3/4/24"</span>, <span class="st">"12/31/23"</span>, <span class="st">"7/15/24"</span>)</span>
-<span id="cb67-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(x, <span class="at">format =</span> <span class="st">"%m/%d/%y"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"3/4/24"</span>, <span class="st">"12/31/23"</span>, <span class="st">"7/15/24"</span>)</span>
+<span id="cb66-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(x, <span class="at">format =</span> <span class="st">"%m/%d/%y"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "2024-03-04" "2023-12-31" "2024-07-15"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(x, <span class="at">format =</span> <span class="st">"%d/%m/%y"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(x, <span class="at">format =</span> <span class="st">"%d/%m/%y"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "2024-04-03" NA           NA          </code></pre>
 </div>
@@ -1171,25 +1056,25 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 <section id="two-formats-in-one-column" class="slide level2 smaller">
 <h2>Two formats in one column</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a aria-hidden="true" tabindex="-1"></a>v <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/trial_export.csv"</span>)<span class="sc">$</span>visit_12</span>
-<span id="cb71-2"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(v, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
-<span id="cb71-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(d))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a aria-hidden="true" tabindex="-1"></a>v <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/trial_export.csv"</span>)<span class="sc">$</span>visit_12</span>
+<span id="cb70-2"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(v, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
+<span id="cb70-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(d))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 3</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a aria-hidden="true" tabindex="-1"></a>v[<span class="fu">is.na</span>(d)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a aria-hidden="true" tabindex="-1"></a>v[<span class="fu">is.na</span>(d)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "26-Sep-2023" "03-Jul-2023" "06-May-2023"</code></pre>
 </div>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a aria-hidden="true" tabindex="-1"></a>d[<span class="fu">is.na</span>(d)] <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(v[<span class="fu">is.na</span>(d)], <span class="at">format =</span> <span class="st">"%d-%b-%Y"</span>)</span>
-<span id="cb75-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(d))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a aria-hidden="true" tabindex="-1"></a>d[<span class="fu">is.na</span>(d)] <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(v[<span class="fu">is.na</span>(d)], <span class="at">format =</span> <span class="st">"%d-%b-%Y"</span>)</span>
+<span id="cb74-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">is.na</span>(d))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "2023-04-06" "2023-09-26"</code></pre>
 </div>
@@ -1199,37 +1084,200 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 <section id="components-and-arithmetic" class="slide level2 smaller">
 <h2>Components and arithmetic</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a aria-hidden="true" tabindex="-1"></a>d0  <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="fu">read.csv</span>(<span class="st">"data/trial_export.csv"</span>)<span class="sc">$</span>visit_0, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
-<span id="cb79-2"><a aria-hidden="true" tabindex="-1"></a>d12 <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="fu">read.csv</span>(<span class="st">"data/trial_export.csv"</span>)<span class="sc">$</span>visit_12, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
-<span id="cb79-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">as.numeric</span>(<span class="fu">format</span>(d0, <span class="st">"%Y"</span>)))                    <span class="co"># year as a number</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a aria-hidden="true" tabindex="-1"></a>d0  <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="fu">read.csv</span>(<span class="st">"data/trial_export.csv"</span>)<span class="sc">$</span>visit_0, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
+<span id="cb78-2"><a aria-hidden="true" tabindex="-1"></a>d12 <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(<span class="fu">read.csv</span>(<span class="st">"data/trial_export.csv"</span>)<span class="sc">$</span>visit_12, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
+<span id="cb78-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">as.numeric</span>(<span class="fu">format</span>(d0, <span class="st">"%Y"</span>)))                    <span class="co"># year as a number</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2023 2023 2023 2023 2023 2023</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">difftime</span>(d12, d0, <span class="at">units =</span> <span class="st">"days"</span>), <span class="dv">3</span>)            <span class="co"># explicit units</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">difftime</span>(d12, d0, <span class="at">units =</span> <span class="st">"days"</span>), <span class="dv">3</span>)            <span class="co"># explicit units</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Time differences in days
 [1] 87 85 83</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">as.numeric</span>(d12 <span class="sc">-</span> d0), <span class="dv">3</span>)                         <span class="co"># plain numbers</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">as.numeric</span>(d12 <span class="sc">-</span> d0), <span class="dv">3</span>)                         <span class="co"># plain numbers</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 87 85 83</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">as.numeric</span>(d12 <span class="sc">-</span> d0))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">as.numeric</span>(d12 <span class="sc">-</span> d0))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
   78.00   81.00   83.00   83.11   85.00   90.00       3 </code></pre>
 </div>
 </div>
+</section></section>
+<section>
+<section id="wrap" class="title-slide slide level1 section-divider center">
+<h1>7 · Wrap</h1>
+
 </section>
-<section id="excel-serial-dates" class="slide level2 smaller">
-<h2>Excel serial dates</h2>
+<section id="what-a-defensible-import-looks-like" class="slide level2 smaller">
+<h2>What a defensible import looks like</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a aria-hidden="true" tabindex="-1"></a>raw <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(</span>
+<span id="cb86-2"><a aria-hidden="true" tabindex="-1"></a>  here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"trial_export.csv"</span>),</span>
+<span id="cb86-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">na.strings  =</span> <span class="fu">c</span>(<span class="st">"NA"</span>, <span class="st">""</span>, <span class="st">"-99"</span>, <span class="st">"999"</span>),   <span class="co"># per the data dictionary, v2.1</span></span>
+<span id="cb86-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">colClasses  =</span> <span class="fu">c</span>(<span class="at">id =</span> <span class="st">"character"</span>),</span>
+<span id="cb86-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">strip.white =</span> <span class="cn">TRUE</span></span>
+<span id="cb86-6"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb86-7"><a aria-hidden="true" tabindex="-1"></a>raw<span class="sc">$</span>visit_0 <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(raw<span class="sc">$</span>visit_0, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
+<span id="cb86-8"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb86-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(raw)</span>
+<span id="cb86-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(raw)</span>
+<span id="cb86-11"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(raw)</span>
+<span id="cb86-12"><a aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(raw<span class="sc">$</span>arm, <span class="at">useNA =</span> <span class="st">"ifany"</span>)</span>
+<span id="cb86-13"><a aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(raw))</span>
+<span id="cb86-14"><a aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(raw<span class="sc">$</span>visit_0)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<div class="smaller">
+<p>Ten lines. The comment naming the data-dictionary version is not decoration — it is the only record of <strong>why</strong> those codes and not others.</p>
+</div>
+</div>
+</section>
+<section id="summary" class="slide level2 smaller">
+<h2>Summary</h2>
+<ul>
+<li>Import is a translation governed by explicit assumptions.</li>
+<li>Inspect the file and the returned object before analysis.</li>
+<li>Declare missing-value codes and date formats at the boundary.</li>
+<li>Validate dimensions, keys, types, ranges, categories, and missingness.</li>
+<li>Choose export format according to what must be preserved.</li>
+</ul>
+<div class="fragment">
+<p><strong>Next connection:</strong> Session 6 expresses familiar row, column, transformation, and summary operations with dplyr.</p>
+</div>
+</section></section>
+<section>
+<section id="optional-reference-not-needed-for-the-core-lesson" class="title-slide slide level1 section-divider center">
+<h1>Optional reference · Not needed for the core lesson</h1>
+
+</section>
+<section id="reference-read.csv-argument-by-argument" class="slide level2 smaller">
+<h2>Reference: <code>read.csv()</code>, argument by argument</h2>
+<div style="font-size:0.80em">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Default</th>
+<th>Set it when</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>file</code></td>
+<td>—</td>
+<td>Always. A <strong>relative</strong> path, via <code>here::here()</code></td>
+</tr>
+<tr class="even">
+<td><code>header</code></td>
+<td><code>TRUE</code></td>
+<td>The file has no header row → <code>FALSE</code>, then set <code>col.names</code></td>
+</tr>
+<tr class="odd">
+<td><code>sep</code></td>
+<td><code>","</code></td>
+<td>Tabs (<code>"\t"</code>), semicolons (<code>";"</code>), pipes (<code>"|"</code>)</td>
+</tr>
+<tr class="even">
+<td><code>dec</code></td>
+<td><code>"."</code></td>
+<td>A European export uses a decimal comma → <code>","</code></td>
+</tr>
+<tr class="odd">
+<td><code>na.strings</code></td>
+<td><code>"NA"</code></td>
+<td><strong>Almost always.</strong> Block 2</td>
+</tr>
+<tr class="even">
+<td><code>colClasses</code></td>
+<td>guessed</td>
+<td>You know what the types should be. Block 1</td>
+</tr>
+<tr class="odd">
+<td><code>skip</code></td>
+<td><code>0</code></td>
+<td>Metadata lines sit above the header</td>
+</tr>
+<tr class="even">
+<td><code>nrows</code></td>
+<td><code>-1</code></td>
+<td>Peeking at a large file, or a junk footer</td>
+</tr>
+<tr class="odd">
+<td><code>check.names</code></td>
+<td><code>TRUE</code></td>
+<td>You want the original column names → <code>FALSE</code></td>
+</tr>
+<tr class="even">
+<td><code>fileEncoding</code></td>
+<td>native</td>
+<td>Accented characters arrive as rubbish. Block 3</td>
+</tr>
+<tr class="odd">
+<td><code>strip.white</code></td>
+<td><code>FALSE</code></td>
+<td>Unquoted fields have padding spaces</td>
+</tr>
+<tr class="even">
+<td><code>comment.char</code></td>
+<td><code>""</code></td>
+<td>A <code>#</code> legend at the foot of the file</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="reference-encodings" class="slide level2 smaller">
+<h2>Reference: Encodings</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">read.csv</span>(<span class="st">"data/trial_export.csv"</span>)<span class="sc">$</span>dob_ser, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a aria-hidden="true" tabindex="-1"></a>lines <span class="ot">&lt;-</span> <span class="fu">readLines</span>(<span class="st">"data/clinicians.csv"</span>)</span>
+<span id="cb87-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">validUTF8</span>(lines)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  TRUE FALSE</code></pre>
+</div>
+</div>
+<div class="fragment">
+<div class="smaller">
+<p>Line 2 is not valid UTF-8. It is <strong>Latin-1</strong> — one byte per character — and R read it as though it were UTF-8.</p>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb89-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the fix: tell the reader what the bytes mean</span></span>
+<span id="cb89-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/clinicians.csv"</span>, <span class="at">fileEncoding =</span> <span class="st">"latin1"</span>)</span>
+<span id="cb89-4"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;     id      clinician</span></span>
+<span id="cb89-5"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1 P061  Björn André</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="reference-spss-and-stata-via-haven" class="slide level2 smaller">
+<h2>Reference: SPSS and Stata via <code>haven</code></h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(haven)</span>
+<span id="cb90-2"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb90-3"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_sav</span>(<span class="st">"data/study42.sav"</span>)     <span class="co"># SPSS   .sav</span></span>
+<span id="cb90-4"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_dta</span>(<span class="st">"data/study42.dta"</span>)     <span class="co"># Stata  .dta</span></span>
+<span id="cb90-5"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_xpt</span>(<span class="st">"data/adsl.xpt"</span>)        <span class="co"># SAS transport  .xpt</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="fragment">
+<div class="smaller">
+<p>These formats carry <strong>metadata R has no native place for</strong>: variable labels, value labels, user-defined missing codes. <code>haven</code> keeps them on a <code>labelled</code> column.</p>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">attr</span>(d<span class="sc">$</span>arm, <span class="st">"labels"</span>)      <span class="co">#  Placebo = 1, Treatment = 2</span></span>
+<span id="cb91-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as_factor</span>(d<span class="sc">$</span>arm)           <span class="co">#  labelled -&gt; factor, using the labels</span></span>
+<span id="cb91-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">zap_labels</span>(d<span class="sc">$</span>arm)          <span class="co">#  labelled -&gt; plain numeric, labels discarded</span></span>
+<span id="cb91-4"><a aria-hidden="true" tabindex="-1"></a>d<span class="sc">$</span>sex <span class="ot">&lt;-</span> <span class="fu">as_factor</span>(d<span class="sc">$</span>sex)  <span class="co">#  do this once, deliberately, at import</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="reference-excel-serial-dates" class="slide level2 smaller">
+<h2>Reference: Excel serial dates</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">read.csv</span>(<span class="st">"data/trial_export.csv"</span>)<span class="sc">$</span>dob_ser, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 27512 23496 22594</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">as.Date</span>(<span class="fu">read.csv</span>(<span class="st">"data/trial_export.csv"</span>)<span class="sc">$</span>dob_ser,</span>
-<span id="cb89-2"><a aria-hidden="true" tabindex="-1"></a>             <span class="at">origin =</span> <span class="st">"1899-12-30"</span>), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">as.Date</span>(<span class="fu">read.csv</span>(<span class="st">"data/trial_export.csv"</span>)<span class="sc">$</span>dob_ser,</span>
+<span id="cb94-2"><a aria-hidden="true" tabindex="-1"></a>             <span class="at">origin =</span> <span class="st">"1899-12-30"</span>), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "1975-04-28" "1964-04-29" "1961-11-09"</code></pre>
 </div>
@@ -1263,19 +1311,19 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 <p>Use the wrong one and every date lands <strong>four years and a day</strong> out — plausibly, and with no warning.</p>
 </div>
 </section>
-<section id="times-and-time-zones" class="slide level2 smaller">
-<h2>Times, and time zones</h2>
+<section id="reference-times-and-time-zones" class="slide level2 smaller">
+<h2>Reference: Times, and time zones</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a aria-hidden="true" tabindex="-1"></a>t1 <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="st">"2024-03-04 14:30:00"</span>, <span class="at">tz =</span> <span class="st">"America/Chicago"</span>)</span>
-<span id="cb91-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(t1)                                     <span class="co"># seconds since 1970</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a aria-hidden="true" tabindex="-1"></a>t1 <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(<span class="st">"2024-03-04 14:30:00"</span>, <span class="at">tz =</span> <span class="st">"America/Chicago"</span>)</span>
+<span id="cb96-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(t1)                                     <span class="co"># seconds since 1970</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 1709584200</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">format</span>(t1, <span class="at">tz =</span> <span class="st">"UTC"</span>, <span class="at">usetz =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">format</span>(t1, <span class="at">tz =</span> <span class="st">"UTC"</span>, <span class="at">usetz =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "2024-03-04 20:30:00 UTC"</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">difftime</span>(<span class="fu">as.POSIXct</span>(<span class="st">"2024-03-04 14:30:00"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>), t1, <span class="at">units =</span> <span class="st">"hours"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">difftime</span>(<span class="fu">as.POSIXct</span>(<span class="st">"2024-03-04 14:30:00"</span>, <span class="at">tz =</span> <span class="st">"UTC"</span>), t1, <span class="at">units =</span> <span class="st">"hours"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Time difference of -6 hours</code></pre>
 </div>
@@ -1296,33 +1344,29 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 </div>
 </div>
 </section>
-<section id="lubridate-the-friendlier-version" class="slide level2 smaller">
-<h2><code>lubridate</code>, the friendlier version</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
-<span id="cb97-2"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb97-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="st">"2024-03-04"</span>);  <span class="fu">mdy</span>(<span class="st">"03/04/2024"</span>);  <span class="fu">dmy</span>(<span class="st">"4 March 2024"</span>)   <span class="co"># named parsers</span></span>
-<span id="cb97-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">year</span>(d); <span class="fu">month</span>(d); <span class="fu">day</span>(d); <span class="fu">wday</span>(d, <span class="at">label =</span> <span class="cn">TRUE</span>)              <span class="co"># components</span></span>
-<span id="cb97-5"><a aria-hidden="true" tabindex="-1"></a>d <span class="sc">+</span> <span class="fu">days</span>(<span class="dv">84</span>);  d <span class="sc">%m+%</span> <span class="fu">months</span>(<span class="dv">3</span>)                               <span class="co"># safe arithmetic</span></span>
-<span id="cb97-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">interval</span>(dob, visit) <span class="sc">/</span> <span class="fu">years</span>(<span class="dv">1</span>)                               <span class="co"># exact age</span></span>
-<span id="cb97-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">with_tz</span>(t1, <span class="st">"UTC"</span>);  <span class="fu">force_tz</span>(t1, <span class="st">"UTC"</span>)                      <span class="co"># two different jobs</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="reference-lubridate-the-friendlier-version" class="slide level2 smaller">
+<h2>Reference: <code>lubridate</code>, the friendlier version</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb102-2"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb102-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="st">"2024-03-04"</span>);  <span class="fu">mdy</span>(<span class="st">"03/04/2024"</span>);  <span class="fu">dmy</span>(<span class="st">"4 March 2024"</span>)   <span class="co"># named parsers</span></span>
+<span id="cb102-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">year</span>(d); <span class="fu">month</span>(d); <span class="fu">day</span>(d); <span class="fu">wday</span>(d, <span class="at">label =</span> <span class="cn">TRUE</span>)              <span class="co"># components</span></span>
+<span id="cb102-5"><a aria-hidden="true" tabindex="-1"></a>d <span class="sc">+</span> <span class="fu">days</span>(<span class="dv">84</span>);  d <span class="sc">%m+%</span> <span class="fu">months</span>(<span class="dv">3</span>)                               <span class="co"># safe arithmetic</span></span>
+<span id="cb102-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">interval</span>(dob, visit) <span class="sc">/</span> <span class="fu">years</span>(<span class="dv">1</span>)                               <span class="co"># exact age</span></span>
+<span id="cb102-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">with_tz</span>(t1, <span class="st">"UTC"</span>);  <span class="fu">force_tz</span>(t1, <span class="st">"UTC"</span>)                      <span class="co"># two different jobs</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way</span></span>
-<span id="cb98-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(<span class="st">"03/04/2024"</span>, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
-<span id="cb98-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(<span class="fu">format</span>(d, <span class="st">"%Y"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb103-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way</span></span>
+<span id="cb103-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.Date</span>(<span class="st">"03/04/2024"</span>, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
+<span id="cb103-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.numeric</span>(<span class="fu">format</span>(d, <span class="st">"%Y"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="fragment">
 <div class="smaller">
 <p><code>mdy()</code> versus <code>dmy()</code> puts the ambiguity <strong>in the function name</strong>, where a reader can see it. That is the real gain, not the typing.</p>
 </div>
 </div>
-</section></section>
-<section>
-<section id="wrap" class="title-slide slide level1 section-divider center">
-<h1>7 · Wrap</h1>
-
 </section>
-<section id="import-problems-that-do-not-error" class="slide level2 smaller">
-<h2>Import problems that do not error</h2>
+<section id="reference-import-problems-that-do-not-error" class="slide level2 smaller">
+<h2>Reference: Import problems that do not error</h2>
 <div style="font-size:0.78em">
 <table class="caption-top">
 <colgroup>
@@ -1401,43 +1445,8 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 </tbody>
 </table>
 </div>
-</section>
-<section id="what-a-defensible-import-looks-like" class="slide level2 smaller">
-<h2>What a defensible import looks like</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a aria-hidden="true" tabindex="-1"></a>raw <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(</span>
-<span id="cb99-2"><a aria-hidden="true" tabindex="-1"></a>  here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"trial_export.csv"</span>),</span>
-<span id="cb99-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">na.strings  =</span> <span class="fu">c</span>(<span class="st">"NA"</span>, <span class="st">""</span>, <span class="st">"-99"</span>, <span class="st">"999"</span>),   <span class="co"># per the data dictionary, v2.1</span></span>
-<span id="cb99-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">colClasses  =</span> <span class="fu">c</span>(<span class="at">id =</span> <span class="st">"character"</span>),</span>
-<span id="cb99-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">strip.white =</span> <span class="cn">TRUE</span></span>
-<span id="cb99-6"><a aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb99-7"><a aria-hidden="true" tabindex="-1"></a>raw<span class="sc">$</span>visit_0 <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(raw<span class="sc">$</span>visit_0, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
-<span id="cb99-8"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb99-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(raw)</span>
-<span id="cb99-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(raw)</span>
-<span id="cb99-11"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(raw)</span>
-<span id="cb99-12"><a aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(raw<span class="sc">$</span>arm, <span class="at">useNA =</span> <span class="st">"ifany"</span>)</span>
-<span id="cb99-13"><a aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(raw))</span>
-<span id="cb99-14"><a aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(raw<span class="sc">$</span>visit_0)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<div class="smaller">
-<p>Ten lines. The comment naming the data-dictionary version is not decoration — it is the only record of <strong>why</strong> those codes and not others.</p>
-</div>
-</div>
-</section>
-<section id="summary" class="slide level2 smaller">
-<h2>Summary</h2>
-<ul>
-<li>Import is a translation governed by explicit assumptions.</li>
-<li>Inspect the file and the returned object before analysis.</li>
-<li>Declare missing-value codes and date formats at the boundary.</li>
-<li>Validate dimensions, keys, types, ranges, categories, and missingness.</li>
-<li>Choose export format according to what must be preserved.</li>
-</ul>
-<div class="fragment">
-<p><strong>Next connection:</strong> Session 6 expresses familiar row, column, transformation, and summary operations with dplyr.</p>
 
 
-</div>
 </section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">

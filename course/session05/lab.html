@@ -237,7 +237,10 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#tasks" id="toc-tasks" class="nav-link active" data-scroll-target="#tasks">Tasks</a></li>
+  <li><a href="#record-the-input-file" id="toc-record-the-input-file" class="nav-link active" data-scroll-target="#record-the-input-file">Record the input file</a></li>
+  <li><a href="#tasks" id="toc-tasks" class="nav-link" data-scroll-target="#tasks">Tasks</a></li>
+  <li><a href="#record-the-input-file-1" id="toc-record-the-input-file-1" class="nav-link" data-scroll-target="#record-the-input-file-1">Record the input file</a></li>
+  <li><a href="#tasks-1" id="toc-tasks-1" class="nav-link" data-scroll-target="#tasks-1">Tasks</a></li>
   <li><a href="#file-layout-checkpoint-inspect-before-importing" id="toc-file-layout-checkpoint-inspect-before-importing" class="nav-link" data-scroll-target="#file-layout-checkpoint-inspect-before-importing">File-layout checkpoint: inspect before importing</a></li>
   <li><a href="#additional-practice-repeat-the-import-workflow" id="toc-additional-practice-repeat-the-import-workflow" class="nav-link" data-scroll-target="#additional-practice-repeat-the-import-workflow">Additional practice: repeat the import workflow</a>
   <ul class="collapse">
@@ -280,21 +283,55 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Suggested use:</strong> tasks 1–7 form the core import audit. Additional practice repeats the same import, parsing, date, and export concepts with deliberately different file problems. The instructor may set the in-class stopping point.</p>
+<p><strong>Suggested use:</strong> tasks 1–7 form the core import audit. Additional practice repeats the same import, parsing, date, and export concepts with deliberately different file problems. The instructor may set the in-class stopping point. All student-written code uses Sessions 3–4 and the main Session 5 slides, not the optional reference section.</p>
 </div>
 </div>
 <p>Choose one format and copy either <code>starter/import-lab.Rmd</code> or <code>starter/import-lab.qmd</code> to <code>work/session05/</code>. Knit the <code>.Rmd</code> file or Render the <code>.qmd</code> file.</p>
 <p>Work in <strong>BIOS6301-mywork.Rproj</strong>. Paths under <code>work/</code> below belong to your personal repository. Copy starters from the separate <code>BIOS6301-materials</code> clone, leaving the course originals unchanged.</p>
+<p>The file-generation chunks are <strong>supplied setup</strong>: run them unchanged. You do not need to write <code>tempfile()</code>, <code>writeLines()</code>, or <code>write.table()</code> code. The starter also supplies output paths for saving your results.</p>
+<section id="record-the-input-file" class="level2">
+<h2 class="anchored" data-anchor-id="record-the-input-file">Record the input file</h2>
+<p>Run the supplied <code>tools::md5sum(csv_path)</code> chunk before importing the CSV. Include the filename and checksum in the rendered report and keep the report. Explain what a different checksum would tell you—and what it would not tell you.</p>
+</section>
 <section id="tasks" class="level2">
 <h2 class="anchored" data-anchor-id="tasks">Tasks</h2>
 <ol type="1">
-<li>Import the supplied temporary CSV twice: first preserve every field as raw character text, then make an analysis import using the documented missing-value codes and column classes.</li>
-<li>Verify dimensions, names, types, expected IDs, one row per ID, and missingness. Use <code>table()</code> and <code>%in%</code> rather than relying only on visual inspection.</li>
+<li>Inspect <code>readLines(csv_path, n = 6)</code>. Import the CSV as <code>raw</code> using <code>read.csv(csv_path, colClasses = "character")</code>. Then import it as <code>analysis_import</code> with <code>na.strings = c(".", "NM")</code> and <code>colClasses = c(id = "character", visit_date = "character", marker = "numeric")</code>.</li>
+<li>Verify dimensions, names, types, expected IDs, one row per ID, and missingness. Use <code>dim()</code>, <code>names()</code>, <code>str()</code>, <code>table()</code>, <code>%in%</code>, and <code>colSums(is.na(...))</code>. The expected IDs are P01, P02, P03, P04, and P05.</li>
 <li>Use the raw and analysis imports together to display every marker entry that became missing during parsing.</li>
-<li>Parse dates using the documented formats and flag ambiguous or invalid values.</li>
-<li>Create a cleaned object that retains the original marker and date text; do not overwrite the raw import.</li>
-<li>Export the cleaned rectangular table as CSV and RDS, read both back, and compare the preserved classes.</li>
-<li>Optional: repeat the import with <code>readr::read_csv()</code> and compare diagnostics.</li>
+<li>Use <code>as.Date(..., format = "%Y-%m-%d")</code> and <code>is.na()</code> to find dates that did not parse. Show their original text. Do not guess a correction.</li>
+<li>Copy <code>analysis_import</code> to <code>clean</code>. Add <code>marker_raw</code> and <code>visit_date_raw</code> columns from <code>raw</code> using `— title: “Session 5 guided lab” subtitle: “Import and audit a synthetic visit file” —</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p><strong>Suggested use:</strong> tasks 1–7 form the core import audit. Additional practice repeats the same import, parsing, date, and export concepts with deliberately different file problems. The instructor may set the in-class stopping point. All student-written code uses Sessions 3–4 and the main Session 5 slides, not the optional reference section.</p>
+</div>
+</div>
+<p>Choose one format and copy either <code>starter/import-lab.Rmd</code> or <code>starter/import-lab.qmd</code> to <code>work/session05/</code>. Knit the <code>.Rmd</code> file or Render the <code>.qmd</code> file.</p>
+<p>Work in <strong>BIOS6301-mywork.Rproj</strong>. Paths under <code>work/</code> below belong to your personal repository. Copy starters from the separate <code>BIOS6301-materials</code> clone, leaving the course originals unchanged.</p>
+<p>The file-generation chunks are <strong>supplied setup</strong>: run them unchanged. You do not need to write <code>tempfile()</code>, <code>writeLines()</code>, or <code>write.table()</code> code. The starter also supplies output paths for saving your results.</p>
+</section>
+<section id="record-the-input-file-1" class="level2">
+<h2 class="anchored" data-anchor-id="record-the-input-file-1">Record the input file</h2>
+<p>Run the supplied <code>tools::md5sum(csv_path)</code> chunk before importing the CSV. Include the filename and checksum in the rendered report and keep the report. Explain what a different checksum would tell you—and what it would not tell you.</p>
+</section>
+<section id="tasks-1" class="level2">
+<h2 class="anchored" data-anchor-id="tasks-1">Tasks</h2>
+<ol type="1">
+<li>Inspect <code>readLines(csv_path, n = 6)</code>. Import the CSV as <code>raw</code> using <code>read.csv(csv_path, colClasses = "character")</code>. Then import it as <code>analysis_import</code> with <code>na.strings = c(".", "NM")</code> and <code>colClasses = c(id = "character", visit_date = "character", marker = "numeric")</code>.</li>
+<li>Verify dimensions, names, types, expected IDs, one row per ID, and missingness. Use <code>dim()</code>, <code>names()</code>, <code>str()</code>, <code>table()</code>, <code>%in%</code>, and <code>colSums(is.na(...))</code>. The expected IDs are P01, P02, P03, P04, and P05.</li>
+<li>Use the raw and analysis imports together to display every marker entry that became missing during parsing.</li>
+<li>Use <code>as.Date(..., format = "%Y-%m-%d")</code> and <code>is.na()</code> to find dates that did not parse. Show their original text. Do not guess a correction. . Replace only <code>clean$visit_date</code> with the parsed dates.</li>
+<li>Export the cleaned rectangular table as CSV and RDS, read both back, and compare the preserved classes using <code>str()</code>. Use the supplied <code>csv_out</code> and <code>rds_out</code> paths; no new file-management code is required.</li>
+<li>Optional: repeat the import with <code>readr::read_csv()</code>. Compare the printed column-type message, <code>str()</code>, and missing-value counts with the base-R import.</li>
 </ol>
 </section>
 <section id="file-layout-checkpoint-inspect-before-importing" class="level2">
@@ -318,7 +355,7 @@ Note
 <li>Parse <code>c("2026-01-03", "04-Jan-2026", "2026-01-05")</code> in two passes, repairing only values missed by the ISO parse.</li>
 <li>Parse <code>"03/04/2026"</code> once as month/day/year and once as day/month/year. Explain why successful parsing cannot determine which interpretation is correct.</li>
 <li>Create a small object containing a factor and a <code>Date</code>. Export it as CSV and RDS, read both back, and compare <code>str()</code> output.</li>
-<li>Optional: use <code>readr::read_csv()</code> with explicit column types and inspect its parsing specification and any reported problems.</li>
+<li>Optional: use the <code>readr::read_csv()</code> example from the main slides with explicit column types; inspect <code>str()</code> and <code>colSums(is.na(...))</code>. No <code>spec()</code> or <code>problems()</code> commands are required.</li>
 </ol>
 <section id="independent-practice-check" class="level3">
 <h3 class="anchored" data-anchor-id="independent-practice-check">Independent-practice check</h3>
@@ -327,7 +364,7 @@ Note
 </section>
 <section id="exit-evidence" class="level2">
 <h2 class="anchored" data-anchor-id="exit-evidence">Exit evidence</h2>
-<p>Render the import contract, audit results, problem records, cleaned structure, and CSV/RDS comparison. Additional practice should also show the corrected semicolon/decimal-comma import and the two date-parsing demonstrations.</p>
+<p>Render the import contract, audit results, problem records, cleaned structure, and CSV/RDS comparison, plus the input-file checksum. If you complete additional practice, include those results too; it is not part of the core exit check.</p>
 
 
 </section>

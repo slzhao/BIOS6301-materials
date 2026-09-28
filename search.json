@@ -1411,14 +1411,14 @@
     "href": "course/session05/slides.html#what-you-will-be-able-to-do",
     "title": "Getting Data In: Files, Import Checks, Dates",
     "section": "What you will be able to do",
-    "text": "What you will be able to do\n\n1 Import a delimited file with read.csv(), and state rather than guess what type each column should be.\n2 Convert missing-value codes to NA at import, and say why the door is the right place to do it.\n3 Diagnose a file that is not what it claims to be — wrong delimiter, header junk, wrong encoding.\n4 Read Excel, SPSS and Stata files, and know what each format drags along with it.\n5 Choose between write.csv() and saveRDS(), and explain why the workspace is never saved.\n6 Parse dates, do arithmetic on them, and rescue Excel serial numbers.\n7 Recognise the import failures that produce a wrong answer rather than an error."
+    "text": "What you will be able to do\n\n1 Import a delimited file with read.csv(), and state rather than guess what type each column should be.\n2 Convert missing-value codes to NA at import, and say why the door is the right place to do it.\n3 Diagnose a file that is not what it claims to be — wrong delimiter, header junk, wrong encoding.\n4 Read a selected Excel table, a compressed CSV, or a large text file.\n5 Choose between write.csv() and saveRDS(), and explain when saving several objects or a workspace is useful.\n6 Parse dates, do arithmetic on them, and rescue Excel serial numbers.\n7 Recognise the import failures that produce a wrong answer rather than an error."
   },
   {
     "objectID": "course/session05/slides.html#roadmap-for-today",
     "href": "course/session05/slides.html#roadmap-for-today",
     "title": "Getting Data In: Files, Import Checks, Dates",
     "section": "Roadmap for today",
-    "text": "Roadmap for today\n\n\n\n\n\n\n\n\n\nBlock\nMinutes\n\n\n\n\n1\nA file is not a data frame: read.csv() and its arguments\n15\n\n\n2\nMissing-value codes, handled at the door\n12\n\n\n3\nWhen the file is not a friendly CSV\n15\n\n\n4\nExcel, SPSS, Stata — and readr\n10\n\n\n5\nGetting data back out; never saving the workspace\n8\n\n\n6\nDates and times\n25\n\n\n7\nPractice and summary\n5\n\n\n\n\nBlocks 1–3 are one habit repeated: look, then state your intent, then verify."
+    "text": "Roadmap for today\n\n\n\n\n\n\n\n\n\nBlock\nMinutes\n\n\n\n\n1\nInspect a file and make a first import\n12\n\n\n2\nMissing codes and simple checks\n10\n\n\n3\nWorksheet examples: titles, tables, and headers\n25\n\n\n4\nExcel, compressed files, and large CSV files\n12\n\n\n5\nSave objects and record data checksums\n10\n\n\n6\nRead and check dates\n16\n\n\n7\nPractice and summary\n5\n\n\n\n\nBlocks 1–3 are one habit repeated: look, then state your intent, then verify."
   },
   {
     "objectID": "course/session05/slides.html#what-read.csv-actually-does",
@@ -1432,14 +1432,14 @@
     "href": "course/session05/slides.html#look-at-the-file-before-you-read-it",
     "title": "Getting Data In: Files, Import Checks, Dates",
     "section": "Look at the file before you read it",
-    "text": "Look at the file before you read it\n\nwriteLines(readLines(\"data/trial_export.csv\", n = 4))\n\n\"id\",\"arm\",\"sex\",\"wt\",\"sbp12\",\"creat\",\"visit_0\",\"visit_12\",\"dob_ser\"\n\"P001\",\"Placebo\",\"M\",90,144,\"1.29\",\"01/15/2023\",\"04/12/2023\",27512\n\"P002\",\"Placebo\",\"M\",67.8,156,\"NA\",\"05/31/2023\",\"08/24/2023\",23496\n\"P003\",\"Placebo\",\"M\",-99,156,\"1.16\",\"04/08/2023\",\"06/30/2023\",22594\n\n\n\n\nFour lines of raw text, and already visible:\n\nquoted character fields, unquoted numbers — so write.csv() made this\n\"NA\" as text, in a creatinine column\n-99 where a weight should be\ndates as 04/08/2023 — month first, or day first?"
+    "text": "Look at the file before you read it\n\nBefore importing: What does -99 mean? Is the date month-first? Should 001 stay as text?"
   },
   {
-    "objectID": "course/session05/slides.html#read.csv-argument-by-argument",
-    "href": "course/session05/slides.html#read.csv-argument-by-argument",
+    "objectID": "course/session05/slides.html#a-quick-look-at-a-large-text-file",
+    "href": "course/session05/slides.html#a-quick-look-at-a-large-text-file",
     "title": "Getting Data In: Files, Import Checks, Dates",
-    "section": "read.csv(), argument by argument",
-    "text": "read.csv(), argument by argument\n\n\n\n\n\n\n\n\n\nArgument\nDefault\nSet it when\n\n\n\n\nfile\n—\nAlways. A relative path, via here::here()\n\n\nheader\nTRUE\nThe file has no header row → FALSE, then set col.names\n\n\nsep\n\",\"\nTabs (\"\\t\"), semicolons (\";\"), pipes (\"|\")\n\n\ndec\n\".\"\nA European export uses a decimal comma → \",\"\n\n\nna.strings\n\"NA\"\nAlmost always. Block 2\n\n\ncolClasses\nguessed\nYou know what the types should be. Block 1\n\n\nskip\n0\nMetadata lines sit above the header\n\n\nnrows\n-1\nPeeking at a large file, or a junk footer\n\n\ncheck.names\nTRUE\nYou want the original column names → FALSE\n\n\nfileEncoding\nnative\nAccented characters arrive as rubbish. Block 3\n\n\nstrip.white\nFALSE\nUnquoted fields have padding spaces\n\n\ncomment.char\n\"\"\nA # legend at the foot of the file"
+    "section": "A quick look at a large text file",
+    "text": "A quick look at a large text file\n\nwriteLines(readLines(\"data/trial_export.csv\", n = 3))\n\n\"id\",\"arm\",\"sex\",\"wt\",\"sbp12\",\"creat\",\"visit_0\",\"visit_12\",\"dob_ser\"\n\"P001\",\"Placebo\",\"M\",90,144,\"1.29\",\"01/15/2023\",\"04/12/2023\",27512\n\"P002\",\"Placebo\",\"M\",67.8,156,\"NA\",\"05/31/2023\",\"08/24/2023\",23496\n\n\nRead a few lines first. Check the separator, column names, and unusual values."
   },
   {
     "objectID": "course/session05/slides.html#what-type-guessing-gave-you",
@@ -1502,14 +1502,42 @@
     "href": "course/session05/slides.html#a-title-row-is-not-a-variable-name",
     "title": "Getting Data In: Files, Import Checks, Dates",
     "section": "A title row is not a variable name",
-    "text": "A title row is not a variable name\nClinic export — synthetic example\nPrepared for BIOS6301\nid,weight_kg\n001,62.4\n002,71.8\nTOTAL,134.2\nreadLines(\"clinic.csv\", n = 6)\nd &lt;- read.csv(\"clinic.csv\", skip = 2, nrows = 2,\n              colClasses = c(id = \"character\", weight_kg = \"numeric\"))\nHere, skip = 2 reaches the header; nrows = 2 reads the two observations."
+    "text": "A title row is not a variable name\n\nRead A3:C5: column names plus observations. Exclude the title and total."
   },
   {
-    "objectID": "course/session05/slides.html#several-header-rows-need-a-deliberate-plan",
-    "href": "course/session05/slides.html#several-header-rows-need-a-deliberate-plan",
+    "objectID": "course/session05/slides.html#tell-r-where-the-table-starts-and-ends",
+    "href": "course/session05/slides.html#tell-r-where-the-table-starts-and-ends",
     "title": "Getting Data In: Files, Import Checks, Dates",
-    "section": "Several header rows need a deliberate plan",
-    "text": "Several header rows need a deliberate plan\nid,weight,height\nparticipant ID,kg,cm\n001,62.4,168\n002,71.8,175\nRead the names separately, then skip the description row:\nheader &lt;- names(read.csv(\"measurements.csv\", nrows = 0,\n                         check.names = FALSE))\nd &lt;- read.csv(\"measurements.csv\", skip = 2, header = FALSE,\n              col.names = header, colClasses = c(\"character\", \"numeric\", \"numeric\"))\nKeep units in a data dictionary. A repeated header inside the observations also needs to be identified and handled explicitly."
+    "section": "Tell R where the table starts and ends",
+    "text": "Tell R where the table starts and ends\nFor the worksheet on the previous slide:\nd &lt;- readxl::read_excel(\"clinic.xlsx\", range = \"A3:C5\",\n                       col_types = c(\"text\", \"numeric\", \"date\"))\nFor a CSV export of the same layout:\nd &lt;- read.csv(\"clinic.csv\", skip = 2, nrows = 2,\n              colClasses = c(id = \"character\"))\nThe Excel example assumes date cells are stored as Excel dates. Recheck the range when a new file arrives."
+  },
+  {
+    "objectID": "course/session05/slides.html#two-tables-on-the-same-sheet",
+    "href": "course/session05/slides.html#two-tables-on-the-same-sheet",
+    "title": "Getting Data In: Files, Import Checks, Dates",
+    "section": "Two tables on the same sheet",
+    "text": "Two tables on the same sheet\n\nA shared row number does not mean these records belong together."
+  },
+  {
+    "objectID": "course/session05/slides.html#import-each-table-separately",
+    "href": "course/session05/slides.html#import-each-table-separately",
+    "title": "Getting Data In: Files, Import Checks, Dates",
+    "section": "Import each table separately",
+    "text": "Import each table separately\nparticipants &lt;- readxl::read_excel(\"study.xlsx\", range = \"A1:B5\",\n                                 col_types = c(\"text\", \"numeric\"))\nsites &lt;- readxl::read_excel(\"study.xlsx\", range = \"D1:E4\")\n\nPrefer one table per sheet when requesting a new export.\nPreserve the original; document the selected ranges in code.\nCombine tables using a meaningful key—not row position."
+  },
+  {
+    "objectID": "course/session05/slides.html#mixed-single-and-multiple-header-rows",
+    "href": "course/session05/slides.html#mixed-single-and-multiple-header-rows",
+    "title": "Getting Data In: Files, Import Checks, Dates",
+    "section": "Mixed single and multiple header rows",
+    "text": "Mixed single and multiple header rows\n\nWhich header row should R use? Neither row alone identifies every variable."
+  },
+  {
+    "objectID": "course/session05/slides.html#give-every-column-one-unambiguous-name",
+    "href": "course/session05/slides.html#give-every-column-one-unambiguous-name",
+    "title": "Getting Data In: Files, Import Checks, Dates",
+    "section": "Give every column one unambiguous name",
+    "text": "Give every column one unambiguous name\n\nKeep the source. Assign names when reading its data rows:\nd &lt;- readxl::read_excel(\"visits.xlsx\", skip = 2,\n  col_names = c(\"id\", \"weight_0\", \"sbp_0\", \"weight_12\", \"sbp_12\"),\n  col_types = c(\"text\", rep(\"numeric\", 4)))"
   },
   {
     "objectID": "course/session05/slides.html#row-numbers-are-not-participant-identifiers",
@@ -1526,13 +1554,6 @@
     "text": "Header junk, and names R rewrites\n\nwriteLines(readLines(\"data/redcap_export.csv\", n = 4))\n\nStudy 42 - Blood Pressure Substudy\nExported 2024-03-04 09:12 by s.zhao\n\nPatient ID,Weight (kg),SBP @ 12wk,% change\n\nread.csv(\"data/redcap_export.csv\")\n\nError in read.table(file = file, header = header, sep = sep, quote = quote, : more columns than column names\n\n\n\n\nnames(read.csv(\"data/redcap_export.csv\", skip = 3))\n\n[1] \"Patient.ID\"  \"Weight..kg.\" \"SBP...12wk\"  \"X..change\"  \n\nnames(read.csv(\"data/redcap_export.csv\", skip = 3, check.names = FALSE))\n\n[1] \"Patient ID\"  \"Weight (kg)\" \"SBP @ 12wk\"  \"% change\""
   },
   {
-    "objectID": "course/session05/slides.html#encodings",
-    "href": "course/session05/slides.html#encodings",
-    "title": "Getting Data In: Files, Import Checks, Dates",
-    "section": "Encodings",
-    "text": "Encodings\n\nlines &lt;- readLines(\"data/clinicians.csv\")\nvalidUTF8(lines)\n\n[1]  TRUE FALSE\n\n\n\n\nLine 2 is not valid UTF-8. It is Latin-1 — one byte per character — and R read it as though it were UTF-8.\n\n# the fix: tell the reader what the bytes mean\nread.csv(\"data/clinicians.csv\", fileEncoding = \"latin1\")\n#&gt;     id      clinician\n#&gt; 1 P061  Björn André"
-  },
-  {
     "objectID": "course/session05/slides.html#excel-via-readxl",
     "href": "course/session05/slides.html#excel-via-readxl",
     "title": "Getting Data In: Files, Import Checks, Dates",
@@ -1540,11 +1561,11 @@
     "text": "Excel via readxl\nlibrary(readxl)\n\n# What sheets are in here?\nexcel_sheets(\"data/study42.xlsx\")\n#&gt; [1] \"ReadMe\"  \"Enrolment\"  \"Labs\"  \"Sheet3\"\n\nlabs &lt;- read_excel(\n  \"data/study42.xlsx\",\n  sheet = \"Labs\",\n  range = \"A4:H210\",              # skip the title block, stop before the totals\n  col_types = c(\"text\", \"text\", \"date\", rep(\"numeric\", 5)),\n  na = c(\"\", \"NA\", \"-99\")\n)\n\n\n\n\n\n\n\nExcel workbooks are usable inputs when the sheet, range, types, and meaning are documented. The example above illustrates an import contract for a hypothetical workbook."
   },
   {
-    "objectID": "course/session05/slides.html#why-spreadsheet-appearance-is-not-enough",
-    "href": "course/session05/slides.html#why-spreadsheet-appearance-is-not-enough",
+    "objectID": "course/session05/slides.html#highlighting-and-totals-are-not-observations",
+    "href": "course/session05/slides.html#highlighting-and-totals-are-not-observations",
     "title": "Getting Data In: Files, Import Checks, Dates",
-    "section": "Why spreadsheet appearance is not enough",
-    "text": "Why spreadsheet appearance is not enough\n\n\n\n\n\n\n\nWorkbook feature\nWhat the analysis needs\n\n\n\n\nYellow highlight means exclude\nAn explicit exclude flag and reason\n\n\nBold row means subtotal\nA documented rule excluding summary rows\n\n\nMerged cells show a group\nA group value for every observation\n\n\nMultiple sheets named Final/Final2\nA specified source sheet and version\n\n\nA formula displays a result\nA documented calculation reproducible in code\n\n\n\nOrdinary read_excel() imports cell values, not the meaning of colors or styles."
+    "section": "Highlighting and totals are not observations",
+    "text": "Highlighting and totals are not observations\n\nIf yellow means “exclude,” add an exclude column and a reason. Keep the mean row out of the participant data."
   },
   {
     "objectID": "course/session05/slides.html#names-and-types-inspect-what-actually-arrived",
@@ -1554,13 +1575,6 @@
     "text": "Names and types: inspect what actually arrived\n\nBlank or duplicate column names may be repaired during import.\nNames like Weight (kg) need careful access or documented renaming.\n00123 can become 123 if the source treats an ID as numeric.\nA displayed date or rounded value may hide a different stored value.\n\nnames(d)\nanyDuplicated(names(d))\nstr(d)\n# Preserve a source name, then rename deliberately:\nd[[\"Weight (kg)\"]]"
   },
   {
-    "objectID": "course/session05/slides.html#reading-the-intended-excel-rectangle",
-    "href": "course/session05/slides.html#reading-the-intended-excel-rectangle",
-    "title": "Getting Data In: Files, Import Checks, Dates",
-    "section": "Reading the intended Excel rectangle",
-    "text": "Reading the intended Excel rectangle\n# Illustrative workbook: names in row 4, descriptions in row 5\nheader &lt;- names(readxl::read_excel(\n  \"study.xlsx\", sheet = \"Labs\", skip = 3, n_max = 0\n))\nlabs &lt;- readxl::read_excel(\n  \"study.xlsx\", sheet = \"Labs\", skip = 5,\n  col_names = header, col_types = c(\"text\", \"numeric\", \"numeric\")\n)\nFor a fixed data block, use range = \"Labs!A6:C20\", col_names = header instead of skip. This excludes both the names and description rows. Do not include footer notes in that rectangle."
-  },
-  {
     "objectID": "course/session05/slides.html#a-better-data-handoff",
     "href": "course/session05/slides.html#a-better-data-handoff",
     "title": "Getting Data In: Files, Import Checks, Dates",
@@ -1568,25 +1582,25 @@
     "text": "A better data handoff\nAsk for a single rectangular table and a data dictionary:\n\none variable per column and observation per row;\nunique, meaningful column names;\nexplicit units, IDs, missing codes, and exclusion flags;\na documented sheet or table, without embedded totals.\n\nKeep the original workbook. Import and clean in code. A validated CSV/TSV is convenient for a rectangular table, but still needs type and missingness checks."
   },
   {
-    "objectID": "course/session05/slides.html#reading-organizing-and-importing-spreadsheets",
-    "href": "course/session05/slides.html#reading-organizing-and-importing-spreadsheets",
-    "title": "Getting Data In: Files, Import Checks, Dates",
-    "section": "Reading: organizing and importing spreadsheets",
-    "text": "Reading: organizing and importing spreadsheets\n\nBroman KW, Woo KH (2018). Data Organization in Spreadsheets. The American Statistician, 72(1), 2–10.\nBroman’s practical data-organization guide\nreadxl: Multiple header rows\nreadxl: Sheet geometry\nreadxl: Column names"
-  },
-  {
-    "objectID": "course/session05/slides.html#spss-and-stata-via-haven",
-    "href": "course/session05/slides.html#spss-and-stata-via-haven",
-    "title": "Getting Data In: Files, Import Checks, Dates",
-    "section": "SPSS and Stata via haven",
-    "text": "SPSS and Stata via haven\nlibrary(haven)\n\nd &lt;- read_sav(\"data/study42.sav\")     # SPSS   .sav\nd &lt;- read_dta(\"data/study42.dta\")     # Stata  .dta\nd &lt;- read_xpt(\"data/adsl.xpt\")        # SAS transport  .xpt\n\n\nThese formats carry metadata R has no native place for: variable labels, value labels, user-defined missing codes. haven keeps them on a labelled column.\n\nattr(d$arm, \"labels\")      #  Placebo = 1, Treatment = 2\nas_factor(d$arm)           #  labelled -&gt; factor, using the labels\nzap_labels(d$arm)          #  labelled -&gt; plain numeric, labels discarded\nd$sex &lt;- as_factor(d$sex)  #  do this once, deliberately, at import"
-  },
-  {
     "objectID": "course/session05/slides.html#readrread_csv",
     "href": "course/session05/slides.html#readrread_csv",
     "title": "Getting Data In: Files, Import Checks, Dates",
     "section": "readr::read_csv()",
     "text": "readr::read_csv()\nlibrary(readr)\nd &lt;- read_csv(\"data/trial_export.csv\")\n#&gt; Rows: 60 Columns: 9\n#&gt; -- Column specification ------------------------------------\n#&gt; chr (6): id, arm, sex, creat, visit_0, visit_12\n#&gt; dbl (3): wt, sbp12, dob_ser\n\n\nThat message is the best thing about it — the parser tells you what it decided, every time. Then you replace the guess with a contract:\n\nd &lt;- read_csv(\n  \"data/trial_export.csv\",\n  col_types = cols(id = col_character(), wt = col_double(),\n                   visit_0 = col_date(format = \"%m/%d/%Y\")),\n  na = c(\"\", \"NA\", \"-99\")\n)\n# the base R way\nread.csv(\"data/trial_export.csv\", colClasses = c(id = \"character\"),\n         na.strings = c(\"\", \"NA\", \"-99\"))"
+  },
+  {
+    "objectID": "course/session05/slides.html#compressed-csv-files-.csv.gz",
+    "href": "course/session05/slides.html#compressed-csv-files-.csv.gz",
+    "title": "Getting Data In: Files, Import Checks, Dates",
+    "section": "Compressed CSV files: .csv.gz",
+    "text": "Compressed CSV files: .csv.gz\n.gz means the file is compressed. It does not change the table’s meaning.\nd &lt;- read.csv(\"visits.csv.gz\",\n              colClasses = c(id = \"character\"))\nR can read this directly; you do not need to unzip it first. Use the same checks for names, types, and missing values."
+  },
+  {
+    "objectID": "course/session05/slides.html#large-csv-files-data.tablefread",
+    "href": "course/session05/slides.html#large-csv-files-data.tablefread",
+    "title": "Getting Data In: Files, Import Checks, Dates",
+    "section": "Large CSV files: data.table::fread()",
+    "text": "Large CSV files: data.table::fread()\n# install.packages(\"data.table\")  # once\nd &lt;- data.table::fread(\"large_visits.csv\",\n  colClasses = c(id = \"character\"),\n  data.table = FALSE)\nstr(d)\n\nA useful fast reader for large CSV/TSV files—not Excel workbooks.\ndata.table = FALSE returns the familiar data frame.\nFaster reading does not replace checking the result."
   },
   {
     "objectID": "course/session05/slides.html#what-csv-cannot-carry",
@@ -1600,14 +1614,35 @@
     "href": "course/session05/slides.html#saverds-for-r-objects",
     "title": "Getting Data In: Files, Import Checks, Dates",
     "section": "saveRDS() for R objects",
-    "text": "saveRDS() for R objects\n\nsaveRDS(small, \"data/small.rds\")\nstr(readRDS(\"data/small.rds\"))\n\n'data.frame':   2 obs. of  3 variables:\n $ mrn  : chr  \"0042\" \"0007\"\n $ visit: Date, format: \"2024-01-03\" \"2024-02-11\"\n $ arm  : Factor w/ 2 levels \"Placebo\",\"Treatment\": 1 2\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nUse for\nKeeps types\nReadable by\n\n\n\n\nwrite.csv()\nhanding data to someone else\nno\neverything\n\n\nsaveRDS()\none object, for your own next step\nyes\nR only\n\n\nsave() / load()\nseveral objects at once\nyes\nR only — and it renames your objects"
+    "text": "saveRDS() for R objects\n\nsaveRDS(small, \"data/small.rds\")\nstr(readRDS(\"data/small.rds\"))\n\n'data.frame':   2 obs. of  3 variables:\n $ mrn  : chr  \"0042\" \"0007\"\n $ visit: Date, format: \"2024-01-03\" \"2024-02-11\"\n $ arm  : Factor w/ 2 levels \"Placebo\",\"Treatment\": 1 2\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nUse for\nKeeps types\nReadable by\n\n\n\n\nwrite.csv()\nhanding data to someone else\nno\neverything\n\n\nsaveRDS()\none object, for your own next step\nyes\nR only\n\n\nsave() / load()\nseveral objects at once\nyes\nR only — restores saved object names"
   },
   {
-    "objectID": "course/session05/slides.html#never-save-the-workspace",
-    "href": "course/session05/slides.html#never-save-the-workspace",
+    "objectID": "course/session05/slides.html#save-a-workspace-when-there-is-a-reason",
+    "href": "course/session05/slides.html#save-a-workspace-when-there-is-a-reason",
     "title": "Getting Data In: Files, Import Checks, Dates",
-    "section": "Never save the workspace",
-    "text": "Never save the workspace\n\n\n.RData restored at startup means your session begins with objects no code in your project created\nThe object in memory and the code on the page drift apart, and nothing warns you\nsave.image() at the end of a script is the same bug, made deliberate\n\n\n\n\n\n\n\n\n\nTools → Global Options → Restore .RData: never, Save workspace: never.\n\n\n\n\n\n\nThe reproducible alternative, already yours since session 1: the script is the state. Anything you need, you re-create by running code. Anything expensive, you cache with saveRDS() and a named file you can point at."
+    "section": "Save a workspace when there is a reason",
+    "text": "Save a workspace when there is a reason\n\nUseful when several related objects are needed to resume an analysis.\nEspecially helpful after expensive calculations or when preserving a result checkpoint together with its intermediate objects.\nSave deliberately to a named file; document what it contains and when to load it.\nKeep the generating code, input data, and software-version information too.\n\nA workspace snapshot preserves R objects—not the entire computing environment. It supports reproducibility; it does not establish it by itself."
+  },
+  {
+    "objectID": "course/session05/slides.html#several-objects-save-and-restore-explicitly",
+    "href": "course/session05/slides.html#several-objects-save-and-restore-explicitly",
+    "title": "Getting Data In: Files, Import Checks, Dates",
+    "section": "Several objects: save and restore explicitly",
+    "text": "Several objects: save and restore explicitly\n# Illustrative objects from a completed analysis:\nsave(clean_data, fitted_model, results,\n     file = \"analysis-checkpoint.RData\")\n\n# Later, in a fresh R session:\nload(\"analysis-checkpoint.RData\")\n\nsave() stores selected objects under their current names.\nsave.image(\"workspace-checkpoint.RData\") stores the global workspace.\nload() restores saved names and can overwrite existing objects.\nRecord sessionInfo() in the report to document R and package versions."
+  },
+  {
+    "objectID": "course/session05/slides.html#which-exact-data-file-produced-this-report",
+    "href": "course/session05/slides.html#which-exact-data-file-produced-this-report",
+    "title": "Getting Data In: Files, Import Checks, Dates",
+    "section": "Which exact data file produced this report?",
+    "text": "Which exact data file produced this report?\n\ndata_file &lt;- \"data/trial_export.csv\"\ndata_md5 &lt;- tools::md5sum(data_file)\nstopifnot(!is.na(data_md5))\ndata.frame(\n  file = basename(data_file),\n  md5 = unname(data_md5)\n)\n\n              file                              md5\n1 trial_export.csv 6d06f10032c2327361a9a00e091ce6eb\n\n\nPut this chunk in the .Rmd or .qmd report before importing the file. The rendered table records a fingerprint of the input file’s contents."
+  },
+  {
+    "objectID": "course/session05/slides.html#use-the-checksum-as-a-record-not-a-data-quality-test",
+    "href": "course/session05/slides.html#use-the-checksum-as-a-record-not-a-data-quality-test",
+    "title": "Getting Data In: Files, Import Checks, Dates",
+    "section": "Use the checksum as a record, not a data-quality test",
+    "text": "Use the checksum as a record, not a data-quality test\n\nDifferent MD5 values mean the file contents differ.\nThe same MD5 is strong practical evidence of unchanged bytes for routine version checking, not a security guarantee.\nA filename change alone does not change the checksum.\nFormatting, line endings, or workbook metadata can change it even when the analytical values appear unchanged.\nA checksum neither validates the data nor replaces keeping the original file."
   },
   {
     "objectID": "course/session05/slides.html#a-date-is-a-number",
@@ -1645,34 +1680,6 @@
     "text": "Components and arithmetic\n\nd0  &lt;- as.Date(read.csv(\"data/trial_export.csv\")$visit_0, format = \"%m/%d/%Y\")\nd12 &lt;- as.Date(read.csv(\"data/trial_export.csv\")$visit_12, format = \"%m/%d/%Y\")\nhead(as.numeric(format(d0, \"%Y\")))                    # year as a number\n\n[1] 2023 2023 2023 2023 2023 2023\n\nhead(difftime(d12, d0, units = \"days\"), 3)            # explicit units\n\nTime differences in days\n[1] 87 85 83\n\nhead(as.numeric(d12 - d0), 3)                         # plain numbers\n\n[1] 87 85 83\n\nsummary(as.numeric(d12 - d0))\n\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's \n  78.00   81.00   83.00   83.11   85.00   90.00       3"
   },
   {
-    "objectID": "course/session05/slides.html#excel-serial-dates",
-    "href": "course/session05/slides.html#excel-serial-dates",
-    "title": "Getting Data In: Files, Import Checks, Dates",
-    "section": "Excel serial dates",
-    "text": "Excel serial dates\n\nhead(read.csv(\"data/trial_export.csv\")$dob_ser, 3)\n\n[1] 27512 23496 22594\n\nhead(as.Date(read.csv(\"data/trial_export.csv\")$dob_ser,\n             origin = \"1899-12-30\"), 3)\n\n[1] \"1975-04-28\" \"1964-04-29\" \"1961-11-09\"\n\n\n\n\n\n\n\nWorkbook\nSerial 1 is\norigin =\n\n\n\n\nWindows Excel, and everything modern\n1900-01-01\n\"1899-12-30\"\n\n\nLegacy Mac Excel (pre-2011)\n1904-01-02\n\"1904-01-01\"\n\n\n\n\n\n\nUse the wrong one and every date lands four years and a day out — plausibly, and with no warning."
-  },
-  {
-    "objectID": "course/session05/slides.html#times-and-time-zones",
-    "href": "course/session05/slides.html#times-and-time-zones",
-    "title": "Getting Data In: Files, Import Checks, Dates",
-    "section": "Times, and time zones",
-    "text": "Times, and time zones\n\nt1 &lt;- as.POSIXct(\"2024-03-04 14:30:00\", tz = \"America/Chicago\")\nas.numeric(t1)                                     # seconds since 1970\n\n[1] 1709584200\n\nformat(t1, tz = \"UTC\", usetz = TRUE)\n\n[1] \"2024-03-04 20:30:00 UTC\"\n\ndifftime(as.POSIXct(\"2024-03-04 14:30:00\", tz = \"UTC\"), t1, units = \"hours\")\n\nTime difference of -6 hours\n\n\n\n\nPOSIXct is seconds since 1970-01-01 UTC. A time with no tz uses your machine’s zone — so the same code gives different answers on different laptops.\n\n\n\n\n\n\n\nAlways name the zone. \"America/Chicago\", not \"CST\"."
-  },
-  {
-    "objectID": "course/session05/slides.html#lubridate-the-friendlier-version",
-    "href": "course/session05/slides.html#lubridate-the-friendlier-version",
-    "title": "Getting Data In: Files, Import Checks, Dates",
-    "section": "lubridate, the friendlier version",
-    "text": "lubridate, the friendlier version\nlibrary(lubridate)\n\nymd(\"2024-03-04\");  mdy(\"03/04/2024\");  dmy(\"4 March 2024\")   # named parsers\nyear(d); month(d); day(d); wday(d, label = TRUE)              # components\nd + days(84);  d %m+% months(3)                               # safe arithmetic\ninterval(dob, visit) / years(1)                               # exact age\nwith_tz(t1, \"UTC\");  force_tz(t1, \"UTC\")                      # two different jobs\n\n# the base R way\nas.Date(\"03/04/2024\", format = \"%m/%d/%Y\")\nas.numeric(format(d, \"%Y\"))\n\n\n\nmdy() versus dmy() puts the ambiguity in the function name, where a reader can see it. That is the real gain, not the typing."
-  },
-  {
-    "objectID": "course/session05/slides.html#import-problems-that-do-not-error",
-    "href": "course/session05/slides.html#import-problems-that-do-not-error",
-    "title": "Getting Data In: Files, Import Checks, Dates",
-    "section": "Import problems that do not error",
-    "text": "Import problems that do not error\n\n\n\n\n\n\n\n\n\nSymptom\nCause\nFix\n\n\n\n\nData frame has one column\nWrong sep\nsep = \";\" / \"\\t\", or read.csv2()\n\n\nNumeric column arrives as chr\nOne non-numeric value in it\nFind it, then na.strings or repair\n\n\nLeading zeros gone from an ID\nType guessing made it an integer\ncolClasses = c(mrn = \"character\")\n\n\nMean is implausible; min is -99\nSentinel value\nna.strings = c(\"NA\", \"-99\")\n\n\ntable() shows a nameless category\nEmpty fields, not NA\nAdd \"\" to na.strings\n\n\nColumn name not found\ncheck.names mangled it\nnames(df) right after import\n\n\nDates all NA\nformat does not match the file\nreadLines(), then match it exactly\n\n\nDates partly NA\nTwo formats, or day-first read month-first\nTwo passes; check range()\n\n\nA column of five-digit integers\nExcel serial dates\nas.Date(x, origin = \"1899-12-30\")\n\n\nAccented names are rubbish\nEncoding mismatch\nfileEncoding = \"latin1\"\n\n\nFirst column called X\nwrite.csv() without row.names = FALSE\nRe-export\n\n\nRow count is 1 more than expected\nA totals row at the foot of the sheet\nnrows =, or range = in read_excel()"
-  },
-  {
     "objectID": "course/session05/slides.html#what-a-defensible-import-looks-like",
     "href": "course/session05/slides.html#what-a-defensible-import-looks-like",
     "title": "Getting Data In: Files, Import Checks, Dates",
@@ -1685,6 +1692,55 @@
     "title": "Getting Data In: Files, Import Checks, Dates",
     "section": "Summary",
     "text": "Summary\n\nImport is a translation governed by explicit assumptions.\nInspect the file and the returned object before analysis.\nDeclare missing-value codes and date formats at the boundary.\nValidate dimensions, keys, types, ranges, categories, and missingness.\nChoose export format according to what must be preserved.\n\n\nNext connection: Session 6 expresses familiar row, column, transformation, and summary operations with dplyr."
+  },
+  {
+    "objectID": "course/session05/slides.html#reference-read.csv-argument-by-argument",
+    "href": "course/session05/slides.html#reference-read.csv-argument-by-argument",
+    "title": "Getting Data In: Files, Import Checks, Dates",
+    "section": "Reference: read.csv(), argument by argument",
+    "text": "Reference: read.csv(), argument by argument\n\n\n\n\n\n\n\n\n\nArgument\nDefault\nSet it when\n\n\n\n\nfile\n—\nAlways. A relative path, via here::here()\n\n\nheader\nTRUE\nThe file has no header row → FALSE, then set col.names\n\n\nsep\n\",\"\nTabs (\"\\t\"), semicolons (\";\"), pipes (\"|\")\n\n\ndec\n\".\"\nA European export uses a decimal comma → \",\"\n\n\nna.strings\n\"NA\"\nAlmost always. Block 2\n\n\ncolClasses\nguessed\nYou know what the types should be. Block 1\n\n\nskip\n0\nMetadata lines sit above the header\n\n\nnrows\n-1\nPeeking at a large file, or a junk footer\n\n\ncheck.names\nTRUE\nYou want the original column names → FALSE\n\n\nfileEncoding\nnative\nAccented characters arrive as rubbish. Block 3\n\n\nstrip.white\nFALSE\nUnquoted fields have padding spaces\n\n\ncomment.char\n\"\"\nA # legend at the foot of the file"
+  },
+  {
+    "objectID": "course/session05/slides.html#reference-encodings",
+    "href": "course/session05/slides.html#reference-encodings",
+    "title": "Getting Data In: Files, Import Checks, Dates",
+    "section": "Reference: Encodings",
+    "text": "Reference: Encodings\n\nlines &lt;- readLines(\"data/clinicians.csv\")\nvalidUTF8(lines)\n\n[1]  TRUE FALSE\n\n\n\n\nLine 2 is not valid UTF-8. It is Latin-1 — one byte per character — and R read it as though it were UTF-8.\n\n\n# the fix: tell the reader what the bytes mean\nread.csv(\"data/clinicians.csv\", fileEncoding = \"latin1\")\n#&gt;     id      clinician\n#&gt; 1 P061  Björn André"
+  },
+  {
+    "objectID": "course/session05/slides.html#reference-spss-and-stata-via-haven",
+    "href": "course/session05/slides.html#reference-spss-and-stata-via-haven",
+    "title": "Getting Data In: Files, Import Checks, Dates",
+    "section": "Reference: SPSS and Stata via haven",
+    "text": "Reference: SPSS and Stata via haven\nlibrary(haven)\n\nd &lt;- read_sav(\"data/study42.sav\")     # SPSS   .sav\nd &lt;- read_dta(\"data/study42.dta\")     # Stata  .dta\nd &lt;- read_xpt(\"data/adsl.xpt\")        # SAS transport  .xpt\n\n\nThese formats carry metadata R has no native place for: variable labels, value labels, user-defined missing codes. haven keeps them on a labelled column.\n\nattr(d$arm, \"labels\")      #  Placebo = 1, Treatment = 2\nas_factor(d$arm)           #  labelled -&gt; factor, using the labels\nzap_labels(d$arm)          #  labelled -&gt; plain numeric, labels discarded\nd$sex &lt;- as_factor(d$sex)  #  do this once, deliberately, at import"
+  },
+  {
+    "objectID": "course/session05/slides.html#reference-excel-serial-dates",
+    "href": "course/session05/slides.html#reference-excel-serial-dates",
+    "title": "Getting Data In: Files, Import Checks, Dates",
+    "section": "Reference: Excel serial dates",
+    "text": "Reference: Excel serial dates\n\nhead(read.csv(\"data/trial_export.csv\")$dob_ser, 3)\n\n[1] 27512 23496 22594\n\nhead(as.Date(read.csv(\"data/trial_export.csv\")$dob_ser,\n             origin = \"1899-12-30\"), 3)\n\n[1] \"1975-04-28\" \"1964-04-29\" \"1961-11-09\"\n\n\n\n\n\n\n\nWorkbook\nSerial 1 is\norigin =\n\n\n\n\nWindows Excel, and everything modern\n1900-01-01\n\"1899-12-30\"\n\n\nLegacy Mac Excel (pre-2011)\n1904-01-02\n\"1904-01-01\"\n\n\n\n\n\n\nUse the wrong one and every date lands four years and a day out — plausibly, and with no warning."
+  },
+  {
+    "objectID": "course/session05/slides.html#reference-times-and-time-zones",
+    "href": "course/session05/slides.html#reference-times-and-time-zones",
+    "title": "Getting Data In: Files, Import Checks, Dates",
+    "section": "Reference: Times, and time zones",
+    "text": "Reference: Times, and time zones\n\nt1 &lt;- as.POSIXct(\"2024-03-04 14:30:00\", tz = \"America/Chicago\")\nas.numeric(t1)                                     # seconds since 1970\n\n[1] 1709584200\n\nformat(t1, tz = \"UTC\", usetz = TRUE)\n\n[1] \"2024-03-04 20:30:00 UTC\"\n\ndifftime(as.POSIXct(\"2024-03-04 14:30:00\", tz = \"UTC\"), t1, units = \"hours\")\n\nTime difference of -6 hours\n\n\n\n\nPOSIXct is seconds since 1970-01-01 UTC. A time with no tz uses your machine’s zone — so the same code gives different answers on different laptops.\n\n\n\n\n\n\n\nAlways name the zone. \"America/Chicago\", not \"CST\"."
+  },
+  {
+    "objectID": "course/session05/slides.html#reference-lubridate-the-friendlier-version",
+    "href": "course/session05/slides.html#reference-lubridate-the-friendlier-version",
+    "title": "Getting Data In: Files, Import Checks, Dates",
+    "section": "Reference: lubridate, the friendlier version",
+    "text": "Reference: lubridate, the friendlier version\nlibrary(lubridate)\n\nymd(\"2024-03-04\");  mdy(\"03/04/2024\");  dmy(\"4 March 2024\")   # named parsers\nyear(d); month(d); day(d); wday(d, label = TRUE)              # components\nd + days(84);  d %m+% months(3)                               # safe arithmetic\ninterval(dob, visit) / years(1)                               # exact age\nwith_tz(t1, \"UTC\");  force_tz(t1, \"UTC\")                      # two different jobs\n\n\n# the base R way\nas.Date(\"03/04/2024\", format = \"%m/%d/%Y\")\nas.numeric(format(d, \"%Y\"))\n\n\n\nmdy() versus dmy() puts the ambiguity in the function name, where a reader can see it. That is the real gain, not the typing."
+  },
+  {
+    "objectID": "course/session05/slides.html#reference-import-problems-that-do-not-error",
+    "href": "course/session05/slides.html#reference-import-problems-that-do-not-error",
+    "title": "Getting Data In: Files, Import Checks, Dates",
+    "section": "Reference: Import problems that do not error",
+    "text": "Reference: Import problems that do not error\n\n\n\n\n\n\n\n\n\nSymptom\nCause\nFix\n\n\n\n\nData frame has one column\nWrong sep\nsep = \";\" / \"\\t\", or read.csv2()\n\n\nNumeric column arrives as chr\nOne non-numeric value in it\nFind it, then na.strings or repair\n\n\nLeading zeros gone from an ID\nType guessing made it an integer\ncolClasses = c(mrn = \"character\")\n\n\nMean is implausible; min is -99\nSentinel value\nna.strings = c(\"NA\", \"-99\")\n\n\ntable() shows a nameless category\nEmpty fields, not NA\nAdd \"\" to na.strings\n\n\nColumn name not found\ncheck.names mangled it\nnames(df) right after import\n\n\nDates all NA\nformat does not match the file\nreadLines(), then match it exactly\n\n\nDates partly NA\nTwo formats, or day-first read month-first\nTwo passes; check range()\n\n\nA column of five-digit integers\nExcel serial dates\nas.Date(x, origin = \"1899-12-30\")\n\n\nAccented names are rubbish\nEncoding mismatch\nfileEncoding = \"latin1\"\n\n\nFirst column called X\nwrite.csv() without row.names = FALSE\nRe-export\n\n\nRow count is 1 more than expected\nA totals row at the foot of the sheet\nnrows =, or range = in read_excel()"
   },
   {
     "objectID": "course/session04/lab.html",
@@ -3616,14 +3672,14 @@
     "href": "course/session05/index.html",
     "title": "Session 5 · Getting data into R",
     "section": "",
-    "text": "Import a delimited file, document parsing and missing-value rules, audit the result immediately, parse dates, recognize common non-delimited formats, and choose an appropriate export format. Inspect header location, duplicate names, exported row counters, and spreadsheet formatting before importing."
+    "text": "Import a delimited file, document parsing and missing-value rules, audit the result immediately, parse dates, recognize common non-delimited formats, and choose an appropriate export format. Inspect header location, duplicate names, exported row counters, and spreadsheet formatting before importing. Record a data-file checksum in the report and use saved objects or workspaces deliberately.\nThe main slides use synthetic worksheet illustrations to identify layout problems before showing code. Compressed CSV files and data.table::fread() receive brief introductions. More technical details follow the summary in an optional reference section."
   },
   {
     "objectID": "course/session05/index.html#learning-goals",
     "href": "course/session05/index.html#learning-goals",
     "title": "Session 5 · Getting data into R",
     "section": "",
-    "text": "Import a delimited file, document parsing and missing-value rules, audit the result immediately, parse dates, recognize common non-delimited formats, and choose an appropriate export format. Inspect header location, duplicate names, exported row counters, and spreadsheet formatting before importing."
+    "text": "Import a delimited file, document parsing and missing-value rules, audit the result immediately, parse dates, recognize common non-delimited formats, and choose an appropriate export format. Inspect header location, duplicate names, exported row counters, and spreadsheet formatting before importing. Record a data-file checksum in the report and use saved objects or workspaces deliberately.\nThe main slides use synthetic worksheet illustrations to identify layout problems before showing code. Compressed CSV files and data.table::fread() receive brief introductions. More technical details follow the summary in an optional reference section."
   },
   {
     "objectID": "course/session05/index.html#materials",
@@ -3633,25 +3689,39 @@
     "text": "Materials\n\nSlides\nGuided lab\nLab starter—choose one: starter/import-lab.Rmd or starter/import-lab.qmd\nSynthetic teaching files used in the slides: data/\n\nCopy your chosen starter from the course clone to BIOS6301-mywork/work/session05/ and open your personal project. Base read.csv() and readr::read_csv() are shown side by side; either is acceptable when the import contract and checks are explicit. The files under data/ are synthetic and may be inspected or reused for independent practice."
   },
   {
-    "objectID": "course/session05/index.html#recommended-reading",
-    "href": "course/session05/index.html#recommended-reading",
-    "title": "Session 5 · Getting data into R",
-    "section": "Recommended reading",
-    "text": "Recommended reading\n\nBroman and Woo: organizing data in spreadsheets\nreadxl: multiple header rows\nreadxl: sheet geometry"
-  },
-  {
     "objectID": "course/session05/lab.html",
     "href": "course/session05/lab.html",
     "title": "Session 5 guided lab",
     "section": "",
-    "text": "Note\n\n\n\nSuggested use: tasks 1–7 form the core import audit. Additional practice repeats the same import, parsing, date, and export concepts with deliberately different file problems. The instructor may set the in-class stopping point.\nChoose one format and copy either starter/import-lab.Rmd or starter/import-lab.qmd to work/session05/. Knit the .Rmd file or Render the .qmd file.\nWork in BIOS6301-mywork.Rproj. Paths under work/ below belong to your personal repository. Copy starters from the separate BIOS6301-materials clone, leaving the course originals unchanged."
+    "text": "Note\n\n\n\nSuggested use: tasks 1–7 form the core import audit. Additional practice repeats the same import, parsing, date, and export concepts with deliberately different file problems. The instructor may set the in-class stopping point. All student-written code uses Sessions 3–4 and the main Session 5 slides, not the optional reference section.\nChoose one format and copy either starter/import-lab.Rmd or starter/import-lab.qmd to work/session05/. Knit the .Rmd file or Render the .qmd file.\nWork in BIOS6301-mywork.Rproj. Paths under work/ below belong to your personal repository. Copy starters from the separate BIOS6301-materials clone, leaving the course originals unchanged.\nThe file-generation chunks are supplied setup: run them unchanged. You do not need to write tempfile(), writeLines(), or write.table() code. The starter also supplies output paths for saving your results."
+  },
+  {
+    "objectID": "course/session05/lab.html#record-the-input-file",
+    "href": "course/session05/lab.html#record-the-input-file",
+    "title": "Session 5 guided lab",
+    "section": "Record the input file",
+    "text": "Record the input file\nRun the supplied tools::md5sum(csv_path) chunk before importing the CSV. Include the filename and checksum in the rendered report and keep the report. Explain what a different checksum would tell you—and what it would not tell you."
   },
   {
     "objectID": "course/session05/lab.html#tasks",
     "href": "course/session05/lab.html#tasks",
     "title": "Session 5 guided lab",
     "section": "Tasks",
-    "text": "Tasks\n\nImport the supplied temporary CSV twice: first preserve every field as raw character text, then make an analysis import using the documented missing-value codes and column classes.\nVerify dimensions, names, types, expected IDs, one row per ID, and missingness. Use table() and %in% rather than relying only on visual inspection.\nUse the raw and analysis imports together to display every marker entry that became missing during parsing.\nParse dates using the documented formats and flag ambiguous or invalid values.\nCreate a cleaned object that retains the original marker and date text; do not overwrite the raw import.\nExport the cleaned rectangular table as CSV and RDS, read both back, and compare the preserved classes.\nOptional: repeat the import with readr::read_csv() and compare diagnostics."
+    "text": "Tasks\n\nInspect readLines(csv_path, n = 6). Import the CSV as raw using read.csv(csv_path, colClasses = \"character\"). Then import it as analysis_import with na.strings = c(\".\", \"NM\") and colClasses = c(id = \"character\", visit_date = \"character\", marker = \"numeric\").\nVerify dimensions, names, types, expected IDs, one row per ID, and missingness. Use dim(), names(), str(), table(), %in%, and colSums(is.na(...)). The expected IDs are P01, P02, P03, P04, and P05.\nUse the raw and analysis imports together to display every marker entry that became missing during parsing.\nUse as.Date(..., format = \"%Y-%m-%d\") and is.na() to find dates that did not parse. Show their original text. Do not guess a correction.\nCopy analysis_import to clean. Add marker_raw and visit_date_raw columns from raw using `— title: “Session 5 guided lab” subtitle: “Import and audit a synthetic visit file” —\n\n\n\n\n\n\n\nNote\n\n\n\nSuggested use: tasks 1–7 form the core import audit. Additional practice repeats the same import, parsing, date, and export concepts with deliberately different file problems. The instructor may set the in-class stopping point. All student-written code uses Sessions 3–4 and the main Session 5 slides, not the optional reference section.\n\n\nChoose one format and copy either starter/import-lab.Rmd or starter/import-lab.qmd to work/session05/. Knit the .Rmd file or Render the .qmd file.\nWork in BIOS6301-mywork.Rproj. Paths under work/ below belong to your personal repository. Copy starters from the separate BIOS6301-materials clone, leaving the course originals unchanged.\nThe file-generation chunks are supplied setup: run them unchanged. You do not need to write tempfile(), writeLines(), or write.table() code. The starter also supplies output paths for saving your results."
+  },
+  {
+    "objectID": "course/session05/lab.html#record-the-input-file-1",
+    "href": "course/session05/lab.html#record-the-input-file-1",
+    "title": "Session 5 guided lab",
+    "section": "Record the input file",
+    "text": "Record the input file\nRun the supplied tools::md5sum(csv_path) chunk before importing the CSV. Include the filename and checksum in the rendered report and keep the report. Explain what a different checksum would tell you—and what it would not tell you."
+  },
+  {
+    "objectID": "course/session05/lab.html#tasks-1",
+    "href": "course/session05/lab.html#tasks-1",
+    "title": "Session 5 guided lab",
+    "section": "Tasks",
+    "text": "Tasks\n\nInspect readLines(csv_path, n = 6). Import the CSV as raw using read.csv(csv_path, colClasses = \"character\"). Then import it as analysis_import with na.strings = c(\".\", \"NM\") and colClasses = c(id = \"character\", visit_date = \"character\", marker = \"numeric\").\nVerify dimensions, names, types, expected IDs, one row per ID, and missingness. Use dim(), names(), str(), table(), %in%, and colSums(is.na(...)). The expected IDs are P01, P02, P03, P04, and P05.\nUse the raw and analysis imports together to display every marker entry that became missing during parsing.\nUse as.Date(..., format = \"%Y-%m-%d\") and is.na() to find dates that did not parse. Show their original text. Do not guess a correction. . Replace only clean$visit_date with the parsed dates.\nExport the cleaned rectangular table as CSV and RDS, read both back, and compare the preserved classes using str(). Use the supplied csv_out and rds_out paths; no new file-management code is required.\nOptional: repeat the import with readr::read_csv(). Compare the printed column-type message, str(), and missing-value counts with the base-R import."
   },
   {
     "objectID": "course/session05/lab.html#file-layout-checkpoint-inspect-before-importing",
@@ -3665,14 +3735,14 @@
     "href": "course/session05/lab.html#additional-practice-repeat-the-import-workflow",
     "title": "Session 5 guided lab",
     "section": "Additional practice: repeat the import workflow",
-    "text": "Additional practice: repeat the import workflow\n\nImport the supplied semicolon/decimal-comma file with ordinary read.csv(). Diagnose the result, then re-import it with the correct sep and dec.\nRe-import the main file with only \".\" declared missing. Use str() and the raw values to explain why the marker column does not become numeric.\nRe-import the main file with every column declared character. Compare this explicit raw contract with the typed analysis import.\nParse c(\"2026-01-03\", \"04-Jan-2026\", \"2026-01-05\") in two passes, repairing only values missed by the ISO parse.\nParse \"03/04/2026\" once as month/day/year and once as day/month/year. Explain why successful parsing cannot determine which interpretation is correct.\nCreate a small object containing a factor and a Date. Export it as CSV and RDS, read both back, and compare str() output.\nOptional: use readr::read_csv() with explicit column types and inspect its parsing specification and any reported problems.\n\n\nIndependent-practice check\nYour work should demonstrate that a successful import can still use the wrong delimiter, missing-value rule, type, or date interpretation."
+    "text": "Additional practice: repeat the import workflow\n\nImport the supplied semicolon/decimal-comma file with ordinary read.csv(). Diagnose the result, then re-import it with the correct sep and dec.\nRe-import the main file with only \".\" declared missing. Use str() and the raw values to explain why the marker column does not become numeric.\nRe-import the main file with every column declared character. Compare this explicit raw contract with the typed analysis import.\nParse c(\"2026-01-03\", \"04-Jan-2026\", \"2026-01-05\") in two passes, repairing only values missed by the ISO parse.\nParse \"03/04/2026\" once as month/day/year and once as day/month/year. Explain why successful parsing cannot determine which interpretation is correct.\nCreate a small object containing a factor and a Date. Export it as CSV and RDS, read both back, and compare str() output.\nOptional: use the readr::read_csv() example from the main slides with explicit column types; inspect str() and colSums(is.na(...)). No spec() or problems() commands are required.\n\n\nIndependent-practice check\nYour work should demonstrate that a successful import can still use the wrong delimiter, missing-value rule, type, or date interpretation."
   },
   {
     "objectID": "course/session05/lab.html#exit-evidence",
     "href": "course/session05/lab.html#exit-evidence",
     "title": "Session 5 guided lab",
     "section": "Exit evidence",
-    "text": "Exit evidence\nRender the import contract, audit results, problem records, cleaned structure, and CSV/RDS comparison. Additional practice should also show the corrected semicolon/decimal-comma import and the two date-parsing demonstrations."
+    "text": "Exit evidence\nRender the import contract, audit results, problem records, cleaned structure, and CSV/RDS comparison, plus the input-file checksum. If you complete additional practice, include those results too; it is not part of the core exit check."
   },
   {
     "objectID": "course/session06/slides.html#where-we-are",
