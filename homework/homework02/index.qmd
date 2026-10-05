@@ -1,0 +1,139 @@
+---
+title: "Homework 2: From a raw data file to a reproducible analysis"
+subtitle: "BIOS 6301 · Assigned after Session 6"
+---
+
+> **Due:** Wednesday, October 14, 2026, at 11:59 PM Central Time.
+
+> **Late work:** Within 48 hours after the deadline, submissions receive 80% of
+> the points otherwise earned. Later work is not accepted unless the instructor
+> has approved an extension or an accommodation applies.
+
+## Purpose and scope
+
+Import a synthetic blood-pressure export, inspect and prepare an analysis table,
+and compare base-R and dplyr summaries. This assignment integrates Sessions 1–6,
+with emphasis on Sessions 4–6.
+
+Use base R in Part 3 and dplyr in Part 4. Elsewhere, either style is acceptable.
+No joins, reshaping, plots, hypothesis tests, loops, or separately written
+functions are required.
+
+## Getting started
+
+Use your existing personal R project. Choose one starter:
+[R Markdown](starter/homework02.Rmd) or [Quarto](starter/homework02.qmd).
+Use the supplied [CSV](starter/data/bp_export.csv) and
+[data dictionary](data-dictionary.qmd).
+
+Replace the author placeholder with your full name. Set `data_file` in the
+starter to the location of your CSV; there is no required folder layout.
+Keep the CSV and the course-materials originals unchanged.
+
+## Part 1: Import and inspect — 20 points
+
+1. Inspect the first six lines with `readLines()`. Identify the header line and
+   the number of descriptive lines to skip.
+2. Import the file as `raw` using `read.csv()`. Preserve IDs as character and
+   declare both documented missing-value codes. Do not edit the CSV manually.
+3. Display `dim(raw)`, `str(raw)`, and missing-value counts for the two
+   blood-pressure columns. Check that the IDs retain leading zeros.
+4. Create `dat <- raw` for the next parts, preserving `raw` unchanged.
+
+Retain all imported rows until Part 3. Date parsing and follow-up-duration
+calculations are not required for this assignment.
+
+## Part 2: Factors — 15 points
+
+1. Convert `dat$arm` to a factor with levels `control`, then `treated`.
+   Create a separate `arm_relevelled` object with `treated` first, using
+   `relevel()`. Print both level orders and verify that the observed labels
+   are unchanged.
+2. In one sentence, explain why assigning
+   `levels(dat$arm) <- c("treated", "control")` would not be a safe way to
+   change the reference. Do **not** perform that assignment on your analysis data.
+
+No regression model is required.
+
+## Part 3: Prepare and summarize with base R — 15 points
+
+1. Use `table(dat$id)` to identify the repeated ID. Display all records for
+   that ID and confirm they are identical across all columns. Then remove
+   identical rows with `unique()`, saving the result as `analysis`.
+   Verify the resulting row count and one record per ID.
+2. Calculate `analysis$change` as follow-up minus baseline blood pressure.
+   Keep rows with missing change.
+3. Use `tapply()` or `aggregate()` to calculate mean observed change by arm.
+   You will calculate the participant counts in Part 4; do not repeat them here.
+
+Do not remove one row per repeated ID without examining the full records.
+An ID could occur at several legitimate visits in a different dataset.
+
+## Part 4: Work with dplyr — 25 points
+
+Start with `analysis` from Part 3; do not repeat the import or cleaning.
+
+1. Create `review` with `select()`, keeping `id`, `arm`, and `change`.
+   Direct column names or a selection helper are both acceptable.
+2. Use `mutate()` to add `observed = !is.na(change)`. Use `filter()`
+   to display the participants whose change is missing, without removing them
+   from `review`.
+3. Use `group_by()` and `summarise()` to return one ungrouped row per arm
+   containing `n_total`, `n_observed`, and `mean_change`. Compare the means
+   with Part 3. Hint: `sum(observed)` counts the observed changes.
+
+## Part 5: Interpret the results — 5 points
+
+Write two or three sentences that:
+
+- give the mean change and its contributing participant count in each arm;
+- explain what a negative change means; and
+- explain why the observed-change count can differ from the total, and why
+  this synthetic comparison does not establish treatment efficacy.
+
+## Part 6: Reproducibility and Git — 20 points
+
+1. Run the supplied `tools::md5sum()` code and retain the filename and checksum
+   in the report. State what a changed checksum would tell you and why it
+   does not establish data quality.
+2. Include `sessionInfo()`. Restart R and knit/render the whole document.
+3. Review diffs and make at least two meaningful commits while working
+   (for example: import and checks; completed analysis and interpretation).
+   Stage only intended files.
+4. Push the completed source, self-contained HTML, and unchanged synthetic CSV
+   to the default branch of your existing private course repository by the
+   deadline. Confirm that the instructor and TA have access.
+
+## What to submit
+
+**Submit through GitHub only.** Push your completed `.Rmd` **or** `.qmd`
+source, matching self-contained `.html` report, and unchanged synthetic CSV
+to your existing private course repository.
+
+The TA will grade the **latest version pushed to the repository's default branch
+by Wednesday, October 14, 2026, at 11:59 PM Central Time**.
+Saving or committing locally is not sufficient; the files must be on GitHub.
+Check that the source and HTML match and that the instructor and TA can access them.
+
+Later changes do not automatically replace the deadline version. If submitting
+late or requesting that a later revision be graded, notify the TA; the late-work
+policy above applies.
+
+Keep code and requested results visible, replace the author and answer
+placeholders, and make Homework 2 easy to identify in your repository.
+Do not complete both report formats.
+
+## Grading summary
+
+| Component | Points |
+|---|---:|
+| Import and inspection | 20 |
+| Factors | 15 |
+| Base-R preparation and summaries | 15 |
+| dplyr analysis | 25 |
+| Interpretation | 5 |
+| Reproducibility and Git | 20 |
+| **Total** | **100** |
+
+Correct numbers without reproducible code receive only the applicable partial
+credit. Clear code and correct data meaning matter more than decorative formatting.

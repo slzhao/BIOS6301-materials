@@ -1,0 +1,115 @@
+---
+title: "Homework 2: From a raw data file to a reproducible analysis"
+subtitle: "Due Wednesday, October 14, 2026, at 11:59 PM Central Time"
+author: "REPLACE WITH YOUR FULL NAME"
+date: now
+date-format: "YYYY-MM-DD HH:mm:ss Z"
+format:
+  html:
+    toc: true
+    code-fold: false
+    embed-resources: true
+execute:
+  enabled: true
+  echo: true
+  warning: true
+  message: false
+---
+
+The full questions and data dictionary are on the Homework 2 page.
+Use your existing personal project and keep the original CSV unchanged.
+Set `data_file` below to your CSV location; no particular folder layout is required.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = TRUE, message = FALSE)
+library(dplyr)
+data_file <- "data/bp_export.csv"
+```
+
+## Part 1: Import and inspect
+
+```{r inspect-file}
+# Display the first six lines of data_file.
+```
+
+Header line and number of lines to skip: **YOUR ANSWER**
+
+```{r import-checks}
+# Import as raw with the correct skip, na.strings, and colClasses.
+# Keep id as character.
+# Show dim(raw), str(raw), and missingness for the blood-pressure columns.
+# Create dat <- raw for the next parts; keep raw unchanged.
+```
+
+## Part 2: Factors
+
+```{r factor-order}
+# Convert dat$arm to a factor: control first, then treated.
+# Create arm_relevelled with treated first; keep dat$arm unchanged.
+# Print both level orders and verify identical observed labels.
+```
+
+Why is assigning reversed text to levels(dat$arm) different? **YOUR ANSWER**
+
+## Part 3: Prepare and summarize with base R
+
+```{r duplicates}
+# Identify the repeated ID with table(), then display its full records.
+# After checking agreement across columns, use unique() to create analysis.
+# Verify row count and one record per participant.
+```
+
+Duplicate decision and unit of observation: **YOUR ANSWER**
+
+```{r base-summary}
+# Add analysis$change = follow-up minus baseline.
+# Use tapply() or aggregate() to show mean observed change by arm.
+# Participant counts will be calculated in Part 4.
+```
+
+## Part 4: Work with dplyr
+
+```{r review-table}
+# Use select() to create review with id, arm, and change.
+# Add observed = !is.na(change) with mutate().
+# Display missing-change records with filter(); keep review unchanged.
+```
+
+```{r tidy-summary}
+# Create tidy_summary: one row per arm, with n_total, n_observed, mean_change.
+# Remove grouping explicitly.
+```
+
+Comparison with Part 3: **YOUR ANSWER**
+
+## Part 5: Interpret the results
+
+Write two or three sentences, including both arm means, contributing counts,
+the direction of change, and the limitations: **YOUR ANSWER**
+
+## Part 6: Reproducibility and Git
+
+This supplied code identifies the exact input file used in this render.
+
+```{r input-record}
+data.frame(
+  file = data_file,
+  md5 = unname(tools::md5sum(data_file))
+)
+```
+
+What would a changed checksum mean, and what would it not prove? **YOUR ANSWER**
+
+```{r software}
+sessionInfo()
+```
+
+Before submission: replace the author and answer placeholders, restart R,
+knit/render, and verify that source, HTML, and unchanged CSV are pushed to your
+existing private course repository's default branch. Make at least two meaningful
+commits as you work. Check that the instructor and TA have access.
+
+The latest version pushed to GitHub by **October 14, 2026, at 11:59 PM Central
+Time** is the submission. Local commits alone do not count. If submitting late
+or requesting that a later revision be graded, notify the TA; the homework's
+late-work policy applies.

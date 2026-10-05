@@ -1,0 +1,49 @@
+---
+title: "Homework 2: Data dictionary"
+subtitle: "Synthetic teaching data; no real participants"
+---
+
+[Return to Homework 2](index.qmd)
+
+## Study and file layout
+
+The intended observation unit is **one participant**, with baseline and follow-up
+measurements in separate columns. The study has 24 participants, with IDs
+`"001"` through `"024"`. The export includes one accidentally repeated record.
+Identify it by inspecting the data; do not remove records merely because an ID
+appears more than once.
+
+The first two lines are descriptive notes. The third line contains column names;
+all later lines are records. There are no totals or footer rows. The delimiter
+is a comma, the decimal mark is a period, and dates use **year-month-day**.
+
+| Variable | Meaning | Import type and rules |
+|---|---|---|
+| `id` | Participant identifier | Character; preserve all three digits |
+| `arm` | Study arm | Character initially; `control` or `treated` |
+| `age` | Age at baseline, in years | Numeric; complete |
+| `sbp_baseline` | Baseline systolic blood pressure, mmHg | Numeric after applying the missing-value rules |
+| `sbp_followup` | Follow-up systolic blood pressure, mmHg | Numeric after applying the missing-value rules |
+| `date_baseline` | Baseline visit date | Character; no date calculation required here |
+| `date_followup` | Follow-up visit date | Character; no date calculation required here |
+
+## Missing-value rules
+
+In the blood-pressure columns, `.` and `NM` both mean **not measured**.
+Treat both as `NA`; neither means zero. They do not occur in other columns.
+A visit date can be recorded even when blood pressure was not measured.
+
+There are no intentionally invalid dates or undocumented numeric corrections.
+Do not infer or invent missing measurements.
+
+## Analysis definitions
+
+- Include all unique participants; there is **no age restriction**.
+- `change = sbp_followup - sbp_baseline`, in mmHg.
+- Change is observed only when **both** measurements are available.
+- Negative change indicates a decrease; zero indicates no change.
+- Calculate means among participants with observed change. Keep participants
+  with missing change in the analysis table and the total participant counts.
+
+These data were constructed for the course, not sampled from a real study.
+Arm comparisons are descriptive exercises, not evidence of treatment efficacy.
