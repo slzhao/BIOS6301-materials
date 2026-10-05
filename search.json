@@ -1358,18 +1358,25 @@
     "text": "Note\n\n\n\nSuggested use: tasks 1–7 are the core analysis-table route. Additional practice repeats only the verbs and ideas introduced in Session 6; unfinished items may be completed after lab.\nChoose one format and copy either starter/dplyr-lab.Rmd or starter/dplyr-lab.qmd to work/session06/. Knit the .Rmd file or Render the .qmd file.\nWork in BIOS6301-mywork.Rproj. Paths under work/ below belong to your personal repository. Copy starters from the separate BIOS6301-materials clone, leaving the course originals unchanged."
   },
   {
+    "objectID": "course/session06/lab.html#setup-install-once-load-in-each-session",
+    "href": "course/session06/lab.html#setup-install-once-load-in-each-session",
+    "title": "Session 6 guided lab",
+    "section": "Setup: install once, load in each session",
+    "text": "Setup: install once, load in each session\nIn the Console, check whether dplyr is installed:\nrequireNamespace(\"dplyr\", quietly = TRUE)\nIf the result is FALSE, install it once:\ninstall.packages(\"dplyr\")\nFor today’s lab, dplyr is sufficient. Alternatively, install.packages(\"tidyverse\") installs the broader collection. Do not put installation commands in a report that runs them every time it renders.\nThe starter already includes this line; keep it in the report:\nlibrary(dplyr)\nInstallation puts the package on your computer. Loading makes its functions available in the current R session, including the fresh session used to render your report. library(tidyverse) attaches the core packages; it is not required for this lab.\n\nIf a loading message says “masked”\nA message that dplyr masks filter or lag is normally informational, not an installation failure. Another package has a function with the same name.\nUse the explicit name when needed:\ndplyr::filter(visit, week == 4)\nHere, dplyr:: identifies which package’s function you want. Run this example after the starter has created visit. It does not install the package.\n\n\nPipe shortcut (optional)\nIn RStudio, choose Tools → Global Options → Code and enable Use native pipe operator if available. Then Ctrl+Shift+M (Windows) or Cmd+Shift+M (macOS) inserts |&gt;. Typing it directly also works."
+  },
+  {
     "objectID": "course/session06/lab.html#tasks",
     "href": "course/session06/lab.html#tasks",
     "title": "Session 6 guided lab",
     "section": "Tasks",
-    "text": "Tasks\n\nState what one row represents. Use count() and filter() to confirm that (id, week) is unique.\nDefine the week-4 analysis population in one sentence, then implement it.\nCreate an observed flag and a marker_band category with the values \"missing\", \"high\", and \"lower\". Put the missing-value condition first.\nProduce one row per arm with total n, observed n, mean, SD, and proportion observed. Return an explicitly ungrouped result.\nCenter marker values within arm with grouped mutate(), then ungroup(). Confirm that the transformation did not change the row count.\nArrange the analysis table by arm, put missing marker values last, and select the columns needed for review.\nVerify the arm-specific observed counts with base R and explain the unit of observation in the analysis table and summary table."
+    "text": "Tasks\n\nState what one row represents. Use count() and filter() to confirm that (id, week) is unique.\nKeep all week-4 records, including missing marker values, in an object named analysis. State this inclusion rule in one sentence.\nIn analysis, create observed = !is.na(marker) and a marker_band category using case_when(): \"missing\" for NA, \"high\" for marker at least 5, and \"lower\" otherwise. Put missingness first.\nProduce one row per arm with total n, observed n, mean, SD, and proportion observed (n_observed / n). Return an explicitly ungrouped result.\nCenter marker values within arm with grouped mutate(), then ungroup(). Confirm that the transformation did not change the row count.\nArrange by arm, then decreasing marker with desc(marker); missing marker values should be last within each arm. Select id, arm, week, marker, observed, marker_band, and the centered marker for review.\nVerify the arm-specific observed counts with base R and explain the unit of observation in the analysis table and summary table."
   },
   {
     "objectID": "course/session06/lab.html#additional-practice-interrogate-the-pipeline",
     "href": "course/session06/lab.html#additional-practice-interrogate-the-pipeline",
     "title": "Session 6 guided lab",
     "section": "Additional practice: interrogate the pipeline",
-    "text": "Additional practice: interrogate the pipeline\n\nRecreate the week-4 analysis table with base R. Sort both versions by ID and inspect them side by side.\nProduce a missingness table by arm and week with total rows, observed marker rows, missing rows, and proportion observed.\nUse count() to tabulate marker_band within arm. Confirm that the explicit \"missing\" category appears.\nUse select() helpers and rename() to make a compact review table with a clearly named marker column.\nUse across() to count missing values in the numeric columns week and marker.\nSummarize by arm and week with .groups = \"drop\". State the row unit of the result and why dropping the grouping is useful.\nAppend one identical duplicate row, diagnose it with count(), and remove it with distinct() only after confirming that the entire row is duplicated.\n\n\nIndependent-practice check\nThe base-R and dplyr week-4 tables should agree after deliberate sorting. The grouped transformation must preserve all six week-4 rows."
+    "text": "Additional practice: interrogate the pipeline\n\nRecreate the week-4 analysis table with base R. Sort both versions by ID and inspect them side by side.\nProduce a missingness table by arm and week with total rows, observed marker rows, missing rows, and proportion observed.\nUse count() to tabulate marker_band within arm. Confirm that the explicit \"missing\" category appears.\nUse select(id, arm, starts_with(\"marker\"), observed) and then rename() to give marker the name marker_value. Alternatively, store those column names in a character vector and use all_of().\nUse across(c(week, marker), function(x) sum(is.na(x))) inside summarise() to count missing values in those two columns. The equivalent \\(x) shorthand from the slides is also acceptable.\nSummarize by arm and week with .groups = \"drop\". State the row unit of the result and why dropping the grouping is useful.\nRun the supplied line visit_with_duplicate &lt;- rbind(visit, visit[1, ]) to append an identical row. Diagnose it with count() and remove it with distinct() only after confirming that the entire row is duplicated. Do not use distinct(id, .keep_all = TRUE): the original data contain two legitimate visits for each participant.\n\n\nIndependent-practice check\nThe base-R and dplyr week-4 tables should agree after deliberate sorting. The grouped transformation must preserve all six week-4 rows."
   },
   {
     "objectID": "course/session06/lab.html#exit-evidence",
@@ -1383,21 +1390,21 @@
     "href": "course/session06/index.html",
     "title": "Session 6 · Tidy data and dplyr",
     "section": "",
-    "text": "State the tidy-data rules, use the core dplyr verbs—including if_else() and case_when()—distinguish grouped mutation from grouped summarization, and translate a pipeline into equivalent base R logic."
+    "text": "Recognize tibbles and pipes, use the core dplyr verbs and column-selection helpers—including if_else(), case_when(), and across()—distinguish grouped mutation from grouped summarization, and translate a pipeline into base R logic."
   },
   {
     "objectID": "course/session06/index.html#learning-goals",
     "href": "course/session06/index.html#learning-goals",
     "title": "Session 6 · Tidy data and dplyr",
     "section": "",
-    "text": "State the tidy-data rules, use the core dplyr verbs—including if_else() and case_when()—distinguish grouped mutation from grouped summarization, and translate a pipeline into equivalent base R logic."
+    "text": "Recognize tibbles and pipes, use the core dplyr verbs and column-selection helpers—including if_else(), case_when(), and across()—distinguish grouped mutation from grouped summarization, and translate a pipeline into base R logic."
   },
   {
     "objectID": "course/session06/index.html#materials",
     "href": "course/session06/index.html#materials",
     "title": "Session 6 · Tidy data and dplyr",
     "section": "Materials",
-    "text": "Materials\n\nSlides\nGuided lab\nLab starter—choose one: starter/dplyr-lab.Rmd or starter/dplyr-lab.qmd\n\nThe lab asks you to choose either base R or dplyr for the main solution and verify one important result with the other style."
+    "text": "Materials\n\nSlides\nGuided lab\nLab starter—choose one: starter/dplyr-lab.Rmd or starter/dplyr-lab.qmd\n\nThis lab practices dplyr for the main analysis and checks one result with base R. The optional extension recreates the analysis table in base R. This targeted practice does not change the course’s general flexibility to use either style."
   },
   {
     "objectID": "course/session05/slides.html#where-we-are",
@@ -2296,6 +2303,34 @@
     "text": "Materials\n\nInteractive HTML lecture slides\nGuided lab\n\n\n\n\n\n\n\nNote\n\n\n\nThe lecture begins in the RStudio workbench, moves from an .R script to a complete R Markdown document, and then applies that model in Quarto. The lab is a scrollable HTML handout. Students create a new RStudio project and every lab source file from scratch; no repository clone or downloaded starter is needed."
   },
   {
+    "objectID": "homework/homework02/data-dictionary.html",
+    "href": "homework/homework02/data-dictionary.html",
+    "title": "Homework 2: Data dictionary",
+    "section": "",
+    "text": "Return to Homework 2"
+  },
+  {
+    "objectID": "homework/homework02/data-dictionary.html#study-and-file-layout",
+    "href": "homework/homework02/data-dictionary.html#study-and-file-layout",
+    "title": "Homework 2: Data dictionary",
+    "section": "Study and file layout",
+    "text": "Study and file layout\nThe intended observation unit is one participant, with baseline and follow-up measurements in separate columns. The study has 24 participants, with IDs \"001\" through \"024\". The export includes one accidentally repeated record. Identify it by inspecting the data; do not remove records merely because an ID appears more than once.\nThe first two lines are descriptive notes. The third line contains column names; all later lines are records. There are no totals or footer rows. The delimiter is a comma, the decimal mark is a period, and dates use year-month-day.\n\n\n\n\n\n\n\n\nVariable\nMeaning\nImport type and rules\n\n\n\n\nid\nParticipant identifier\nCharacter; preserve all three digits\n\n\narm\nStudy arm\nCharacter initially; control or treated\n\n\nage\nAge at baseline, in years\nNumeric; complete\n\n\nsbp_baseline\nBaseline systolic blood pressure, mmHg\nNumeric after applying the missing-value rules\n\n\nsbp_followup\nFollow-up systolic blood pressure, mmHg\nNumeric after applying the missing-value rules\n\n\ndate_baseline\nBaseline visit date\nCharacter; no date calculation required here\n\n\ndate_followup\nFollow-up visit date\nCharacter; no date calculation required here"
+  },
+  {
+    "objectID": "homework/homework02/data-dictionary.html#missing-value-rules",
+    "href": "homework/homework02/data-dictionary.html#missing-value-rules",
+    "title": "Homework 2: Data dictionary",
+    "section": "Missing-value rules",
+    "text": "Missing-value rules\nIn the blood-pressure columns, . and NM both mean not measured. Treat both as NA; neither means zero. They do not occur in other columns. A visit date can be recorded even when blood pressure was not measured.\nThere are no intentionally invalid dates or undocumented numeric corrections. Do not infer or invent missing measurements."
+  },
+  {
+    "objectID": "homework/homework02/data-dictionary.html#analysis-definitions",
+    "href": "homework/homework02/data-dictionary.html#analysis-definitions",
+    "title": "Homework 2: Data dictionary",
+    "section": "Analysis definitions",
+    "text": "Analysis definitions\n\nInclude all unique participants; there is no age restriction.\nchange = sbp_followup - sbp_baseline, in mmHg.\nChange is observed only when both measurements are available.\nNegative change indicates a decrease; zero indicates no change.\nCalculate means among participants with observed change. Keep participants with missing change in the analysis table and the total participant counts.\n\nThese data were constructed for the course, not sampled from a real study. Arm comparisons are descriptive exercises, not evidence of treatment efficacy."
+  },
+  {
     "objectID": "homework/homework01/index.html",
     "href": "homework/homework01/index.html",
     "title": "Homework 1: Reproducible R objects",
@@ -2406,6 +2441,13 @@
     "title": "BIOS6301: Introduction to Statistical Computing",
     "section": "Course sequence",
     "text": "Course sequence\n\n\n\nSession\nTopic\nMain emphasis\n\n\n\n\n0\nSetup and orientation\nself-study diagnostic\n\n\n1\nReproducible documents and workflow\nRStudio, R Markdown, and Quarto\n\n\n2\nGit and GitHub\nversion control\n\n\n3\nR objects\nbase R foundations\n\n\n4\nData structures and base-R handling\ncontainers and base R\n\n\n5\nGetting data into R\nfiles, checks, and dates\n\n\n6\nTidy data and dplyr\ntidyverse + base verification\n\n\n7\nReshaping and joins\nrelational data\n\n\n8\nVisualization\nbase graphics + ggplot2\n\n\n9\nPositron and AI-assisted coding\nCopilot verification and policy\n\n\n10\nPython introduction for R users\ntranslation from familiar R\n\n\n11\nControl flow and functions\nbase R programming\n\n\n12\nDebugging and numerical reliability\nreliable code\n\n\n13\nIteration, vectorization, and functionals\nloops, base functionals, and purrr\n\n\n14\nRandom generation and simulation\nMonte Carlo studies\n\n\n15\nResampling\nbootstrap, permutation, CV\n\n\n16\nSelected Practical Topics in R\nstrings, regex, and flexible needs"
+  },
+  {
+    "objectID": "index.html#assignments",
+    "href": "index.html#assignments",
+    "title": "BIOS6301: Introduction to Statistical Computing",
+    "section": "Assignments",
+    "text": "Assignments\n\nHomework 1: Reproducible R objects\nHomework 2: From a raw data file to a reproducible analysis"
   },
   {
     "objectID": "index.html#r-dialect-policy",
@@ -2532,6 +2574,83 @@
     "title": "BIOS6301: Introduction to Statistical Computing",
     "section": "Disability accommodations",
     "text": "Disability accommodations\nVanderbilt University is committed to providing students with equal access to its educational programs. Students who encounter disability-related barriers and wish to request reasonable accommodations should contact Student Access and submit a request through the Commodore Access Portal. Students with approved accommodations should send their accommodation letter to the instructor and discuss implementation as early as possible. Please also notify the instructor if an accessibility barrier arises in any course material or activity."
+  },
+  {
+    "objectID": "homework/homework02/index.html",
+    "href": "homework/homework02/index.html",
+    "title": "Homework 2: From a raw data file to a reproducible analysis",
+    "section": "",
+    "text": "Due: Wednesday, October 14, 2026, at 11:59 PM Central Time."
+  },
+  {
+    "objectID": "homework/homework02/index.html#purpose-and-scope",
+    "href": "homework/homework02/index.html#purpose-and-scope",
+    "title": "Homework 2: From a raw data file to a reproducible analysis",
+    "section": "Purpose and scope",
+    "text": "Purpose and scope\nImport a synthetic blood-pressure export, inspect and prepare an analysis table, and compare base-R and dplyr summaries. This assignment integrates Sessions 1–6, with emphasis on Sessions 4–6.\nUse base R in Part 3 and dplyr in Part 4. Elsewhere, either style is acceptable. No joins, reshaping, plots, hypothesis tests, loops, or separately written functions are required."
+  },
+  {
+    "objectID": "homework/homework02/index.html#getting-started",
+    "href": "homework/homework02/index.html#getting-started",
+    "title": "Homework 2: From a raw data file to a reproducible analysis",
+    "section": "Getting started",
+    "text": "Getting started\nUse your existing personal R project. Choose one starter: R Markdown or Quarto. Use the supplied CSV and data dictionary.\nReplace the author placeholder with your full name. Set data_file in the starter to the location of your CSV; there is no required folder layout. Keep the CSV and the course-materials originals unchanged."
+  },
+  {
+    "objectID": "homework/homework02/index.html#part-1-import-and-inspect-20-points",
+    "href": "homework/homework02/index.html#part-1-import-and-inspect-20-points",
+    "title": "Homework 2: From a raw data file to a reproducible analysis",
+    "section": "Part 1: Import and inspect — 20 points",
+    "text": "Part 1: Import and inspect — 20 points\n\nInspect the first six lines with readLines(). Identify the header line and the number of descriptive lines to skip.\nImport the file as raw using read.csv(). Preserve IDs as character and declare both documented missing-value codes. Do not edit the CSV manually.\nDisplay dim(raw), str(raw), and missing-value counts for the two blood-pressure columns. Check that the IDs retain leading zeros.\nCreate dat &lt;- raw for the next parts, preserving raw unchanged.\n\nRetain all imported rows until Part 3. Date parsing and follow-up-duration calculations are not required for this assignment."
+  },
+  {
+    "objectID": "homework/homework02/index.html#part-2-factors-15-points",
+    "href": "homework/homework02/index.html#part-2-factors-15-points",
+    "title": "Homework 2: From a raw data file to a reproducible analysis",
+    "section": "Part 2: Factors — 15 points",
+    "text": "Part 2: Factors — 15 points\n\nConvert dat$arm to a factor with levels control, then treated. Create a separate arm_relevelled object with treated first, using relevel(). Print both level orders and verify that the observed labels are unchanged.\nIn one sentence, explain why assigning levels(dat$arm) &lt;- c(\"treated\", \"control\") would not be a safe way to change the reference. Do not perform that assignment on your analysis data.\n\nNo regression model is required."
+  },
+  {
+    "objectID": "homework/homework02/index.html#part-3-prepare-and-summarize-with-base-r-15-points",
+    "href": "homework/homework02/index.html#part-3-prepare-and-summarize-with-base-r-15-points",
+    "title": "Homework 2: From a raw data file to a reproducible analysis",
+    "section": "Part 3: Prepare and summarize with base R — 15 points",
+    "text": "Part 3: Prepare and summarize with base R — 15 points\n\nUse table(dat$id) to identify the repeated ID. Display all records for that ID and confirm they are identical across all columns. Then remove identical rows with unique(), saving the result as analysis. Verify the resulting row count and one record per ID.\nCalculate analysis$change as follow-up minus baseline blood pressure. Keep rows with missing change.\nUse tapply() or aggregate() to calculate mean observed change by arm. You will calculate the participant counts in Part 4; do not repeat them here.\n\nDo not remove one row per repeated ID without examining the full records. An ID could occur at several legitimate visits in a different dataset."
+  },
+  {
+    "objectID": "homework/homework02/index.html#part-4-work-with-dplyr-25-points",
+    "href": "homework/homework02/index.html#part-4-work-with-dplyr-25-points",
+    "title": "Homework 2: From a raw data file to a reproducible analysis",
+    "section": "Part 4: Work with dplyr — 25 points",
+    "text": "Part 4: Work with dplyr — 25 points\nStart with analysis from Part 3; do not repeat the import or cleaning.\n\nCreate review with select(), keeping id, arm, and change. Direct column names or a selection helper are both acceptable.\nUse mutate() to add observed = !is.na(change). Use filter() to display the participants whose change is missing, without removing them from review.\nUse group_by() and summarise() to return one ungrouped row per arm containing n_total, n_observed, and mean_change. Compare the means with Part 3. Hint: sum(observed) counts the observed changes."
+  },
+  {
+    "objectID": "homework/homework02/index.html#part-5-interpret-the-results-5-points",
+    "href": "homework/homework02/index.html#part-5-interpret-the-results-5-points",
+    "title": "Homework 2: From a raw data file to a reproducible analysis",
+    "section": "Part 5: Interpret the results — 5 points",
+    "text": "Part 5: Interpret the results — 5 points\nWrite two or three sentences that:\n\ngive the mean change and its contributing participant count in each arm;\nexplain what a negative change means; and\nexplain why the observed-change count can differ from the total, and why this synthetic comparison does not establish treatment efficacy."
+  },
+  {
+    "objectID": "homework/homework02/index.html#part-6-reproducibility-and-git-20-points",
+    "href": "homework/homework02/index.html#part-6-reproducibility-and-git-20-points",
+    "title": "Homework 2: From a raw data file to a reproducible analysis",
+    "section": "Part 6: Reproducibility and Git — 20 points",
+    "text": "Part 6: Reproducibility and Git — 20 points\n\nRun the supplied tools::md5sum() code and retain the filename and checksum in the report. State what a changed checksum would tell you and why it does not establish data quality.\nInclude sessionInfo(). Restart R and knit/render the whole document.\nReview diffs and make at least two meaningful commits while working (for example: import and checks; completed analysis and interpretation). Stage only intended files.\nPush the completed source, self-contained HTML, and unchanged synthetic CSV to the default branch of your existing private course repository by the deadline. Confirm that the instructor and TA have access."
+  },
+  {
+    "objectID": "homework/homework02/index.html#what-to-submit",
+    "href": "homework/homework02/index.html#what-to-submit",
+    "title": "Homework 2: From a raw data file to a reproducible analysis",
+    "section": "What to submit",
+    "text": "What to submit\nSubmit through GitHub only. Push your completed .Rmd or .qmd source, matching self-contained .html report, and unchanged synthetic CSV to your existing private course repository.\nThe TA will grade the latest version pushed to the repository’s default branch by Wednesday, October 14, 2026, at 11:59 PM Central Time. Saving or committing locally is not sufficient; the files must be on GitHub. Check that the source and HTML match and that the instructor and TA can access them.\nLater changes do not automatically replace the deadline version. If submitting late or requesting that a later revision be graded, notify the TA; the late-work policy above applies.\nKeep code and requested results visible, replace the author and answer placeholders, and make Homework 2 easy to identify in your repository. Do not complete both report formats."
+  },
+  {
+    "objectID": "homework/homework02/index.html#grading-summary",
+    "href": "homework/homework02/index.html#grading-summary",
+    "title": "Homework 2: From a raw data file to a reproducible analysis",
+    "section": "Grading summary",
+    "text": "Grading summary\n\n\n\nComponent\nPoints\n\n\n\n\nImport and inspection\n20\n\n\nFactors\n15\n\n\nBase-R preparation and summaries\n15\n\n\ndplyr analysis\n25\n\n\nInterpretation\n5\n\n\nReproducibility and Git\n20\n\n\nTotal\n100\n\n\n\nCorrect numbers without reproducible code receive only the applicable partial credit. Clear code and correct data meaning matter more than decorative formatting."
   },
   {
     "objectID": "course/session00/index.html",
@@ -3710,20 +3829,6 @@
     "text": "Tasks\n\nInspect readLines(csv_path, n = 6). Import the CSV as raw using read.csv(csv_path, colClasses = \"character\"). Then import it as analysis_import with na.strings = c(\".\", \"NM\") and colClasses = c(id = \"character\", visit_date = \"character\", marker = \"numeric\").\nVerify dimensions, names, types, expected IDs, one row per ID, and missingness. Use dim(), names(), str(), table(), %in%, and colSums(is.na(...)). The expected IDs are P01, P02, P03, P04, and P05.\nUse the raw and analysis imports together to display every marker entry that became missing during parsing.\nUse as.Date(..., format = \"%Y-%m-%d\") and is.na() to find dates that did not parse. Show their original text. Do not guess a correction.\nCopy analysis_import to clean. Add marker_raw and visit_date_raw columns from raw using $. Replace only clean$visit_date with the parsed dates.\nExport the cleaned rectangular table as CSV and RDS, read both back, and compare the preserved classes using str(). Use the supplied csv_out and rds_out paths; no new file-management code is required.\nOptional: repeat the import with readr::read_csv(). Compare the printed column-type message, str(), and missing-value counts with the base-R import."
   },
   {
-    "objectID": "course/session05/lab.html#record-the-input-file-1",
-    "href": "course/session05/lab.html#record-the-input-file-1",
-    "title": "Session 5 guided lab",
-    "section": "Record the input file",
-    "text": "Record the input file\nRun the supplied tools::md5sum(csv_path) chunk before importing the CSV. Include the filename and checksum in the rendered report and keep the report. Explain what a different checksum would tell you—and what it would not tell you."
-  },
-  {
-    "objectID": "course/session05/lab.html#tasks-1",
-    "href": "course/session05/lab.html#tasks-1",
-    "title": "Session 5 guided lab",
-    "section": "Tasks",
-    "text": "Tasks\n\nInspect readLines(csv_path, n = 6). Import the CSV as raw using read.csv(csv_path, colClasses = \"character\"). Then import it as analysis_import with na.strings = c(\".\", \"NM\") and colClasses = c(id = \"character\", visit_date = \"character\", marker = \"numeric\").\nVerify dimensions, names, types, expected IDs, one row per ID, and missingness. Use dim(), names(), str(), table(), %in%, and colSums(is.na(...)). The expected IDs are P01, P02, P03, P04, and P05.\nUse the raw and analysis imports together to display every marker entry that became missing during parsing.\nUse as.Date(..., format = \"%Y-%m-%d\") and is.na() to find dates that did not parse. Show their original text. Do not guess a correction. . Replace only clean$visit_date with the parsed dates.\nExport the cleaned rectangular table as CSV and RDS, read both back, and compare the preserved classes using str(). Use the supplied csv_out and rds_out paths; no new file-management code is required.\nOptional: repeat the import with readr::read_csv(). Compare the printed column-type message, str(), and missing-value counts with the base-R import."
-  },
-  {
     "objectID": "course/session05/lab.html#file-layout-checkpoint-inspect-before-importing",
     "href": "course/session05/lab.html#file-layout-checkpoint-inspect-before-importing",
     "title": "Session 5 guided lab",
@@ -3752,46 +3857,109 @@
     "text": "Where we are\n\n\n\nCourse arc\nSessions\n\n\n\n\n\nSetup and workflow\n0–2\n\n\n\nData foundations\n3–8\n← today\n\n\nModern tools\n9–10\n\n\n\nR programming\n11–13\n\n\n\nStatistical computing\n14–16\n\n\n\n\nToday’s deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used."
   },
   {
-    "objectID": "course/session06/slides.html#what-you-will-be-able-to-do",
-    "href": "course/session06/slides.html#what-you-will-be-able-to-do",
+    "objectID": "course/session06/slides.html#a-familiar-analysis-question",
+    "href": "course/session06/slides.html#a-familiar-analysis-question",
     "title": "Tidyverse Foundations and the dplyr Verbs",
-    "section": "What you will be able to do",
-    "text": "What you will be able to do\n\n1 Explain what library() does, and diagnose a masked function in under a minute.\n2 Distinguish a tibble from a data.frame and say what actually differs.\n3 Write pipelines with |&gt; — and read %&gt;%.\n4 Use select, filter, arrange, mutate, if_else, case_when, rename, distinct, and count.\n5 Compute grouped summaries with an honest n, and know when you still need ungroup().\n6 Translate a base-R data-handling script into dplyr, line by line.\n7 Explain why filter(trial, age &gt; 70) works with no quotes, and where that convenience bites."
+    "section": "A familiar analysis question",
+    "text": "A familiar analysis question\nAmong patients aged 60 or older with a recorded week-12 blood pressure:\n\nKeep the eligible observations.\nCalculate change from baseline.\nFind the mean change in each treatment arm.\n\nYou already have the base-R tools to do this."
+  },
+  {
+    "objectID": "course/session06/slides.html#one-answer-using-base-r",
+    "href": "course/session06/slides.html#one-answer-using-base-r",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "One answer using base R",
+    "text": "One answer using base R\n\neligible &lt;- trial[trial$age &gt;= 60 & !is.na(trial$sbp_12), ]\neligible$change &lt;- eligible$sbp_12 - eligible$sbp_0\nbase_summary &lt;- aggregate(change ~ arm, data = eligible, FUN = mean)\nbase_summary\n\n        arm    change\n1   Placebo  -1.00000\n2 Treatment -14.33333\n\n\nKeep rows → add a column → summarize by group."
+  },
+  {
+    "objectID": "course/session06/slides.html#the-same-answer-using-dplyr",
+    "href": "course/session06/slides.html#the-same-answer-using-dplyr",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "The same answer using dplyr",
+    "text": "The same answer using dplyr\n\ntidy_summary &lt;- trial |&gt;\n  filter(age &gt;= 60, !is.na(sbp_12)) |&gt;\n  mutate(change = sbp_12 - sbp_0) |&gt;\n  group_by(arm) |&gt;\n  summarise(mean_change = mean(change), .groups = \"drop\")\ntidy_summary\n\n# A tibble: 2 x 2\n  arm       mean_change\n  &lt;chr&gt;           &lt;dbl&gt;\n1 Placebo          -1  \n2 Treatment       -14.3\n\n\nRead |&gt; as “and then.” We will unpack each step today."
+  },
+  {
+    "objectID": "course/session06/slides.html#why-develop-another-set-of-tools",
+    "href": "course/session06/slides.html#why-develop-another-set-of-tools",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Why develop another set of tools?",
+    "text": "Why develop another set of tools?\nBase R already supports data analysis. The tidyverse aims to make common workflows easier to express and read:\n\nconsistent interfaces across related tasks;\nnames that describe the operation;\nsmall steps that work together;\nshared conventions for tabular data.\n\nThese are design goals, not a promise that one style is always best."
+  },
+  {
+    "objectID": "course/session06/slides.html#what-is-the-tidyverse",
+    "href": "course/session06/slides.html#what-is-the-tidyverse",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "What is the tidyverse?",
+    "text": "What is the tidyverse?\nA coordinated collection of R packages for data science.\nIt is not another programming language, and it does not replace R.\nUse base R, tidyverse, or a clear combination. The goal is correct, understandable analysis."
+  },
+  {
+    "objectID": "course/session06/slides.html#history-1-plotting-and-reshaping",
+    "href": "course/session06/slides.html#history-1-plotting-and-reshaping",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "History 1 · Plotting and reshaping",
+    "text": "History 1 · Plotting and reshaping\nIn the 2000s, Hadley Wickham developed tools for two practical problems:\n\nreshape: getting data into a useful arrangement;\nggplot, then ggplot2: expressing plots through a grammar of graphics.\n\nSo ggplot2 is a major early foundation—but the story also begins with data preparation."
+  },
+  {
+    "objectID": "course/session06/slides.html#history-2-a-broader-analysis-workflow",
+    "href": "course/session06/slides.html#history-2-a-broader-analysis-workflow",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "History 2 · A broader analysis workflow",
+    "text": "History 2 · A broader analysis workflow\nOther needs led to more packages: text, dates, grouped calculations, and import.\n\nplyr preceded dplyr in group-wise data manipulation.\nreshape and reshape2 preceded tidyr.\nThe collection received the tidyverse name in 2016.\n\nThe ecosystem developed gradually; it was not designed all at once."
+  },
+  {
+    "objectID": "course/session06/slides.html#history-3-from-individual-packages-to-a-community",
+    "href": "course/session06/slides.html#history-3-from-individual-packages-to-a-community",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "History 3 · From individual packages to a community",
+    "text": "History 3 · From individual packages to a community\nHadley Wickham played a central early role. Development expanded through collaborators, the RStudio/Posit team, and open-source contributors.\nThe packages share ideas, but do not all have the same authors.\nWhy this matters: familiar conventions can carry from one package to another."
+  },
+  {
+    "objectID": "course/session06/slides.html#package-map-the-main-data-workflow",
+    "href": "course/session06/slides.html#package-map-the-main-data-workflow",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Package map · The main data workflow",
+    "text": "Package map · The main data workflow\n\n\n\nJob\nPackage\nCourse connection\n\n\n\n\nRead CSV/TSV files\nreadr\nSession 5\n\n\nWork with tabular objects\ntibble\nToday\n\n\nFilter, transform, summarize\ndplyr\nToday\n\n\nReshape tables\ntidyr\nSession 7\n\n\nVisualize\nggplot2\nSession 8\n\n\n\nKnow each package’s job; do not memorize its functions yet."
+  },
+  {
+    "objectID": "course/session06/slides.html#package-map-supporting-tools",
+    "href": "course/session06/slides.html#package-map-supporting-tools",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Package map · Supporting tools",
+    "text": "Package map · Supporting tools\n\n\n\nJob\nPackage\n\n\n\n\nWork with text\nstringr\n\n\nWork with factors\nforcats\n\n\nWork with dates and times\nlubridate\n\n\nApply operations repeatedly\npurrr\n\n\n\nTogether with the previous slide, these are the nine core packages.\nreadxl, used for Excel in Session 5, is a related package outside the core set attached by library(tidyverse)."
+  },
+  {
+    "objectID": "course/session06/slides.html#what-we-will-learn-today",
+    "href": "course/session06/slides.html#what-we-will-learn-today",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "What we will learn today",
+    "text": "What we will learn today\n\nRead tibbles and step-by-step pipelines.\nUse dplyr verbs for rows, columns, and derived variables.\nSummarize within groups and check the number of observations.\nConnect the results to equivalent base-R operations.\n\nInstallation and loading are guided steps in the lab."
   },
   {
     "objectID": "course/session06/slides.html#roadmap-for-today",
     "href": "course/session06/slides.html#roadmap-for-today",
     "title": "Tidyverse Foundations and the dplyr Verbs",
     "section": "Roadmap for today",
-    "text": "Roadmap for today\n\n\n\n\n\n\n\n\n\nBlock\nMinutes\n\n\n\n\n1\nPackages, namespaces, and masking\n15\n\n\n2\nData frames and tibbles\n10\n\n\n3\nThe pipe, and the design principles\n10\n\n\n4\nThe verbs: select filter arrange mutate if_else case_when …\n25\n\n\n5\nGrouping: group_by summarise count across\n20\n\n\n6\nTranslating session 4, line by line\n5\n\n\n7\nTidy evaluation in ten minutes\n10\n\n\n\n\nSame 60-patient cohort as every other session. Three 12-week visits are missing, and that is deliberate."
-  },
-  {
-    "objectID": "course/session06/slides.html#installed-loaded-or-reached-into",
-    "href": "course/session06/slides.html#installed-loaded-or-reached-into",
-    "title": "Tidyverse Foundations and the dplyr Verbs",
-    "section": "Installed, loaded, or reached into",
-    "text": "Installed, loaded, or reached into\n\n\n\n\n\n\n\n\n\n\n\nCommand\nHow often\nChanges\n\n\n\n\nInstall\ninstall.packages(\"dplyr\")\nOnce per machine\nYour hard disk\n\n\nLoad\nlibrary(dplyr)\nEvery session\nThis R session\n\n\nReach in\ndplyr::n_distinct(x)\nPer call\nNothing\n\n\n\n\n\n\nhead(search(), 5)\n\n[1] \".GlobalEnv\"      \"package:knitr\"   \"package:ggplot2\" \"package:dplyr\"  \n[5] \"package:stats\"  \n\n\n\nsearch() is the list of places R looks up a name, in order, from left to right. library() pushes a package onto the front of that list; :: skips the list entirely and documents the dependency where it is used."
-  },
-  {
-    "objectID": "course/session06/slides.html#what-masking-actually-looks-like",
-    "href": "course/session06/slides.html#what-masking-actually-looks-like",
-    "title": "Tidyverse Foundations and the dplyr Verbs",
-    "section": "What masking actually looks like",
-    "text": "What masking actually looks like\n\nround(stats::filter(trial$sbp_0[1:8], rep(1/3, 3)), 1)\n\nTime Series:\nStart = 1 \nEnd = 8 \nFrequency = 1 \n[1]    NA 159.7 158.7 153.3 143.3 145.0 147.3    NA\n\n\n\n\nstats::filter() is a time-series filter — a moving average. It has nothing to do with rows.\n\n\n\n\nstats::filter(trial, age &gt; 70)\n\nError: object 'age' not found"
+    "text": "Roadmap for today\n\n\n\nMinutes\nFocus\n\n\n\n\n0–15\nMotivation, brief history, package map\n\n\n15–25\nTibbles and pipes\n\n\n25–40\nRow/column verbs, selection helpers, intermediate results\n\n\n40–50\nDerived variables, if_else, and case_when\n\n\n50–65\nGrouping, summarise, mutate, and ungroup\n\n\n65–75\nacross: reuse one operation\n\n\n75–82\nCounts and duplicate records\n\n\n82–90\nComplete example and recap"
   },
   {
     "objectID": "course/session06/slides.html#a-tibble-is-a-data-frame",
     "href": "course/session06/slides.html#a-tibble-is-a-data-frame",
     "title": "Tidyverse Foundations and the dplyr Verbs",
     "section": "A tibble is a data frame",
-    "text": "A tibble is a data frame\n\ntrial &lt;- tibble::as_tibble(trial)   # from here on, trial is a tibble\nclass(trial)\n\n[1] \"tbl_df\"     \"tbl\"        \"data.frame\"\n\ntrial\n\n# A tibble: 60 x 8\n   id    arm      site   age sex   weight_kg sbp_0 sbp_12\n   &lt;chr&gt; &lt;chr&gt;   &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;\n 1 P001  Placebo     1    47 M          90     160    144\n 2 P002  Placebo     4    59 M          67.8   162    156\n 3 P003  Placebo     3    61 M          30.1   157    156\n 4 P004  Placebo     1    48 M          91.8   157    163\n 5 P005  Placebo     4    68 M          82.5   146    140\n 6 P006  Placebo     2    59 M          98.3   127    125\n 7 P007  Placebo     1    88 F         111     162     NA\n 8 P008  Placebo     4    52 M          70.2   153    149\n 9 P009  Placebo     3    57 F          85.6   150    144\n10 P010  Placebo     3    72 M          87.8   142    149\n# i 50 more rows\n\n\n\nThree classes, and data.frame is the last one — so everything from session 4 still applies. What changed is the printing: ten rows, a row count, and the type of every column for free."
+    "text": "A tibble is a data frame\n\ntrial &lt;- tibble::as_tibble(trial)   # from here on, trial is a tibble\nclass(trial)\n\n[1] \"tbl_df\"     \"tbl\"        \"data.frame\"\n\nprint(trial, n = 6, width = 80)\n\n# A tibble: 60 x 8\n  id    arm      site   age sex   weight_kg sbp_0 sbp_12\n  &lt;chr&gt; &lt;chr&gt;   &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;\n1 P001  Placebo     1    47 M          90     160    144\n2 P002  Placebo     4    59 M          67.8   162    156\n3 P003  Placebo     3    61 M          30.1   157    156\n4 P004  Placebo     1    48 M          91.8   157    163\n5 P005  Placebo     4    68 M          82.5   146    140\n6 P006  Placebo     2    59 M          98.3   127    125\n# i 54 more rows\n\n\n\nA tibble inherits from data.frame. Many familiar operations still work. The printout shows dimensions and column types; here we display six rows."
   },
   {
-    "objectID": "course/session06/slides.html#three-surprises-a-tibble-removes",
-    "href": "course/session06/slides.html#three-surprises-a-tibble-removes",
+    "objectID": "course/session06/slides.html#a-small-example-table-or-vector",
+    "href": "course/session06/slides.html#a-small-example-table-or-vector",
     "title": "Tidyverse Foundations and the dplyr Verbs",
-    "section": "Three surprises a tibble removes",
-    "text": "Three surprises a tibble removes\n\ntrial$ag                    # session 4: partial matching gave you `age`\n\nWarning: Unknown or uninitialised column: `ag`.\n\n\nNULL\n\nclass(trial[, \"age\"])       # session 4: dropped to a vector\n\n[1] \"tbl_df\"     \"tbl\"        \"data.frame\"\n\n\n\n\n\n\n\n\n\n\n\nSession 4 surprise\nTibble\n\n\n\n\n$ partially matches a typo\nWarns, returns NULL\n\n\n[ drops one column to a vector\nAlways a tibble — no drop = FALSE needed\n\n\nstringsAsFactors history\nNever converts anything"
+    "section": "A small example: table or vector?",
+    "text": "A small example: table or vector?\n\nplain &lt;- data.frame(age = c(50, 60), arm = c(\"A\", \"B\"))\ntbl &lt;- tibble::as_tibble(plain)\nclass(plain[, \"age\"])\n\n[1] \"numeric\"\n\nclass(tbl[, \"age\"])\n\n[1] \"tbl_df\"     \"tbl\"        \"data.frame\"\n\ntbl[[\"age\"]]\n\n[1] 50 60\n\n\nA tibble’s [ keeps a table by default; [[ extracts a column vector."
+  },
+  {
+    "objectID": "course/session06/slides.html#exact-names-reduce-accidental-matches",
+    "href": "course/session06/slides.html#exact-names-reduce-accidental-matches",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Exact names reduce accidental matches",
+    "text": "Exact names reduce accidental matches\n\nplain$ag\n\n[1] 50 60\n\ntbl$ag\n\nWarning: Unknown or uninitialised column: `ag`.\n\n\nNULL\n\n\nThe data frame partially matches age. The tibble warns and returns NULL.\nA tibble combines familiar data-frame storage with different defaults for printing, subsetting, and name checking—not just shorter printing."
   },
   {
     "objectID": "course/session06/slides.html#the-pipe-mechanically",
@@ -3805,28 +3973,70 @@
     "href": "course/session06/slides.html#because-you-will-read-it-everywhere",
     "title": "Tidyverse Foundations and the dplyr Verbs",
     "section": "%>% — because you will read it everywhere",
-    "text": "%&gt;% — because you will read it everywhere\n# magrittr / tidyverse pipe — needs library(magrittr) or library(dplyr)\ntrial %&gt;% filter(age &gt; 70) %&gt;% summarise(m = mean(sbp_0))\n\n# native pipe — base R since 4.1, nothing to load\ntrial |&gt; filter(age &gt; 70) |&gt; summarise(m = mean(sbp_0))\n\n\n\n\n\n\n\n\n\n\n\n%&gt;%\n|&gt;\n\n\n\n\nComes from\nthe magrittr package\nbase R, since 4.1 (2021)\n\n\nPlaceholder\n. — anywhere, repeatable\n_ — named argument only\n\n\nBare function name\nx %&gt;% mean works\nx |&gt; mean is an error; needs mean()\n\n\n\n\n\n\n\nWrite |&gt;. Read %&gt;%. Ninety percent of the dplyr code written before 2021 uses %&gt;%, and that includes most of the internet."
+    "text": "%&gt;% — because you will read it everywhere\n# magrittr / tidyverse pipe — needs library(magrittr) or library(dplyr)\ntrial %&gt;% filter(age &gt; 70) %&gt;% summarise(m = mean(sbp_0))\n\n# native pipe — base R since 4.1, nothing to load\ntrial |&gt; filter(age &gt; 70) |&gt; summarise(m = mean(sbp_0))"
   },
   {
-    "objectID": "course/session06/slides.html#four-design-principles",
-    "href": "course/session06/slides.html#four-design-principles",
+    "objectID": "course/session06/slides.html#two-pipe-styles",
+    "href": "course/session06/slides.html#two-pipe-styles",
     "title": "Tidyverse Foundations and the dplyr Verbs",
-    "section": "Four design principles",
-    "text": "Four design principles\n\n\n\n\n\n\n\n\nPrinciple\nConsequence\n\n\n\n\nData comes first\nEvery verb pipes\n\n\nFunctions are verbs\nThe code says what it does: filter, arrange\n\n\nData frame in, data frame out\nAny verb can follow any verb\n\n\nColumns are bare names\nNo trial$ on every line\n\n\n\n\n\n\n\n\n\n\n\nConsistency is the feature. Learning the fifth verb costs nothing once you know the first four, because all four rules hold for all of them."
+    "section": "Two pipe styles",
+    "text": "Two pipe styles\n\n\n\n\n\n\n\n\n\n\n%&gt;%\n|&gt;\n\n\n\n\nComes from\nthe magrittr package\nbase R, since 4.1 (2021)\n\n\nBare function name\nx %&gt;% mean works\nx |&gt; mean is an error; needs mean()\n\n\n\n\n\n\nWrite |&gt;. Read %&gt;%. Both appear frequently in R examples."
+  },
+  {
+    "objectID": "course/session06/slides.html#a-consistent-pattern-for-dplyr-verbs",
+    "href": "course/session06/slides.html#a-consistent-pattern-for-dplyr-verbs",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "A consistent pattern for dplyr verbs",
+    "text": "A consistent pattern for dplyr verbs\n\nThe table is the first argument.\nFunction names describe the task.\nMost common verbs return another table.\nColumn names can be used directly inside these verbs.\n\nThis makes step-by-step pipelines convenient. Still check what each step does to rows, columns, and grouping."
   },
   {
     "objectID": "course/session06/slides.html#one-grammar",
     "href": "course/session06/slides.html#one-grammar",
     "title": "Tidyverse Foundations and the dplyr Verbs",
     "section": "One grammar",
-    "text": "One grammar\n\n\n\n\n\nflowchart LR\n  D[\"&lt;b&gt;trial&lt;/b&gt;&lt;br/&gt;60 rows\"] --&gt; F[\"&lt;b&gt;filter()&lt;/b&gt;&lt;br/&gt;fewer rows\"]\n  F --&gt; M[\"&lt;b&gt;mutate()&lt;/b&gt;&lt;br/&gt;more columns\"]\n  M --&gt; G[\"&lt;b&gt;group_by()&lt;/b&gt;&lt;br/&gt;+ metadata\"]\n  G --&gt; S[\"&lt;b&gt;summarise()&lt;/b&gt;&lt;br/&gt;one row per group\"]\n  S --&gt; R[\"&lt;b&gt;result&lt;/b&gt;&lt;br/&gt;2 rows\"]\n  style D fill:#f4efe4,stroke:#CFAE70\n  style R fill:#CFAE70,stroke:#8a7448,color:#fff\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nVerb\nChanges\nBase-R relative\n\n\n\n\nselect, rename, relocate\nwhich columns, and their names\ndf[, cols], names()\n\n\nfilter, distinct, slice\nwhich rows\ndf[i, ], subset(), duplicated()\n\n\narrange\nrow order\norder()\n\n\nmutate\nadds columns\ntransform(), df$new &lt;-\n\n\nsummarise, count\ncollapses rows\naggregate(), table()"
+    "text": "One grammar\n\n\n\n\n\nflowchart LR\n  D[\"&lt;b&gt;trial&lt;/b&gt;&lt;br/&gt;60 rows\"] --&gt; F[\"&lt;b&gt;filter()&lt;/b&gt;&lt;br/&gt;fewer rows\"]\n  F --&gt; M[\"&lt;b&gt;mutate()&lt;/b&gt;&lt;br/&gt;more columns\"]\n  M --&gt; G[\"&lt;b&gt;group_by()&lt;/b&gt;&lt;br/&gt;+ metadata\"]\n  G --&gt; S[\"&lt;b&gt;summarise()&lt;/b&gt;&lt;br/&gt;one row per group\"]\n  S --&gt; R[\"&lt;b&gt;result&lt;/b&gt;&lt;br/&gt;2 rows\"]\n  style D fill:#f4efe4,stroke:#CFAE70\n  style R fill:#CFAE70,stroke:#8a7448,color:#fff"
   },
   {
-    "objectID": "course/session06/slides.html#select",
-    "href": "course/session06/slides.html#select",
+    "objectID": "course/session06/slides.html#what-each-verb-changes",
+    "href": "course/session06/slides.html#what-each-verb-changes",
     "title": "Tidyverse Foundations and the dplyr Verbs",
-    "section": "select()",
-    "text": "select()\n\ntrial |&gt; select(id, arm, sbp_0, sbp_12) |&gt; head(3)\n\n# A tibble: 3 x 4\n  id    arm     sbp_0 sbp_12\n  &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt;  &lt;dbl&gt;\n1 P001  Placebo   160    144\n2 P002  Placebo   162    156\n3 P003  Placebo   157    156\n\n\n\n\ntrial |&gt; select(id, starts_with(\"sbp\")) |&gt; names()\n\n[1] \"id\"     \"sbp_0\"  \"sbp_12\"\n\ntrial |&gt; select(where(is.numeric)) |&gt; names()\n\n[1] \"site\"      \"age\"       \"weight_kg\" \"sbp_0\"     \"sbp_12\"   \n\ntrial |&gt; select(!c(site, sex)) |&gt; names()\n\n[1] \"id\"        \"arm\"       \"age\"       \"weight_kg\" \"sbp_0\"     \"sbp_12\"   \n\n\n\n\n\n\n\n\nThe base R way\n\n\ntrial[, c(\"id\", \"arm\", \"sbp_0\", \"sbp_12\")]\ntrial[, grep(\"^sbp\", names(trial))]"
+    "section": "What each verb changes",
+    "text": "What each verb changes\n\n\n\n\n\n\n\n\n\nVerb\nChanges\nBase-R relative\n\n\n\n\nselect, rename, relocate\nwhich columns, and their names\ndf[, cols], names()\n\n\nfilter, distinct, slice\nwhich rows\ndf[i, ], subset(), duplicated()\n\n\narrange\nrow order\norder()\n\n\nmutate\nadds columns\ntransform(), df$new &lt;-\n\n\nsummarise, count\ncollapses rows\naggregate(), table()"
+  },
+  {
+    "objectID": "course/session06/slides.html#select-choose-columns",
+    "href": "course/session06/slides.html#select-choose-columns",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "select(): choose columns",
+    "text": "select(): choose columns\n\ntrial |&gt; select(id, arm, sbp_0, sbp_12) |&gt; head(3)\n\n# A tibble: 3 x 4\n  id    arm     sbp_0 sbp_12\n  &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt;  &lt;dbl&gt;\n1 P001  Placebo   160    144\n2 P002  Placebo   162    156\n3 P003  Placebo   157    156\n\n\nColumns appear in the order requested. Rows stay the same.\n# Base R: the same column selection\ntrial[, c(\"id\", \"arm\", \"sbp_0\", \"sbp_12\")]"
+  },
+  {
+    "objectID": "course/session06/slides.html#select-columns-by-their-names",
+    "href": "course/session06/slides.html#select-columns-by-their-names",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Select columns by their names",
+    "text": "Select columns by their names\n\ntrial |&gt; select(starts_with(\"sbp\")) |&gt; names()\n\n[1] \"sbp_0\"  \"sbp_12\"\n\ntrial |&gt; select(ends_with(\"_12\")) |&gt; names()\n\n[1] \"sbp_12\"\n\ntrial |&gt; select(contains(\"weight\")) |&gt; names()\n\n[1] \"weight_kg\"\n\n\nThese are selection helpers, not separate data-cleaning steps."
+  },
+  {
+    "objectID": "course/session06/slides.html#where-choose-columns-by-type",
+    "href": "course/session06/slides.html#where-choose-columns-by-type",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "where(): choose columns by type",
+    "text": "where(): choose columns by type\n\nis.numeric(trial$age)\n\n[1] TRUE\n\nis.numeric(trial$arm)\n\n[1] FALSE\n\ntrial |&gt; select(where(is.numeric)) |&gt; names()\n\n[1] \"site\"      \"age\"       \"weight_kg\" \"sbp_0\"     \"sbp_12\"   \n\n\nwhere(is.numeric) applies the test to each column.\nPass the function is.numeric, not an empty call is.numeric()."
+  },
+  {
+    "objectID": "course/session06/slides.html#all_of-names-stored-in-a-vector",
+    "href": "course/session06/slides.html#all_of-names-stored-in-a-vector",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "all_of(): names stored in a vector",
+    "text": "all_of(): names stored in a vector\n\nwanted &lt;- c(\"id\", \"sbp_12\")\ntrial |&gt; select(all_of(wanted)) |&gt; head(3)\n\n# A tibble: 3 x 2\n  id    sbp_12\n  &lt;chr&gt;  &lt;dbl&gt;\n1 P001     144\n2 P002     156\n3 P003     156\n\n\nUse all_of(wanted) when all requested columns are required.\nThe character vector contains names; it is not itself a data column."
+  },
+  {
+    "objectID": "course/session06/slides.html#all_of-versus-any_of",
+    "href": "course/session06/slides.html#all_of-versus-any_of",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "all_of() versus any_of()",
+    "text": "all_of() versus any_of()\n\nwanted &lt;- c(\"id\", \"not_recorded\")\ntrial |&gt; select(all_of(wanted))\n\nError in `select()`:\ni In argument: `all_of(wanted)`.\nCaused by error in `all_of()`:\n! Can't subset elements that don't exist.\nx Element `not_recorded` doesn't exist.\n\n\n\ntrial |&gt; select(any_of(wanted)) |&gt; names()\n\n[1] \"id\"\n\n\nany_of() skips absent names. Use it only when their absence is acceptable."
   },
   {
     "objectID": "course/session06/slides.html#filter",
@@ -3834,6 +4044,13 @@
     "title": "Tidyverse Foundations and the dplyr Verbs",
     "section": "filter()",
     "text": "filter()\n\ntrial |&gt; filter(arm == \"Treatment\", age &gt; 70) |&gt; select(id, age, sbp_12)\n\n# A tibble: 7 x 3\n  id      age sbp_12\n  &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt;\n1 P032     75    138\n2 P034     72    131\n3 P036     77    130\n4 P039     76    142\n5 P051     87    153\n6 P052     73    133\n7 P054     73    121\n\n\n\n\nCommas mean and. Use | for or, and %in% for a set: filter(site %in% c(1, 2)).\n\n\n\n\n\n\n\nThe base R way\n\n\nsubset(trial, arm == \"Treatment\" & age &gt; 70, select = c(id, age, sbp_12))\ntrial[which(trial$arm == \"Treatment\" & trial$age &gt; 70), c(\"id\", \"age\", \"sbp_12\")]"
+  },
+  {
+    "objectID": "course/session06/slides.html#row-conditions-are-different-from-column-helpers",
+    "href": "course/session06/slides.html#row-conditions-are-different-from-column-helpers",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Row conditions are different from column helpers",
+    "text": "Row conditions are different from column helpers\n\ntrial |&gt;\n  filter(between(age, 50, 70), site %in% c(1, 2)) |&gt;\n  select(id, age, site) |&gt; head(3)\n\n# A tibble: 3 x 3\n  id      age  site\n  &lt;chr&gt; &lt;dbl&gt; &lt;int&gt;\n1 P006     59     2\n2 P014     58     1\n3 P022     58     1\n\n\n\nbetween(age, 50, 70): includes both 50 and 70.\nsite %in% c(1, 2): membership in a set.\nselect(where(is.numeric)): chooses columns, not rows."
   },
   {
     "objectID": "course/session06/slides.html#filter-and-missing-values",
@@ -3847,21 +4064,70 @@
     "href": "course/session06/slides.html#arrange",
     "title": "Tidyverse Foundations and the dplyr Verbs",
     "section": "arrange()",
-    "text": "arrange()\n\ntrial |&gt; arrange(desc(sbp_12)) |&gt; select(id, arm, sbp_12) |&gt; head(3)\n\n# A tibble: 3 x 3\n  id    arm     sbp_12\n  &lt;chr&gt; &lt;chr&gt;    &lt;dbl&gt;\n1 P028  Placebo    184\n2 P025  Placebo    166\n3 P004  Placebo    163\n\n\n\n\ntrial |&gt; arrange(desc(sbp_12)) |&gt; select(id, sbp_12) |&gt; tail(3)\n\n# A tibble: 3 x 2\n  id    sbp_12\n  &lt;chr&gt;  &lt;dbl&gt;\n1 P007      NA\n2 P023      NA\n3 P041      NA\n\n\n\n\n\n\n\n\nThe base R way\n\n\ntrial[order(-trial$sbp_12), c(\"id\", \"arm\", \"sbp_12\")]\ntrial[order(trial$arm, -trial$sbp_0), ]"
+    "text": "arrange()\n\ntrial |&gt; arrange(desc(sbp_12)) |&gt;\n  select(id, arm, sbp_12) |&gt; head(3)\n\n# A tibble: 3 x 3\n  id    arm     sbp_12\n  &lt;chr&gt; &lt;chr&gt;    &lt;dbl&gt;\n1 P028  Placebo    184\n2 P025  Placebo    166\n3 P004  Placebo    163"
+  },
+  {
+    "objectID": "course/session06/slides.html#missing-values-sort-last",
+    "href": "course/session06/slides.html#missing-values-sort-last",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Missing values sort last",
+    "text": "Missing values sort last\n\ntrial |&gt; arrange(desc(sbp_12)) |&gt; select(id, sbp_12) |&gt; tail(3)\n\n# A tibble: 3 x 2\n  id    sbp_12\n  &lt;chr&gt;  &lt;dbl&gt;\n1 P007      NA\n2 P023      NA\n3 P041      NA\n\n\n\n\n\n\n\n\nThe base R way\n\n\ntrial[order(-trial$sbp_12), c(\"id\", \"arm\", \"sbp_12\")]\ntrial[order(trial$arm, -trial$sbp_0), ]"
   },
   {
     "objectID": "course/session06/slides.html#mutate",
     "href": "course/session06/slides.html#mutate",
     "title": "Tidyverse Foundations and the dplyr Verbs",
     "section": "mutate()",
-    "text": "mutate()\n\ntrial &lt;- trial |&gt;\n  mutate(\n    change    = sbp_12 - sbp_0,\n    responder = change &lt; -10\n  )\ntrial |&gt; select(id, sbp_0, sbp_12, change, responder) |&gt; head(3)\n\n# A tibble: 3 x 5\n  id    sbp_0 sbp_12 change responder\n  &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;lgl&gt;    \n1 P001    160    144    -16 TRUE     \n2 P002    162    156     -6 FALSE    \n3 P003    157    156     -1 FALSE    \n\n\n\n\ntransform(trial, sbp_x2 = sbp_0 * 2, sbp_x3 = sbp_x2 + sbp_0)\n\nError in eval(substitute(list(...)), `_data`, parent.frame()): object 'sbp_x2' not found\n\n\n\n\n\n\n\n\nThe base R way\n\n\ntrial$change &lt;- trial$sbp_12 - trial$sbp_0\ntrial$responder &lt;- trial$change &lt; -10"
+    "text": "mutate()\n\ntrial &lt;- trial |&gt;\n  mutate(\n    change    = sbp_12 - sbp_0,\n    responder = change &lt; -10\n  )\ntrial |&gt; select(id, sbp_0, sbp_12, change, responder) |&gt; head(3)\n\n# A tibble: 3 x 5\n  id    sbp_0 sbp_12 change responder\n  &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt; &lt;lgl&gt;    \n1 P001    160    144    -16 TRUE     \n2 P002    162    156     -6 FALSE    \n3 P003    157    156     -1 FALSE"
   },
   {
-    "objectID": "course/session06/slides.html#if_else-is-strict-where-ifelse-is-permissive",
-    "href": "course/session06/slides.html#if_else-is-strict-where-ifelse-is-permissive",
+    "objectID": "course/session06/slides.html#sequential-calculations-in-mutate",
+    "href": "course/session06/slides.html#sequential-calculations-in-mutate",
     "title": "Tidyverse Foundations and the dplyr Verbs",
-    "section": "if_else() is strict where ifelse() is permissive",
-    "text": "if_else() is strict where ifelse() is permissive\n\nifelse(c(TRUE, FALSE), 1, \"x\")\n\n[1] \"1\" \"x\"\n\nif_else(c(TRUE, FALSE), 1, \"x\")\n\nError in `if_else()`:\n! Can't combine `true` &lt;double&gt; and `false` &lt;character&gt;.\n\n\n\n\nif_else(c(TRUE, FALSE, NA), 1, 0, missing = -1)\n\n[1]  1  0 -1\n\n\n\n\n\n\n\n\nif_else() requires compatible types and sizes and gives missing conditions an explicit result. It stops where ifelse() might silently coerce or recycle."
+    "section": "Sequential calculations in mutate()",
+    "text": "Sequential calculations in mutate()\n\ntransform(trial, sbp_x2 = sbp_0 * 2, sbp_x3 = sbp_x2 + sbp_0)\n\nError in eval(substitute(list(...)), `_data`, parent.frame()): object 'sbp_x2' not found\n\n\n\n\n\n\n\n\nSequential assignment in base R\n\n\ntrial$change &lt;- trial$sbp_12 - trial$sbp_0\ntrial$responder &lt;- trial$change &lt; -10"
+  },
+  {
+    "objectID": "course/session06/slides.html#follow-one-pipeline-six-patients",
+    "href": "course/session06/slides.html#follow-one-pipeline-six-patients",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Follow one pipeline: six patients",
+    "text": "Follow one pipeline: six patients\n\ndemo &lt;- tibble::tibble(\n  id = paste0(\"P\", 1:6), arm = rep(c(\"A\", \"B\"), each = 3),\n  age = c(45, 65, 70, 55, 68, 72),\n  sbp_0 = c(140, 150, 160, 130, 145, 155),\n  sbp_12 = c(135, 140, NA, 125, 135, 140)\n)\nknitr::kable(demo)\n\n\n\n\nid\narm\nage\nsbp_0\nsbp_12\n\n\n\n\nP1\nA\n45\n140\n135\n\n\nP2\nA\n65\n150\n140\n\n\nP3\nA\n70\n160\nNA\n\n\nP4\nB\n55\n130\n125\n\n\nP5\nB\n68\n145\n135\n\n\nP6\nB\n72\n155\n140\n\n\n\n\n\nWhich rows meet age &gt;= 60 and have a recorded follow-up?"
+  },
+  {
+    "objectID": "course/session06/slides.html#step-1-keep-eligible-rows",
+    "href": "course/session06/slides.html#step-1-keep-eligible-rows",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Step 1: keep eligible rows",
+    "text": "Step 1: keep eligible rows\n\nstep1 &lt;- demo |&gt; filter(age &gt;= 60, !is.na(sbp_12))\nknitr::kable(step1)\n\n\n\n\nid\narm\nage\nsbp_0\nsbp_12\n\n\n\n\nP2\nA\n65\n150\n140\n\n\nP5\nB\n68\n145\n135\n\n\nP6\nB\n72\n155\n140\n\n\n\n\n\nSix rows become three. No columns have been added or removed."
+  },
+  {
+    "objectID": "course/session06/slides.html#step-2-derive-a-value-then-choose-columns",
+    "href": "course/session06/slides.html#step-2-derive-a-value-then-choose-columns",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Step 2: derive a value, then choose columns",
+    "text": "Step 2: derive a value, then choose columns\n\nstep2 &lt;- step1 |&gt; mutate(change = sbp_12 - sbp_0)\nstep3 &lt;- step2 |&gt; select(id, arm, change)\nknitr::kable(step3)\n\n\n\n\nid\narm\nchange\n\n\n\n\nP2\nA\n-10\n\n\nP5\nB\n-10\n\n\nP6\nB\n-15\n\n\n\n\n\nmutate() adds change; select() keeps three columns.\nInspect intermediate objects when a longer pipeline gives a surprising answer."
+  },
+  {
+    "objectID": "course/session06/slides.html#if_else-first-a-working-example",
+    "href": "course/session06/slides.html#if_else-first-a-working-example",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "if_else(): first, a working example",
+    "text": "if_else(): first, a working example\n\nflag &lt;- c(TRUE, FALSE)\nif_else(flag, 1, 0)\n\n[1] 1 0\n\n\nThe arguments are condition, value if true, value if false.\nBoth output branches can be combined into one numeric type."
+  },
+  {
+    "objectID": "course/session06/slides.html#incompatible-output-types-are-a-separate-issue",
+    "href": "course/session06/slides.html#incompatible-output-types-are-a-separate-issue",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Incompatible output types are a separate issue",
+    "text": "Incompatible output types are a separate issue\n\nifelse(c(TRUE, FALSE), 1, \"x\")\n\n[1] \"1\" \"x\"\n\nif_else(c(TRUE, FALSE), 1, \"x\")\n\nError in `if_else()`:\n! Can't combine `true` &lt;double&gt; and `false` &lt;character&gt;.\n\n\nBase ifelse() converts to character here; if_else() rejects the numeric/character combination.\nAdding an NA condition does not fix incompatible output types."
+  },
+  {
+    "objectID": "course/session06/slides.html#missing-conditions-decide-explicitly",
+    "href": "course/session06/slides.html#missing-conditions-decide-explicitly",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Missing conditions: decide explicitly",
+    "text": "Missing conditions: decide explicitly\n\nflag &lt;- c(TRUE, FALSE, NA)\nif_else(flag, 1, 0)\n\n[1]  1  0 NA\n\nif_else(flag, \"yes\", \"no\", missing = \"unknown\")\n\n[1] \"yes\"     \"no\"      \"unknown\"\n\n\nBy default, an unknown condition gives a missing result. missing = specifies an alternative of a compatible type."
   },
   {
     "objectID": "course/session06/slides.html#case_when",
@@ -3896,7 +4162,14 @@
     "href": "course/session06/slides.html#distinct-and-count",
     "title": "Tidyverse Foundations and the dplyr Verbs",
     "section": "distinct() and count()",
-    "text": "distinct() and count()\n\nnrow(enrol)                          # the enrolment log: one page keyed twice\n\n[1] 8\n\nnrow(distinct(enrol))\n\n[1] 6\n\nenrol |&gt; count(id) |&gt; filter(n &gt; 1)\n\n    id n\n1 P003 2\n2 P004 2\n\n\n\n\ntrial |&gt; count(arm, sex)\n\n# A tibble: 4 x 3\n  arm       sex       n\n  &lt;chr&gt;     &lt;chr&gt; &lt;int&gt;\n1 Placebo   F        15\n2 Placebo   M        15\n3 Treatment F        17\n4 Treatment M        13\n\n\n\n\n\n\n\n\nThe base R way\n\n\nnrow(unique(enrol));  table(enrol$id)[table(enrol$id) &gt; 1]\ntable(trial$arm, trial$sex)"
+    "text": "distinct() and count()\n\nnrow(enrol)                          # the enrolment log: one page keyed twice\n\n[1] 8\n\nnrow(distinct(enrol))\n\n[1] 6\n\nenrol |&gt; count(id) |&gt; filter(n &gt; 1)\n\n    id n\n1 P003 2\n2 P004 2"
+  },
+  {
+    "objectID": "course/session06/slides.html#count-frequencies-of-combinations",
+    "href": "course/session06/slides.html#count-frequencies-of-combinations",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "count(): frequencies of combinations",
+    "text": "count(): frequencies of combinations\n\ntrial |&gt; count(arm, sex)\n\n# A tibble: 4 x 3\n  arm       sex       n\n  &lt;chr&gt;     &lt;chr&gt; &lt;int&gt;\n1 Placebo   F        15\n2 Placebo   M        15\n3 Treatment F        17\n4 Treatment M        13\n\n\n\n\n\n\n\n\nThe base R way\n\n\nnrow(unique(enrol));  table(enrol$id)[table(enrol$id) &gt; 1]\ntable(trial$arm, trial$sex)"
   },
   {
     "objectID": "course/session06/slides.html#group_by-and-summarise",
@@ -3934,32 +4207,123 @@
     "text": "Every grouped summary gets an n\n\ntrial |&gt;\n  group_by(arm) |&gt;\n  summarise(\n    n_rand   = n(),                   # randomised\n    n_seen   = sum(!is.na(sbp_12)),   # actually measured at 12 weeks\n    mean_sbp = round(mean(sbp_12, na.rm = TRUE), 1),\n    .groups  = \"drop\"\n  )\n\n# A tibble: 2 x 4\n  arm       n_rand n_seen mean_sbp\n  &lt;chr&gt;      &lt;int&gt;  &lt;int&gt;    &lt;dbl&gt;\n1 Placebo       30     28     148 \n2 Treatment     30     29     135.\n\n\n\n\nn() counts rows. sum(!is.na(x)) counts observations. When they differ, the difference is a finding."
   },
   {
-    "objectID": "course/session06/slides.html#across-the-same-thing-to-many-columns",
-    "href": "course/session06/slides.html#across-the-same-thing-to-many-columns",
+    "objectID": "course/session06/slides.html#grouping-on-six-simple-measurements",
+    "href": "course/session06/slides.html#grouping-on-six-simple-measurements",
     "title": "Tidyverse Foundations and the dplyr Verbs",
-    "section": "across() — the same thing to many columns",
-    "text": "across() — the same thing to many columns\n\ntrial |&gt;\n  group_by(arm) |&gt;\n  summarise(across(c(sbp_0, sbp_12, weight_kg),\n                   \\(x) round(mean(x, na.rm = TRUE), 1)),\n            .groups = \"drop\")\n\n# A tibble: 2 x 4\n  arm       sbp_0 sbp_12 weight_kg\n  &lt;chr&gt;     &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;\n1 Placebo    150.   148       83.5\n2 Treatment  149.   135.      83.2\n\n\n\n\ntrial |&gt; summarise(across(where(is.numeric), \\(x) sum(is.na(x))))\n\n# A tibble: 1 x 6\n   site   age weight_kg sbp_0 sbp_12 change\n  &lt;int&gt; &lt;int&gt;     &lt;int&gt; &lt;int&gt;  &lt;int&gt;  &lt;int&gt;\n1     0     0         2     0      3      3"
+    "section": "Grouping on six simple measurements",
+    "text": "Grouping on six simple measurements\n\ngroup_demo &lt;- tibble::tibble(\n  id = 1:6, arm = rep(c(\"A\", \"B\"), each = 3),\n  value = c(2, 4, 6, 10, 12, 14)\n)\ngrouped &lt;- group_demo |&gt; group_by(arm)\ngrouped\n\n# A tibble: 6 x 3\n# Groups:   arm [2]\n     id arm   value\n  &lt;int&gt; &lt;chr&gt; &lt;dbl&gt;\n1     1 A         2\n2     2 A         4\n3     3 A         6\n4     4 B        10\n5     5 B        12\n6     6 B        14\n\n\nStill six rows. The group means will be 4 and 12."
   },
   {
-    "objectID": "course/session06/slides.html#grouped-mutate-the-thing-aggregate-cannot-do",
-    "href": "course/session06/slides.html#grouped-mutate-the-thing-aggregate-cannot-do",
+    "objectID": "course/session06/slides.html#summarise-one-row-per-group",
+    "href": "course/session06/slides.html#summarise-one-row-per-group",
     "title": "Tidyverse Foundations and the dplyr Verbs",
-    "section": "Grouped mutate() — the thing aggregate() cannot do",
-    "text": "Grouped mutate() — the thing aggregate() cannot do\n\ntrial |&gt;\n  group_by(arm) |&gt;\n  mutate(sbp_0_centred = round(sbp_0 - mean(sbp_0), 1)) |&gt;\n  ungroup() |&gt;\n  select(id, arm, sbp_0, sbp_0_centred) |&gt; head(3)\n\n# A tibble: 3 x 4\n  id    arm     sbp_0 sbp_0_centred\n  &lt;chr&gt; &lt;chr&gt;   &lt;dbl&gt;         &lt;dbl&gt;\n1 P001  Placebo   160           9.8\n2 P002  Placebo   162          11.8\n3 P003  Placebo   157           6.8\n\n\n\n\nSixty rows out, not two. The group mean is computed per arm and recycled back across every row in that arm."
+    "section": "summarise(): one row per group",
+    "text": "summarise(): one row per group\n\ngrouped |&gt;\n  summarise(n = n(), group_mean = mean(value), .groups = \"drop\")\n\n# A tibble: 2 x 3\n  arm       n group_mean\n  &lt;chr&gt; &lt;int&gt;      &lt;dbl&gt;\n1 A         3          4\n2 B         3         12\n\n\nSix input rows → two summary rows."
   },
   {
-    "objectID": "course/session06/slides.html#the-rosetta-table",
-    "href": "course/session06/slides.html#the-rosetta-table",
+    "objectID": "course/session06/slides.html#grouped-mutate-keep-the-original-rows",
+    "href": "course/session06/slides.html#grouped-mutate-keep-the-original-rows",
     "title": "Tidyverse Foundations and the dplyr Verbs",
-    "section": "The Rosetta table",
-    "text": "The Rosetta table\n\n\n\n\n\n\n\n\n\nTask\nSession 4, base R\nToday, dplyr\n\n\n\n\nKeep some rows\nsubset(trial, age &gt; 70)\nfilter(trial, age &gt; 70)\n\n\nKeep some columns\ntrial[, c(\"id\", \"age\")]\nselect(trial, id, age)\n\n\nBoth at once\nsubset(trial, age &gt; 70, select = c(id, age))\nfilter() |&gt; select()\n\n\nSort\ntrial[order(-trial$sbp_0), ]\narrange(trial, desc(sbp_0))\n\n\nDerive a column\ntransform(trial, chg = sbp_12 - sbp_0)\nmutate(trial, chg = sbp_12 - sbp_0)\n\n\nRename\nnames(trial)[3] &lt;- \"study_site\"\nrename(trial, study_site = site)\n\n\nDrop duplicates\nunique(enrol)\ndistinct(enrol)\n\n\nCross-tabulate\ntable(trial$arm, trial$sex)\ncount(trial, arm, sex)\n\n\nGrouped summary\naggregate(sbp_12 ~ arm, trial, mean)\ngroup_by(arm) |&gt; summarise()\n\n\nGroup summary per row\nmerge() it back on\ngroup_by(arm) |&gt; mutate()"
+    "section": "Grouped mutate(): keep the original rows",
+    "text": "Grouped mutate(): keep the original rows\n\ngrouped |&gt;\n  mutate(group_mean = mean(value),\n         deviation = value - group_mean) |&gt;\n  ungroup()\n\n# A tibble: 6 x 5\n     id arm   value group_mean deviation\n  &lt;int&gt; &lt;chr&gt; &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt;\n1     1 A         2          4        -2\n2     2 A         4          4         0\n3     3 A         6          4         2\n4     4 B        10         12        -2\n5     5 B        12         12         0\n6     6 B        14         12         2\n\n\nSix input rows → six rows, with calculations performed within each arm."
+  },
+  {
+    "objectID": "course/session06/slides.html#base-r-can-also-calculate-a-group-mean-per-row",
+    "href": "course/session06/slides.html#base-r-can-also-calculate-a-group-mean-per-row",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Base R can also calculate a group mean per row",
+    "text": "Base R can also calculate a group mean per row\n\nwith(group_demo, ave(value, arm, FUN = mean))\n\n[1]  4  4  4 12 12 12\n\n\nave() returns one value per original row.\nDifferent interfaces; the underlying calculation is the same."
+  },
+  {
+    "objectID": "course/session06/slides.html#before-across-repeat-the-same-operation",
+    "href": "course/session06/slides.html#before-across-repeat-the-same-operation",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Before across(): repeat the same operation",
+    "text": "Before across(): repeat the same operation\n\ndemo |&gt; summarise(\n  sbp_0 = mean(sbp_0, na.rm = TRUE),\n  sbp_12 = mean(sbp_12, na.rm = TRUE)\n)\n\n# A tibble: 1 x 2\n  sbp_0 sbp_12\n  &lt;dbl&gt;  &lt;dbl&gt;\n1  147.    135\n\n\nTwo columns, the same calculation. What if there were twenty?"
+  },
+  {
+    "objectID": "course/session06/slides.html#across-columns-plus-an-operation",
+    "href": "course/session06/slides.html#across-columns-plus-an-operation",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "across(): columns plus an operation",
+    "text": "across(): columns plus an operation\n\ndemo |&gt; summarise(across(c(sbp_0, sbp_12), mean))\n\n# A tibble: 1 x 2\n  sbp_0 sbp_12\n  &lt;dbl&gt;  &lt;dbl&gt;\n1  147.     NA\n\n\nSelect the columns with the first argument; apply mean to each.\nThe missing follow-up makes its mean NA. Next we specify how to handle it."
+  },
+  {
+    "objectID": "course/session06/slides.html#supply-arguments-through-a-small-function",
+    "href": "course/session06/slides.html#supply-arguments-through-a-small-function",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Supply arguments through a small function",
+    "text": "Supply arguments through a small function\n\ndemo |&gt; summarise(\n  across(c(sbp_0, sbp_12),\n         function(x) mean(x, na.rm = TRUE))\n)\n\n# A tibble: 1 x 2\n  sbp_0 sbp_12\n  &lt;dbl&gt;  &lt;dbl&gt;\n1  147.    135\n\n\nHere x is one selected column at a time.\nfunction(x) mean(x, na.rm = TRUE) is a function without a separate name."
+  },
+  {
+    "objectID": "course/session06/slides.html#x-is-shorthand-for-functionx",
+    "href": "course/session06/slides.html#x-is-shorthand-for-functionx",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "\\(x) is shorthand for function(x)",
+    "text": "\\(x) is shorthand for function(x)\n\ndemo |&gt; summarise(\n  across(c(sbp_0, sbp_12), \\(x) mean(x, na.rm = TRUE))\n)\n\n# A tibble: 1 x 2\n  sbp_0 sbp_12\n  &lt;dbl&gt;  &lt;dbl&gt;\n1  147.    135\n\n\nSame operation, same result. Both are base-R function syntax.\nFull function writing comes in Session 11; either spelling is fine here."
+  },
+  {
+    "objectID": "course/session06/slides.html#reuse-the-selection-helpers-inside-across",
+    "href": "course/session06/slides.html#reuse-the-selection-helpers-inside-across",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Reuse the selection helpers inside across()",
+    "text": "Reuse the selection helpers inside across()\n\ndemo |&gt; summarise(\n  across(starts_with(\"sbp\"), \\(x) mean(x, na.rm = TRUE))\n)\n\n# A tibble: 1 x 2\n  sbp_0 sbp_12\n  &lt;dbl&gt;  &lt;dbl&gt;\n1  147.    135\n\ndemo |&gt; summarise(\n  across(where(is.numeric), \\(x) sum(is.na(x)))\n)\n\n# A tibble: 1 x 3\n    age sbp_0 sbp_12\n  &lt;int&gt; &lt;int&gt;  &lt;int&gt;\n1     0     0      1\n\n\nall_of(wanted) also works when column names are stored in a vector."
+  },
+  {
+    "objectID": "course/session06/slides.html#combine-grouping-and-across",
+    "href": "course/session06/slides.html#combine-grouping-and-across",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Combine grouping and across()",
+    "text": "Combine grouping and across()\n\ndemo |&gt; group_by(arm) |&gt;\n  summarise(\n    across(starts_with(\"sbp\"), \\(x) mean(x, na.rm = TRUE)),\n    .groups = \"drop\"\n  )\n\n# A tibble: 2 x 3\n  arm   sbp_0 sbp_12\n  &lt;chr&gt; &lt;dbl&gt;  &lt;dbl&gt;\n1 A      150    138.\n2 B      143.   133.\n\n\nThe operation runs separately for each selected column within each group."
+  },
+  {
+    "objectID": "course/session06/slides.html#same-id-does-not-necessarily-mean-a-duplicate",
+    "href": "course/session06/slides.html#same-id-does-not-necessarily-mean-a-duplicate",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Same ID does not necessarily mean a duplicate",
+    "text": "Same ID does not necessarily mean a duplicate\n\nvisits &lt;- tibble::tibble(\n  id = c(\"P1\", \"P1\", \"P2\", \"P2\"),\n  visit = c(0, 12, 0, 0), sbp = c(140, 130, 150, 150)\n)\nknitr::kable(visits)\n\n\n\n\nid\nvisit\nsbp\n\n\n\n\nP1\n0\n140\n\n\nP1\n12\n130\n\n\nP2\n0\n150\n\n\nP2\n0\n150\n\n\n\n\n\nP1 has two legitimate visits. P2 has one exactly repeated record."
+  },
+  {
+    "objectID": "course/session06/slides.html#unique-and-distinct-define-what-is-repeated",
+    "href": "course/session06/slides.html#unique-and-distinct-define-what-is-repeated",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "unique() and distinct(): define what is repeated",
+    "text": "unique() and distinct(): define what is repeated\n\nvisits |&gt; distinct()\n\n# A tibble: 3 x 3\n  id    visit   sbp\n  &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;\n1 P1        0   140\n2 P1       12   130\n3 P2        0   150\n\nvisits |&gt; distinct(id, .keep_all = TRUE)\n\n# A tibble: 2 x 3\n  id    visit   sbp\n  &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt;\n1 P1        0   140\n2 P2        0   150\n\n\nunique(visits) also removes identical rows. distinct(id, .keep_all = TRUE) keeps the first row per ID, discarding P1’s follow-up here."
+  },
+  {
+    "objectID": "course/session06/slides.html#finish-with-one-analysis-question",
+    "href": "course/session06/slides.html#finish-with-one-analysis-question",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Finish with one analysis question",
+    "text": "Finish with one analysis question\nAmong patients aged 60 or older, report by arm:\n\nthe number eligible;\nthe number with observed change;\nthe mean observed change.\n\nUse the six-patient demo table. Predict the result before running the code."
+  },
+  {
+    "objectID": "course/session06/slides.html#a-complete-pipeline-with-visible-denominators",
+    "href": "course/session06/slides.html#a-complete-pipeline-with-visible-denominators",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "A complete pipeline, with visible denominators",
+    "text": "A complete pipeline, with visible denominators\n\ndemo |&gt; filter(age &gt;= 60) |&gt;\n  mutate(change = sbp_12 - sbp_0) |&gt;\n  group_by(arm) |&gt;\n  summarise(\n    n_eligible = n(),\n    n_observed = sum(!is.na(change)),\n    mean_change = mean(change, na.rm = TRUE),\n    .groups = \"drop\"\n  )\n\n# A tibble: 2 x 4\n  arm   n_eligible n_observed mean_change\n  &lt;chr&gt;      &lt;int&gt;      &lt;int&gt;       &lt;dbl&gt;\n1 A              2          1       -10  \n2 B              2          2       -12.5\n\n\nDo the counts and the signs match your prediction?"
+  },
+  {
+    "objectID": "course/session06/slides.html#base-r-and-dplyr-rows-and-columns",
+    "href": "course/session06/slides.html#base-r-and-dplyr-rows-and-columns",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Base R and dplyr: rows and columns",
+    "text": "Base R and dplyr: rows and columns\n\n\n\n\n\n\n\n\nTask\nBase R\ndplyr\n\n\n\n\nKeep rows\nsubset(d, age &gt; 70)\nfilter(d, age &gt; 70)\n\n\nKeep columns\nd[, c(\"id\", \"age\")]\nselect(d, id, age)\n\n\nSort rows\nd[order(d$age), ]\narrange(d, age)\n\n\nRename a column\nnames(d)[3] &lt;- \"site\"\nrename(d, site = old_name)\n\n\n\nHere d stands for a data frame. The rename examples assume the target is column 3, called old_name."
+  },
+  {
+    "objectID": "course/session06/slides.html#base-r-and-dplyr-calculations",
+    "href": "course/session06/slides.html#base-r-and-dplyr-calculations",
+    "title": "Tidyverse Foundations and the dplyr Verbs",
+    "section": "Base R and dplyr: calculations",
+    "text": "Base R and dplyr: calculations\n\n\n\n\n\n\n\n\nTask\nBase R tool\ndplyr tool\n\n\n\n\nDerive a column\ntransform() or $&lt;-\nmutate()\n\n\nRemove identical rows\nunique()\ndistinct()\n\n\nCount categories\ntable()\ncount()\n\n\nGroup summary\ntapply() or aggregate()\ngroup_by() + summarise()\n\n\nGroup value per original row\nave()\ngroup_by() + mutate()"
   },
   {
     "objectID": "course/session06/slides.html#summary",
     "href": "course/session06/slides.html#summary",
     "title": "Tidyverse Foundations and the dplyr Verbs",
     "section": "Summary",
-    "text": "Summary\n\nPackages, namespaces, tibbles, and pipes explain the tidyverse workbench.\nThe dplyr verbs express row, column, ordering, derivation, and summary operations.\nGrouped metadata changes the meaning of later verbs.\nn() and observed n answer different denominator questions.\nBase R and dplyr can express the same statistical inclusion rule.\n\n\nNext connection: Session 7 applies both dialects to reshaping and joining multiple tables."
+    "text": "Summary\n\nThe tidyverse connects packages through shared conventions.\nTibbles and pipes support step-by-step data analysis.\nThe dplyr verbs express row, column, ordering, derivation, and summary operations.\nGrouped metadata changes the meaning of later verbs.\nn() and observed n answer different denominator questions.\nBase R and dplyr can express the same statistical inclusion rule.\n\n\nNext connection: Session 7 applies both dialects to reshaping and joining multiple tables."
   },
   {
     "objectID": "course/session07/index.html",

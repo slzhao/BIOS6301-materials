@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Session 15 · Resampling – BIOS6301 · Student Materials</title>
+<title>Homework 2: From a raw data file to a reproducible analysis – BIOS6301 · Student Materials</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -241,8 +241,16 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#learning-goals" id="toc-learning-goals" class="nav-link active" data-scroll-target="#learning-goals">Learning goals</a></li>
-  <li><a href="#materials" id="toc-materials" class="nav-link" data-scroll-target="#materials">Materials</a></li>
+  <li><a href="#purpose-and-scope" id="toc-purpose-and-scope" class="nav-link active" data-scroll-target="#purpose-and-scope">Purpose and scope</a></li>
+  <li><a href="#getting-started" id="toc-getting-started" class="nav-link" data-scroll-target="#getting-started">Getting started</a></li>
+  <li><a href="#part-1-import-and-inspect-20-points" id="toc-part-1-import-and-inspect-20-points" class="nav-link" data-scroll-target="#part-1-import-and-inspect-20-points">Part 1: Import and inspect — 20 points</a></li>
+  <li><a href="#part-2-factors-15-points" id="toc-part-2-factors-15-points" class="nav-link" data-scroll-target="#part-2-factors-15-points">Part 2: Factors — 15 points</a></li>
+  <li><a href="#part-3-prepare-and-summarize-with-base-r-15-points" id="toc-part-3-prepare-and-summarize-with-base-r-15-points" class="nav-link" data-scroll-target="#part-3-prepare-and-summarize-with-base-r-15-points">Part 3: Prepare and summarize with base R — 15 points</a></li>
+  <li><a href="#part-4-work-with-dplyr-25-points" id="toc-part-4-work-with-dplyr-25-points" class="nav-link" data-scroll-target="#part-4-work-with-dplyr-25-points">Part 4: Work with dplyr — 25 points</a></li>
+  <li><a href="#part-5-interpret-the-results-5-points" id="toc-part-5-interpret-the-results-5-points" class="nav-link" data-scroll-target="#part-5-interpret-the-results-5-points">Part 5: Interpret the results — 5 points</a></li>
+  <li><a href="#part-6-reproducibility-and-git-20-points" id="toc-part-6-reproducibility-and-git-20-points" class="nav-link" data-scroll-target="#part-6-reproducibility-and-git-20-points">Part 6: Reproducibility and Git — 20 points</a></li>
+  <li><a href="#what-to-submit" id="toc-what-to-submit" class="nav-link" data-scroll-target="#what-to-submit">What to submit</a></li>
+  <li><a href="#grading-summary" id="toc-grading-summary" class="nav-link" data-scroll-target="#grading-summary">Grading summary</a></li>
   </ul>
 </nav>
     </div>
@@ -251,8 +259,8 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Session 15 · Resampling</h1>
-<p class="subtitle lead">Bootstrap, permutation, and cross-validation logic</p>
+<h1 class="title">Homework 2: From a raw data file to a reproducible analysis</h1>
+<p class="subtitle lead">BIOS 6301 · Assigned after Session 6</p>
 </div>
 
 
@@ -269,18 +277,124 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="learning-goals" class="level2">
-<h2 class="anchored" data-anchor-id="learning-goals">Learning goals</h2>
-<p>Distinguish three resampling questions, implement a bootstrap confidence interval and permutation test by hand, construct leakage-free cross-validation folds, and quantify simulation uncertainty.</p>
+<blockquote class="blockquote">
+<p><strong>Due:</strong> Wednesday, October 14, 2026, at 11:59 PM Central Time.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p><strong>Late work:</strong> Within 48 hours after the deadline, submissions receive 80% of the points otherwise earned. Later work is not accepted unless the instructor has approved an extension or an accommodation applies.</p>
+</blockquote>
+<section id="purpose-and-scope" class="level2">
+<h2 class="anchored" data-anchor-id="purpose-and-scope">Purpose and scope</h2>
+<p>Import a synthetic blood-pressure export, inspect and prepare an analysis table, and compare base-R and dplyr summaries. This assignment integrates Sessions 1–6, with emphasis on Sessions 4–6.</p>
+<p>Use base R in Part 3 and dplyr in Part 4. Elsewhere, either style is acceptable. No joins, reshaping, plots, hypothesis tests, loops, or separately written functions are required.</p>
 </section>
-<section id="materials" class="level2">
-<h2 class="anchored" data-anchor-id="materials">Materials</h2>
+<section id="getting-started" class="level2">
+<h2 class="anchored" data-anchor-id="getting-started">Getting started</h2>
+<p>Use your existing personal R project. Choose one starter: <a href="starter/homework02.Rmd">R Markdown</a> or <a href="starter/homework02.qmd">Quarto</a>. Use the supplied <a href="starter/data/bp_export.csv">CSV</a> and <a href="../../homework/homework02/data-dictionary.html">data dictionary</a>.</p>
+<p>Replace the author placeholder with your full name. Set <code>data_file</code> in the starter to the location of your CSV; there is no required folder layout. Keep the CSV and the course-materials originals unchanged.</p>
+</section>
+<section id="part-1-import-and-inspect-20-points" class="level2">
+<h2 class="anchored" data-anchor-id="part-1-import-and-inspect-20-points">Part 1: Import and inspect — 20 points</h2>
+<ol type="1">
+<li>Inspect the first six lines with <code>readLines()</code>. Identify the header line and the number of descriptive lines to skip.</li>
+<li>Import the file as <code>raw</code> using <code>read.csv()</code>. Preserve IDs as character and declare both documented missing-value codes. Do not edit the CSV manually.</li>
+<li>Display <code>dim(raw)</code>, <code>str(raw)</code>, and missing-value counts for the two blood-pressure columns. Check that the IDs retain leading zeros.</li>
+<li>Create <code>dat &lt;- raw</code> for the next parts, preserving <code>raw</code> unchanged.</li>
+</ol>
+<p>Retain all imported rows until Part 3. Date parsing and follow-up-duration calculations are not required for this assignment.</p>
+</section>
+<section id="part-2-factors-15-points" class="level2">
+<h2 class="anchored" data-anchor-id="part-2-factors-15-points">Part 2: Factors — 15 points</h2>
+<ol type="1">
+<li>Convert <code>dat$arm</code> to a factor with levels <code>control</code>, then <code>treated</code>. Create a separate <code>arm_relevelled</code> object with <code>treated</code> first, using <code>relevel()</code>. Print both level orders and verify that the observed labels are unchanged.</li>
+<li>In one sentence, explain why assigning <code>levels(dat$arm) &lt;- c("treated", "control")</code> would not be a safe way to change the reference. Do <strong>not</strong> perform that assignment on your analysis data.</li>
+</ol>
+<p>No regression model is required.</p>
+</section>
+<section id="part-3-prepare-and-summarize-with-base-r-15-points" class="level2">
+<h2 class="anchored" data-anchor-id="part-3-prepare-and-summarize-with-base-r-15-points">Part 3: Prepare and summarize with base R — 15 points</h2>
+<ol type="1">
+<li>Use <code>table(dat$id)</code> to identify the repeated ID. Display all records for that ID and confirm they are identical across all columns. Then remove identical rows with <code>unique()</code>, saving the result as <code>analysis</code>. Verify the resulting row count and one record per ID.</li>
+<li>Calculate <code>analysis$change</code> as follow-up minus baseline blood pressure. Keep rows with missing change.</li>
+<li>Use <code>tapply()</code> or <code>aggregate()</code> to calculate mean observed change by arm. You will calculate the participant counts in Part 4; do not repeat them here.</li>
+</ol>
+<p>Do not remove one row per repeated ID without examining the full records. An ID could occur at several legitimate visits in a different dataset.</p>
+</section>
+<section id="part-4-work-with-dplyr-25-points" class="level2">
+<h2 class="anchored" data-anchor-id="part-4-work-with-dplyr-25-points">Part 4: Work with dplyr — 25 points</h2>
+<p>Start with <code>analysis</code> from Part 3; do not repeat the import or cleaning.</p>
+<ol type="1">
+<li>Create <code>review</code> with <code>select()</code>, keeping <code>id</code>, <code>arm</code>, and <code>change</code>. Direct column names or a selection helper are both acceptable.</li>
+<li>Use <code>mutate()</code> to add <code>observed = !is.na(change)</code>. Use <code>filter()</code> to display the participants whose change is missing, without removing them from <code>review</code>.</li>
+<li>Use <code>group_by()</code> and <code>summarise()</code> to return one ungrouped row per arm containing <code>n_total</code>, <code>n_observed</code>, and <code>mean_change</code>. Compare the means with Part 3. Hint: <code>sum(observed)</code> counts the observed changes.</li>
+</ol>
+</section>
+<section id="part-5-interpret-the-results-5-points" class="level2">
+<h2 class="anchored" data-anchor-id="part-5-interpret-the-results-5-points">Part 5: Interpret the results — 5 points</h2>
+<p>Write two or three sentences that:</p>
 <ul>
-<li><a href="../../course/session15/slides.html">Slides</a></li>
-<li><a href="../../course/session15/lab.html">Guided lab</a></li>
-<li>Lab starter—choose one: <code>starter/resampling-lab.Rmd</code> or <code>starter/resampling-lab.qmd</code></li>
+<li>give the mean change and its contributing participant count in each arm;</li>
+<li>explain what a negative change means; and</li>
+<li>explain why the observed-change count can differ from the total, and why this synthetic comparison does not establish treatment efficacy.</li>
 </ul>
-<p>This is a second statistical-computing class, not a final-project workshop.</p>
+</section>
+<section id="part-6-reproducibility-and-git-20-points" class="level2">
+<h2 class="anchored" data-anchor-id="part-6-reproducibility-and-git-20-points">Part 6: Reproducibility and Git — 20 points</h2>
+<ol type="1">
+<li>Run the supplied <code>tools::md5sum()</code> code and retain the filename and checksum in the report. State what a changed checksum would tell you and why it does not establish data quality.</li>
+<li>Include <code>sessionInfo()</code>. Restart R and knit/render the whole document.</li>
+<li>Review diffs and make at least two meaningful commits while working (for example: import and checks; completed analysis and interpretation). Stage only intended files.</li>
+<li>Push the completed source, self-contained HTML, and unchanged synthetic CSV to the default branch of your existing private course repository by the deadline. Confirm that the instructor and TA have access.</li>
+</ol>
+</section>
+<section id="what-to-submit" class="level2">
+<h2 class="anchored" data-anchor-id="what-to-submit">What to submit</h2>
+<p><strong>Submit through GitHub only.</strong> Push your completed <code>.Rmd</code> <strong>or</strong> <code>.qmd</code> source, matching self-contained <code>.html</code> report, and unchanged synthetic CSV to your existing private course repository.</p>
+<p>The TA will grade the <strong>latest version pushed to the repository’s default branch by Wednesday, October 14, 2026, at 11:59 PM Central Time</strong>. Saving or committing locally is not sufficient; the files must be on GitHub. Check that the source and HTML match and that the instructor and TA can access them.</p>
+<p>Later changes do not automatically replace the deadline version. If submitting late or requesting that a later revision be graded, notify the TA; the late-work policy above applies.</p>
+<p>Keep code and requested results visible, replace the author and answer placeholders, and make Homework 2 easy to identify in your repository. Do not complete both report formats.</p>
+</section>
+<section id="grading-summary" class="level2">
+<h2 class="anchored" data-anchor-id="grading-summary">Grading summary</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Component</th>
+<th style="text-align: right;">Points</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Import and inspection</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr class="even">
+<td>Factors</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="odd">
+<td>Base-R preparation and summaries</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="even">
+<td>dplyr analysis</td>
+<td style="text-align: right;">25</td>
+</tr>
+<tr class="odd">
+<td>Interpretation</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td>Reproducibility and Git</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr class="odd">
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>100</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Correct numbers without reproducible code receive only the applicable partial credit. Clear code and correct data meaning matter more than decorative formatting.</p>
 
 
 </section>

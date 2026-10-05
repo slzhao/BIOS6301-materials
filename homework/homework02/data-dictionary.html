@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Session 15 · Resampling – BIOS6301 · Student Materials</title>
+<title>Homework 2: Data dictionary – BIOS6301 · Student Materials</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -241,8 +241,9 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#learning-goals" id="toc-learning-goals" class="nav-link active" data-scroll-target="#learning-goals">Learning goals</a></li>
-  <li><a href="#materials" id="toc-materials" class="nav-link" data-scroll-target="#materials">Materials</a></li>
+  <li><a href="#study-and-file-layout" id="toc-study-and-file-layout" class="nav-link active" data-scroll-target="#study-and-file-layout">Study and file layout</a></li>
+  <li><a href="#missing-value-rules" id="toc-missing-value-rules" class="nav-link" data-scroll-target="#missing-value-rules">Missing-value rules</a></li>
+  <li><a href="#analysis-definitions" id="toc-analysis-definitions" class="nav-link" data-scroll-target="#analysis-definitions">Analysis definitions</a></li>
   </ul>
 </nav>
     </div>
@@ -251,8 +252,8 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Session 15 · Resampling</h1>
-<p class="subtitle lead">Bootstrap, permutation, and cross-validation logic</p>
+<h1 class="title">Homework 2: Data dictionary</h1>
+<p class="subtitle lead">Synthetic teaching data; no real participants</p>
 </div>
 
 
@@ -269,18 +270,78 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="learning-goals" class="level2">
-<h2 class="anchored" data-anchor-id="learning-goals">Learning goals</h2>
-<p>Distinguish three resampling questions, implement a bootstrap confidence interval and permutation test by hand, construct leakage-free cross-validation folds, and quantify simulation uncertainty.</p>
+<p><a href="../../homework/homework02/index.html">Return to Homework 2</a></p>
+<section id="study-and-file-layout" class="level2">
+<h2 class="anchored" data-anchor-id="study-and-file-layout">Study and file layout</h2>
+<p>The intended observation unit is <strong>one participant</strong>, with baseline and follow-up measurements in separate columns. The study has 24 participants, with IDs <code>"001"</code> through <code>"024"</code>. The export includes one accidentally repeated record. Identify it by inspecting the data; do not remove records merely because an ID appears more than once.</p>
+<p>The first two lines are descriptive notes. The third line contains column names; all later lines are records. There are no totals or footer rows. The delimiter is a comma, the decimal mark is a period, and dates use <strong>year-month-day</strong>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Variable</th>
+<th>Meaning</th>
+<th>Import type and rules</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>id</code></td>
+<td>Participant identifier</td>
+<td>Character; preserve all three digits</td>
+</tr>
+<tr class="even">
+<td><code>arm</code></td>
+<td>Study arm</td>
+<td>Character initially; <code>control</code> or <code>treated</code></td>
+</tr>
+<tr class="odd">
+<td><code>age</code></td>
+<td>Age at baseline, in years</td>
+<td>Numeric; complete</td>
+</tr>
+<tr class="even">
+<td><code>sbp_baseline</code></td>
+<td>Baseline systolic blood pressure, mmHg</td>
+<td>Numeric after applying the missing-value rules</td>
+</tr>
+<tr class="odd">
+<td><code>sbp_followup</code></td>
+<td>Follow-up systolic blood pressure, mmHg</td>
+<td>Numeric after applying the missing-value rules</td>
+</tr>
+<tr class="even">
+<td><code>date_baseline</code></td>
+<td>Baseline visit date</td>
+<td>Character; no date calculation required here</td>
+</tr>
+<tr class="odd">
+<td><code>date_followup</code></td>
+<td>Follow-up visit date</td>
+<td>Character; no date calculation required here</td>
+</tr>
+</tbody>
+</table>
 </section>
-<section id="materials" class="level2">
-<h2 class="anchored" data-anchor-id="materials">Materials</h2>
+<section id="missing-value-rules" class="level2">
+<h2 class="anchored" data-anchor-id="missing-value-rules">Missing-value rules</h2>
+<p>In the blood-pressure columns, <code>.</code> and <code>NM</code> both mean <strong>not measured</strong>. Treat both as <code>NA</code>; neither means zero. They do not occur in other columns. A visit date can be recorded even when blood pressure was not measured.</p>
+<p>There are no intentionally invalid dates or undocumented numeric corrections. Do not infer or invent missing measurements.</p>
+</section>
+<section id="analysis-definitions" class="level2">
+<h2 class="anchored" data-anchor-id="analysis-definitions">Analysis definitions</h2>
 <ul>
-<li><a href="../../course/session15/slides.html">Slides</a></li>
-<li><a href="../../course/session15/lab.html">Guided lab</a></li>
-<li>Lab starter—choose one: <code>starter/resampling-lab.Rmd</code> or <code>starter/resampling-lab.qmd</code></li>
+<li>Include all unique participants; there is <strong>no age restriction</strong>.</li>
+<li><code>change = sbp_followup - sbp_baseline</code>, in mmHg.</li>
+<li>Change is observed only when <strong>both</strong> measurements are available.</li>
+<li>Negative change indicates a decrease; zero indicates no change.</li>
+<li>Calculate means among participants with observed change. Keep participants with missing change in the analysis table and the total participant counts.</li>
 </ul>
-<p>This is a second statistical-computing class, not a final-project workshop.</p>
+<p>These data were constructed for the course, not sampled from a real study. Arm comparisons are descriptive exercises, not evidence of treatment efficacy.</p>
 
 
 </section>
