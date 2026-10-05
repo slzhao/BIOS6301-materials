@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -237,7 +272,12 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#tasks" id="toc-tasks" class="nav-link active" data-scroll-target="#tasks">Tasks</a></li>
+  <li><a href="#setup-install-once-load-in-each-session" id="toc-setup-install-once-load-in-each-session" class="nav-link active" data-scroll-target="#setup-install-once-load-in-each-session">Setup: install once, load in each session</a>
+  <ul class="collapse">
+  <li><a href="#if-a-loading-message-says-masked" id="toc-if-a-loading-message-says-masked" class="nav-link" data-scroll-target="#if-a-loading-message-says-masked">If a loading message says “masked”</a></li>
+  <li><a href="#pipe-shortcut-optional" id="toc-pipe-shortcut-optional" class="nav-link" data-scroll-target="#pipe-shortcut-optional">Pipe shortcut (optional)</a></li>
+  </ul></li>
+  <li><a href="#tasks" id="toc-tasks" class="nav-link" data-scroll-target="#tasks">Tasks</a></li>
   <li><a href="#additional-practice-interrogate-the-pipeline" id="toc-additional-practice-interrogate-the-pipeline" class="nav-link" data-scroll-target="#additional-practice-interrogate-the-pipeline">Additional practice: interrogate the pipeline</a>
   <ul class="collapse">
   <li><a href="#independent-practice-check" id="toc-independent-practice-check" class="nav-link" data-scroll-target="#independent-practice-check">Independent-practice check</a></li>
@@ -284,15 +324,37 @@ Note
 </div>
 <p>Choose one format and copy either <code>starter/dplyr-lab.Rmd</code> or <code>starter/dplyr-lab.qmd</code> to <code>work/session06/</code>. Knit the <code>.Rmd</code> file or Render the <code>.qmd</code> file.</p>
 <p>Work in <strong>BIOS6301-mywork.Rproj</strong>. Paths under <code>work/</code> below belong to your personal repository. Copy starters from the separate <code>BIOS6301-materials</code> clone, leaving the course originals unchanged.</p>
+<section id="setup-install-once-load-in-each-session" class="level2">
+<h2 class="anchored" data-anchor-id="setup-install-once-load-in-each-session">Setup: install once, load in each session</h2>
+<p>In the <strong>Console</strong>, check whether dplyr is installed:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">requireNamespace</span>(<span class="st">"dplyr"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>If the result is <code>FALSE</code>, install it once:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"dplyr"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>For today’s lab, dplyr is sufficient. Alternatively, <code>install.packages("tidyverse")</code> installs the broader collection. Do not put installation commands in a report that runs them every time it renders.</p>
+<p>The starter already includes this line; keep it in the report:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Installation puts the package on your computer. Loading makes its functions available in the current R session, including the fresh session used to render your report. <code>library(tidyverse)</code> attaches the core packages; it is not required for this lab.</p>
+<section id="if-a-loading-message-says-masked" class="level3">
+<h3 class="anchored" data-anchor-id="if-a-loading-message-says-masked">If a loading message says “masked”</h3>
+<p>A message that dplyr masks <code>filter</code> or <code>lag</code> is normally informational, not an installation failure. Another package has a function with the same name.</p>
+<p>Use the explicit name when needed:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">filter</span>(visit, week <span class="sc">==</span> <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Here, <code>dplyr::</code> identifies which package’s function you want. Run this example after the starter has created <code>visit</code>. It does not install the package.</p>
+</section>
+<section id="pipe-shortcut-optional" class="level3">
+<h3 class="anchored" data-anchor-id="pipe-shortcut-optional">Pipe shortcut (optional)</h3>
+<p>In RStudio, choose <strong>Tools → Global Options → Code</strong> and enable <strong>Use native pipe operator</strong> if available. Then <strong>Ctrl+Shift+M</strong> (Windows) or <strong>Cmd+Shift+M</strong> (macOS) inserts <code>|&gt;</code>. Typing it directly also works.</p>
+</section>
+</section>
 <section id="tasks" class="level2">
 <h2 class="anchored" data-anchor-id="tasks">Tasks</h2>
 <ol type="1">
 <li>State what one row represents. Use <code>count()</code> and <code>filter()</code> to confirm that <code>(id, week)</code> is unique.</li>
-<li>Define the week-4 analysis population in one sentence, then implement it.</li>
-<li>Create an <code>observed</code> flag and a <code>marker_band</code> category with the values <code>"missing"</code>, <code>"high"</code>, and <code>"lower"</code>. Put the missing-value condition first.</li>
-<li>Produce one row per arm with total <code>n</code>, observed <code>n</code>, mean, SD, and proportion observed. Return an explicitly ungrouped result.</li>
+<li>Keep all week-4 records, including missing marker values, in an object named <code>analysis</code>. State this inclusion rule in one sentence.</li>
+<li>In <code>analysis</code>, create <code>observed = !is.na(marker)</code> and a <code>marker_band</code> category using <code>case_when()</code>: <code>"missing"</code> for <code>NA</code>, <code>"high"</code> for marker <strong>at least 5</strong>, and <code>"lower"</code> otherwise. Put missingness first.</li>
+<li>Produce one row per arm with total <code>n</code>, observed <code>n</code>, mean, SD, and proportion observed (<code>n_observed / n</code>). Return an explicitly ungrouped result.</li>
 <li>Center marker values within arm with grouped <code>mutate()</code>, then <code>ungroup()</code>. Confirm that the transformation did not change the row count.</li>
-<li>Arrange the analysis table by arm, put missing marker values last, and select the columns needed for review.</li>
+<li>Arrange by arm, then decreasing marker with <code>desc(marker)</code>; missing marker values should be last within each arm. Select <code>id</code>, <code>arm</code>, <code>week</code>, <code>marker</code>, <code>observed</code>, <code>marker_band</code>, and the centered marker for review.</li>
 <li>Verify the arm-specific observed counts with base R and explain the unit of observation in the analysis table and summary table.</li>
 </ol>
 </section>
@@ -302,10 +364,10 @@ Note
 <li>Recreate the week-4 analysis table with base R. Sort both versions by ID and inspect them side by side.</li>
 <li>Produce a missingness table by arm and week with total rows, observed marker rows, missing rows, and proportion observed.</li>
 <li>Use <code>count()</code> to tabulate <code>marker_band</code> within arm. Confirm that the explicit <code>"missing"</code> category appears.</li>
-<li>Use <code>select()</code> helpers and <code>rename()</code> to make a compact review table with a clearly named marker column.</li>
-<li>Use <code>across()</code> to count missing values in the numeric columns <code>week</code> and <code>marker</code>.</li>
+<li>Use <code>select(id, arm, starts_with("marker"), observed)</code> and then <code>rename()</code> to give <code>marker</code> the name <code>marker_value</code>. Alternatively, store those column names in a character vector and use <code>all_of()</code>.</li>
+<li>Use <code>across(c(week, marker), function(x) sum(is.na(x)))</code> inside <code>summarise()</code> to count missing values in those two columns. The equivalent <code>\(x)</code> shorthand from the slides is also acceptable.</li>
 <li>Summarize by arm and week with <code>.groups = "drop"</code>. State the row unit of the result and why dropping the grouping is useful.</li>
-<li>Append one identical duplicate row, diagnose it with <code>count()</code>, and remove it with <code>distinct()</code> only after confirming that the entire row is duplicated.</li>
+<li>Run the supplied line <code>visit_with_duplicate &lt;- rbind(visit, visit[1, ])</code> to append an identical row. Diagnose it with <code>count()</code> and remove it with <code>distinct()</code> only after confirming that the entire row is duplicated. Do not use <code>distinct(id, .keep_all = TRUE)</code>: the original data contain two legitimate visits for each participant.</li>
 </ol>
 <section id="independent-practice-check" class="level3">
 <h3 class="anchored" data-anchor-id="independent-practice-check">Independent-practice check</h3>
