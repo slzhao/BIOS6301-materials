@@ -7,7 +7,9 @@ date-format: "[Session 6]"
 format:
   revealjs:
     theme: simple
-    css: ../../slides.css
+    css:
+      - ../../slides.css
+      - slides-session06.css
     slide-number: c/t
     show-slide-number: all
     incremental: false
@@ -77,100 +79,152 @@ enrol <- rbind(
 Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
 
 
-## What you will be able to do {.smaller}
+## A familiar analysis question {.smaller}
 
-::: {.smaller}
-[1]{.objective-num} **Explain** what `library()` does, and **diagnose** a masked
-function in under a minute.
+Among patients aged 60 or older with a recorded week-12 blood pressure:
 
-[2]{.objective-num} **Distinguish** a tibble from a `data.frame` and say what
-actually differs.
+1. Keep the eligible observations.
+2. Calculate change from baseline.
+3. Find the mean change in each treatment arm.
 
-[3]{.objective-num} **Write** pipelines with `|>` — and **read** `%>%`.
-
-[4]{.objective-num} **Use** `select`, `filter`, `arrange`, `mutate`, `if_else`,
-`case_when`, `rename`, `distinct`, and `count`.
-
-[5]{.objective-num} **Compute** grouped summaries with an honest *n*, and know
-when you still need `ungroup()`.
-
-[6]{.objective-num} **Translate** a base-R data-handling script into dplyr, line
-by line.
-
-[7]{.objective-num} **Explain** why `filter(trial, age > 70)` works with no
-quotes, and where that convenience bites.
-
-:::
+You already have the base-R tools to do this.
 
 
-## Roadmap for today
+## One answer using base R {.smaller}
 
-| | Block | Minutes |
+```{r}
+#| label: opening-base
+eligible <- trial[trial$age >= 60 & !is.na(trial$sbp_12), ]
+eligible$change <- eligible$sbp_12 - eligible$sbp_0
+base_summary <- aggregate(change ~ arm, data = eligible, FUN = mean)
+base_summary
+```
+
+Keep rows → add a column → summarize by group.
+
+
+## The same answer using dplyr {.smaller}
+
+```{r}
+#| label: opening-dplyr
+tidy_summary <- trial |>
+  filter(age >= 60, !is.na(sbp_12)) |>
+  mutate(change = sbp_12 - sbp_0) |>
+  group_by(arm) |>
+  summarise(mean_change = mean(change), .groups = "drop")
+tidy_summary
+```
+
+Read `|>` as “and then.” We will unpack each step today.
+
+
+## Why develop another set of tools? {.smaller}
+
+Base R already supports data analysis. The tidyverse aims to make common
+workflows easier to express and read:
+
+- consistent interfaces across related tasks;
+- names that describe the operation;
+- small steps that work together;
+- shared conventions for tabular data.
+
+These are design goals, not a promise that one style is always best.
+
+
+## What is the tidyverse? {.smaller}
+
+A coordinated collection of **R packages** for data science.
+
+It is not another programming language, and it does not replace R.
+
+Use base R, tidyverse, or a clear combination. The goal is correct,
+understandable analysis.
+
+
+## History 1 · Plotting and reshaping {.smaller}
+
+In the 2000s, Hadley Wickham developed tools for two practical problems:
+
+- **reshape:** getting data into a useful arrangement;
+- **ggplot, then ggplot2:** expressing plots through a grammar of graphics.
+
+So ggplot2 is a major early foundation—but the story also begins with data preparation.
+
+
+## History 2 · A broader analysis workflow {.smaller}
+
+Other needs led to more packages: text, dates, grouped calculations, and import.
+
+- `plyr` preceded `dplyr` in group-wise data manipulation.
+- `reshape` and `reshape2` preceded `tidyr`.
+- The collection received the **tidyverse** name in **2016**.
+
+The ecosystem developed gradually; it was not designed all at once.
+
+
+## History 3 · From individual packages to a community {.smaller}
+
+Hadley Wickham played a central early role. Development expanded through
+collaborators, the RStudio/Posit team, and open-source contributors.
+
+The packages share ideas, but do not all have the same authors.
+
+**Why this matters:** familiar conventions can carry from one package to another.
+
+
+## Package map · The main data workflow {.smaller}
+
+| Job | Package | Course connection |
 |---|---|---|
-| 1 | Packages, namespaces, and masking | 15 |
-| 2 | Data frames and tibbles | 10 |
-| 3 | The pipe, and the design principles | 10 |
-| 4 | The verbs: `select` `filter` `arrange` `mutate` `if_else` `case_when` … | 25 |
-| 5 | Grouping: `group_by` `summarise` `count` `across` | 20 |
-| 6 | Translating session 4, line by line | 5 |
-| 7 | Tidy evaluation in ten minutes | 10 |
+| Read CSV/TSV files | `readr` | Session 5 |
+| Work with tabular objects | `tibble` | Today |
+| Filter, transform, summarize | `dplyr` | Today |
+| Reshape tables | `tidyr` | Session 7 |
+| Visualize | `ggplot2` | Session 8 |
 
-: {tbl-colwidths="[6,64,30]"}
-
-. . .
-
-Same 60-patient cohort as every other session. Three 12-week visits are missing,
-and **that is deliberate**.
+Know each package's job; do not memorize its functions yet.
 
 
-# 1 · Packages, namespaces, and masking {.section-divider}
+## Package map · Supporting tools {.smaller}
 
-## Installed, loaded, or reached into {.smaller}
+| Job | Package |
+|---|---|
+| Work with text | `stringr` |
+| Work with factors | `forcats` |
+| Work with dates and times | `lubridate` |
+| Apply operations repeatedly | `purrr` |
 
-::: {style="font-size:0.88em"}
-| | Command | How often | Changes |
-|---|---|---|---|
-| **Install** | `install.packages("dplyr")` | Once per machine | Your hard disk |
-| **Load** | `library(dplyr)` | Every session | This R session |
-| **Reach in** | `dplyr::n_distinct(x)` | Per call | Nothing |
-:::
+Together with the previous slide, these are the nine core packages.
 
-. . .
-
-```{r}
-#| label: search-path
-head(search(), 5)
-```
-
-::: {.smaller}
-`search()` is the list of places R looks up a name, **in order**, from left to
-right. `library()` pushes a package onto the front of that list; `::` skips the
-list entirely and **documents the dependency** where it is used.
-:::
+`readxl`, used for Excel in Session 5, is a related package outside the core
+set attached by `library(tidyverse)`.
 
 
-## What masking actually looks like {.smaller}
+## What we will learn today {.smaller}
 
-```{r}
-#| label: masking-stats
-round(stats::filter(trial$sbp_0[1:8], rep(1/3, 3)), 1)
-```
+- Read tibbles and step-by-step pipelines.
+- Use dplyr verbs for rows, columns, and derived variables.
+- Summarize within groups and check the number of observations.
+- Connect the results to equivalent base-R operations.
 
-. . .
+Installation and loading are guided steps in the **lab**.
 
-::: {.smaller}
-`stats::filter()` is a **time-series filter** — a moving average. It has nothing
-to do with rows.
-:::
 
-. . .
+## Roadmap for today {.smaller}
 
-```{r}
-#| label: masking-error
-#| error: true
-stats::filter(trial, age > 70)
-```
+| Minutes | Focus |
+|---:|---|
+| 0–15 | Motivation, brief history, package map |
+| 15–25 | Tibbles and pipes |
+| 25–40 | Row/column verbs, selection helpers, intermediate results |
+| 40–50 | Derived variables, if_else, and case_when |
+| 50–65 | Grouping, summarise, mutate, and ungroup |
+| 65–75 | across: reuse one operation |
+| 75–82 | Counts and duplicate records |
+| 82–90 | Complete example and recap |
 
+
+# 1 · Tables and pipelines {.section-divider}
 
 ## A tibble *is* a data frame {.smaller}
 
@@ -178,34 +232,42 @@ stats::filter(trial, age > 70)
 #| label: tibble-class
 trial <- tibble::as_tibble(trial)   # from here on, trial is a tibble
 class(trial)
-trial
+print(trial, n = 6, width = 80)
 ```
 
 ::: {.smaller}
-Three classes, and `data.frame` is the **last** one — so everything from session
-4 still applies. What changed is the printing: ten rows, a row count, and the
-type of every column for free.
+A tibble inherits from `data.frame`. Many familiar operations still work.
+The printout shows dimensions and column types; here we display six rows.
 :::
 
 
-## Three surprises a tibble removes {.smaller}
+## A small example: table or vector? {.smaller}
 
 ```{r}
-#| label: tibble-nosurprise
-#| warning: true
-trial$ag                    # session 4: partial matching gave you `age`
-class(trial[, "age"])       # session 4: dropped to a vector
+#| label: tibble-subset-example
+plain <- data.frame(age = c(50, 60), arm = c("A", "B"))
+tbl <- tibble::as_tibble(plain)
+class(plain[, "age"])
+class(tbl[, "age"])
+tbl[["age"]]
 ```
 
-. . .
+A tibble's `[` keeps a table **by default**; `[[` extracts a column vector.
 
-::: {style="font-size:0.88em"}
-| Session 4 surprise | Tibble |
-|---|---|
-| `$` partially matches a typo | Warns, returns `NULL` |
-| `[` drops one column to a vector | Always a tibble — no `drop = FALSE` needed |
-| `stringsAsFactors` history | Never converts anything |
-:::
+
+## Exact names reduce accidental matches {.smaller}
+
+```{r}
+#| label: tibble-exact-names
+#| warning: true
+plain$ag
+tbl$ag
+```
+
+The data frame partially matches `age`. The tibble warns and returns `NULL`.
+
+A tibble combines familiar data-frame storage with different defaults for
+printing, subsetting, and name checking—not just shorter printing.
 
 
 # 2 · The pipe {.section-divider}
@@ -240,39 +302,31 @@ trial |> filter(age > 70) |> summarise(m = mean(sbp_0))
 
 . . .
 
-::: {style="font-size:0.86em"}
+## Two pipe styles {.smaller}
+
+::: {.comparison}
 | | `%>%` | <code>\|></code> |
 |---|---|---|
 | Comes from | the **magrittr** package | base R, since 4.1 (2021) |
-| Placeholder | `.` — anywhere, repeatable | `_` — named argument only |
 | Bare function name | `x %>% mean` works | <code>x \|> mean</code> is an error; needs `mean()` |
 :::
 
 . . .
 
 ::: {.smaller}
-**Write `|>`. Read `%>%`.** Ninety percent of the dplyr code written before 2021
-uses `%>%`, and that includes most of the internet.
+**Write `|>`. Read `%>%`.** Both appear frequently in R examples.
 :::
 
 
-## Four design principles {.smaller}
+## A consistent pattern for dplyr verbs {.smaller}
 
-::: {style="font-size:0.9em"}
-| Principle | Consequence |
-|---|---|
-| **Data comes first** | Every verb pipes |
-| **Functions are verbs** | The code says what it does: `filter`, `arrange` |
-| **Data frame in, data frame out** | Any verb can follow any verb |
-| **Columns are bare names** | No `trial$` on every line |
-:::
+- The table is the first argument.
+- Function names describe the task.
+- Most common verbs return another table.
+- Column names can be used directly inside these verbs.
 
-. . .
-
-::: {.callout-important appearance="simple"}
-Consistency is the feature. Learning the fifth verb costs nothing once you know
-the first four, because all four rules hold for all of them.
-:::
+This makes step-by-step pipelines convenient. Still check what each step
+does to rows, columns, and grouping.
 
 
 # 3 · The verbs {.section-divider}
@@ -292,7 +346,9 @@ flowchart LR
   style R fill:#CFAE70,stroke:#8a7448,color:#fff
 ```
 
-::: {style="font-size:0.86em"}
+## What each verb changes {.smaller}
+
+::: {.comparison}
 | Verb | Changes | Base-R relative |
 |---|---|---|
 | `select`, `rename`, `relocate` | which columns, and their names | `df[, cols]`, `names()` |
@@ -303,29 +359,73 @@ flowchart LR
 :::
 
 
-## `select()` {.smaller}
+## `select()`: choose columns {.smaller}
 
 ```{r}
 #| label: select-basic
 trial |> select(id, arm, sbp_0, sbp_12) |> head(3)
 ```
 
-. . .
+Columns appear in the order requested. Rows stay the same.
+
+```r
+# Base R: the same column selection
+trial[, c("id", "arm", "sbp_0", "sbp_12")]
+```
+
+## Select columns by their names {.smaller}
 
 ```{r}
-#| label: select-helpers
-trial |> select(id, starts_with("sbp")) |> names()
-trial |> select(where(is.numeric)) |> names()
-trial |> select(!c(site, sex)) |> names()
+#| label: select-name-helpers
+trial |> select(starts_with("sbp")) |> names()
+trial |> select(ends_with("_12")) |> names()
+trial |> select(contains("weight")) |> names()
 ```
 
-::: {.callout-note appearance="simple"}
-## The base R way
-```r
-trial[, c("id", "arm", "sbp_0", "sbp_12")]
-trial[, grep("^sbp", names(trial))]
+These are **selection helpers**, not separate data-cleaning steps.
+
+
+## `where()`: choose columns by type {.smaller}
+
+```{r}
+#| label: select-where
+is.numeric(trial$age)
+is.numeric(trial$arm)
+trial |> select(where(is.numeric)) |> names()
 ```
-:::
+
+`where(is.numeric)` applies the test to each **column**.
+
+Pass the function `is.numeric`, not an empty call `is.numeric()`.
+
+
+## `all_of()`: names stored in a vector {.smaller}
+
+```{r}
+#| label: select-all-of
+wanted <- c("id", "sbp_12")
+trial |> select(all_of(wanted)) |> head(3)
+```
+
+Use `all_of(wanted)` when **all requested columns are required**.
+
+The character vector contains names; it is not itself a data column.
+
+## `all_of()` versus `any_of()` {.smaller}
+
+```{r}
+#| label: select-all-of-error
+#| error: true
+wanted <- c("id", "not_recorded")
+trial |> select(all_of(wanted))
+```
+
+```{r}
+#| label: select-any-of
+trial |> select(any_of(wanted)) |> names()
+```
+
+`any_of()` skips absent names. Use it only when their absence is acceptable.
 
 
 ## `filter()` {.smaller}
@@ -349,6 +449,20 @@ subset(trial, arm == "Treatment" & age > 70, select = c(id, age, sbp_12))
 trial[which(trial$arm == "Treatment" & trial$age > 70), c("id", "age", "sbp_12")]
 ```
 :::
+
+
+## Row conditions are different from column helpers {.smaller}
+
+```{r}
+#| label: filter-between
+trial |>
+  filter(between(age, 50, 70), site %in% c(1, 2)) |>
+  select(id, age, site) |> head(3)
+```
+
+- `between(age, 50, 70)`: includes both 50 and 70.
+- `site %in% c(1, 2)`: membership in a set.
+- `select(where(is.numeric))`: chooses **columns**, not rows.
 
 
 ## `filter()` and missing values {.smaller}
@@ -378,10 +492,13 @@ trial |> filter(is.na(sbp_12)) |> select(id, arm, sbp_0, sbp_12)
 
 ```{r}
 #| label: arrange-basic
-trial |> arrange(desc(sbp_12)) |> select(id, arm, sbp_12) |> head(3)
+trial |> arrange(desc(sbp_12)) |>
+  select(id, arm, sbp_12) |> head(3)
 ```
 
 . . .
+
+## Missing values sort last {.smaller}
 
 ```{r}
 #| label: arrange-na
@@ -411,6 +528,8 @@ trial |> select(id, sbp_0, sbp_12, change, responder) |> head(3)
 
 . . .
 
+## Sequential calculations in `mutate()` {.smaller}
+
 ```{r}
 #| label: mutate-transform-fail
 #| error: true
@@ -418,7 +537,7 @@ transform(trial, sbp_x2 = sbp_0 * 2, sbp_x3 = sbp_x2 + sbp_0)
 ```
 
 ::: {.callout-note appearance="simple"}
-## The base R way
+## Sequential assignment in base R
 ```r
 trial$change <- trial$sbp_12 - trial$sbp_0
 trial$responder <- trial$change < -10
@@ -426,7 +545,58 @@ trial$responder <- trial$change < -10
 :::
 
 
-## `if_else()` is strict where `ifelse()` is permissive {.smaller}
+## Follow one pipeline: six patients {.smaller}
+
+```{r}
+#| label: small-pipeline-data
+demo <- tibble::tibble(
+  id = paste0("P", 1:6), arm = rep(c("A", "B"), each = 3),
+  age = c(45, 65, 70, 55, 68, 72),
+  sbp_0 = c(140, 150, 160, 130, 145, 155),
+  sbp_12 = c(135, 140, NA, 125, 135, 140)
+)
+knitr::kable(demo)
+```
+
+Which rows meet `age >= 60` **and** have a recorded follow-up?
+
+## Step 1: keep eligible rows {.smaller}
+
+```{r}
+#| label: small-pipeline-filter
+step1 <- demo |> filter(age >= 60, !is.na(sbp_12))
+knitr::kable(step1)
+```
+
+Six rows become three. No columns have been added or removed.
+
+
+## Step 2: derive a value, then choose columns {.smaller}
+
+```{r}
+#| label: small-pipeline-mutate
+step2 <- step1 |> mutate(change = sbp_12 - sbp_0)
+step3 <- step2 |> select(id, arm, change)
+knitr::kable(step3)
+```
+
+`mutate()` adds `change`; `select()` keeps three columns.
+
+Inspect intermediate objects when a longer pipeline gives a surprising answer.
+
+## `if_else()`: first, a working example {.smaller}
+
+```{r}
+#| label: if-else-working
+flag <- c(TRUE, FALSE)
+if_else(flag, 1, 0)
+```
+
+The arguments are **condition, value if true, value if false**.
+
+Both output branches can be combined into one numeric type.
+
+## Incompatible output types are a separate issue {.smaller}
 
 ```{r}
 #| label: if-else-strict
@@ -435,17 +605,22 @@ ifelse(c(TRUE, FALSE), 1, "x")
 if_else(c(TRUE, FALSE), 1, "x")
 ```
 
-. . .
+Base `ifelse()` converts to character here; `if_else()` rejects the
+numeric/character combination.
+
+Adding an `NA` condition does **not** fix incompatible output types.
+
+## Missing conditions: decide explicitly {.smaller}
 
 ```{r}
 #| label: if-else-missing
-if_else(c(TRUE, FALSE, NA), 1, 0, missing = -1)
+flag <- c(TRUE, FALSE, NA)
+if_else(flag, 1, 0)
+if_else(flag, "yes", "no", missing = "unknown")
 ```
 
-::: {.callout-note appearance="simple"}
-`if_else()` requires compatible types and sizes and gives missing conditions an
-explicit result. It stops where `ifelse()` might silently coerce or recycle.
-:::
+By default, an unknown condition gives a missing result.
+`missing =` specifies an alternative of a compatible type.
 
 
 ## `case_when()` {.smaller}
@@ -535,7 +710,7 @@ nrow(distinct(enrol))
 enrol |> count(id) |> filter(n > 1)
 ```
 
-. . .
+## `count()`: frequencies of combinations {.smaller}
 
 ```{r}
 #| label: count-two
@@ -648,65 +823,214 @@ the difference is a finding.
 :::
 
 
-## `across()` — the same thing to many columns {.smaller}
+## Grouping on six simple measurements {.smaller}
 
 ```{r}
-#| label: across-basic
-trial |>
-  group_by(arm) |>
-  summarise(across(c(sbp_0, sbp_12, weight_kg),
-                   \(x) round(mean(x, na.rm = TRUE), 1)),
-            .groups = "drop")
+#| label: group-small-data
+group_demo <- tibble::tibble(
+  id = 1:6, arm = rep(c("A", "B"), each = 3),
+  value = c(2, 4, 6, 10, 12, 14)
+)
+grouped <- group_demo |> group_by(arm)
+grouped
 ```
 
-. . .
+Still six rows. The group means will be 4 and 12.
+
+## `summarise()`: one row per group {.smaller}
 
 ```{r}
-#| label: across-where
-trial |> summarise(across(where(is.numeric), \(x) sum(is.na(x))))
+#| label: group-small-summary
+grouped |>
+  summarise(n = n(), group_mean = mean(value), .groups = "drop")
 ```
 
+Six input rows → two summary rows.
 
-## Grouped `mutate()` — the thing `aggregate()` cannot do {.smaller}
+## Grouped `mutate()`: keep the original rows {.smaller}
 
 ```{r}
 #| label: grouped-mutate
-trial |>
-  group_by(arm) |>
-  mutate(sbp_0_centred = round(sbp_0 - mean(sbp_0), 1)) |>
-  ungroup() |>
-  select(id, arm, sbp_0, sbp_0_centred) |> head(3)
+grouped |>
+  mutate(group_mean = mean(value),
+         deviation = value - group_mean) |>
+  ungroup()
 ```
 
-. . .
-
-::: {.smaller}
-Sixty rows out, not two. The group mean is computed per arm and **recycled back**
-across every row in that arm.
-:::
+Six input rows → six rows, with calculations performed **within each arm**.
 
 
-## The Rosetta table {.smaller}
+## Base R can also calculate a group mean per row {.smaller}
 
-::: {style="font-size:0.82em"}
-| Task | Session 4, base R | Today, dplyr |
+```{r}
+#| label: grouped-base-ave
+with(group_demo, ave(value, arm, FUN = mean))
+```
+
+`ave()` returns one value per original row.
+
+Different interfaces; the underlying calculation is the same.
+
+## Before `across()`: repeat the same operation {.smaller}
+
+```{r}
+#| label: across-manual
+demo |> summarise(
+  sbp_0 = mean(sbp_0, na.rm = TRUE),
+  sbp_12 = mean(sbp_12, na.rm = TRUE)
+)
+```
+
+Two columns, the same calculation. What if there were twenty?
+
+## `across()`: columns plus an operation {.smaller}
+
+```{r}
+#| label: across-simple
+demo |> summarise(across(c(sbp_0, sbp_12), mean))
+```
+
+Select the columns with the first argument; apply `mean` to each.
+
+The missing follow-up makes its mean `NA`. Next we specify how to handle it.
+
+## Supply arguments through a small function {.smaller}
+
+```{r}
+#| label: across-function
+demo |> summarise(
+  across(c(sbp_0, sbp_12),
+         function(x) mean(x, na.rm = TRUE))
+)
+```
+
+Here `x` is **one selected column at a time**.
+
+`function(x) mean(x, na.rm = TRUE)` is a function without a separate name.
+
+## `\(x)` is shorthand for `function(x)` {.smaller}
+
+```{r}
+#| label: across-short-function
+demo |> summarise(
+  across(c(sbp_0, sbp_12), \(x) mean(x, na.rm = TRUE))
+)
+```
+
+Same operation, same result. Both are base-R function syntax.
+
+Full function writing comes in Session 11; either spelling is fine here.
+
+## Reuse the selection helpers inside `across()` {.smaller}
+
+```{r}
+#| label: across-helpers
+demo |> summarise(
+  across(starts_with("sbp"), \(x) mean(x, na.rm = TRUE))
+)
+demo |> summarise(
+  across(where(is.numeric), \(x) sum(is.na(x)))
+)
+```
+
+`all_of(wanted)` also works when column names are stored in a vector.
+
+
+## Combine grouping and `across()` {.smaller}
+
+```{r}
+#| label: across-grouped
+demo |> group_by(arm) |>
+  summarise(
+    across(starts_with("sbp"), \(x) mean(x, na.rm = TRUE)),
+    .groups = "drop"
+  )
+```
+
+The operation runs separately for each selected column **within each group**.
+
+## Same ID does not necessarily mean a duplicate {.smaller}
+
+```{r}
+#| label: visits-duplicates
+visits <- tibble::tibble(
+  id = c("P1", "P1", "P2", "P2"),
+  visit = c(0, 12, 0, 0), sbp = c(140, 130, 150, 150)
+)
+knitr::kable(visits)
+```
+
+P1 has two legitimate visits. P2 has one exactly repeated record.
+
+## `unique()` and `distinct()`: define what is repeated {.smaller}
+
+```{r}
+#| label: visits-distinct
+visits |> distinct()
+visits |> distinct(id, .keep_all = TRUE)
+```
+
+`unique(visits)` also removes identical rows.
+`distinct(id, .keep_all = TRUE)` keeps the **first** row per ID,
+discarding P1's follow-up here.
+
+
+## Finish with one analysis question {.smaller}
+
+Among patients aged 60 or older, report by arm:
+
+- the number eligible;
+- the number with observed change;
+- the mean observed change.
+
+Use the six-patient `demo` table. Predict the result before running the code.
+
+
+## A complete pipeline, with visible denominators {.smaller}
+
+```{r}
+#| label: final-pipeline
+demo |> filter(age >= 60) |>
+  mutate(change = sbp_12 - sbp_0) |>
+  group_by(arm) |>
+  summarise(
+    n_eligible = n(),
+    n_observed = sum(!is.na(change)),
+    mean_change = mean(change, na.rm = TRUE),
+    .groups = "drop"
+  )
+```
+
+Do the counts and the signs match your prediction?
+
+## Base R and dplyr: rows and columns {.smaller}
+
+| Task | Base R | dplyr |
 |---|---|---|
-| Keep some rows | `subset(trial, age > 70)` | `filter(trial, age > 70)` |
-| Keep some columns | `trial[, c("id", "age")]` | `select(trial, id, age)` |
-| Both at once | `subset(trial, age > 70, select = c(id, age))` | <code>filter() \|> select()</code> |
-| Sort | `trial[order(-trial$sbp_0), ]` | `arrange(trial, desc(sbp_0))` |
-| Derive a column | `transform(trial, chg = sbp_12 - sbp_0)` | `mutate(trial, chg = sbp_12 - sbp_0)` |
-| Rename | `names(trial)[3] <- "study_site"` | `rename(trial, study_site = site)` |
-| Drop duplicates | `unique(enrol)` | `distinct(enrol)` |
-| Cross-tabulate | `table(trial$arm, trial$sex)` | `count(trial, arm, sex)` |
-| Grouped summary | `aggregate(sbp_12 ~ arm, trial, mean)` | <code>group_by(arm) \|> summarise()</code> |
-| Group summary per row | `merge()` it back on | <code>group_by(arm) \|> mutate()</code> |
-:::
+| Keep rows | `subset(d, age > 70)` | `filter(d, age > 70)` |
+| Keep columns | `d[, c("id", "age")]` | `select(d, id, age)` |
+| Sort rows | `d[order(d$age), ]` | `arrange(d, age)` |
+| Rename a column | `names(d)[3] <- "site"` | `rename(d, site = old_name)` |
+
+Here `d` stands for a data frame. The rename examples assume the target is
+column 3, called `old_name`.
+
+
+## Base R and dplyr: calculations {.smaller}
+
+| Task | Base R tool | dplyr tool |
+|---|---|---|
+| Derive a column | `transform()` or `$<-` | `mutate()` |
+| Remove identical rows | `unique()` | `distinct()` |
+| Count categories | `table()` | `count()` |
+| Group summary | `tapply()` or `aggregate()` | `group_by()` + `summarise()` |
+| Group value per original row | `ave()` | `group_by()` + `mutate()` |
 
 
 ## Summary {.smaller}
 
-- Packages, namespaces, tibbles, and pipes explain the tidyverse workbench.
+- The tidyverse connects packages through shared conventions.
+- Tibbles and pipes support step-by-step data analysis.
 - The dplyr verbs express row, column, ordering, derivation, and summary operations.
 - Grouped metadata changes the meaning of later verbs.
 - `n()` and observed n answer different denominator questions.

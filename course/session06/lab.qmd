@@ -17,19 +17,71 @@ Work in **BIOS6301-mywork.Rproj**. Paths under `work/` below belong to your
 personal repository. Copy starters from the separate `BIOS6301-materials` clone,
 leaving the course originals unchanged.
 
+## Setup: install once, load in each session
+
+In the **Console**, check whether dplyr is installed:
+
+```r
+requireNamespace("dplyr", quietly = TRUE)
+```
+
+If the result is `FALSE`, install it once:
+
+```r
+install.packages("dplyr")
+```
+
+For today's lab, dplyr is sufficient. Alternatively,
+`install.packages("tidyverse")` installs the broader collection. Do not put
+installation commands in a report that runs them every time it renders.
+
+The starter already includes this line; keep it in the report:
+
+```r
+library(dplyr)
+```
+
+Installation puts the package on your computer. Loading makes its functions
+available in the current R session, including the fresh session used to render
+your report. `library(tidyverse)` attaches the core packages; it is not required
+for this lab.
+
+### If a loading message says “masked”
+
+A message that dplyr masks `filter` or `lag` is normally informational, not
+an installation failure. Another package has a function with the same name.
+
+Use the explicit name when needed:
+
+```r
+dplyr::filter(visit, week == 4)
+```
+
+Here, `dplyr::` identifies which package's function you want. Run this example
+after the starter has created `visit`. It does not install the package.
+
+### Pipe shortcut (optional)
+
+In RStudio, choose **Tools → Global Options → Code** and enable
+**Use native pipe operator** if available. Then **Ctrl+Shift+M** (Windows)
+or **Cmd+Shift+M** (macOS) inserts `|>`. Typing it directly also works.
+
 ## Tasks
 
 1. State what one row represents. Use `count()` and `filter()` to confirm that
    `(id, week)` is unique.
-2. Define the week-4 analysis population in one sentence, then implement it.
-3. Create an `observed` flag and a `marker_band` category with the values
-   `"missing"`, `"high"`, and `"lower"`. Put the missing-value condition first.
+2. Keep all week-4 records, including missing marker values, in an object named
+   `analysis`. State this inclusion rule in one sentence.
+3. In `analysis`, create `observed = !is.na(marker)` and a `marker_band`
+   category using `case_when()`: `"missing"` for `NA`, `"high"` for marker
+   **at least 5**, and `"lower"` otherwise. Put missingness first.
 4. Produce one row per arm with total `n`, observed `n`, mean, SD, and proportion
-   observed. Return an explicitly ungrouped result.
+   observed (`n_observed / n`). Return an explicitly ungrouped result.
 5. Center marker values within arm with grouped `mutate()`, then `ungroup()`.
    Confirm that the transformation did not change the row count.
-6. Arrange the analysis table by arm, put missing marker values last, and select
-   the columns needed for review.
+6. Arrange by arm, then decreasing marker with `desc(marker)`; missing marker
+   values should be last within each arm. Select `id`, `arm`, `week`, `marker`,
+   `observed`, `marker_band`, and the centered marker for review.
 7. Verify the arm-specific observed counts with base R and explain the unit of
    observation in the analysis table and summary table.
 
@@ -41,14 +93,19 @@ leaving the course originals unchanged.
    rows, missing rows, and proportion observed.
 3. Use `count()` to tabulate `marker_band` within arm. Confirm that the explicit
    `"missing"` category appears.
-4. Use `select()` helpers and `rename()` to make a compact review table with a
-   clearly named marker column.
-5. Use `across()` to count missing values in the numeric columns `week` and
-   `marker`.
+4. Use `select(id, arm, starts_with("marker"), observed)` and then `rename()`
+   to give `marker` the name `marker_value`. Alternatively, store those column
+   names in a character vector and use `all_of()`.
+5. Use `across(c(week, marker), function(x) sum(is.na(x)))` inside
+   `summarise()` to count missing values in those two columns. The equivalent
+   `\(x)` shorthand from the slides is also acceptable.
 6. Summarize by arm and week with `.groups = "drop"`. State the row unit of the
    result and why dropping the grouping is useful.
-7. Append one identical duplicate row, diagnose it with `count()`, and remove it
-   with `distinct()` only after confirming that the entire row is duplicated.
+7. Run the supplied line `visit_with_duplicate <- rbind(visit, visit[1, ])`
+   to append an identical row. Diagnose it with `count()` and remove it with
+   `distinct()` only after confirming that the entire row is duplicated.
+   Do not use `distinct(id, .keep_all = TRUE)`: the original data contain two
+   legitimate visits for each participant.
 
 ### Independent-practice check
 

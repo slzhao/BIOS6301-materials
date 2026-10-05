@@ -1,11 +1,23 @@
 ---
 title: "Session 6 lab: tidy data and dplyr"
+author: "Your name"
 date: now
 date-format: "YYYY-MM-DD HH:mm:ss Z"
-format: html
+format:
+  html:
+    embed-resources: true
+execute:
+  enabled: true
 ---
 
-```{r}
+Complete the lab page's installation check in the Console first.
+Keep `library(dplyr)` below so the report also works in a fresh R session.
+Do not add `install.packages()` to this report.
+
+The data-creation code is supplied. One row is one participant at one visit.
+Follow tasks 1–7 on the lab page; write explanations below the relevant heading.
+
+```{r setup}
 library(dplyr)
 
 visit <- data.frame(
@@ -17,40 +29,108 @@ visit <- data.frame(
 )
 ```
 
-## 1. Validate structure and key
+## 1. Validate the row unit and key
 
-```{r}
-# State the row unit in prose, then use count() and filter() to inspect duplicates.
+Explain the row unit and proposed key.
+
+```{r key-check}
+# Use count(id, week) and filter() to check for repeated keys.
 ```
 
-## 2. Analysis population and derived variables
+## 2. Keep the analysis population
 
-Write the inclusion rule here.
+Write the inclusion rule in one sentence.
 
-```{r}
-# Filter to week 4. Create observed and marker_band with mutate() and case_when().
+```{r analysis-population}
+# Save all week-4 rows as analysis, including rows with missing marker.
 ```
 
-## 3. Arm summary
+## 3. Create the derived variables
 
-```{r}
-# Use group_by(), summarise(), and .groups = "drop".
+```{r derived-variables}
+# In analysis, create observed = !is.na(marker).
+# Use case_when() to create marker_band:
+# missing for NA; high for marker >= 5; lower otherwise.
+# Handle missingness first.
 ```
 
-## 4. Grouped transformation and review table
+## 4. Summarize by arm
 
-```{r}
-# Center marker within arm, ungroup, arrange, and select review columns.
+```{r arm-summary}
+# Use group_by() and summarise(): n, n_observed, mean_marker, sd_marker,
+# and prop_observed = n_observed / n. Use .groups = "drop".
+# Keep missing markers out of the mean and SD, not out of the total n.
 ```
 
-## 5. Base-R verification
+## 5. Center within arm without losing rows
 
-```{r}
-# Verify the arm-specific observed counts with tapply().
+```{r grouped-transformation}
+# Use grouped mutate(): centered_marker = marker - mean(marker, na.rm = TRUE).
+# Save as analysis_centered, ungroup(), and compare nrow() before and after.
 ```
 
-## 6. Additional practice
+## 6. Arrange and select a review table
 
-```{r}
-# Continue with any additional-practice tasks assigned during lab.
+```{r review-table}
+# Start with analysis_centered. Arrange by arm, then desc(marker).
+# Select id, arm, week, marker, observed, marker_band, centered_marker.
+```
+
+## 7. Verify with base R
+
+```{r base-verification}
+# Use tapply() to check observed counts by arm.
+```
+
+Explain the row unit in analysis and in the arm summary.
+
+## Additional practice (optional)
+
+### 1. Recreate the week-4 table with base R
+
+```{r practice-base}
+# Use indexing, assignment, and ifelse(). Sort both versions by id to compare.
+```
+
+### 2. Missingness by arm and week
+
+```{r practice-missingness}
+# Report n, n_observed, n_missing, and prop_observed. Drop grouping.
+```
+
+### 3. Category counts within arm
+
+```{r practice-categories}
+# Use count(arm, marker_band) on analysis. Check the missing category.
+```
+
+### 4. Select helpers and rename
+
+```{r practice-selection}
+# Use select(id, arm, starts_with("marker"), observed) on analysis.
+# Then rename marker to marker_value.
+# Alternatively, use all_of() with a character vector of column names.
+```
+
+### 5. Count missing values across columns
+
+```{r practice-across}
+# In summarise(), use across(c(week, marker), function(x) sum(is.na(x))).
+```
+
+### 6. Summarize by two groups
+
+```{r practice-two-groups}
+# Use group_by(arm, week), then summarise() with .groups = "drop".
+# Explain the row unit and why you drop grouping.
+```
+
+### 7. Diagnose and remove an identical row
+
+```{r practice-duplicate}
+# This line is supplied to create a duplicate:
+visit_with_duplicate <- rbind(visit, visit[1, ])
+# Inspect count(id, week). Confirm the whole row is duplicated.
+# Then use distinct() and compare row counts.
+# Do not remove legitimate visits just because they share an id.
 ```
