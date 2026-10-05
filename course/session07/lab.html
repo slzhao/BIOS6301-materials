@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -157,7 +192,7 @@ ul.task-list li input[type="checkbox"] {
   </li>  
         <li>
     <a class="dropdown-item" href="../../course/session07/index.html">
- <span class="dropdown-text">7 · Joins and reshaping</span></a>
+ <span class="dropdown-text">7 · Joins and cleaning</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../../course/session08/index.html">
@@ -241,11 +276,28 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#tasks" id="toc-tasks" class="nav-link active" data-scroll-target="#tasks">Tasks</a></li>
-  <li><a href="#additional-practice-make-join-failures-visible" id="toc-additional-practice-make-join-failures-visible" class="nav-link" data-scroll-target="#additional-practice-make-join-failures-visible">Additional practice: make join failures visible</a>
+  <li><a href="#setup-packages" id="toc-setup-packages" class="nav-link active" data-scroll-target="#setup-packages">Setup: packages</a></li>
+  <li><a href="#core-tasks" id="toc-core-tasks" class="nav-link" data-scroll-target="#core-tasks">Core tasks</a>
   <ul class="collapse">
-  <li><a href="#independent-practice-check" id="toc-independent-practice-check" class="nav-link" data-scroll-target="#independent-practice-check">Independent-practice check</a></li>
+  <li><a href="#row-units-and-keys" id="toc-row-units-and-keys" class="nav-link" data-scroll-target="#row-units-and-keys">1. Row units and keys</a></li>
+  <li><a href="#join-and-inspect-unmatched-participants" id="toc-join-and-inspect-unmatched-participants" class="nav-link" data-scroll-target="#join-and-inspect-unmatched-participants">2. Join and inspect unmatched participants</a></li>
+  <li><a href="#wide-to-long" id="toc-wide-to-long" class="nav-link" data-scroll-target="#wide-to-long">3. Wide to long</a></li>
+  <li><a href="#return-to-wide" id="toc-return-to-wide" class="nav-link" data-scroll-target="#return-to-wide">4. Return to wide</a></li>
+  <li><a href="#clean-and-search-text-with-stringr" id="toc-clean-and-search-text-with-stringr" class="nav-link" data-scroll-target="#clean-and-search-text-with-stringr">5. Clean and search text with stringr</a></li>
+  <li><a href="#factor-labels-and-order-with-forcats" id="toc-factor-labels-and-order-with-forcats" class="nav-link" data-scroll-target="#factor-labels-and-order-with-forcats">6. Factor labels and order with forcats</a></li>
+  <li><a href="#parse-dates-with-lubridate" id="toc-parse-dates-with-lubridate" class="nav-link" data-scroll-target="#parse-dates-with-lubridate">7. Parse dates with lubridate</a></li>
+  <li><a href="#combine-the-cleaned-data" id="toc-combine-the-cleaned-data" class="nav-link" data-scroll-target="#combine-the-cleaned-data">8. Combine the cleaned data</a></li>
   </ul></li>
+  <li><a href="#additional-practice" id="toc-additional-practice" class="nav-link" data-scroll-target="#additional-practice">Additional practice</a>
+  <ul class="collapse">
+  <li><a href="#practice-1.-left-versus-inner" id="toc-practice-1.-left-versus-inner" class="nav-link" data-scroll-target="#practice-1.-left-versus-inner">Practice 1. Left versus inner</a></li>
+  <li><a href="#practice-2.-spaces-inside-a-note" id="toc-practice-2.-spaces-inside-a-note" class="nav-link" data-scroll-target="#practice-2.-spaces-inside-a-note">Practice 2. Spaces inside a note</a></li>
+  <li><a href="#practice-3.-a-complete-factor-order" id="toc-practice-3.-a-complete-factor-order" class="nav-link" data-scroll-target="#practice-3.-a-complete-factor-order">Practice 3. A complete factor order</a></li>
+  <li><a href="#practice-4.-three-date-formats" id="toc-practice-4.-three-date-formats" class="nav-link" data-scroll-target="#practice-4.-three-date-formats">Practice 4. Three date formats</a></li>
+  <li><a href="#practice-5.-optional-join-detail-relationship-check" id="toc-practice-5.-optional-join-detail-relationship-check" class="nav-link" data-scroll-target="#practice-5.-optional-join-detail-relationship-check">Practice 5. Optional join detail: relationship check</a></li>
+  <li><a href="#practice-6.-optional-window-example-previous-visit" id="toc-practice-6.-optional-window-example-previous-visit" class="nav-link" data-scroll-target="#practice-6.-optional-window-example-previous-visit">Practice 6. Optional window example: previous visit</a></li>
+  </ul></li>
+  <li><a href="#intentional-error-in-optional-practice-5" id="toc-intentional-error-in-optional-practice-5" class="nav-link" data-scroll-target="#intentional-error-in-optional-practice-5">Intentional error in optional practice 5</a></li>
   <li><a href="#exit-evidence" id="toc-exit-evidence" class="nav-link" data-scroll-target="#exit-evidence">Exit evidence</a></li>
   </ul>
 </nav>
@@ -256,7 +308,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Session 7 guided lab</h1>
-<p class="subtitle lead">Build a validated repeated-measures table</p>
+<p class="subtitle lead">Join, reshape, and clean a small study dataset</p>
 </div>
 
 
@@ -283,44 +335,94 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p><strong>Suggested use:</strong> tasks 1–8 are the core reshape-and-join route. Additional practice reinforces the join, reshape, and window-function tools introduced in Session 7. It may be completed independently after lab.</p>
+<p>Tasks 1–8 use only the main lecture. Work through the selected tasks in class and continue independently as needed. Additional practice is optional. The relationship-check and window-function exercises require optional slides.</p>
 </div>
 </div>
-<p>Choose one format and copy either <code>starter/reshape-joins-lab.Rmd</code> or <code>starter/reshape-joins-lab.qmd</code> to <code>work/session07/</code>. Knit the <code>.Rmd</code> file or Render the <code>.qmd</code> file.</p>
-<p>Work in <strong>BIOS6301-mywork.Rproj</strong>. Paths under <code>work/</code> below belong to your personal repository. Copy starters from the separate <code>BIOS6301-materials</code> clone, leaving the course originals unchanged.</p>
-<section id="tasks" class="level2">
-<h2 class="anchored" data-anchor-id="tasks">Tasks</h2>
-<ol type="1">
-<li>State the row unit and candidate key for both supplied tables.</li>
-<li>Detect the deliberate duplicate participant key with <code>count()</code> before joining.</li>
-<li>Resolve it using the supplied adjudication rule; do not merely use <code>distinct()</code>.</li>
-<li>Reshape marker columns from wide to long and parse week as integer.</li>
-<li>Predict and perform a many-to-one join with participant metadata. State which table supplies the rows that the join preserves.</li>
-<li>Validate row count and key uniqueness, and audit unmatched IDs in both directions with <code>anti_join()</code>.</li>
-<li>After arranging by ID and week, calculate within-participant change with grouped <code>lag()</code>.</li>
-<li>Pivot back to wide and verify values against the original marker columns.</li>
-</ol>
+<p>Work in your personal <strong>BIOS6301-mywork.Rproj</strong>. Copy either <a href="starter/reshape-joins-lab.Rmd">the R Markdown starter</a> or <a href="starter/reshape-joins-lab.qmd">the Quarto starter</a> into your personal <code>work/session07/</code> folder. Leave the separate course-materials clone unchanged.</p>
+<section id="setup-packages" class="level2">
+<h2 class="anchored" data-anchor-id="setup-packages">Setup: packages</h2>
+<p>Today’s main lesson uses dplyr, tidyr, stringr, forcats, and lubridate. If you installed the full tidyverse, these may already be available.</p>
+<p>In the <strong>Console</strong>, check:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">requireNamespace</span>(<span class="st">"dplyr"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">requireNamespace</span>(<span class="st">"tidyr"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">requireNamespace</span>(<span class="st">"stringr"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">requireNamespace</span>(<span class="st">"forcats"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">requireNamespace</span>(<span class="st">"lubridate"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Install any package returning <code>FALSE</code>, for example:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="st">"lubridate"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Keep installation commands in the Console. The supplied <code>library()</code> calls belong in the report. Optional practice 5 needs dplyr 1.1.1 or newer: check <code>packageVersion("dplyr")</code> and update if necessary, then restart R.</p>
+<p>Replace <strong>Your name</strong> in the starter’s author field. Either report format is fine.</p>
 </section>
-<section id="additional-practice-make-join-failures-visible" class="level2">
-<h2 class="anchored" data-anchor-id="additional-practice-make-join-failures-visible">Additional practice: make join failures visible</h2>
-<ol type="1">
-<li>Join the unresolved participant table deliberately and quantify its row multiplication. Identify exactly which key produced the additional rows.</li>
-<li>Request a many-to-one relationship in a join before adjudication. Read and explain the resulting error; no error-catching code is required.</li>
-<li>Produce separate reports for marker IDs without metadata and metadata IDs without marker measurements using anti-joins or base-R set operations.</li>
-<li>Compare <code>left_join()</code> with <code>inner_join()</code>. Explain why <code>P05</code> is retained by one result and excluded by the other.</li>
-<li>Add a week-8 marker column to a copy of the wide table and reshape all three weeks with the same <code>pivot_longer()</code> pattern.</li>
-<li>Create a small table with <code>marker_0</code>, <code>marker_4</code>, <code>se_0</code>, and <code>se_4</code>. Reshape the two facts encoded in each name into <code>measure</code> and <code>week</code> with <code>names_sep = "_"</code>.</li>
-<li>On the three-visit long table, create visit number, previous marker, change from baseline, and cumulative number of observed markers with <code>row_number()</code>, <code>lag()</code>, <code>first()</code>, and <code>cumsum()</code>.</li>
-<li>Write a short join contract stating row unit, left and right keys, expected relationship, allowed unmatched records, and post-join checks.</li>
-</ol>
-<section id="independent-practice-check" class="level3">
-<h3 class="anchored" data-anchor-id="independent-practice-check">Independent-practice check</h3>
-<p>The unresolved join must fail or visibly multiply rows. The adjudicated join must preserve the intended participant-visit key, and unmatched IDs must remain in explicit audit tables.</p>
+<section id="core-tasks" class="level2">
+<h2 class="anchored" data-anchor-id="core-tasks">Core tasks</h2>
+<section id="row-units-and-keys" class="level3">
+<h3 class="anchored" data-anchor-id="row-units-and-keys">1. Row units and keys</h3>
+<p>State what one row represents in <code>patient_lookup</code> and <code>marker_wide</code>. Use <code>count(id) |&gt; filter(n &gt; 1)</code> to check both tables. Identify the participant appearing only in each table by inspecting the data.</p>
 </section>
+<section id="join-and-inspect-unmatched-participants" class="level3">
+<h3 class="anchored" data-anchor-id="join-and-inspect-unmatched-participants">2. Join and inspect unmatched participants</h3>
+<p>Save <code>joined_wide</code> with a <code>left_join()</code> of <code>marker_wide</code> and <code>patient_lookup</code> by <code>id</code>. Compare row counts before and after. Use <code>anti_join()</code> in both directions. Explain the missing arm value. How many rows would an <code>inner_join()</code> keep?</p>
+</section>
+<section id="wide-to-long" class="level3">
+<h3 class="anchored" data-anchor-id="wide-to-long">3. Wide to long</h3>
+<p>Reshape <code>marker_wide</code> and save <code>marker_long</code>. Use <code>cols = starts_with("marker_w")</code>, <code>names_to = "week"</code>, <code>names_prefix = "marker_w"</code>, and <code>values_to = "marker"</code>. Then use <code>mutate(week = as.integer(week))</code>. Predict the row count and explain what one row represents now.</p>
+</section>
+<section id="return-to-wide" class="level3">
+<h3 class="anchored" data-anchor-id="return-to-wide">4. Return to wide</h3>
+<p>Save <code>marker_back</code> using <code>pivot_wider()</code> with <code>id_cols = id</code>, <code>names_from = week</code>, <code>values_from = marker</code>, and <code>names_prefix = "marker_w"</code>. Compare IDs, column names, and values with <code>marker_wide</code> after sorting by ID.</p>
+</section>
+<section id="clean-and-search-text-with-stringr" class="level3">
+<h3 class="anchored" data-anchor-id="clean-and-search-text-with-stringr">5. Clean and search text with stringr</h3>
+<p>The documented ID rule is uppercase with no outer spaces. Save <code>patients_text</code> from <code>raw_patients</code> using <code>mutate()</code>: clean <code>id</code> with <code>str_trim()</code> and <code>str_to_upper()</code>; clean <code>arm</code> and <code>note</code> with <code>str_squish()</code> and <code>str_to_lower()</code>. Keep the raw table unchanged. Show the IDs and notes where <code>str_detect(note, fixed("repeat"))</code> is true.</p>
+</section>
+<section id="factor-labels-and-order-with-forcats" class="level3">
+<h3 class="anchored" data-anchor-id="factor-labels-and-order-with-forcats">6. Factor labels and order with forcats</h3>
+<p>Save <code>patients_factor</code> from <code>patients_text</code>. Use <code>fct_recode()</code> to map <code>control</code> to <code>Control</code> and <code>treated</code> to <code>Treatment</code>. Then use <code>fct_relevel()</code> to put <code>Control</code> first. Print the levels and counts. Explain which step changes labels and which step changes only their order.</p>
+</section>
+<section id="parse-dates-with-lubridate" class="level3">
+<h3 class="anchored" data-anchor-id="parse-dates-with-lubridate">7. Parse dates with lubridate</h3>
+<p>Save <code>patients_clean</code> from <code>patients_factor</code>. Convert <code>enrolled</code> with <code>ymd()</code> into <code>enrolled_date</code>. Add <code>enrolled_year</code> and <code>enrolled_month</code> using <code>year()</code> and <code>month()</code>. Inspect the result and check for missing parsed dates with <code>filter(is.na(enrolled_date))</code>. Explain why <code>"03/04/2026"</code> needs a stated month/day or day/month convention.</p>
+</section>
+<section id="combine-the-cleaned-data" class="level3">
+<h3 class="anchored" data-anchor-id="combine-the-cleaned-data">8. Combine the cleaned data</h3>
+<p>Save <code>analysis</code> by left-joining <code>marker_long</code> to the <code>id</code>, <code>arm</code>, and <code>enrolled_date</code> columns of <code>patients_clean</code>. Check the row count. Keep week 4 and summarize mean marker by arm using Session 6’s verbs. Explain the group with missing arm instead of silently removing it.</p>
+</section>
+</section>
+<section id="additional-practice" class="level2">
+<h2 class="anchored" data-anchor-id="additional-practice">Additional practice</h2>
+<p>Practices 1–4 reinforce the main lecture. Practices 5–6 correspond to optional slides and are not prerequisites for completing the core lab.</p>
+<section id="practice-1.-left-versus-inner" class="level3">
+<h3 class="anchored" data-anchor-id="practice-1.-left-versus-inner">Practice 1. Left versus inner</h3>
+<p>On <code>marker_long</code> and <code>patient_lookup</code>, compare left and inner joins by ID. Explain why their row counts differ by two rather than one.</p>
+</section>
+<section id="practice-2.-spaces-inside-a-note" class="level3">
+<h3 class="anchored" data-anchor-id="practice-2.-spaces-inside-a-note">Practice 2. Spaces inside a note</h3>
+<p>Compare <code>str_trim("  repeat   visit  ")</code> and <code>str_squish("  repeat   visit  ")</code>. Explain which preserves the extra internal spaces.</p>
+</section>
+<section id="practice-3.-a-complete-factor-order" class="level3">
+<h3 class="anchored" data-anchor-id="practice-3.-a-complete-factor-order">Practice 3. A complete factor order</h3>
+<p>For <code>factor(c("a", "b", "c", "a"))</code>, use <code>fct_relevel()</code> to set the order to <code>c, b, a</code>. Show the levels and the character values to confirm that reordering did not relabel observations.</p>
+</section>
+<section id="practice-4.-three-date-formats" class="level3">
+<h3 class="anchored" data-anchor-id="practice-4.-three-date-formats">Practice 4. Three date formats</h3>
+<p>Use <code>ymd()</code>, <code>mdy()</code>, and <code>dmy()</code> to read <code>"2026-10-18"</code>, <code>"10/18/2026"</code>, and <code>"18/10/2026"</code>. Show that they represent the same day.</p>
+</section>
+<section id="practice-5.-optional-join-detail-relationship-check" class="level3">
+<h3 class="anchored" data-anchor-id="practice-5.-optional-join-detail-relationship-check">Practice 5. Optional join detail: relationship check</h3>
+<p>Only after the optional join slides: the supplied <code>conflicting_lookup</code> has two different arm records for P01. Join <code>marker_long</code> to it without a relationship assertion and inspect the row count. Then request <code>relationship = "many-to-one"</code> and explain the expected error. Use the supplied error-display chunk only for this deliberate failure.</p>
+</section>
+<section id="practice-6.-optional-window-example-previous-visit" class="level3">
+<h3 class="anchored" data-anchor-id="practice-6.-optional-window-example-previous-visit">Practice 6. Optional window example: previous visit</h3>
+<p>Only after the optional window slides: arrange <code>marker_long</code> by ID/week, group by ID, and compute <code>change = marker - lag(marker)</code>. Ungroup afterward. Explain the missing first change for each participant.</p>
+</section>
+</section>
+<section id="intentional-error-in-optional-practice-5" class="level2">
+<h2 class="anchored" data-anchor-id="intentional-error-in-optional-practice-5">Intentional error in optional practice 5</h2>
+<p>Only the relationship-check chunk uses <code>error=TRUE</code> so a deliberately failing join can appear in the report. The Quarto equivalent is <code>#| error: true</code>. Other analysis errors should stop rendering so you can fix them.</p>
 </section>
 <section id="exit-evidence" class="level2">
 <h2 class="anchored" data-anchor-id="exit-evidence">Exit evidence</h2>
-<p>Render the predictions, validation checks, and explanation of the duplicate-key resolution.</p>
+<p>Knit/Render your report. Show the join checks, a wide/long round trip, cleaned text, factor levels, and parsed dates. Explain the missing metadata for P05. The expected final analysis has eight participant-visit rows.</p>
 
 
 </section>

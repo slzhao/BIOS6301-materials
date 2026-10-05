@@ -1113,242 +1113,564 @@
     "text": "Materials\n\nSlides\nGuided lab\nLab starter—choose one: starter/visualization-lab.Rmd or starter/visualization-lab.qmd\n\nEither base graphics or ggplot2 may be used where both support the communication goal. The lab asks for one figure in each style so that you can read both."
   },
   {
-    "objectID": "course/session07/slides.html#where-we-are",
-    "href": "course/session07/slides.html#where-we-are",
-    "title": "Joins and Reshaping",
-    "section": "Where we are",
-    "text": "Where we are\n\n\n\nCourse arc\nSessions\n\n\n\n\n\nSetup and workflow\n0–2\n\n\n\nData foundations\n3–8\n← today\n\n\nModern tools\n9–10\n\n\n\nR programming\n11–13\n\n\n\nStatistical computing\n14–16\n\n\n\n\nToday’s deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used."
+    "objectID": "course/session07/slides.html#session-6-skills-we-will-reuse",
+    "href": "course/session07/slides.html#session-6-skills-we-will-reuse",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Session 6 skills we will reuse",
+    "text": "Session 6 skills we will reuse\n\nfilter() and select() choose rows and columns.\nmutate() creates or changes columns.\ncount() and summarise() describe groups.\nPipes connect those steps.\n\nToday we combine tables, change their shape, and clean particular column types."
   },
   {
-    "objectID": "course/session07/slides.html#what-you-will-be-able-to-do",
-    "href": "course/session07/slides.html#what-you-will-be-able-to-do",
-    "title": "Joins and Reshaping",
-    "section": "What you will be able to do",
-    "text": "What you will be able to do\n\n1 Predict the number of rows a join will return, before you run it.\n2 Choose among left_join(), inner_join(), full_join(), semi_join() and anti_join() for a stated question.\n3 Detect duplicate keys and unmatched rows before they become a wrong answer.\n4 Assert what you believe with relationship= and unmatched=.\n5 Reshape between wide and long with pivot_longer() and pivot_wider().\n6 Read and write merge(), and recognise reshape().\n7 Compute within-patient quantities with lag(), cumsum() and row_number()."
+    "objectID": "course/session07/slides.html#packages-and-their-jobs",
+    "href": "course/session07/slides.html#packages-and-their-jobs",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Packages and their jobs",
+    "text": "Packages and their jobs\n\n\n\nPackage\nToday’s job\n\n\n\n\ndplyr\nJoin related tables and check the result\n\n\ntidyr\nReshape measurements between wide and long\n\n\nstringr\nClean and search text\n\n\nforcats\nChange factor labels and level order\n\n\nlubridate\nParse dates and extract date components\n\n\n\nThese packages work together inside the same mutate() and pipe workflows."
   },
   {
-    "objectID": "course/session07/slides.html#roadmap-for-today",
-    "href": "course/session07/slides.html#roadmap-for-today",
-    "title": "Joins and Reshaping",
-    "section": "Roadmap for today",
-    "text": "Roadmap for today\n\n\n\n\n\n\n\n\n\nBlock\nMinutes\n\n\n\n\n1\nData arrives in pieces — keys and grain\n10\n\n\n2\nThe join family\n20\n\n\n3\nPredicting the row count\n20\n\n\n4\nSafety rails: relationship= and unmatched=\n10\n\n\n5\nThe base R way — merge(), head to head\n15\n\n\n6\nReshaping: pivot_longer(), pivot_wider(), reshape()\n20\n\n\n7\nWindow functions, if there is room\n5"
+    "objectID": "course/session07/slides.html#the-main-teaching-route",
+    "href": "course/session07/slides.html#the-main-teaching-route",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "The main teaching route",
+    "text": "The main teaching route\n\n\n\nMinutes\nTopic\n\n\n\n\n0–5\nRecap and package roles\n\n\n5–30\nBasic joins and checks\n\n\n30–50\ntidyr and basic pivots\n\n\n50–65\nstringr\n\n\n65–75\nforcats\n\n\n75–85\nlubridate\n\n\n85–90\nConnected example and summary\n\n\n\nThe optional join block and final appendix sit outside this 90-minute route."
   },
   {
-    "objectID": "course/session07/slides.html#three-tables-one-analysis",
-    "href": "course/session07/slides.html#three-tables-one-analysis",
-    "title": "Joins and Reshaping",
-    "section": "Three tables, one analysis",
-    "text": "Three tables, one analysis\n\nhead(trial[, c(\"id\", \"arm\", \"site\", \"sbp_0\", \"sbp_12\")], 3)\n\n    id     arm site sbp_0 sbp_12\n1 P001 Placebo    1   160    144\n2 P002 Placebo    4   162    156\n3 P003 Placebo    3   157    156\n\nsites\n\n  site site_name n_beds\n1    1      VUMC   1019\n2    2   Meharry    240\n3    3  Regional    130\n4    5 Satellite     44\n\nhead(labs, 4)\n\n    id week creat\n1 P001    0  1.13\n2 P001   12  1.15\n3 P002    0  1.26\n4 P002   12  1.15"
+    "objectID": "course/session07/slides.html#two-tables-from-the-same-study",
+    "href": "course/session07/slides.html#two-tables-from-the-same-study",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Two tables from the same study",
+    "text": "Two tables from the same study\n\n\n# A tibble: 4 x 2\n  id    arm    \n  &lt;chr&gt; &lt;chr&gt;  \n1 P01   control\n2 P02   treated\n3 P03   treated\n4 P04   control\n\n\n# A tibble: 4 x 3\n  id    marker_w0 marker_w4\n  &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt;\n1 P01         4.1       4.4\n2 P02         5.2       4.7\n3 P03         6         5.1\n4 P05         4.8       4.9\n\n\nEach table has one row per participant, but their participant lists differ."
   },
   {
-    "objectID": "course/session07/slides.html#what-is-one-row",
-    "href": "course/session07/slides.html#what-is-one-row",
-    "title": "Joins and Reshaping",
-    "section": "What is one row?",
-    "text": "What is one row?\nBefore you join anything, say out loud what one row of each table is. This is the table’s grain.\n\n\n\n\nTable\nOne row is\nKey\n\n\n\n\ntrial\none patient\nid\n\n\nsites\none site\nsite\n\n\nlabs\none patient-visit\nid + week\n\n\n\n\n\nA key is the set of columns that identifies a row uniquely. If it does not identify a row uniquely, it is not a key — it is just some columns.\n\n\n\n\n\n\n\n\nJoining changes the grain unless you can prove it does not. Say what the grain of the result should be before you type the join."
+    "objectID": "course/session07/slides.html#join-keys",
+    "href": "course/session07/slides.html#join-keys",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Join keys",
+    "text": "Join keys\nThe by argument tells R which values identify a match.\n\npatient_lookup |&gt; count(id) |&gt; filter(n &gt; 1)\n\n# A tibble: 0 x 2\n# i 2 variables: id &lt;chr&gt;, n &lt;int&gt;\n\nmarker_wide |&gt; count(id) |&gt; filter(n &gt; 1)\n\n# A tibble: 0 x 2\n# i 2 variables: id &lt;chr&gt;, n &lt;int&gt;\n\n\nZero rows here means no repeated IDs in that table.\nA visit-level table can contain repeated IDs legitimately. Its row identifier would also need a visit variable."
   },
   {
-    "objectID": "course/session07/slides.html#check-the-keys-first",
-    "href": "course/session07/slides.html#check-the-keys-first",
-    "title": "Joins and Reshaping",
-    "section": "Check the keys first",
-    "text": "Check the keys first\nThe check takes one line and it goes before the join, not after:\n\nsites_dup |&gt; count(site) |&gt; filter(n &gt; 1)\n\n  site n\n1    2 2\n\n\n\n\ntrial |&gt; count(id) |&gt; filter(n &gt; 1)\n\n[1] id n \n&lt;0 rows&gt; (or 0-length row.names)\n\n\nAn empty result is the answer you want: id is a key of trial.\n\n\n\n\n\n\n\n\ncount(key) |&gt; filter(n &gt; 1) is the single highest-value habit in this session. Run it on both tables, every time, before you join."
+    "objectID": "course/session07/slides.html#three-joins-for-todays-work",
+    "href": "course/session07/slides.html#three-joins-for-todays-work",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Three joins for today’s work",
+    "text": "Three joins for today’s work\n\n\n\nQuestion\nFunction\n\n\n\n\nKeep all measurement rows and add metadata\nleft_join()\n\n\nKeep only participants appearing in both tables\ninner_join()\n\n\nFind measurement rows without metadata\nanti_join()\n\n\n\nleft_join(x, y, by = \"id\") starts with x and matches its IDs against y."
   },
   {
-    "objectID": "course/session07/slides.html#six-joins-two-kinds",
-    "href": "course/session07/slides.html#six-joins-two-kinds",
-    "title": "Joins and Reshaping",
-    "section": "Six joins, two kinds",
-    "text": "Six joins, two kinds\n\n\n\n\n\n\n\n\n\n\n\nJoin\nKeeps\nAdds columns from y?\n\n\n\n\nMutating\nleft_join(x, y)\nevery row of x\nyes\n\n\n\ninner_join(x, y)\nrows matched in both\nyes\n\n\n\nright_join(x, y)\nevery row of y\nyes\n\n\n\nfull_join(x, y)\nevery row of either\nyes\n\n\nFiltering\nsemi_join(x, y)\nrows of x with a match\nno\n\n\n\nanti_join(x, y)\nrows of x without a match\nno\n\n\n\n\n\nThe split is the useful thing here. A mutating join changes the columns and may change the rows. A filtering join changes only the rows — it is filter() with the condition stored in another table."
+    "objectID": "course/session07/slides.html#a-left-join-row-by-row",
+    "href": "course/session07/slides.html#a-left-join-row-by-row",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "A left join, row by row",
+    "text": "A left join, row by row\n\ncourse_joined &lt;- marker_wide |&gt;\n  left_join(patient_lookup, by = \"id\")\ncourse_joined\n\n# A tibble: 4 x 4\n  id    marker_w0 marker_w4 arm    \n  &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;  \n1 P01         4.1       4.4 control\n2 P02         5.2       4.7 treated\n3 P03         6         5.1 treated\n4 P05         4.8       4.9 &lt;NA&gt;   \n\n\nP05 stays. Its arm is NA because the metadata table has no matching ID."
   },
   {
-    "objectID": "course/session07/slides.html#which-join-do-you-want",
-    "href": "course/session07/slides.html#which-join-do-you-want",
-    "title": "Joins and Reshaping",
-    "section": "Which join do you want?",
-    "text": "Which join do you want?\n\n\n\n\n\nflowchart TD\n  A{\"Do you need&lt;br/&gt;&lt;b&gt;columns&lt;/b&gt; from y?\"}\n  A -- \"no, just to filter rows\" --&gt; B{\"Keep rows that&lt;br/&gt;match, or that don't?\"}\n  B -- match --&gt; SEMI[\"&lt;b&gt;semi_join&lt;/b&gt;\"]\n  B -- \"don't match\" --&gt; ANTI[\"&lt;b&gt;anti_join&lt;/b&gt;&lt;br/&gt;&lt;i&gt;your diagnostic&lt;/i&gt;\"]\n  A -- yes --&gt; C{\"Which rows&lt;br/&gt;must survive?\"}\n  C -- \"all of x\" --&gt; L[\"&lt;b&gt;left_join&lt;/b&gt;&lt;br/&gt;&lt;i&gt;the default choice&lt;/i&gt;\"]\n  C -- \"only matched\" --&gt; I[\"&lt;b&gt;inner_join&lt;/b&gt;\"]\n  C -- \"all of both\" --&gt; F[\"&lt;b&gt;full_join&lt;/b&gt;\"]\n  style L fill:#CFAE70,stroke:#8a7448,color:#fff\n  style ANTI fill:#CFAE70,stroke:#8a7448,color:#fff"
+    "objectID": "course/session07/slides.html#an-inner-join-changes-the-retained-participants",
+    "href": "course/session07/slides.html#an-inner-join-changes-the-retained-participants",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "An inner join changes the retained participants",
+    "text": "An inner join changes the retained participants\n\nmarker_wide |&gt; inner_join(patient_lookup, by = \"id\")\n\n# A tibble: 3 x 4\n  id    marker_w0 marker_w4 arm    \n  &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;  \n1 P01         4.1       4.4 control\n2 P02         5.2       4.7 treated\n3 P03         6         5.1 treated\n\n\nThree participants remain. P05 is absent.\nChoose an inner join when restricting to matched records is the intended rule."
   },
   {
-    "objectID": "course/session07/slides.html#left_join-keep-every-row-of-x",
-    "href": "course/session07/slides.html#left_join-keep-every-row-of-x",
-    "title": "Joins and Reshaping",
-    "section": "left_join(): keep every row of x",
-    "text": "left_join(): keep every row of x\n\ntrial_sites &lt;- left_join(trial, sites, by = \"site\")\n\nnrow(trial)\n\n[1] 60\n\nnrow(trial_sites)\n\n[1] 60\n\nhead(trial_sites[, c(\"id\", \"arm\", \"site\", \"site_name\", \"n_beds\")], 5)\n\n    id     arm site site_name n_beds\n1 P001 Placebo    1      VUMC   1019\n2 P002 Placebo    4      &lt;NA&gt;     NA\n3 P003 Placebo    3  Regional    130\n4 P004 Placebo    1      VUMC   1019\n5 P005 Placebo    4      &lt;NA&gt;     NA\n\n\n\n\n\n\n\n\nThe base R way\nmerge(trial, sites, by = \"site\", all.x = TRUE)"
+    "objectID": "course/session07/slides.html#unmatched-records-in-both-directions",
+    "href": "course/session07/slides.html#unmatched-records-in-both-directions",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Unmatched records in both directions",
+    "text": "Unmatched records in both directions\n\nmarker_wide |&gt; anti_join(patient_lookup, by = \"id\")\n\n# A tibble: 1 x 3\n  id    marker_w0 marker_w4\n  &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt;\n1 P05         4.8       4.9\n\npatient_lookup |&gt; anti_join(marker_wide, by = \"id\")\n\n# A tibble: 1 x 2\n  id    arm    \n  &lt;chr&gt; &lt;chr&gt;  \n1 P04   control\n\n\nThe first result asks who lacks metadata. The second asks whose metadata has no measurements."
   },
   {
-    "objectID": "course/session07/slides.html#inner_join-rows-that-vanish",
-    "href": "course/session07/slides.html#inner_join-rows-that-vanish",
-    "title": "Joins and Reshaping",
-    "section": "inner_join(): rows that vanish",
-    "text": "inner_join(): rows that vanish\n\nnrow(inner_join(trial, sites, by = \"site\"))\n\n[1] 45\n\n\n\nFifteen patients are gone, and the result does not say so.\n\ninner_join(trial, sites, by = \"site\") |&gt;\n  count(arm)\n\n        arm  n\n1   Placebo 20\n2 Treatment 25\n\n\n\n\n\n\n\n\n\n\nAn inner_join() is a silent exclusion criterion. If the rows it drops are not missing at random — and site is never missing at random — your analysis population has changed and your table 1 will not match your consort diagram."
+    "objectID": "course/session07/slides.html#duplicate-lookup-rows-can-repeat-measurements",
+    "href": "course/session07/slides.html#duplicate-lookup-rows-can-repeat-measurements",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Duplicate lookup rows can repeat measurements",
+    "text": "Duplicate lookup rows can repeat measurements\n\nextra_lookup &lt;- tibble(\n  id = c(\"P01\", \"P01\"), arm = c(\"control\", \"treated\")\n)\nmarker_wide |&gt; filter(id == \"P01\") |&gt;\n  left_join(extra_lookup, by = \"id\")\n\n# A tibble: 2 x 4\n  id    marker_w0 marker_w4 arm    \n  &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;  \n1 P01         4.1       4.4 control\n2 P01         4.1       4.4 treated\n\n\nWhich treatment label is correct? Resolve that from the data source. Keeping the first row would make an unsupported choice."
   },
   {
-    "objectID": "course/session07/slides.html#anti_join-the-diagnostic",
-    "href": "course/session07/slides.html#anti_join-the-diagnostic",
-    "title": "Joins and Reshaping",
-    "section": "anti_join(): the diagnostic",
-    "text": "anti_join(): the diagnostic\nWhich patients failed to match?\n\nanti_join(trial, sites, by = \"site\") |&gt;\n  count(site)\n\n  site  n\n1    4 15\n\n\n\nAnd in the other direction — which sites have no patients?\n\nanti_join(sites, trial, by = \"site\")\n\n  site site_name n_beds\n1    5 Satellite     44\n\n\n\n\n\n\n\n\n\n\nRun anti_join() both ways after every join you care about. It costs two lines and it is the difference between knowing your data and hoping."
+    "objectID": "course/session07/slides.html#a-short-join-checklist",
+    "href": "course/session07/slides.html#a-short-join-checklist",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "A short join checklist",
+    "text": "A short join checklist\n\nWhat does one row represent in each input?\nWhich columns identify the intended match?\nDoes the lookup have repeated keys?\nHow many rows remain, and which IDs failed to match?\n\n\nc(before = nrow(marker_wide), after = nrow(course_joined))\n\nbefore  after \n     4      4 \n\n\nHere the lookup ID is unique, so four measurement rows stay four."
   },
   {
-    "objectID": "course/session07/slides.html#the-other-three",
-    "href": "course/session07/slides.html#the-other-three",
-    "title": "Joins and Reshaping",
-    "section": "The other three",
-    "text": "The other three\n\nc(left  = nrow(left_join(trial, sites, by = \"site\")),\n  inner = nrow(inner_join(trial, sites, by = \"site\")),\n  right = nrow(right_join(trial, sites, by = \"site\")),\n  full  = nrow(full_join(trial, sites, by = \"site\")),\n  semi  = nrow(semi_join(trial, sites, by = \"site\")),\n  anti  = nrow(anti_join(trial, sites, by = \"site\")))\n\n left inner right  full  semi  anti \n   60    45    46    61    45    15 \n\n\n\n\n\nfull_join gives 61 — the 60 patients plus one all-NA patient row carrying site 5.\nright_join(x, y) is left_join(y, x) with the columns in a different order. Use left_join and swap the arguments — then the table your analysis is about is always on the left.\nsemi_join gives 45 rows and the same columns as trial. Compare with inner_join, which gives 45 rows and three more columns."
+    "objectID": "course/session07/slides.html#optional-examples-a-larger-synthetic-study",
+    "href": "course/session07/slides.html#optional-examples-a-larger-synthetic-study",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional examples: a larger synthetic study",
+    "text": "Optional examples: a larger synthetic study\nThe next slides use a separate synthetic dataset:\n\ntrial: 60 participants, one row per participant.\nsites: one row per site, missing site 4 and including unused site 5.\nlabs: two visits per participant.\nsites_dup: a conflicting extra record for site 2.\n\nThese examples are for reference. The core lab does not require them.\nContinue to tidyr"
   },
   {
-    "objectID": "course/session07/slides.html#the-only-rule-you-need",
-    "href": "course/session07/slides.html#the-only-rule-you-need",
-    "title": "Joins and Reshaping",
-    "section": "The only rule you need",
-    "text": "The only rule you need\nFor each row of x, count how many rows of y share its key. Add those counts up. That is the number of rows a mutating join returns.\n\n\n\n\n\nMultiplicity in y\nRows out (left_join)\nName\n\n\n\n\nexactly one for every x row\nnrow(x)\none-to-one\n\n\nat most one, sometimes none\nnrow(x)\nmany-to-one\n\n\nseveral for some x rows\nmore than nrow(x)\none-to-many\n\n\nseveral on both sides\nmany more\nmany-to-many\n\n\n\n\n\n\n\n\n\n\n\n\nA left_join() never loses rows. It very much can gain them. Those are two different facts and students conflate them constantly."
+    "objectID": "course/session07/slides.html#optional-six-joins-two-kinds",
+    "href": "course/session07/slides.html#optional-six-joins-two-kinds",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Six joins, two kinds",
+    "text": "Optional: Six joins, two kinds\n\n\n\n\n\n\n\n\n\n\n\nJoin\nKeeps\nAdds columns from y?\n\n\n\n\nMutating\nleft_join(x, y)\nevery row of x\nyes\n\n\n\ninner_join(x, y)\nrows matched in both\nyes\n\n\n\nright_join(x, y)\nevery row of y\nyes\n\n\n\nfull_join(x, y)\nevery row of either\nyes\n\n\nFiltering\nsemi_join(x, y)\nrows of x with a match\nno\n\n\n\nanti_join(x, y)\nrows of x without a match\nno\n\n\n\n\n\nThe split is the useful thing here. A mutating join changes the columns and may change the rows. A filtering join changes only the rows — it is filter() with the condition stored in another table."
   },
   {
-    "objectID": "course/session07/slides.html#many-to-one-the-safe-case",
-    "href": "course/session07/slides.html#many-to-one-the-safe-case",
-    "title": "Joins and Reshaping",
-    "section": "Many-to-one: the safe case",
-    "text": "Many-to-one: the safe case\nsites has at most one row per site, so 60 rows in, 60 rows out.\n\nnrow(trial)\n\n[1] 60\n\nnrow(left_join(trial, sites, by = \"site\"))\n\n[1] 60\n\n\n\nWe are entitled to expect that only because we checked:\n\nsites |&gt; count(site) |&gt; filter(n &gt; 1)\n\n[1] site n   \n&lt;0 rows&gt; (or 0-length row.names)\n\n\n\n\n\n\n\n\n\n\nMost joins you write should be many-to-one: many patients, one lookup row each. When a join is supposed to be many-to-one and is not, you have found a data error — not a join problem."
+    "objectID": "course/session07/slides.html#optional-the-other-three",
+    "href": "course/session07/slides.html#optional-the-other-three",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: The other three",
+    "text": "Optional: The other three\n\nc(left  = nrow(left_join(trial, sites, by = \"site\")),\n  inner = nrow(inner_join(trial, sites, by = \"site\")),\n  right = nrow(right_join(trial, sites, by = \"site\")),\n  full  = nrow(full_join(trial, sites, by = \"site\")),\n  semi  = nrow(semi_join(trial, sites, by = \"site\")),\n  anti  = nrow(anti_join(trial, sites, by = \"site\")))\n\n left inner right  full  semi  anti \n   60    45    46    61    45    15 \n\n\n\n\n\nfull_join gives 61 — the 60 patients plus one all-NA patient row carrying site 5.\nright_join(x, y) is left_join(y, x) with the columns in a different order. Use left_join and swap the arguments — then the table your analysis is about is always on the left.\nsemi_join gives 45 rows and the same columns as trial. Compare with inner_join, which gives 45 rows and two more columns."
   },
   {
-    "objectID": "course/session07/slides.html#one-to-many-rows-multiply-on-purpose",
-    "href": "course/session07/slides.html#one-to-many-rows-multiply-on-purpose",
-    "title": "Joins and Reshaping",
-    "section": "One-to-many: rows multiply on purpose",
-    "text": "One-to-many: rows multiply on purpose\nlabs has two rows per patient — baseline and Session 12.\n\nnrow(labs)\n\n[1] 120\n\ntrial_labs &lt;- left_join(trial, labs, by = \"id\")\nnrow(trial_labs)\n\n[1] 120\n\n\n\n60 × 2 = 120, predicted before running it.\n\nhead(trial_labs[, c(\"id\", \"arm\", \"week\", \"creat\")], 4)\n\n    id     arm week creat\n1 P001 Placebo    0  1.13\n2 P001 Placebo   12  1.15\n3 P002 Placebo    0  1.26\n4 P002 Placebo   12  1.15\n\n\n\n\n\nThis is correct and often exactly what you want — the result’s grain is now one row per patient-visit. But every patient-level column is now repeated, so mean(trial_labs$age) is a weighted mean, not a patient mean."
+    "objectID": "course/session07/slides.html#optional-a-small-join-you-can-inspect-row-by-row",
+    "href": "course/session07/slides.html#optional-a-small-join-you-can-inspect-row-by-row",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: A small join you can inspect row by row",
+    "text": "Optional: A small join you can inspect row by row\n\n\n# A tibble: 3 x 3\n  id     week marker\n  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt;\n1 P01       0    4.1\n2 P01       4    4.4\n3 P02       0    5.2\n\n\n# A tibble: 2 x 2\n  id    arm    \n  &lt;chr&gt; &lt;chr&gt;  \n1 P01   control\n2 P02   treated\n\n\nThere are three visits but only two participants."
   },
   {
-    "objectID": "course/session07/slides.html#many-to-many-rows-multiply-by-accident",
-    "href": "course/session07/slides.html#many-to-many-rows-multiply-by-accident",
-    "title": "Joins and Reshaping",
-    "section": "Many-to-many: rows multiply by accident",
-    "text": "Many-to-many: rows multiply by accident\nsites_dup is sites with one row pasted in twice.\n\nnrow(left_join(trial, sites_dup, by = \"site\"))\n\nWarning in left_join(trial, sites_dup, by = \"site\"): Detected an unexpected many-to-many relationship between `x` and\n`y`.\ni Row 6 of `x` matches multiple rows in `y`.\ni Row 1 of `y` matches multiple rows in `x`.\ni If a many-to-many relationship is expected, set `relationship =\n  \"many-to-many\"` to silence this warning.\n\n\n[1] 78\n\n\n\nSite 2 has 18 patients. 60 + 18 = 78.\n\n\n\n\n\n\n\n\nEighteen patients are now in the data twice. Every count, every mean, every model is wrong — and the only visible symptom is a row count that nobody looked at."
+    "objectID": "course/session07/slides.html#optional-the-metadata-repeats-the-visits-stay",
+    "href": "course/session07/slides.html#optional-the-metadata-repeats-the-visits-stay",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: The metadata repeats, the visits stay",
+    "text": "Optional: The metadata repeats, the visits stay\n\nvisit_demo |&gt;\n  left_join(meta_demo, by = \"id\",\n            relationship = \"many-to-one\")\n\n# A tibble: 3 x 4\n  id     week marker arm    \n  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt; &lt;chr&gt;  \n1 P01       0    4.1 control\n2 P01       4    4.4 control\n3 P02       0    5.2 treated\n\n\nThe metadata table has at most one row per ID. The visit table supplies the three rows we preserve."
   },
   {
-    "objectID": "course/session07/slides.html#predict-then-check",
-    "href": "course/session07/slides.html#predict-then-check",
-    "title": "Joins and Reshaping",
-    "section": "Predict, then check",
-    "text": "Predict, then check\nWrite the prediction into the code. It costs one line:\n\njoined &lt;- left_join(trial, sites, by = \"site\")\nstopifnot(nrow(joined) == nrow(trial))\n\n\n\njoined_bad &lt;- left_join(trial, sites_dup, by = \"site\")\nstopifnot(nrow(joined_bad) == nrow(trial))\n\nError: nrow(joined_bad) == nrow(trial) is not TRUE\n\n\n\n\n\nstopifnot() is session 12 material — borrowed here as a one-liner. It does nothing when the condition holds and stops the render when it does not, which is exactly what you want from an assumption."
+    "objectID": "course/session07/slides.html#optional-different-names-for-the-same-key",
+    "href": "course/session07/slides.html#optional-different-names-for-the-same-key",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Different names for the same key",
+    "text": "Optional: Different names for the same key\n\nmeta_named &lt;- meta_demo |&gt; rename(patient_id = id)\nvisit_demo |&gt;\n  left_join(meta_named, by = c(\"id\" = \"patient_id\"),\n            relationship = \"many-to-one\")\n\n# A tibble: 3 x 4\n  id     week marker arm    \n  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt; &lt;chr&gt;  \n1 P01       0    4.1 control\n2 P01       4    4.4 control\n3 P02       0    5.2 treated\n\n\nThe left name belongs to the left table; the right name belongs to the right table. Check that the values and types represent the same identifiers."
   },
   {
-    "objectID": "course/session07/slides.html#the-relationship-argument",
-    "href": "course/session07/slides.html#the-relationship-argument",
-    "title": "Joins and Reshaping",
-    "section": "The relationship argument",
-    "text": "The relationship argument\nState what you believe, and let the join enforce it:\n\nleft_join(trial, sites_dup, by = \"site\", relationship = \"many-to-one\")\n\nError in `left_join()`:\n! Each row in `x` must match at most 1 row in `y`.\ni Row 6 of `x` matches multiple rows in `y`.\n\n\n\n\nFour values: \"one-to-one\", \"one-to-many\", \"many-to-one\", \"many-to-many\". The last one is not a safety rail — it is how you tell dplyr you meant it, and it silences the warning."
+    "objectID": "course/session07/slides.html#optional-a-visit-level-join-needs-two-keys",
+    "href": "course/session07/slides.html#optional-a-visit-level-join-needs-two-keys",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: A visit-level join needs two keys",
+    "text": "Optional: A visit-level join needs two keys\n\nassay_demo &lt;- tibble(id = c(\"P01\", \"P01\", \"P02\"),\n                     week = c(0L, 4L, 0L),\n                     assay = c(10, 12, 20))\nvisit_demo |&gt;\n  left_join(assay_demo, by = c(\"id\", \"week\"),\n            relationship = \"one-to-one\")\n\n# A tibble: 3 x 4\n  id     week marker assay\n  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt; &lt;dbl&gt;\n1 P01       0    4.1    10\n2 P01       4    4.4    12\n3 P02       0    5.2    20\n\n\nby = \"id\" alone would pair P01’s baseline with both assay visits."
   },
   {
-    "objectID": "course/session07/slides.html#the-unmatched-argument",
-    "href": "course/session07/slides.html#the-unmatched-argument",
-    "title": "Joins and Reshaping",
-    "section": "The unmatched argument",
-    "text": "The unmatched argument\n\nleft_join(trial, sites, by = \"site\", unmatched = \"error\")\n\nError in `left_join()`:\n! Each row of `y` must be matched by `x`.\ni Row 4 of `y` was not matched.\n\n\n\n\nRead the message carefully. For a left_join(), rows of x are never dropped — so unmatched= guards the only side that can lose rows: y. It just told us site 5 is unused.\n\n\n\nTo assert that every patient matched, use the diagnostic:\n\nnrow(anti_join(trial, sites, by = \"site\")) == 0\n\n[1] FALSE"
+    "objectID": "course/session07/slides.html#optional-what-happens-when-week-is-omitted",
+    "href": "course/session07/slides.html#optional-what-happens-when-week-is-omitted",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: What happens when week is omitted?",
+    "text": "Optional: What happens when week is omitted?\n\nvisit_demo |&gt;\n  left_join(assay_demo, by = \"id\",\n            relationship = \"one-to-one\")\n\nError in `left_join()`:\n! Each row in `x` must match at most 1 row in `y`.\ni Row 1 of `x` matches multiple rows in `y`.\n\n\nBoth tables contain repeated IDs for a valid reason. Correct the join key, rather than deleting valid visits."
   },
   {
-    "objectID": "course/session07/slides.html#the-join-checklist",
-    "href": "course/session07/slides.html#the-join-checklist",
-    "title": "Joins and Reshaping",
-    "section": "The join checklist",
-    "text": "The join checklist\nFive lines. Every join that matters.\n# 1. What is the grain of each table, and of the result?\n# 2. Duplicate keys?\nsites |&gt; count(site) |&gt; filter(n &gt; 1)\n# 3. Predict the row count. Write the number down.\n# 4. Join, asserting the relationship.\njoined &lt;- left_join(trial, sites, by = \"site\",\n                    relationship = \"many-to-one\")\n# 5. What failed to match, both ways?\nanti_join(trial, sites, by = \"site\")\nanti_join(sites, trial, by = \"site\")\n\n\n\n\n\n\n\nSteps 2 and 5 belong in your document, not your console. They are part of the analysis: they are how a reader knows the join was safe."
+    "objectID": "course/session07/slides.html#optional-row-counts-in-an-equality-join",
+    "href": "course/session07/slides.html#optional-row-counts-in-an-equality-join",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Row counts in an equality join",
+    "text": "Optional: Row counts in an equality join\nFor each row of x, let m be its number of matches in y.\n\n\n\nJoin\nRows contributed by that row of x\n\n\n\n\ninner_join()\nm\n\n\nleft_join()\nmax(1, m)\n\n\n\nAdd these contributions across x. An unmatched left-hand row contributes one row to a left join, with missing values in the added columns."
   },
   {
-    "objectID": "course/session07/slides.html#merge-anatomy",
-    "href": "course/session07/slides.html#merge-anatomy",
-    "title": "Joins and Reshaping",
-    "section": "merge() anatomy",
-    "text": "merge() anatomy\nmerge(x, y,\n      by      = NULL,       # key columns, in BOTH tables\n      by.x    = ,  by.y = , # when the key has different names\n      all.x   = FALSE,      # keep unmatched rows of x?\n      all.y   = FALSE,      # keep unmatched rows of y?\n      all     = FALSE,      # shorthand for both\n      suffixes = c(\".x\", \".y\"),\n      sort    = TRUE)       # sorts the result by the key\n\n\nEverything a join can do is a combination of all.x and all.y. There is no how = \"left\" argument; the two logicals are the join type."
+    "objectID": "course/session07/slides.html#optional-relationships-depend-on-both-directions",
+    "href": "course/session07/slides.html#optional-relationships-depend-on-both-directions",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Relationships depend on both directions",
+    "text": "Optional: Relationships depend on both directions\n\n\n\n\n\n\n\nExpected relationship\nMatch limit\n\n\n\n\none-to-one\nEach row on either side matches at most one on the other\n\n\nmany-to-one\nEach x row matches at most one y row\n\n\none-to-many\nEach y row matches at most one x row\n\n\nmany-to-many\nMultiple matches can occur in both directions\n\n\n\nMany patients can share a site. A unique site lookup therefore supports a many-to-one patient-to-site join."
   },
   {
-    "objectID": "course/session07/slides.html#the-join-family-in-both-dialects",
-    "href": "course/session07/slides.html#the-join-family-in-both-dialects",
-    "title": "Joins and Reshaping",
-    "section": "The join family in both dialects",
-    "text": "The join family in both dialects\n\n\n\n\n\n\n\n\n\ndplyr\nmerge()\nRows\n\n\n\n\ninner_join(x, y, by = \"k\")\nmerge(x, y, by = \"k\")\n45\n\n\nleft_join(x, y, by = \"k\")\nmerge(x, y, by = \"k\", all.x = TRUE)\n60\n\n\nright_join(x, y, by = \"k\")\nmerge(x, y, by = \"k\", all.y = TRUE)\n46\n\n\nfull_join(x, y, by = \"k\")\nmerge(x, y, by = \"k\", all = TRUE)\n61\n\n\nsemi_join(x, y, by = \"k\")\nx[x$k %in% y$k, ]\n45\n\n\nanti_join(x, y, by = \"k\")\nx[!(x$k %in% y$k), ]\n15\n\n\n\n\n\n\nc(inner = nrow(merge(trial, sites, by = \"site\")),\n  left  = nrow(merge(trial, sites, by = \"site\", all.x = TRUE)),\n  right = nrow(merge(trial, sites, by = \"site\", all.y = TRUE)),\n  full  = nrow(merge(trial, sites, by = \"site\", all   = TRUE)))\n\ninner  left right  full \n   45    60    46    61"
+    "objectID": "course/session07/slides.html#optional-many-to-one-the-safe-case",
+    "href": "course/session07/slides.html#optional-many-to-one-the-safe-case",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Many-to-one: the safe case",
+    "text": "Optional: Many-to-one: the safe case\nsites has at most one row per site, so 60 rows in, 60 rows out.\n\nnrow(trial)\n\n[1] 60\n\nnrow(left_join(trial, sites, by = \"site\"))\n\n[1] 60\n\n\n\nWe are entitled to expect that only because we checked:\n\nsites |&gt; count(site) |&gt; filter(n &gt; 1)\n\n[1] site n   \n&lt;0 rows&gt; (or 0-length row.names)\n\n\n\n\n\n\n\n\n\n\nA common lookup task is many-to-one: many patients, one lookup row each. When a join is supposed to be many-to-one and is not, you have found a data error — not a join problem."
   },
   {
-    "objectID": "course/session07/slides.html#the-same-job-twice",
-    "href": "course/session07/slides.html#the-same-job-twice",
-    "title": "Joins and Reshaping",
-    "section": "The same job, twice",
-    "text": "The same job, twice\nTask. Attach site names, keep only patients at a known site, and report mean 12-week SBP by site.\n\n\n\ntrial |&gt;\n  inner_join(sites, by = \"site\") |&gt;\n  group_by(site_name) |&gt;\n  summarise(\n    n    = n(),\n    mean = round(mean(sbp_12), 1)\n  )\n\n# A tibble: 3 x 3\n  site_name     n  mean\n  &lt;chr&gt;     &lt;int&gt; &lt;dbl&gt;\n1 Meharry      18  136.\n2 Regional     11  142.\n3 VUMC         16  146.\n\n\n\n\nm &lt;- merge(trial, sites,\n           by = \"site\")\naggregate(sbp_12 ~ site_name,\n          data = m,\n          FUN  = mean)\n\n  site_name   sbp_12\n1   Meharry 135.6111\n2  Regional 142.3636\n3      VUMC 145.7500"
+    "objectID": "course/session07/slides.html#optional-one-to-many-rows-multiply-on-purpose",
+    "href": "course/session07/slides.html#optional-one-to-many-rows-multiply-on-purpose",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: One-to-many: rows multiply on purpose",
+    "text": "Optional: One-to-many: rows multiply on purpose\nlabs has two rows per patient — baseline and week 12.\n\nnrow(labs)\n\n[1] 120\n\ntrial_labs &lt;- left_join(trial, labs, by = \"id\")\nnrow(trial_labs)\n\n[1] 120\n\n\n\n60 × 2 = 120, predicted before running it.\n\nhead(trial_labs[, c(\"id\", \"arm\", \"week\", \"creat\")], 4)\n\n    id     arm week creat\n1 P001 Placebo    0  1.13\n2 P001 Placebo   12  1.15\n3 P002 Placebo    0  1.26\n4 P002 Placebo   12  1.15\n\n\n\n\n\nThis is correct and often exactly what you want — the result’s grain is now one row per patient-visit. But every patient-level column is now repeated. A mean on this table weights patients by their visit counts. Here everyone has two visits, so it equals the patient-level mean."
   },
   {
-    "objectID": "course/session07/slides.html#merge-gotchas",
-    "href": "course/session07/slides.html#merge-gotchas",
-    "title": "Joins and Reshaping",
-    "section": "merge() gotchas",
-    "text": "merge() gotchas\n\n\n\n\n\n\n\n\nBehaviour\nConsequence\n\n\n\n\nsort = TRUE by default\nThe result is reordered by the key. dplyr preserves x’s order\n\n\nby = NULL by default\nJoins on all common column names — or gives a cross join if there are none\n\n\nNo warning on duplicate keys\n78 rows, silently. dplyr 1.1 warns\n\n\nsuffixes = c(\".x\", \".y\")\nSame-named non-key columns collide into age.x / age.y\n\n\n\n\n\n\nnrow(merge(trial[1:3, c(\"id\", \"arm\")], sites))   # no common column\n\n[1] 12\n\n\nThree rows and four rows gave twelve. That is every pairing."
+    "objectID": "course/session07/slides.html#optional-many-to-many-rows-multiply-by-accident",
+    "href": "course/session07/slides.html#optional-many-to-many-rows-multiply-by-accident",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Many-to-many: rows multiply by accident",
+    "text": "Optional: Many-to-many: rows multiply by accident\nsites_dup contains two conflicting records for site 2 (240 versus 245 beds).\n\nnrow(left_join(trial, sites_dup, by = \"site\"))\n\nWarning in left_join(trial, sites_dup, by = \"site\"): Detected an unexpected many-to-many relationship between `x` and\n`y`.\ni Row 6 of `x` matches multiple rows in `y`.\ni Row 1 of `y` matches multiple rows in `x`.\ni If a many-to-many relationship is expected, set `relationship =\n  \"many-to-many\"` to silence this warning.\n\n\n[1] 78\n\n\n\nSite 2 has 18 patients. 60 + 18 = 78.\n\n\n\n\n\n\n\n\nEighteen patients are now in the data twice. Patient counts are inflated and summaries or models can change — and the only visible symptom is a row count that nobody looked at."
   },
   {
-    "objectID": "course/session07/slides.html#the-same-data-two-shapes",
-    "href": "course/session07/slides.html#the-same-data-two-shapes",
-    "title": "Joins and Reshaping",
-    "section": "The same data, two shapes",
-    "text": "The same data, two shapes\n\n\nWide — one row per patient\n\n\n    id     arm sbp_0 sbp_6 sbp_12\n1 P001 Placebo   160   146    144\n2 P002 Placebo   162   165    156\n3 P003 Placebo   157   151    156\n\n\nOne column per timepoint. Good for reading, for table 1, for a paired t-test.\n\nLong — one row per patient-visit\n\n\n    id     arm week sbp\n1 P001 Placebo    0 160\n2 P001 Placebo    6 146\n3 P001 Placebo   12 144\n4 P002 Placebo    0 162\n5 P002 Placebo    6 165\n6 P002 Placebo   12 156\n\n\nTimepoint is a value in a column. Good for plotting, grouping, and mixed models.\n\n\nSame 180 numbers. 60 × 3 cells becomes 180 × 1 column."
+    "objectID": "course/session07/slides.html#optional-predict-then-check",
+    "href": "course/session07/slides.html#optional-predict-then-check",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Predict, then check",
+    "text": "Optional: Predict, then check\nWrite the prediction into the code. It costs one line:\n\njoined &lt;- left_join(trial, sites, by = \"site\")\nstopifnot(nrow(joined) == nrow(trial))\n\n\n\njoined_bad &lt;- left_join(trial, sites_dup, by = \"site\")\nstopifnot(nrow(joined_bad) == nrow(trial))\n\nError: nrow(joined_bad) == nrow(trial) is not TRUE\n\n\n\n\n\nstopifnot() is session 12 material — borrowed here as a one-liner. It does nothing when the condition holds and stops the render when it does not, which is exactly what you want from an assumption."
   },
   {
-    "objectID": "course/session07/slides.html#which-shape-do-you-need",
-    "href": "course/session07/slides.html#which-shape-do-you-need",
-    "title": "Joins and Reshaping",
-    "section": "Which shape do you need?",
-    "text": "Which shape do you need?\n\n\n\n\nYou want to\nShape\n\n\n\n\nRead the data as a human\nwide\n\n\nA baseline characteristics table\nwide\n\n\nsbp_12 - sbp_0\nwide\n\n\nPlot outcome against time\nlong\n\n\nA summary at each timepoint\nlong\n\n\nFit a mixed model or GEE\nlong\n\n\nSend it to a clinical collaborator\nwide, always\n\n\n\n\n\n\n\n\n\n\n\nReshaping is not a step in a pipeline you do once. It is a thing you do back and forth, several times, in a single analysis."
+    "objectID": "course/session07/slides.html#optional-the-relationship-argument",
+    "href": "course/session07/slides.html#optional-the-relationship-argument",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: The relationship argument",
+    "text": "Optional: The relationship argument\nState what you believe, and let the join enforce it:\n\nleft_join(trial, sites_dup, by = \"site\", relationship = \"many-to-one\")\n\nError in `left_join()`:\n! Each row in `x` must match at most 1 row in `y`.\ni Row 6 of `x` matches multiple rows in `y`.\n\n\n\n\nFour values: \"one-to-one\", \"one-to-many\", \"many-to-one\", \"many-to-many\". The last one is not a safety rail — it is how you tell dplyr you meant it, and it silences the warning."
   },
   {
-    "objectID": "course/session07/slides.html#wide-to-long-pivot_longer",
-    "href": "course/session07/slides.html#wide-to-long-pivot_longer",
-    "title": "Joins and Reshaping",
-    "section": "Wide to long: pivot_longer()",
-    "text": "Wide to long: pivot_longer()\nlibrary(tidyr)\n\nsbp_long &lt;- wide3 |&gt;\n  pivot_longer(\n    cols             = c(sbp_0, sbp_6, sbp_12),\n    names_to         = \"week\",\n    names_prefix     = \"sbp_\",\n    values_to        = \"sbp\",\n    names_transform  = list(week = as.integer)\n  )\n\n# A tibble: 180 × 4\n   id    arm      week   sbp\n   &lt;chr&gt; &lt;chr&gt;   &lt;int&gt; &lt;dbl&gt;\n 1 P001  Placebo     0   160\n 2 P001  Placebo     6   146\n 3 P001  Placebo    12   144\n 4 P002  Placebo     0   162\n 5 P002  Placebo     6   165\n 6 P002  Placebo    12   156\n 7 P003  Placebo     0   157\n 8 P003  Placebo     6   151\n 9 P003  Placebo    12   156\n10 P004  Placebo     0   157\n# ℹ 170 more rows\n\ntidyr is not installed on the teaching machine, so this block is not executed. The output is the real thing — base reshape(), three slides on, builds the identical table and is executed."
+    "objectID": "course/session07/slides.html#optional-the-unmatched-argument",
+    "href": "course/session07/slides.html#optional-the-unmatched-argument",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: The unmatched argument",
+    "text": "Optional: The unmatched argument\n\nleft_join(trial, sites, by = \"site\", unmatched = \"error\")\n\nError in `left_join()`:\n! Each row of `y` must be matched by `x`.\ni Row 4 of `y` was not matched.\n\n\n\n\nRead the message carefully. For a left_join(), rows of x are never dropped — so unmatched= guards the only side that can lose rows: y. It just told us site 5 is unused.\n\n\n\nTo assert that every patient matched, use the diagnostic:\n\nnrow(anti_join(trial, sites, by = \"site\")) == 0\n\n[1] FALSE"
   },
   {
-    "objectID": "course/session07/slides.html#names_sep-two-facts-in-one-name",
-    "href": "course/session07/slides.html#names_sep-two-facts-in-one-name",
-    "title": "Joins and Reshaping",
-    "section": "names_sep: two facts in one name",
-    "text": "names_sep: two facts in one name\n\n\n    id sbp_0 sbp_12 dbp_0 dbp_12\n1 P001   160    144    98     92\n2 P002   162    156    78     74\n3 P003   157    156    81     80\n\n\nsbp_12 encodes two things: which measurement, and which week.\n\nbp_wide |&gt;\n  pivot_longer(\n    cols      = -id,\n    names_to  = c(\"measure\", \"week\"),\n    names_sep = \"_\"\n  )\n# A tibble: 12 × 4\n   id    measure week  value\n   &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt; &lt;dbl&gt;\n 1 P001  sbp     0       160\n 2 P001  sbp     12      144\n 3 P001  dbp     0        98\n 4 P001  dbp     12       92\n 5 P002  sbp     0       162\n 6 P002  sbp     12      156\n 7 P002  dbp     0        78\n 8 P002  dbp     12       74\n\nRows 1–8 of 12. Not executed here, for the same reason as the previous slide."
+    "objectID": "course/session07/slides.html#optional-merge-arguments",
+    "href": "course/session07/slides.html#optional-merge-arguments",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: merge() arguments",
+    "text": "Optional: merge() arguments\n# Same key name in both tables:\nmerge(trial, sites, by = \"site\", all.x = TRUE)\n\n# Different key names:\nmerge(trial, site_lookup,\n      by.x = \"site\", by.y = \"site_code\", all.x = TRUE)\n\nall.x = TRUE: keep unmatched rows from x.\nall.y = TRUE: keep unmatched rows from y.\nall = TRUE: keep unmatched rows from both.\nsort = TRUE is the default."
   },
   {
-    "objectID": "course/session07/slides.html#pivot_wider-and-the-round-trip",
-    "href": "course/session07/slides.html#pivot_wider-and-the-round-trip",
-    "title": "Joins and Reshaping",
-    "section": "pivot_wider() and the round trip",
-    "text": "pivot_wider() and the round trip\nsbp_long |&gt;\n  pivot_wider(\n    names_from   = week,\n    values_from  = sbp,\n    names_prefix = \"sbp_\"\n  )\n\n\npivot_wider() is the inverse. It needs to know which column supplies the new names and which supplies the new values; everything else becomes the identifier.\n\n\n\n\n\n\n\n\n\nIf the id columns plus names_from do not identify a row uniquely, pivot_wider() cannot put one value in one cell — so it puts a list in the cell and warns. That warning means you have duplicate measurements, which is a data question, not a code question."
+    "objectID": "course/session07/slides.html#optional-the-join-family-in-both-dialects",
+    "href": "course/session07/slides.html#optional-the-join-family-in-both-dialects",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: The join family in both dialects",
+    "text": "Optional: The join family in both dialects\n\n\n\n\n\n\n\n\n\ndplyr\nmerge()\nRows\n\n\n\n\ninner_join(x, y, by = \"k\")\nmerge(x, y, by = \"k\")\n45\n\n\nleft_join(x, y, by = \"k\")\nmerge(x, y, by = \"k\", all.x = TRUE)\n60\n\n\nright_join(x, y, by = \"k\")\nmerge(x, y, by = \"k\", all.y = TRUE)\n46\n\n\nfull_join(x, y, by = \"k\")\nmerge(x, y, by = \"k\", all = TRUE)\n61\n\n\nsemi_join(x, y, by = \"k\")\nx[x$k %in% y$k, ]\n45\n\n\nanti_join(x, y, by = \"k\")\nx[!(x$k %in% y$k), ]\n15\n\n\n\n\n\n\nc(inner = nrow(merge(trial, sites, by = \"site\")),\n  left  = nrow(merge(trial, sites, by = \"site\", all.x = TRUE)),\n  right = nrow(merge(trial, sites, by = \"site\", all.y = TRUE)),\n  full  = nrow(merge(trial, sites, by = \"site\", all   = TRUE)))\n\ninner  left right  full \n   45    60    46    61"
   },
   {
-    "objectID": "course/session07/slides.html#base-reshape-recognition-only",
-    "href": "course/session07/slides.html#base-reshape-recognition-only",
-    "title": "Joins and Reshaping",
-    "section": "Base reshape(): recognition only",
-    "text": "Base reshape(): recognition only\n\nsbp_long &lt;- reshape(wide3,\n  direction = \"long\",\n  idvar     = \"id\",\n  varying   = list(c(\"sbp_0\", \"sbp_6\", \"sbp_12\")),\n  v.names   = \"sbp\",\n  timevar   = \"week\",\n  times     = c(0, 6, 12))\ndim(sbp_long)\n\n[1] 180   4\n\n\n\n\nback &lt;- reshape(sbp_long, direction = \"wide\", idvar = \"id\",\n                timevar = \"week\", v.names = \"sbp\", sep = \"_\")\ndim(back)\n\n[1] 60  5\n\n\n\n\n\n\n\n\n\n\nreshape() works, and it round-trips exactly. The idvar / timevar / varying interface is genuinely punishing, it is easy to get subtly wrong, and pivot_longer() is the tool you will actually use. Learn to recognise this call. Do not learn to write it."
+    "objectID": "course/session07/slides.html#optional-the-same-job-twice",
+    "href": "course/session07/slides.html#optional-the-same-job-twice",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: The same job, twice",
+    "text": "Optional: The same job, twice\nTask. Attach site names, keep only patients at a known site, and report mean 12-week SBP by site.\n\n\n\ntrial |&gt;\n  inner_join(sites, by = \"site\") |&gt;\n  group_by(site_name) |&gt;\n  summarise(\n    n    = n(),\n    mean = round(mean(sbp_12), 1)\n  )\n\n# A tibble: 3 x 3\n  site_name     n  mean\n  &lt;chr&gt;     &lt;int&gt; &lt;dbl&gt;\n1 Meharry      18  136.\n2 Regional     11  142.\n3 VUMC         16  146.\n\n\n\n\nm &lt;- merge(trial, sites,\n           by = \"site\")\naggregate(sbp_12 ~ site_name,\n          data = m,\n          FUN  = mean)\n\n  site_name   sbp_12\n1   Meharry 135.6111\n2  Regional 142.3636\n3      VUMC 145.7500"
   },
   {
-    "objectID": "course/session07/slides.html#why-long-the-plot",
-    "href": "course/session07/slides.html#why-long-the-plot",
-    "title": "Joins and Reshaping",
-    "section": "Why long: the plot",
-    "text": "Why long: the plot\n\nggplot(sbp_long, aes(week, sbp, colour = arm)) +\n  stat_summary(fun = mean, geom = \"line\", linewidth = 1.1) +\n  labs(x = \"Week\", y = \"Mean SBP (mmHg)\", colour = NULL)\n\n\n\nFigure 1: Mean systolic BP by visit and arm. Long format, three lines of ggplot2.\n\nBorrowed from session 1’s minimum-viable plot — the grammar is session 8."
+    "objectID": "course/session07/slides.html#optional-merge-gotchas",
+    "href": "course/session07/slides.html#optional-merge-gotchas",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: merge() gotchas",
+    "text": "Optional: merge() gotchas\n\n\n\n\n\n\n\n\nBehaviour\nConsequence\n\n\n\n\nsort = TRUE by default\nThe result is reordered by the key. dplyr preserves x’s order\n\n\nOmitted by\nMatches all common column names; no common names gives a Cartesian product\n\n\nExplicit by = NULL\nAlways requests a Cartesian product\n\n\nDuplicated join keys\nCan multiply rows; dplyr warns on unexpected many-to-many equality joins\n\n\nsuffixes = c(\".x\", \".y\")\nSame-named non-key columns collide into age.x / age.y\n\n\n\n\n\n\nnrow(merge(trial[1:3, c(\"id\", \"arm\")], sites))   # no common column\n\n[1] 12\n\n\nThree rows and four rows gave twelve. That is every pairing."
   },
   {
-    "objectID": "course/session07/slides.html#within-patient-in-order",
-    "href": "course/session07/slides.html#within-patient-in-order",
-    "title": "Joins and Reshaping",
-    "section": "Within patient, in order",
-    "text": "Within patient, in order\nlag() looks back one row. group_by() says back within what.\n\nvisits &lt;- sbp_long |&gt;\n  arrange(id, week) |&gt;\n  group_by(id) |&gt;\n  mutate(\n    prev_sbp = lag(sbp),\n    change   = sbp - lag(sbp)\n  ) |&gt;\n  ungroup()\n\nhead(as.data.frame(visits), 6)\n\n    id     arm week sbp prev_sbp change\n1 P001 Placebo    0 160       NA     NA\n2 P001 Placebo    6 146      160    -14\n3 P001 Placebo   12 144      146     -2\n4 P002 Placebo    0 162       NA     NA\n5 P002 Placebo    6 165      162      3\n6 P002 Placebo   12 156      165     -9"
+    "objectID": "course/session07/slides.html#what-is-tidyr",
+    "href": "course/session07/slides.html#what-is-tidyr",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "What is tidyr?",
+    "text": "What is tidyr?\ntidyr helps organize data into a usable table:\n\nEach variable has a column.\nEach observation has a row.\nEach cell holds one value.\n\nToday: pivot_longer() and pivot_wider().\nOther tidyr tools split columns or make missing rows explicit. They are optional here."
   },
   {
-    "objectID": "course/session07/slides.html#numbering-looking-forward-and-baselines",
-    "href": "course/session07/slides.html#numbering-looking-forward-and-baselines",
-    "title": "Joins and Reshaping",
-    "section": "Numbering, looking forward, and baselines",
-    "text": "Numbering, looking forward, and baselines\n\nsbp_long |&gt;\n  arrange(id, week) |&gt;\n  group_by(id) |&gt;\n  mutate(\n    visit      = row_number(),\n    next_sbp   = lead(sbp),\n    from_base  = sbp - first(sbp)\n  ) |&gt;\n  ungroup() |&gt;\n  head(6) |&gt;\n  as.data.frame()\n\n    id     arm week sbp visit next_sbp from_base\n1 P001 Placebo    0 160     1      146         0\n2 P001 Placebo    6 146     2      144       -14\n3 P001 Placebo   12 144     3       NA       -16\n4 P002 Placebo    0 162     1      165         0\n5 P002 Placebo    6 165     2      156         3\n6 P002 Placebo   12 156     3       NA        -6\n\n\n\nrow_number() numbers rows within group · lead() looks forward · first() takes the group’s first value · cumsum() accumulates."
+    "objectID": "course/session07/slides.html#wide-measurements",
+    "href": "course/session07/slides.html#wide-measurements",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Wide measurements",
+    "text": "Wide measurements\n\nmarker_wide\n\n# A tibble: 4 x 3\n  id    marker_w0 marker_w4\n  &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt;\n1 P01         4.1       4.4\n2 P02         5.2       4.7\n3 P03         6         5.1\n4 P05         4.8       4.9\n\n\nOne row per participant. marker_w0 and marker_w4 store the same measurement at different weeks.\nTo summarize by week, it helps to give week its own column."
   },
   {
-    "objectID": "course/session07/slides.html#summary",
-    "href": "course/session07/slides.html#summary",
-    "title": "Joins and Reshaping",
+    "objectID": "course/session07/slides.html#wide-to-long-with-pivot_longer",
+    "href": "course/session07/slides.html#wide-to-long-with-pivot_longer",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Wide to long with pivot_longer",
+    "text": "Wide to long with pivot_longer\n\nmarker_long &lt;- marker_wide |&gt;\n  pivot_longer(\n    cols = starts_with(\"marker_w\"),\n    names_to = \"week\",\n    names_prefix = \"marker_w\",\n    values_to = \"marker\"\n  ) |&gt;\n  mutate(week = as.integer(week))\n\nThe column names supply week. The cell values supply marker."
+  },
+  {
+    "objectID": "course/session07/slides.html#long-measurements",
+    "href": "course/session07/slides.html#long-measurements",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Long measurements",
+    "text": "Long measurements\n\n\n# A tibble: 8 x 3\n  id     week marker\n  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt;\n1 P01       0    4.1\n2 P01       4    4.4\n3 P02       0    5.2\n4 P02       4    4.7\n5 P03       0    6  \n6 P03       4    5.1\n7 P05       0    4.8\n8 P05       4    4.9\n\n\nFour participants × two weeks = eight rows. The pair id and week identifies a row."
+  },
+  {
+    "objectID": "course/session07/slides.html#a-summary-by-week",
+    "href": "course/session07/slides.html#a-summary-by-week",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "A summary by week",
+    "text": "A summary by week\n\nmarker_long |&gt;\n  group_by(week) |&gt;\n  summarise(mean_marker = mean(marker), .groups = \"drop\")\n\n# A tibble: 2 x 2\n   week mean_marker\n  &lt;int&gt;       &lt;dbl&gt;\n1     0        5.03\n2     4        4.78\n\n\nThis reuses Session 6’s group_by() and summarise().\nLong form is also useful for plotting measurements against time in Session 8."
+  },
+  {
+    "objectID": "course/session07/slides.html#long-to-wide-with-pivot_wider",
+    "href": "course/session07/slides.html#long-to-wide-with-pivot_wider",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Long to wide with pivot_wider",
+    "text": "Long to wide with pivot_wider\n\nmarker_back &lt;- marker_long |&gt;\n  pivot_wider(\n    id_cols = id,\n    names_from = week,\n    values_from = marker,\n    names_prefix = \"marker_w\"\n  )\n\nid_cols identifies an output row. names_from supplies column names. values_from supplies cell contents."
+  },
+  {
+    "objectID": "course/session07/slides.html#a-check-after-reshaping",
+    "href": "course/session07/slides.html#a-check-after-reshaping",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "A check after reshaping",
+    "text": "A check after reshaping\n\nmarker_back\n\n# A tibble: 4 x 3\n  id    marker_w0 marker_w4\n  &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt;\n1 P01         4.1       4.4\n2 P02         5.2       4.7\n3 P03         6         5.1\n4 P05         4.8       4.9\n\n\nCompare this with marker_wide:\n\nSame participant IDs?\nSame measurement columns and values?\nSame row count after returning to wide?\n\nWide and long formats are useful for different tasks."
+  },
+  {
+    "objectID": "course/session07/slides.html#text-differences-that-affect-matching",
+    "href": "course/session07/slides.html#text-differences-that-affect-matching",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Text differences that affect matching",
+    "text": "Text differences that affect matching\n\nraw_patients |&gt; select(id, arm)\n\n# A tibble: 4 x 2\n  id      arm        \n  &lt;chr&gt;   &lt;chr&gt;      \n1 \" p01 \" \" Control \"\n2 \"p02\"   \"TREATED\"  \n3 \" P03\"  \" treated \"\n4 \"p04 \"  \"control\"  \n\n\" p01 \" == \"P01\"\n\n[1] FALSE\n\n\nOur study’s documented ID convention is uppercase with no surrounding spaces. The raw export does not consistently follow it."
+  },
+  {
+    "objectID": "course/session07/slides.html#spaces-and-capitalization",
+    "href": "course/session07/slides.html#spaces-and-capitalization",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Spaces and capitalization",
+    "text": "Spaces and capitalization\n\nstr_trim(\"  Repeat   visit \")\n\n[1] \"Repeat   visit\"\n\nstr_squish(\"  Repeat   visit \")\n\n[1] \"Repeat visit\"\n\nstr_to_lower(\"TREATED\")\n\n[1] \"treated\"\n\nstr_to_upper(\"p01\")\n\n[1] \"P01\"\n\n\nstr_trim() removes outer spaces. str_squish() also reduces internal whitespace to one space."
+  },
+  {
+    "objectID": "course/session07/slides.html#cleaning-inside-mutate",
+    "href": "course/session07/slides.html#cleaning-inside-mutate",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Cleaning inside mutate",
+    "text": "Cleaning inside mutate\n\npatients_text &lt;- raw_patients |&gt;\n  mutate(\n    id = str_to_upper(str_trim(id)),\n    arm = str_to_lower(str_squish(arm)),\n    note = str_to_lower(str_squish(note))\n  )\n\nKeep raw_patients unchanged so the original values remain available."
+  },
+  {
+    "objectID": "course/session07/slides.html#the-cleaned-text-columns",
+    "href": "course/session07/slides.html#the-cleaned-text-columns",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "The cleaned text columns",
+    "text": "The cleaned text columns\n\npatients_text |&gt; select(id, arm, note)\n\n# A tibble: 4 x 3\n  id    arm     note         \n  &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;        \n1 P01   control first visit  \n2 P02   treated repeat sample\n3 P03   treated repeat visit \n4 P04   control first visit  \n\n\nThe IDs now match the study’s convention. Spacing and capitalization are consistent, while each participant keeps the same treatment category."
+  },
+  {
+    "objectID": "course/session07/slides.html#detecting-literal-text",
+    "href": "course/session07/slides.html#detecting-literal-text",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Detecting literal text",
+    "text": "Detecting literal text\n\npatients_text |&gt;\n  mutate(has_repeat = str_detect(note, fixed(\"repeat\"))) |&gt;\n  select(id, note, has_repeat)\n\n# A tibble: 4 x 3\n  id    note          has_repeat\n  &lt;chr&gt; &lt;chr&gt;         &lt;lgl&gt;     \n1 P01   first visit   FALSE     \n2 P02   repeat sample TRUE      \n3 P03   repeat visit  TRUE      \n4 P04   first visit   FALSE     \n\n\nstr_detect() returns TRUE/FALSE. fixed(\"repeat\") requests a literal substring."
+  },
+  {
+    "objectID": "course/session07/slides.html#a-text-condition-inside-filter",
+    "href": "course/session07/slides.html#a-text-condition-inside-filter",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "A text condition inside filter",
+    "text": "A text condition inside filter\n\npatients_text |&gt;\n  filter(str_detect(note, fixed(\"repeat\"))) |&gt;\n  select(id, note)\n\n# A tibble: 2 x 2\n  id    note         \n  &lt;chr&gt; &lt;chr&gt;        \n1 P02   repeat sample\n2 P03   repeat visit \n\n\nmutate() can retain the flag. filter() can retain just matching rows.\nAs in Session 6, filter() drops conditions that evaluate to NA."
+  },
+  {
+    "objectID": "course/session07/slides.html#factor-labels-and-level-order",
+    "href": "course/session07/slides.html#factor-labels-and-level-order",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Factor labels and level order",
+    "text": "Factor labels and level order\nSession 4 introduced factor(), levels(), and relevel().\nforcats provides functions for the same kinds of categorical-data tasks.\n\narm_factor &lt;- factor(\n  patients_text$arm, levels = c(\"treated\", \"control\")\n)\narm_factor\n\n[1] control treated treated control\nLevels: treated control\n\n\nEach participant has a category. The factor also stores an order of levels."
+  },
+  {
+    "objectID": "course/session07/slides.html#fct_relevel-changes-the-level-order",
+    "href": "course/session07/slides.html#fct_relevel-changes-the-level-order",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "fct_relevel changes the level order",
+    "text": "fct_relevel changes the level order\n\narm_ordered &lt;- fct_relevel(arm_factor, \"control\")\nlevels(arm_ordered)\n\n[1] \"control\" \"treated\"\n\nas.character(arm_factor) == as.character(arm_ordered)\n\n[1] TRUE TRUE TRUE TRUE\n\n\nThe participant labels stay the same.\nUnder the usual treatment contrasts, the first level is the model reference.\nFor a full order: fct_relevel(x, \"c\", \"b\", \"a\")."
+  },
+  {
+    "objectID": "course/session07/slides.html#fct_recode-changes-the-labels",
+    "href": "course/session07/slides.html#fct_recode-changes-the-labels",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "fct_recode changes the labels",
+    "text": "fct_recode changes the labels\n\narm_labeled &lt;- fct_recode(\n  arm_ordered,\n  Control = \"control\",\n  Treatment = \"treated\"\n)\narm_labeled\n\n[1] Control   Treatment Treatment Control  \nLevels: Control Treatment\n\n\nThe syntax is new_label = \"old_label\". This deliberately changes category labels, rather than only their order."
+  },
+  {
+    "objectID": "course/session07/slides.html#factor-operations-inside-mutate",
+    "href": "course/session07/slides.html#factor-operations-inside-mutate",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Factor operations inside mutate",
+    "text": "Factor operations inside mutate\n\npatients_factor &lt;- patients_text |&gt;\n  mutate(\n    arm = fct_recode(arm,\n      Control = \"control\", Treatment = \"treated\"),\n    arm = fct_relevel(arm, \"Control\")\n  )\npatients_factor |&gt; count(arm)\n\n# A tibble: 2 x 2\n  arm           n\n  &lt;fct&gt;     &lt;int&gt;\n1 Control       2\n2 Treatment     2\n\n\nfct_recode() can accept a character column and returns a factor."
+  },
+  {
+    "objectID": "course/session07/slides.html#frequency-order-for-a-display",
+    "href": "course/session07/slides.html#frequency-order-for-a-display",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Frequency order for a display",
+    "text": "Frequency order for a display\n\nreported_site &lt;- factor(c(\"East\", \"West\", \"West\", \"West\", \"East\"))\nlevels(fct_infreq(reported_site))\n\n[1] \"West\" \"East\"\n\n\nfct_infreq() puts the most frequent level first.\nUseful for displays. Use a deliberate scientific reference category for modeling."
+  },
+  {
+    "objectID": "course/session07/slides.html#date-parsers-describe-the-input-order",
+    "href": "course/session07/slides.html#date-parsers-describe-the-input-order",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Date parsers describe the input order",
+    "text": "Date parsers describe the input order\n\nymd(\"2026-10-18\")\n\n[1] \"2026-10-18\"\n\nmdy(\"10/18/2026\")\n\n[1] \"2026-10-18\"\n\ndmy(\"18/10/2026\")\n\n[1] \"2026-10-18\"\n\n\nAll three represent October 18, 2026.\nChoose the parser using the source’s date convention."
+  },
+  {
+    "objectID": "course/session07/slides.html#an-ambiguous-date-still-needs-a-decision",
+    "href": "course/session07/slides.html#an-ambiguous-date-still-needs-a-decision",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "An ambiguous date still needs a decision",
+    "text": "An ambiguous date still needs a decision\n\nmdy(\"03/04/2026\")\n\n[1] \"2026-03-04\"\n\ndmy(\"03/04/2026\")\n\n[1] \"2026-04-03\"\n\n\nBoth conversions succeed, but they mean different days.\nA parser cannot tell you which convention the data producer intended."
+  },
+  {
+    "objectID": "course/session07/slides.html#parsing-a-column-and-extracting-components",
+    "href": "course/session07/slides.html#parsing-a-column-and-extracting-components",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Parsing a column and extracting components",
+    "text": "Parsing a column and extracting components\n\npatients_clean &lt;- patients_factor |&gt;\n  mutate(\n    enrolled_date = ymd(enrolled),\n    enrolled_year = year(enrolled_date),\n    enrolled_month = month(enrolled_date)\n  )\n\nThe original text column remains available for checking."
+  },
+  {
+    "objectID": "course/session07/slides.html#dates-and-their-components",
+    "href": "course/session07/slides.html#dates-and-their-components",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Dates and their components",
+    "text": "Dates and their components\n\npatients_clean |&gt;\n  select(id, enrolled_date, enrolled_month)\n\n# A tibble: 4 x 3\n  id    enrolled_date enrolled_month\n  &lt;chr&gt; &lt;date&gt;                 &lt;dbl&gt;\n1 P01   2026-09-01                 9\n2 P02   2026-09-03                 9\n3 P03   2026-10-01                10\n4 P04   2026-10-02                10\n\n\nenrolled_date contains Date values. enrolled_month contains month numbers."
+  },
+  {
+    "objectID": "course/session07/slides.html#a-check-after-date-conversion",
+    "href": "course/session07/slides.html#a-check-after-date-conversion",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "A check after date conversion",
+    "text": "A check after date conversion\n\npatients_clean |&gt;\n  filter(is.na(enrolled_date)) |&gt;\n  select(id, enrolled)\n\n# A tibble: 0 x 2\n# i 2 variables: id &lt;chr&gt;, enrolled &lt;chr&gt;\n\n\nZero rows means no missing parsed dates in this example.\nAlso inspect the range and whether the dates make sense for the study. A successful parse alone does not establish correctness."
+  },
+  {
+    "objectID": "course/session07/slides.html#one-connected-analysis",
+    "href": "course/session07/slides.html#one-connected-analysis",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "One connected analysis",
+    "text": "One connected analysis\n\nanalysis &lt;- marker_long |&gt;\n  left_join(\n    patients_clean |&gt; select(id, arm, enrolled_date),\n    by = \"id\"\n  )\n\nThe measurement table defines the rows. The cleaned metadata supplies each participant’s treatment label and enrollment date."
+  },
+  {
+    "objectID": "course/session07/slides.html#the-week-4-summary",
+    "href": "course/session07/slides.html#the-week-4-summary",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "The week-4 summary",
+    "text": "The week-4 summary\n\nanalysis |&gt; filter(week == 4) |&gt;\n  group_by(arm) |&gt;\n  summarise(mean_marker = mean(marker), .groups = \"drop\")\n\n# A tibble: 3 x 2\n  arm       mean_marker\n  &lt;fct&gt;           &lt;dbl&gt;\n1 Control           4.4\n2 Treatment         4.9\n3 &lt;NA&gt;              4.9\n\n\nP05 still has missing metadata. Keep that visible and investigate."
+  },
+  {
+    "objectID": "course/session07/slides.html#core-summary",
+    "href": "course/session07/slides.html#core-summary",
+    "title": "Joining, Reshaping, and Cleaning Data",
     "section": "Summary",
-    "text": "Summary\n\nState the grain and keys of every table before joining.\nPredict row counts and detect duplicate keys before the join.\nUse anti-joins to inspect unmatched records in both directions.\nWide and long forms encode different observation units.\nOrder explicitly before lagged or cumulative operations.\n\n\nNext connection: Session 8 uses the long, validated analysis table to build statistical figures."
+    "text": "Summary\n\ndplyr joins match records by keys.\ntidyr pivots change how measurements occupy rows and columns.\nstringr cleans and searches text.\nforcats distinguishes relabeling from level ordering.\nlubridate parses dates using a known input convention.\n\nThe core lesson ends here. Detailed pivots and window functions follow as optional reference material."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-two-measurements-encoded-in-column-names",
+    "href": "course/session07/slides.html#optional-two-measurements-encoded-in-column-names",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Two measurements encoded in column names",
+    "text": "Optional: Two measurements encoded in column names\n\nbp_wide\n\n    id sbp_0 sbp_12 dbp_0 dbp_12\n1 P001   160    144    98     92\n2 P002   162    156    78     74\n3 P003   157    156    81     80\n\n\nsbp_12 contains a measurement name and a visit week. The separator is an underscore."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-names_sep-one-value-column",
+    "href": "course/session07/slides.html#optional-names_sep-one-value-column",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: names_sep: one value column",
+    "text": "Optional: names_sep: one value column\n\nbp_long &lt;- bp_wide |&gt;\n  pivot_longer(\n    cols = -id,\n    names_to = c(\"measure\", \"week\"),\n    names_sep = \"_\",\n    names_transform = list(week = as.integer),\n    values_to = \"value\"\n  )\n\nOne row now represents a participant, measurement, and week."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-the-result-of-splitting-the-names",
+    "href": "course/session07/slides.html#optional-the-result-of-splitting-the-names",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: The result of splitting the names",
+    "text": "Optional: The result of splitting the names\n\nhead(bp_long, 6)\n\n# A tibble: 6 x 4\n  id    measure  week value\n  &lt;chr&gt; &lt;chr&gt;   &lt;int&gt; &lt;dbl&gt;\n1 P001  sbp         0   160\n2 P001  sbp        12   144\n3 P001  dbp         0    98\n4 P001  dbp        12    92\n5 P002  sbp         0   162\n6 P002  sbp        12   156\n\n\nThere are 3 participants × 2 measurements × 2 visits = 12 rows."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-one-output-cell-needs-one-value",
+    "href": "course/session07/slides.html#optional-one-output-cell-needs-one-value",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: One output cell needs one value",
+    "text": "Optional: One output cell needs one value\n\nrepeat_readings &lt;- tibble(\n  id = c(\"P01\", \"P01\"),\n  week = c(4L, 4L),\n  marker = c(4.4, 4.6)\n)\nrepeat_readings |&gt; count(id, week)\n\n# A tibble: 1 x 3\n  id     week     n\n  &lt;chr&gt; &lt;int&gt; &lt;int&gt;\n1 P01       4     2\n\n\nTwo readings target the same participant-week cell. Decide whether these are valid repeats, a correction, or an error."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-a-duplicate-cell-warning",
+    "href": "course/session07/slides.html#optional-a-duplicate-cell-warning",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: A duplicate-cell warning",
+    "text": "Optional: A duplicate-cell warning\n\nrepeat_readings |&gt;\n  pivot_wider(id_cols = id, names_from = week,\n              values_from = marker)\n\nWarning: Values from `marker` are not uniquely identified; output will\ncontain list-cols.\n* Use `values_fn = list` to suppress this warning.\n* Use `values_fn = {summary_fun}` to summarise duplicates.\n* Use the following dplyr code to identify duplicates.\n  {data} |&gt;\n  dplyr::summarise(n = dplyr::n(), .by = c(id, week)) |&gt;\n  dplyr::filter(n &gt; 1L)\n\n\n# A tibble: 1 x 2\n  id    `4`      \n  &lt;chr&gt; &lt;list&gt;   \n1 P01   &lt;dbl [2]&gt;\n\n\nThe output contains a list column because both values need somewhere to go. Using values_fn = mean would impose an averaging rule. Use that rule only when the analysis calls for it."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-missing-measurements-remain-in-the-long-table",
+    "href": "course/session07/slides.html#optional-missing-measurements-remain-in-the-long-table",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Missing measurements remain in the long table",
+    "text": "Optional: Missing measurements remain in the long table\n\nmissing_wide &lt;- tibble(id = c(\"P01\", \"P02\"),\n                       marker_w0 = c(4.1, 5.2),\n                       marker_w4 = c(NA, 4.7))\nmissing_long &lt;- missing_wide |&gt;\n  pivot_longer(starts_with(\"marker_w\"),\n    names_to = \"week\", names_prefix = \"marker_w\",\n    names_transform = list(week = as.integer),\n    values_to = \"marker\")\n\nThe default is values_drop_na = FALSE: keep the missing measurement."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-a-missing-value-still-has-a-row",
+    "href": "course/session07/slides.html#optional-a-missing-value-still-has-a-row",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: A missing value still has a row",
+    "text": "Optional: A missing value still has a row\n\nmissing_long\n\n# A tibble: 4 x 3\n  id     week marker\n  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt;\n1 P01       0    4.1\n2 P01       4   NA  \n3 P02       0    5.2\n4 P02       4    4.7\n\n\nvalues_drop_na = TRUE would remove the P01 week-4 row. That changes the available denominator for visit-level summaries."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-base-reshape-recognition-only",
+    "href": "course/session07/slides.html#optional-base-reshape-recognition-only",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Base reshape(): recognition only",
+    "text": "Optional: Base reshape(): recognition only\n\nsbp_long &lt;- reshape(wide3,\n  direction = \"long\",\n  idvar     = \"id\",\n  varying   = list(c(\"sbp_0\", \"sbp_6\", \"sbp_12\")),\n  v.names   = \"sbp\",\n  timevar   = \"week\",\n  times     = c(0, 6, 12))\ndim(sbp_long)\n\n[1] 180   4\n\n\n\n\nback &lt;- reshape(sbp_long, direction = \"wide\", idvar = \"id\",\n                timevar = \"week\", v.names = \"sbp\", sep = \"_\")\ndim(back)\n\n[1] 60  5\n\n\n\n\n\n\n\n\n\n\nreshape() provides a base-R alternative. Its idvar, timevar, and varying arguments describe the same reshaping task with different syntax. Today’s exercises use pivot_longer(). Either dialect is useful in other work."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-why-long-the-plot",
+    "href": "course/session07/slides.html#optional-why-long-the-plot",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Why long: the plot",
+    "text": "Optional: Why long: the plot\n\nggplot(sbp_long, aes(week, sbp, colour = arm)) +\n  stat_summary(fun = mean, geom = \"line\", linewidth = 1.1) +\n  labs(x = \"Week\", y = \"Mean SBP (mmHg)\", colour = NULL)\n\n\n\nFigure 1: Mean systolic BP by visit and arm. Long format, three lines of ggplot2.\n\nBorrowed from session 1’s minimum-viable plot — the grammar is session 8."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-within-patient-in-order",
+    "href": "course/session07/slides.html#optional-within-patient-in-order",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Within patient, in order",
+    "text": "Optional: Within patient, in order\nlag() looks back one row. group_by() says back within what.\n\nvisits &lt;- sbp_long |&gt;\n  arrange(id, week) |&gt;\n  group_by(id) |&gt;\n  mutate(\n    prev_sbp = lag(sbp),\n    change   = sbp - lag(sbp)\n  ) |&gt;\n  ungroup()"
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-previous-visit-changes-the-output",
+    "href": "course/session07/slides.html#optional-previous-visit-changes-the-output",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Previous-visit changes: the output",
+    "text": "Optional: Previous-visit changes: the output\n\nhead(as.data.frame(visits), 6)\n\n    id     arm week sbp prev_sbp change\n1 P001 Placebo    0 160       NA     NA\n2 P001 Placebo    6 146      160    -14\n3 P001 Placebo   12 144      146     -2\n4 P002 Placebo    0 162       NA     NA\n5 P002 Placebo    6 165      162      3\n6 P002 Placebo   12 156      165     -9\n\n\nEach participant starts with a missing previous value and change."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-numbering-looking-forward-and-baselines",
+    "href": "course/session07/slides.html#optional-numbering-looking-forward-and-baselines",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Numbering, looking forward, and baselines",
+    "text": "Optional: Numbering, looking forward, and baselines\n\nnumbered_visits &lt;- sbp_long |&gt;\n  arrange(id, week) |&gt;\n  group_by(id) |&gt;\n  mutate(\n    visit      = row_number(),\n    next_sbp   = lead(sbp),\n    from_base  = sbp - first(sbp)\n  ) |&gt;\n  ungroup()"
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-visit-numbers-and-baseline-changes-the-output",
+    "href": "course/session07/slides.html#optional-visit-numbers-and-baseline-changes-the-output",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Visit numbers and baseline changes: the output",
+    "text": "Optional: Visit numbers and baseline changes: the output\n\nhead(as.data.frame(numbered_visits), 6)\n\n    id     arm week sbp visit next_sbp from_base\n1 P001 Placebo    0 160     1      146         0\n2 P001 Placebo    6 146     2      144       -14\n3 P001 Placebo   12 144     3       NA       -16\n4 P002 Placebo    0 162     1      165         0\n5 P002 Placebo    6 165     2      156         3\n6 P002 Placebo   12 156     3       NA        -6\n\n\n\nrow_number() numbers rows within group · lead() looks forward · first() takes the group’s first value · cumsum() accumulates."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-what-does-change-compare",
+    "href": "course/session07/slides.html#optional-what-does-change-compare",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: What does change compare?",
+    "text": "Optional: What does change compare?\nFor each participant, after arrange(id, week):\n\n\n\nExpression\nMeaning\n\n\n\n\nmarker - lag(marker)\nChange since the previous recorded row\n\n\nmarker - first(marker)\nChange from the first recorded row\n\n\n\nThe first recorded row is baseline only if baseline is present. With irregular visits, a previous-row change is not automatically a four-week change."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-cumulative-observed-measurements",
+    "href": "course/session07/slides.html#optional-cumulative-observed-measurements",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Cumulative observed measurements",
+    "text": "Optional: Cumulative observed measurements\n\ntracking &lt;- tibble(id = rep(c(\"P01\", \"P02\"), each = 3),\n                   week = rep(c(0L, 4L, 8L), 2),\n                   marker = c(4.1, NA, 4.5, 5.2, 4.7, NA))\ntracked &lt;- tracking |&gt;\n  arrange(id, week) |&gt;\n  group_by(id) |&gt;\n  mutate(observed_so_far = cumsum(!is.na(marker))) |&gt;\n  ungroup()"
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-cumulative-counts-the-output",
+    "href": "course/session07/slides.html#optional-cumulative-counts-the-output",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Cumulative counts: the output",
+    "text": "Optional: Cumulative counts: the output\n\ntracked\n\n# A tibble: 6 x 4\n  id     week marker observed_so_far\n  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt;           &lt;int&gt;\n1 P01       0    4.1               1\n2 P01       4   NA                 1\n3 P01       8    4.5               2\n4 P02       0    5.2               1\n5 P02       4    4.7               2\n6 P02       8   NA                 2\n\n\n!is.na(marker) gives TRUE/FALSE; cumulative sums count observed visits."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-stacking-rows-with-bind_rows",
+    "href": "course/session07/slides.html#optional-stacking-rows-with-bind_rows",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: stacking rows with bind_rows()",
+    "text": "Optional: stacking rows with bind_rows()\n\nbatch_a &lt;- tibble(id = \"P01\", marker = 4.1)\nbatch_b &lt;- tibble(id = \"P02\", marker = 5.2, lab = \"central\")\nstacked &lt;- bind_rows(A = batch_a, B = batch_b, .id = \"batch\")\nstacked\n\n# A tibble: 2 x 4\n  batch id    marker lab    \n  &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt;  \n1 A     P01      4.1 &lt;NA&gt;   \n2 B     P02      5.2 central\n\n\nColumns align by name. Missing columns get NA. .id records which input supplied each row."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-stacking-versus-matching",
+    "href": "course/session07/slides.html#optional-stacking-versus-matching",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: stacking versus matching",
+    "text": "Optional: stacking versus matching\n\n\n\nFiles contain\nOperation\n\n\n\n\nThe same variables for different participants\nbind_rows()\n\n\nParticipant measurements and participant metadata\nA join by ID\n\n\nTwo visit-level measurements\nA join by ID and week\n\n\n\nAfter stacking, check keys and column types again. Overlapping exports can introduce duplicated observations."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-competing-columns-after-a-join",
+    "href": "course/session07/slides.html#optional-competing-columns-after-a-join",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: competing columns after a join",
+    "text": "Optional: competing columns after a join\n\nclinic &lt;- tibble(id = c(\"P01\", \"P02\"), age = c(NA, 61))\nregistry &lt;- tibble(id = c(\"P01\", \"P02\"), age = c(58, 62))\nages &lt;- left_join(clinic, registry, by = \"id\",\n                   suffix = c(\"_clinic\", \"_registry\"),\n                   relationship = \"one-to-one\")\nages\n\n# A tibble: 2 x 3\n  id    age_clinic age_registry\n  &lt;chr&gt;      &lt;dbl&gt;        &lt;dbl&gt;\n1 P01           NA           58\n2 P02           61           62\n\n\nBoth age columns survive with suffixes. P02’s sources disagree."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-coalesce-follows-a-priority-rule",
+    "href": "course/session07/slides.html#optional-coalesce-follows-a-priority-rule",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: coalesce() follows a priority rule",
+    "text": "Optional: coalesce() follows a priority rule\n\nages |&gt;\n  mutate(age = coalesce(age_clinic, age_registry))\n\n# A tibble: 2 x 4\n  id    age_clinic age_registry   age\n  &lt;chr&gt;      &lt;dbl&gt;        &lt;dbl&gt; &lt;dbl&gt;\n1 P01           NA           58    58\n2 P02           61           62    61\n\n\nThe stated rule here is clinic first, registry only if clinic is missing. P02 keeps 61. coalesce() does not detect or resolve that disagreement."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-separate-measurement-columns-with-.value",
+    "href": "course/session07/slides.html#optional-separate-measurement-columns-with-.value",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: separate measurement columns with .value",
+    "text": "Optional: separate measurement columns with .value\n\nbp_by_visit &lt;- bp_wide |&gt;\n  pivot_longer(-id,\n    names_to = c(\".value\", \"week\"),\n    names_sep = \"_\",\n    names_transform = list(week = as.integer))\nhead(bp_by_visit, 4)\n\n# A tibble: 4 x 4\n  id     week   sbp   dbp\n  &lt;chr&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;\n1 P001      0   160    98\n2 P001     12   144    92\n3 P002      0   162    78\n4 P002     12   156    74\n\n\n.value uses the first name component to create sbp and dbp columns."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-a-missing-row-versus-a-missing-value",
+    "href": "course/session07/slides.html#optional-a-missing-row-versus-a-missing-value",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: a missing row versus a missing value",
+    "text": "Optional: a missing row versus a missing value\n\nincomplete &lt;- tibble(id = c(\"P01\", \"P01\", \"P02\"),\n                     week = c(0L, 4L, 0L),\n                     marker = c(4.1, NA, 5.2))\nincomplete\n\n# A tibble: 3 x 3\n  id     week marker\n  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt;\n1 P01       0    4.1\n2 P01       4   NA  \n3 P02       0    5.2\n\n\nP01 week 4 exists with a missing marker. P02 week 4 has no row."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-complete-makes-expected-visits-explicit",
+    "href": "course/session07/slides.html#optional-complete-makes-expected-visits-explicit",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: complete() makes expected visits explicit",
+    "text": "Optional: complete() makes expected visits explicit\n\ncompleted &lt;- incomplete |&gt;\n  mutate(record_present = TRUE) |&gt;\n  complete(id, week = c(0L, 4L),\n           fill = list(record_present = FALSE))\ncompleted\n\n# A tibble: 4 x 4\n  id     week marker record_present\n  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt; &lt;lgl&gt;         \n1 P01       0    4.1 TRUE          \n2 P01       4   NA   TRUE          \n3 P02       0    5.2 TRUE          \n4 P02       4   NA   FALSE         \n\n\nThe added marker stays NA. No measurement was invented. Use an expected visit schedule, not every imaginable ID-time combination."
   },
   {
     "objectID": "course/session06/lab.html",
@@ -2440,7 +2762,7 @@
     "href": "index.html#course-sequence",
     "title": "BIOS6301: Introduction to Statistical Computing",
     "section": "Course sequence",
-    "text": "Course sequence\n\n\n\nSession\nTopic\nMain emphasis\n\n\n\n\n0\nSetup and orientation\nself-study diagnostic\n\n\n1\nReproducible documents and workflow\nRStudio, R Markdown, and Quarto\n\n\n2\nGit and GitHub\nversion control\n\n\n3\nR objects\nbase R foundations\n\n\n4\nData structures and base-R handling\ncontainers and base R\n\n\n5\nGetting data into R\nfiles, checks, and dates\n\n\n6\nTidy data and dplyr\ntidyverse + base verification\n\n\n7\nReshaping and joins\nrelational data\n\n\n8\nVisualization\nbase graphics + ggplot2\n\n\n9\nPositron and AI-assisted coding\nCopilot verification and policy\n\n\n10\nPython introduction for R users\ntranslation from familiar R\n\n\n11\nControl flow and functions\nbase R programming\n\n\n12\nDebugging and numerical reliability\nreliable code\n\n\n13\nIteration, vectorization, and functionals\nloops, base functionals, and purrr\n\n\n14\nRandom generation and simulation\nMonte Carlo studies\n\n\n15\nResampling\nbootstrap, permutation, CV\n\n\n16\nSelected Practical Topics in R\nstrings, regex, and flexible needs"
+    "text": "Course sequence\n\n\n\nSession\nTopic\nMain emphasis\n\n\n\n\n0\nSetup and orientation\nself-study diagnostic\n\n\n1\nReproducible documents and workflow\nRStudio, R Markdown, and Quarto\n\n\n2\nGit and GitHub\nversion control\n\n\n3\nR objects\nbase R foundations\n\n\n4\nData structures and base-R handling\ncontainers and base R\n\n\n5\nGetting data into R\nfiles, checks, and dates\n\n\n6\nTidy data and dplyr\ntidyverse + base verification\n\n\n7\nJoins, reshaping, and cleaning\nrelated tables, text, factors, and dates\n\n\n8\nVisualization\nbase graphics + ggplot2\n\n\n9\nPositron and AI-assisted coding\nCopilot verification and policy\n\n\n10\nPython introduction for R users\ntranslation from familiar R\n\n\n11\nControl flow and functions\nbase R programming\n\n\n12\nDebugging and numerical reliability\nreliable code\n\n\n13\nIteration, vectorization, and functionals\nloops, base functionals, and purrr\n\n\n14\nRandom generation and simulation\nMonte Carlo studies\n\n\n15\nResampling\nbootstrap, permutation, CV\n\n\n16\nSelected Practical Topics in R\nstrings, regex, and flexible needs"
   },
   {
     "objectID": "index.html#assignments",
@@ -2517,7 +2839,7 @@
     "href": "syllabus.html#class-topics",
     "title": "BIOS6301: Introduction to Statistical Computing",
     "section": "Class topics",
-    "text": "Class topics\nThe instructor may adjust pacing in response to student preparation and the academic calendar. Session 0 is completed independently before the first class. Instructional sessions are units of content rather than calendar weeks, and two related units may be completed during one class meeting.\n\n\n\n\n\n\n\n\nSession\nTopic\nCore content\n\n\n\n\n0\nSetup and orientation\nInstall and verify R, RStudio, Quarto, and Git; distinguish console from source; open a project; render the diagnostic document\n\n\n1\nReproducible statistical workflow\nRStudio workbench; .R scripts; R Markdown structure and knitr options; Quarto-specific syntax; project paths; source versus generated output; clean-session rendering\n\n\n2\nGit and GitHub\nWorking tree, staging, commits, history, remotes, pull/push, .gitignore, and safe beginner recovery\n\n\n3\nR objects\nVectors, types, coercion, recycling, indexing, missing values, and factors\n\n\n4\nData structures and base-R data handling\nLists, matrices, data frames, [, [[, $, base-R subsetting, transformation, and summaries\n\n\n5\nGetting data into R\nDelimited and other files; base and readr import; import validation; missing-value codes; dates; export formats\n\n\n6\nTidyverse foundations\nTibbles, pipes, filter(), select(), mutate(), arrange(), summarise(), and grouped operations\n\n\n7\nJoins and reshaping\nObservation units, keys, join relationships, duplicate-key problems, wide/long data, and base/tidyverse comparisons\n\n\n—\nMidterm examination\nPractical assessment of the reproducible data workflow through Session 7; AI assistance is not permitted; exact timing and format TBD\n\n\n8\nStatistical visualization\nBase graphics and ggplot2; distributions, comparisons, uncertainty, facets, accessible design, and figure export\n\n\n9\nPositron and AI-assisted coding\nPositron projects and interface; comparison with RStudio; GitHub Copilot completion; accepting and rejecting suggestions; verification, privacy, and disclosure\n\n\n10\nPython introduction for R users\nPython/R comparison; basic syntax; NumPy; pandas; notebooks in Positron; translation of a familiar R analysis\n\n\n11\nConditions, control flow, and functions\nScalar conditions; if, else if, and else; function arguments, defaults, return values, scope, input validation, and refactoring\n\n\n12\nDebugging and reliable programming\nErrors, warnings, tracebacks, debugging tools, defensive checks, testing, and floating-point accuracy\n\n\n13\nIteration, vectorization, and functionals\nfor and while; preallocation; vectorized operations; apply; lapply() and vapply(); purrr; output contracts; timing and measurement\n\n\n14\nRandom-number generation and simulation\nDistribution functions; seeds; sampling; simulation-study design; Type I error; power; Monte Carlo error\n\n\n15\nResampling methods\nBootstrap confidence intervals; permutation tests; cross-validation logic; resampling units; data leakage\n\n\n16\nSelected Practical Topics in R\nStrings and regular expressions, plus additional practical R topics selected according to student needs and available time"
+    "text": "Class topics\nThe instructor may adjust pacing in response to student preparation and the academic calendar. Session 0 is completed independently before the first class. Instructional sessions are units of content rather than calendar weeks, and two related units may be completed during one class meeting.\n\n\n\n\n\n\n\n\nSession\nTopic\nCore content\n\n\n\n\n0\nSetup and orientation\nInstall and verify R, RStudio, Quarto, and Git; distinguish console from source; open a project; render the diagnostic document\n\n\n1\nReproducible statistical workflow\nRStudio workbench; .R scripts; R Markdown structure and knitr options; Quarto-specific syntax; project paths; source versus generated output; clean-session rendering\n\n\n2\nGit and GitHub\nWorking tree, staging, commits, history, remotes, pull/push, .gitignore, and safe beginner recovery\n\n\n3\nR objects\nVectors, types, coercion, recycling, indexing, missing values, and factors\n\n\n4\nData structures and base-R data handling\nLists, matrices, data frames, [, [[, $, base-R subsetting, transformation, and summaries\n\n\n5\nGetting data into R\nDelimited and other files; base and readr import; import validation; missing-value codes; dates; export formats\n\n\n6\nTidyverse foundations\nTibbles, pipes, filter(), select(), mutate(), arrange(), summarise(), and grouped operations\n\n\n7\nJoins, reshaping, and cleaning\nBasic joins and key checks; wide/long data with tidyr; text with stringr; factors with forcats; dates with lubridate; optional join details and base-R comparisons\n\n\n—\nMidterm examination\nPractical assessment of the reproducible data workflow through Session 7; AI assistance is not permitted; exact timing and format TBD\n\n\n8\nStatistical visualization\nBase graphics and ggplot2; distributions, comparisons, uncertainty, facets, accessible design, and figure export\n\n\n9\nPositron and AI-assisted coding\nPositron projects and interface; comparison with RStudio; GitHub Copilot completion; accepting and rejecting suggestions; verification, privacy, and disclosure\n\n\n10\nPython introduction for R users\nPython/R comparison; basic syntax; NumPy; pandas; notebooks in Positron; translation of a familiar R analysis\n\n\n11\nConditions, control flow, and functions\nScalar conditions; if, else if, and else; function arguments, defaults, return values, scope, input validation, and refactoring\n\n\n12\nDebugging and reliable programming\nErrors, warnings, tracebacks, debugging tools, defensive checks, testing, and floating-point accuracy\n\n\n13\nIteration, vectorization, and functionals\nfor and while; preallocation; vectorized operations; apply; lapply() and vapply(); purrr; output contracts; timing and measurement\n\n\n14\nRandom-number generation and simulation\nDistribution functions; seeds; sampling; simulation-study design; Type I error; power; Monte Carlo error\n\n\n15\nResampling methods\nBootstrap confidence intervals; permutation tests; cross-validation logic; resampling units; data leakage\n\n\n16\nSelected Practical Topics in R\nStrings and regular expressions, plus additional practical R topics selected according to student needs and available time"
   },
   {
     "objectID": "syllabus.html#base-r-and-tidyverse-policy",
@@ -2580,7 +2902,7 @@
     "href": "homework/homework02/index.html",
     "title": "Homework 2: From a raw data file to a reproducible analysis",
     "section": "",
-    "text": "Due: Wednesday, October 14, 2026, at 11:59 PM Central Time."
+    "text": "Due: Sunday, October 18, 2026, at 11:59 PM Central Time."
   },
   {
     "objectID": "homework/homework02/index.html#purpose-and-scope",
@@ -2643,7 +2965,7 @@
     "href": "homework/homework02/index.html#what-to-submit",
     "title": "Homework 2: From a raw data file to a reproducible analysis",
     "section": "What to submit",
-    "text": "What to submit\nSubmit through GitHub only. Push your completed .Rmd or .qmd source, matching self-contained .html report, and unchanged synthetic CSV to your existing private course repository.\nThe TA will grade the latest version pushed to the repository’s default branch by Wednesday, October 14, 2026, at 11:59 PM Central Time. Saving or committing locally is not sufficient; the files must be on GitHub. Check that the source and HTML match and that the instructor and TA can access them.\nLater changes do not automatically replace the deadline version. If submitting late or requesting that a later revision be graded, notify the TA; the late-work policy above applies.\nKeep code and requested results visible, replace the author and answer placeholders, and make Homework 2 easy to identify in your repository. Do not complete both report formats."
+    "text": "What to submit\nSubmit through GitHub only. Push your completed .Rmd or .qmd source, matching self-contained .html report, and unchanged synthetic CSV to your existing private course repository.\nThe TA will grade the latest version pushed to the repository’s default branch by Sunday, October 18, 2026, at 11:59 PM Central Time. Saving or committing locally is not sufficient; the files must be on GitHub. Check that the source and HTML match and that the instructor and TA can access them.\nLater changes do not automatically replace the deadline version. If submitting late or requesting that a later revision be graded, notify the TA; the late-work policy above applies.\nKeep code and requested results visible, replace the author and answer placeholders, and make Homework 2 easy to identify in your repository. Do not complete both report formats."
   },
   {
     "objectID": "homework/homework02/index.html#grading-summary",
@@ -4328,51 +4650,65 @@
   {
     "objectID": "course/session07/index.html",
     "href": "course/session07/index.html",
-    "title": "Session 7 · Reshaping and joins",
+    "title": "Session 7 · Joins, reshaping, and cleaning",
     "section": "",
-    "text": "Reshape repeated-measures data between wide and long forms, identify join keys, predict join row counts, and detect duplicate-key multiplication before analysis."
+    "text": "Build on Session 6’s dplyr verbs to join tables by keys, check unmatched records, and reshape measurements with tidyr. Clean text with stringr, manage factor labels and order with forcats, and parse dates with lubridate."
   },
   {
     "objectID": "course/session07/index.html#learning-goals",
     "href": "course/session07/index.html#learning-goals",
-    "title": "Session 7 · Reshaping and joins",
+    "title": "Session 7 · Joins, reshaping, and cleaning",
     "section": "",
-    "text": "Reshape repeated-measures data between wide and long forms, identify join keys, predict join row counts, and detect duplicate-key multiplication before analysis."
+    "text": "Build on Session 6’s dplyr verbs to join tables by keys, check unmatched records, and reshape measurements with tidyr. Clean text with stringr, manage factor labels and order with forcats, and parse dates with lubridate."
   },
   {
     "objectID": "course/session07/index.html#materials",
     "href": "course/session07/index.html#materials",
-    "title": "Session 7 · Reshaping and joins",
+    "title": "Session 7 · Joins, reshaping, and cleaning",
     "section": "Materials",
-    "text": "Materials\n\nSlides\nGuided lab\nLab starter—choose one: starter/reshape-joins-lab.Rmd or starter/reshape-joins-lab.qmd"
+    "text": "Materials\n\nSlides\nGuided lab\nStarter, choose one: R Markdown or Quarto\n\nTasks 1–8 match the main lecture. Additional practice is optional. The slides place optional join details immediately after the join introduction, with a link to skip to tidyr. Detailed reshaping and window examples follow the main summary. They are not prerequisites for the core lab.\nSession 16 retains the fuller treatment of strings and regular expressions."
   },
   {
     "objectID": "course/session07/lab.html",
     "href": "course/session07/lab.html",
     "title": "Session 7 guided lab",
     "section": "",
-    "text": "Note\n\n\n\nSuggested use: tasks 1–8 are the core reshape-and-join route. Additional practice reinforces the join, reshape, and window-function tools introduced in Session 7. It may be completed independently after lab.\nChoose one format and copy either starter/reshape-joins-lab.Rmd or starter/reshape-joins-lab.qmd to work/session07/. Knit the .Rmd file or Render the .qmd file.\nWork in BIOS6301-mywork.Rproj. Paths under work/ below belong to your personal repository. Copy starters from the separate BIOS6301-materials clone, leaving the course originals unchanged."
+    "text": "Note\n\n\n\nTasks 1–8 use only the main lecture. Work through the selected tasks in class and continue independently as needed. Additional practice is optional. The relationship-check and window-function exercises require optional slides.\nWork in your personal BIOS6301-mywork.Rproj. Copy either the R Markdown starter or the Quarto starter into your personal work/session07/ folder. Leave the separate course-materials clone unchanged."
   },
   {
-    "objectID": "course/session07/lab.html#tasks",
-    "href": "course/session07/lab.html#tasks",
+    "objectID": "course/session07/lab.html#setup-packages",
+    "href": "course/session07/lab.html#setup-packages",
     "title": "Session 7 guided lab",
-    "section": "Tasks",
-    "text": "Tasks\n\nState the row unit and candidate key for both supplied tables.\nDetect the deliberate duplicate participant key with count() before joining.\nResolve it using the supplied adjudication rule; do not merely use distinct().\nReshape marker columns from wide to long and parse week as integer.\nPredict and perform a many-to-one join with participant metadata. State which table supplies the rows that the join preserves.\nValidate row count and key uniqueness, and audit unmatched IDs in both directions with anti_join().\nAfter arranging by ID and week, calculate within-participant change with grouped lag().\nPivot back to wide and verify values against the original marker columns."
+    "section": "Setup: packages",
+    "text": "Setup: packages\nToday’s main lesson uses dplyr, tidyr, stringr, forcats, and lubridate. If you installed the full tidyverse, these may already be available.\nIn the Console, check:\nrequireNamespace(\"dplyr\", quietly = TRUE)\nrequireNamespace(\"tidyr\", quietly = TRUE)\nrequireNamespace(\"stringr\", quietly = TRUE)\nrequireNamespace(\"forcats\", quietly = TRUE)\nrequireNamespace(\"lubridate\", quietly = TRUE)\nInstall any package returning FALSE, for example:\ninstall.packages(\"lubridate\")\nKeep installation commands in the Console. The supplied library() calls belong in the report. Optional practice 5 needs dplyr 1.1.1 or newer: check packageVersion(\"dplyr\") and update if necessary, then restart R.\nReplace Your name in the starter’s author field. Either report format is fine."
   },
   {
-    "objectID": "course/session07/lab.html#additional-practice-make-join-failures-visible",
-    "href": "course/session07/lab.html#additional-practice-make-join-failures-visible",
+    "objectID": "course/session07/lab.html#core-tasks",
+    "href": "course/session07/lab.html#core-tasks",
     "title": "Session 7 guided lab",
-    "section": "Additional practice: make join failures visible",
-    "text": "Additional practice: make join failures visible\n\nJoin the unresolved participant table deliberately and quantify its row multiplication. Identify exactly which key produced the additional rows.\nRequest a many-to-one relationship in a join before adjudication. Read and explain the resulting error; no error-catching code is required.\nProduce separate reports for marker IDs without metadata and metadata IDs without marker measurements using anti-joins or base-R set operations.\nCompare left_join() with inner_join(). Explain why P05 is retained by one result and excluded by the other.\nAdd a week-8 marker column to a copy of the wide table and reshape all three weeks with the same pivot_longer() pattern.\nCreate a small table with marker_0, marker_4, se_0, and se_4. Reshape the two facts encoded in each name into measure and week with names_sep = \"_\".\nOn the three-visit long table, create visit number, previous marker, change from baseline, and cumulative number of observed markers with row_number(), lag(), first(), and cumsum().\nWrite a short join contract stating row unit, left and right keys, expected relationship, allowed unmatched records, and post-join checks.\n\n\nIndependent-practice check\nThe unresolved join must fail or visibly multiply rows. The adjudicated join must preserve the intended participant-visit key, and unmatched IDs must remain in explicit audit tables."
+    "section": "Core tasks",
+    "text": "Core tasks\n\n1. Row units and keys\nState what one row represents in patient_lookup and marker_wide. Use count(id) |&gt; filter(n &gt; 1) to check both tables. Identify the participant appearing only in each table by inspecting the data.\n\n\n2. Join and inspect unmatched participants\nSave joined_wide with a left_join() of marker_wide and patient_lookup by id. Compare row counts before and after. Use anti_join() in both directions. Explain the missing arm value. How many rows would an inner_join() keep?\n\n\n3. Wide to long\nReshape marker_wide and save marker_long. Use cols = starts_with(\"marker_w\"), names_to = \"week\", names_prefix = \"marker_w\", and values_to = \"marker\". Then use mutate(week = as.integer(week)). Predict the row count and explain what one row represents now.\n\n\n4. Return to wide\nSave marker_back using pivot_wider() with id_cols = id, names_from = week, values_from = marker, and names_prefix = \"marker_w\". Compare IDs, column names, and values with marker_wide after sorting by ID.\n\n\n5. Clean and search text with stringr\nThe documented ID rule is uppercase with no outer spaces. Save patients_text from raw_patients using mutate(): clean id with str_trim() and str_to_upper(); clean arm and note with str_squish() and str_to_lower(). Keep the raw table unchanged. Show the IDs and notes where str_detect(note, fixed(\"repeat\")) is true.\n\n\n6. Factor labels and order with forcats\nSave patients_factor from patients_text. Use fct_recode() to map control to Control and treated to Treatment. Then use fct_relevel() to put Control first. Print the levels and counts. Explain which step changes labels and which step changes only their order.\n\n\n7. Parse dates with lubridate\nSave patients_clean from patients_factor. Convert enrolled with ymd() into enrolled_date. Add enrolled_year and enrolled_month using year() and month(). Inspect the result and check for missing parsed dates with filter(is.na(enrolled_date)). Explain why \"03/04/2026\" needs a stated month/day or day/month convention.\n\n\n8. Combine the cleaned data\nSave analysis by left-joining marker_long to the id, arm, and enrolled_date columns of patients_clean. Check the row count. Keep week 4 and summarize mean marker by arm using Session 6’s verbs. Explain the group with missing arm instead of silently removing it."
+  },
+  {
+    "objectID": "course/session07/lab.html#additional-practice",
+    "href": "course/session07/lab.html#additional-practice",
+    "title": "Session 7 guided lab",
+    "section": "Additional practice",
+    "text": "Additional practice\nPractices 1–4 reinforce the main lecture. Practices 5–6 correspond to optional slides and are not prerequisites for completing the core lab.\n\nPractice 1. Left versus inner\nOn marker_long and patient_lookup, compare left and inner joins by ID. Explain why their row counts differ by two rather than one.\n\n\nPractice 2. Spaces inside a note\nCompare str_trim(\"  repeat   visit  \") and str_squish(\"  repeat   visit  \"). Explain which preserves the extra internal spaces.\n\n\nPractice 3. A complete factor order\nFor factor(c(\"a\", \"b\", \"c\", \"a\")), use fct_relevel() to set the order to c, b, a. Show the levels and the character values to confirm that reordering did not relabel observations.\n\n\nPractice 4. Three date formats\nUse ymd(), mdy(), and dmy() to read \"2026-10-18\", \"10/18/2026\", and \"18/10/2026\". Show that they represent the same day.\n\n\nPractice 5. Optional join detail: relationship check\nOnly after the optional join slides: the supplied conflicting_lookup has two different arm records for P01. Join marker_long to it without a relationship assertion and inspect the row count. Then request relationship = \"many-to-one\" and explain the expected error. Use the supplied error-display chunk only for this deliberate failure.\n\n\nPractice 6. Optional window example: previous visit\nOnly after the optional window slides: arrange marker_long by ID/week, group by ID, and compute change = marker - lag(marker). Ungroup afterward. Explain the missing first change for each participant."
+  },
+  {
+    "objectID": "course/session07/lab.html#intentional-error-in-optional-practice-5",
+    "href": "course/session07/lab.html#intentional-error-in-optional-practice-5",
+    "title": "Session 7 guided lab",
+    "section": "Intentional error in optional practice 5",
+    "text": "Intentional error in optional practice 5\nOnly the relationship-check chunk uses error=TRUE so a deliberately failing join can appear in the report. The Quarto equivalent is #| error: true. Other analysis errors should stop rendering so you can fix them."
   },
   {
     "objectID": "course/session07/lab.html#exit-evidence",
     "href": "course/session07/lab.html#exit-evidence",
     "title": "Session 7 guided lab",
     "section": "Exit evidence",
-    "text": "Exit evidence\nRender the predictions, validation checks, and explanation of the duplicate-key resolution."
+    "text": "Exit evidence\nKnit/Render your report. Show the join checks, a wide/long round trip, cleaned text, factor levels, and parsed dates. Explain the missing metadata for P05. The expected final analysis has eight participant-visit rows."
   },
   {
     "objectID": "course/session08/slides.html#where-we-are",
