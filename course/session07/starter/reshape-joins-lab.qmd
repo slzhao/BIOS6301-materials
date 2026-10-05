@@ -1,55 +1,233 @@
 ---
-title: "Session 7 lab: reshaping and joins"
+title: "Session 7 lab: joining, reshaping, and cleaning"
+author: "Your name"
 date: now
 date-format: "YYYY-MM-DD HH:mm:ss Z"
-format: html
+format:
+  html:
+    embed-resources: true
+execute:
+  enabled: true
 ---
 
-```{r}
+Complete the lab page's package check in the Console first. Keep the library
+calls below so this report works in a fresh R session. Replace the author with
+your name. All data are supplied and synthetic.
+
+Tasks 1–8 follow the main lecture. The additional exercises are optional.
+Only the last two practice exercises depend on optional lecture slides.
+
+```{r setup}
 library(dplyr)
 library(tidyr)
+library(stringr)
+library(forcats)
+library(lubridate)
 
-participants <- data.frame(
-  id = c("P01", "P02", "P02", "P03", "P04"),
-  arm = c("control", "treated", "treated", "treated", "control"),
-  record_status = c("final", "draft", "final", "final", "final")
+# Synthetic teaching data, not real patients.
+patient_lookup <- data.frame(
+  id = c("P01", "P02", "P03", "P04"),
+  arm = c("control", "treated", "treated", "control")
 )
-markers_wide <- data.frame(
+marker_wide <- data.frame(
   id = c("P01", "P02", "P03", "P05"),
   marker_w0 = c(4.1, 5.2, 6.0, 4.8),
   marker_w4 = c(4.4, 4.7, 5.1, 4.9)
 )
+raw_patients <- data.frame(
+  id = c(" p01 ", "p02", " P03", "p04 "),
+  arm = c(" Control ", "TREATED", " treated ", "control"),
+  enrolled = c("2026-09-01", "2026-09-03", "2026-10-01", "2026-10-02"),
+  note = c(" first   visit ", " repeat sample", "repeat  visit ", "first visit")
+)
 ```
 
-Adjudication rule: when an ID has both draft and final metadata, retain the final
-record. `P05` intentionally has no participant record.
+The lookup is a clean export of the participant IDs and treatment labels.
+The raw export below lets you practice recreating that cleaning and adding
+dates. P05 has measurements without metadata; P04 has metadata without
+measurements.
 
-## 1. Key audit and resolution
+## 1. Row units and keys
 
-```{r}
-# Use count() to find duplicate IDs, then apply the stated adjudication rule.
+State what one row represents in `patient_lookup` and `marker_wide`.
+Use `count(id) |> filter(n > 1)` to check both tables.
+Identify the participant appearing only in each table by inspecting the data.
+
+```{r task-1}
+# Your code here.
 ```
 
-## 2. Reshape and join
+Your explanation: **YOUR ANSWER**
 
-```{r}
-# Use pivot_longer(), parse week as integer, and request a many-to-one join.
+## 2. Join and inspect unmatched participants
+
+Save `joined_wide` with a `left_join()` of `marker_wide` and `patient_lookup`
+by `id`. Compare row counts before and after. Use `anti_join()` in both
+directions. Explain the missing arm value. How many rows would an `inner_join()` keep?
+
+```{r task-2}
+# Your code here.
 ```
 
-## 3. Validate and calculate change
+Your explanation: **YOUR ANSWER**
 
-```{r}
-# Check row count, duplicate keys, and unmatched IDs. Then arrange, group, and lag.
+## 3. Wide to long
+
+Reshape `marker_wide` and save `marker_long`. Use
+`cols = starts_with("marker_w")`, `names_to = "week"`,
+`names_prefix = "marker_w"`, and `values_to = "marker"`.
+Then use `mutate(week = as.integer(week))`.
+Predict the row count and explain what one row represents now.
+
+```{r task-3}
+# Your code here.
 ```
 
-## 4. Round-trip check
+Your explanation: **YOUR ANSWER**
 
-```{r}
-# Return to wide and compare the marker columns with markers_wide.
+## 4. Return to wide
+
+Save `marker_back` using `pivot_wider()` with `id_cols = id`,
+`names_from = week`, `values_from = marker`, and `names_prefix = "marker_w"`.
+Compare IDs, column names, and values with `marker_wide` after sorting by ID.
+
+```{r task-4}
+# Your code here.
 ```
 
-## 5. Additional practice
+Your explanation: **YOUR ANSWER**
 
-```{r}
-# Continue with any additional-practice tasks assigned during lab.
+## 5. Clean and search text with stringr
+
+The documented ID rule is uppercase with no outer spaces. Save `patients_text`
+from `raw_patients` using `mutate()`: clean `id` with `str_trim()` and
+`str_to_upper()`; clean `arm` and `note` with `str_squish()` and
+`str_to_lower()`. Keep the raw table unchanged.
+Show the IDs and notes where `str_detect(note, fixed("repeat"))` is true.
+
+```{r task-5}
+# Your code here.
 ```
+
+Your explanation: **YOUR ANSWER**
+
+## 6. Factor labels and order with forcats
+
+Save `patients_factor` from `patients_text`. Use `fct_recode()` to map
+`control` to `Control` and `treated` to `Treatment`. Then use
+`fct_relevel()` to put `Control` first. Print the levels and counts.
+Explain which step changes labels and which step changes only their order.
+
+```{r task-6}
+# Your code here.
+```
+
+Your explanation: **YOUR ANSWER**
+
+## 7. Parse dates with lubridate
+
+Save `patients_clean` from `patients_factor`. Convert `enrolled` with
+`ymd()` into `enrolled_date`. Add `enrolled_year` and `enrolled_month`
+using `year()` and `month()`. Inspect the result and check for missing parsed
+dates with `filter(is.na(enrolled_date))`.
+Explain why `"03/04/2026"` needs a stated month/day or day/month convention.
+
+```{r task-7}
+# Your code here.
+```
+
+Your explanation: **YOUR ANSWER**
+
+## 8. Combine the cleaned data
+
+Save `analysis` by left-joining `marker_long` to the `id`, `arm`, and
+`enrolled_date` columns of `patients_clean`. Check the row count.
+Keep week 4 and summarize mean marker by arm using Session 6's verbs.
+Explain the group with missing arm instead of silently removing it.
+
+```{r task-8}
+# Your code here.
+```
+
+Your explanation: **YOUR ANSWER**
+
+## Additional practice
+
+Choose exercises for extra practice; these are not additional required tasks.
+Practices 1–4 use the main lecture. Practices 5–6 require the named optional
+slides. Only practice 5 permits an intentional error.
+
+### Practice 1. Left versus inner
+
+On `marker_long` and `patient_lookup`, compare left and inner joins by ID.
+Explain why their row counts differ by two rather than one.
+
+```{r practice-1}
+# Your code here.
+```
+
+Your explanation: **YOUR ANSWER**
+
+### Practice 2. Spaces inside a note
+
+Compare `str_trim("  repeat   visit  ")` and
+`str_squish("  repeat   visit  ")`. Explain which preserves the extra internal spaces.
+
+```{r practice-2}
+# Your code here.
+```
+
+Your explanation: **YOUR ANSWER**
+
+### Practice 3. A complete factor order
+
+For `factor(c("a", "b", "c", "a"))`, use `fct_relevel()` to set the order
+to `c, b, a`. Show the levels and the character values to confirm that
+reordering did not relabel observations.
+
+```{r practice-3}
+# Your code here.
+```
+
+Your explanation: **YOUR ANSWER**
+
+### Practice 4. Three date formats
+
+Use `ymd()`, `mdy()`, and `dmy()` to read `"2026-10-18"`,
+`"10/18/2026"`, and `"18/10/2026"`. Show that they represent the same day.
+
+```{r practice-4}
+# Your code here.
+```
+
+Your explanation: **YOUR ANSWER**
+
+### Practice 5. Optional join detail: relationship check
+
+Only after the optional join slides: the supplied `conflicting_lookup` has two
+different arm records for P01. Join `marker_long` to it without a relationship
+assertion and inspect the row count. Then request `relationship = "many-to-one"`
+and explain the expected error. Use the supplied error-display chunk only for
+this deliberate failure.
+
+```{r practice-5, error=TRUE}
+conflicting_lookup <- data.frame(
+  id = c("P01", "P01", "P02", "P03", "P04"),
+  arm = c("control", "treated", "treated", "treated", "control")
+)
+# Your code here.
+```
+
+Your explanation: **YOUR ANSWER**
+
+### Practice 6. Optional window example: previous visit
+
+Only after the optional window slides: arrange `marker_long` by ID/week,
+group by ID, and compute `change = marker - lag(marker)`. Ungroup afterward.
+Explain the missing first change for each participant.
+
+```{r practice-6}
+# Your code here.
+```
+
+Your explanation: **YOUR ANSWER**

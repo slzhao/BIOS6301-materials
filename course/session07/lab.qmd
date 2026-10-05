@@ -1,64 +1,152 @@
 ---
 title: "Session 7 guided lab"
-subtitle: "Build a validated repeated-measures table"
+subtitle: "Join, reshape, and clean a small study dataset"
 ---
 
 ::: {.callout-note}
-**Suggested use:** tasks 1–8 are the core reshape-and-join route. Additional
-practice reinforces the join, reshape, and window-function tools introduced in
-Session 7. It may be completed independently after lab.
+Tasks 1–8 use only the main lecture. Work through the selected tasks in class
+and continue independently as needed. Additional practice is optional.
+The relationship-check and window-function exercises require optional slides.
 :::
 
-Choose one format and copy either `starter/reshape-joins-lab.Rmd` or
-`starter/reshape-joins-lab.qmd` to `work/session07/`. Knit the `.Rmd` file or
-Render the `.qmd` file.
+Work in your personal **BIOS6301-mywork.Rproj**. Copy either
+[the R Markdown starter](starter/reshape-joins-lab.Rmd) or
+[the Quarto starter](starter/reshape-joins-lab.qmd) into your personal
+`work/session07/` folder. Leave the separate course-materials clone unchanged.
 
-Work in **BIOS6301-mywork.Rproj**. Paths under `work/` below belong to your
-personal repository. Copy starters from the separate `BIOS6301-materials` clone,
-leaving the course originals unchanged.
+## Setup: packages
 
-## Tasks
+Today's main lesson uses dplyr, tidyr, stringr, forcats, and lubridate.
+If you installed the full tidyverse, these may already be available.
 
-1. State the row unit and candidate key for both supplied tables.
-2. Detect the deliberate duplicate participant key with `count()` before joining.
-3. Resolve it using the supplied adjudication rule; do not merely use `distinct()`.
-4. Reshape marker columns from wide to long and parse week as integer.
-5. Predict and perform a many-to-one join with participant metadata. State which
-   table supplies the rows that the join preserves.
-6. Validate row count and key uniqueness, and audit unmatched IDs in both
-   directions with `anti_join()`.
-7. After arranging by ID and week, calculate within-participant change with
-   grouped `lag()`.
-8. Pivot back to wide and verify values against the original marker columns.
+In the **Console**, check:
 
-## Additional practice: make join failures visible
+~~~r
+requireNamespace("dplyr", quietly = TRUE)
+requireNamespace("tidyr", quietly = TRUE)
+requireNamespace("stringr", quietly = TRUE)
+requireNamespace("forcats", quietly = TRUE)
+requireNamespace("lubridate", quietly = TRUE)
+~~~
 
-1. Join the unresolved participant table deliberately and quantify its row
-   multiplication. Identify exactly which key produced the additional rows.
-2. Request a many-to-one relationship in a join before adjudication. Read and
-   explain the resulting error; no error-catching code is required.
-3. Produce separate reports for marker IDs without metadata and metadata IDs
-   without marker measurements using anti-joins or base-R set operations.
-4. Compare `left_join()` with `inner_join()`. Explain why `P05` is retained by
-   one result and excluded by the other.
-5. Add a week-8 marker column to a copy of the wide table and reshape all three
-   weeks with the same `pivot_longer()` pattern.
-6. Create a small table with `marker_0`, `marker_4`, `se_0`, and `se_4`. Reshape
-   the two facts encoded in each name into `measure` and `week` with
-   `names_sep = "_"`.
-7. On the three-visit long table, create visit number, previous marker, change
-   from baseline, and cumulative number of observed markers with `row_number()`,
-   `lag()`, `first()`, and `cumsum()`.
-8. Write a short join contract stating row unit, left and right keys, expected
-   relationship, allowed unmatched records, and post-join checks.
+Install any package returning `FALSE`, for example:
 
-### Independent-practice check
+~~~r
+install.packages("lubridate")
+~~~
 
-The unresolved join must fail or visibly multiply rows. The adjudicated join must
-preserve the intended participant-visit key, and unmatched IDs must remain in
-explicit audit tables.
+Keep installation commands in the Console. The supplied `library()` calls
+belong in the report. Optional practice 5 needs dplyr 1.1.1 or newer:
+check `packageVersion("dplyr")` and update if necessary, then restart R.
+
+Replace **Your name** in the starter's author field. Either report format is fine.
+
+## Core tasks
+
+### 1. Row units and keys
+
+State what one row represents in `patient_lookup` and `marker_wide`.
+Use `count(id) |> filter(n > 1)` to check both tables.
+Identify the participant appearing only in each table by inspecting the data.
+
+### 2. Join and inspect unmatched participants
+
+Save `joined_wide` with a `left_join()` of `marker_wide` and `patient_lookup`
+by `id`. Compare row counts before and after. Use `anti_join()` in both
+directions. Explain the missing arm value. How many rows would an `inner_join()` keep?
+
+### 3. Wide to long
+
+Reshape `marker_wide` and save `marker_long`. Use
+`cols = starts_with("marker_w")`, `names_to = "week"`,
+`names_prefix = "marker_w"`, and `values_to = "marker"`.
+Then use `mutate(week = as.integer(week))`.
+Predict the row count and explain what one row represents now.
+
+### 4. Return to wide
+
+Save `marker_back` using `pivot_wider()` with `id_cols = id`,
+`names_from = week`, `values_from = marker`, and `names_prefix = "marker_w"`.
+Compare IDs, column names, and values with `marker_wide` after sorting by ID.
+
+### 5. Clean and search text with stringr
+
+The documented ID rule is uppercase with no outer spaces. Save `patients_text`
+from `raw_patients` using `mutate()`: clean `id` with `str_trim()` and
+`str_to_upper()`; clean `arm` and `note` with `str_squish()` and
+`str_to_lower()`. Keep the raw table unchanged.
+Show the IDs and notes where `str_detect(note, fixed("repeat"))` is true.
+
+### 6. Factor labels and order with forcats
+
+Save `patients_factor` from `patients_text`. Use `fct_recode()` to map
+`control` to `Control` and `treated` to `Treatment`. Then use
+`fct_relevel()` to put `Control` first. Print the levels and counts.
+Explain which step changes labels and which step changes only their order.
+
+### 7. Parse dates with lubridate
+
+Save `patients_clean` from `patients_factor`. Convert `enrolled` with
+`ymd()` into `enrolled_date`. Add `enrolled_year` and `enrolled_month`
+using `year()` and `month()`. Inspect the result and check for missing parsed
+dates with `filter(is.na(enrolled_date))`.
+Explain why `"03/04/2026"` needs a stated month/day or day/month convention.
+
+### 8. Combine the cleaned data
+
+Save `analysis` by left-joining `marker_long` to the `id`, `arm`, and
+`enrolled_date` columns of `patients_clean`. Check the row count.
+Keep week 4 and summarize mean marker by arm using Session 6's verbs.
+Explain the group with missing arm instead of silently removing it.
+
+## Additional practice
+
+Practices 1–4 reinforce the main lecture. Practices 5–6 correspond to optional
+slides and are not prerequisites for completing the core lab.
+
+### Practice 1. Left versus inner
+
+On `marker_long` and `patient_lookup`, compare left and inner joins by ID.
+Explain why their row counts differ by two rather than one.
+
+### Practice 2. Spaces inside a note
+
+Compare `str_trim("  repeat   visit  ")` and
+`str_squish("  repeat   visit  ")`. Explain which preserves the extra internal spaces.
+
+### Practice 3. A complete factor order
+
+For `factor(c("a", "b", "c", "a"))`, use `fct_relevel()` to set the order
+to `c, b, a`. Show the levels and the character values to confirm that
+reordering did not relabel observations.
+
+### Practice 4. Three date formats
+
+Use `ymd()`, `mdy()`, and `dmy()` to read `"2026-10-18"`,
+`"10/18/2026"`, and `"18/10/2026"`. Show that they represent the same day.
+
+### Practice 5. Optional join detail: relationship check
+
+Only after the optional join slides: the supplied `conflicting_lookup` has two
+different arm records for P01. Join `marker_long` to it without a relationship
+assertion and inspect the row count. Then request `relationship = "many-to-one"`
+and explain the expected error. Use the supplied error-display chunk only for
+this deliberate failure.
+
+### Practice 6. Optional window example: previous visit
+
+Only after the optional window slides: arrange `marker_long` by ID/week,
+group by ID, and compute `change = marker - lag(marker)`. Ungroup afterward.
+Explain the missing first change for each participant.
+
+## Intentional error in optional practice 5
+
+Only the relationship-check chunk uses `error=TRUE` so a deliberately failing
+join can appear in the report. The Quarto equivalent is `#| error: true`.
+Other analysis errors should stop rendering so you can fix them.
 
 ## Exit evidence
 
-Render the predictions, validation checks, and explanation of the duplicate-key
-resolution.
+Knit/Render your report. Show the join checks, a wide/long round trip, cleaned
+text, factor levels, and parsed dates. Explain the missing metadata for P05.
+The expected final analysis has eight participant-visit rows.
