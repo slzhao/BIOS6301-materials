@@ -361,15 +361,15 @@ Note
 </section>
 <section id="join-and-inspect-unmatched-participants" class="level3">
 <h3 class="anchored" data-anchor-id="join-and-inspect-unmatched-participants">2. Join and inspect unmatched participants</h3>
-<p>Save <code>joined_wide</code> with a <code>left_join()</code> of <code>marker_wide</code> and <code>patient_lookup</code> by <code>id</code>. Compare row counts before and after. Use <code>anti_join()</code> in both directions. Explain the missing arm value. How many rows would an <code>inner_join()</code> keep?</p>
+<p>Save <code>joined_wide</code> with a <code>left_join()</code> of <code>marker_wide</code> and <code>patient_lookup</code> by <code>id</code>. Compare row counts before and after. Use <code>anti_join()</code> in both directions. Explain the missing arm value. How many rows would an <code>inner_join()</code> keep? If the report instead needs every enrolled participant, which table belongs on the left?</p>
 </section>
 <section id="wide-to-long" class="level3">
 <h3 class="anchored" data-anchor-id="wide-to-long">3. Wide to long</h3>
-<p>Reshape <code>marker_wide</code> and save <code>marker_long</code>. Use <code>cols = starts_with("marker_w")</code>, <code>names_to = "week"</code>, <code>names_prefix = "marker_w"</code>, and <code>values_to = "marker"</code>. Then use <code>mutate(week = as.integer(week))</code>. Predict the row count and explain what one row represents now.</p>
+<p>Reshape <code>marker_wide</code> and save <code>marker_long</code>. Use <code>cols = starts_with("marker_w")</code>, <code>names_to = "week"</code>, <code>names_prefix = "marker_w"</code>, and <code>values_to = "marker"</code>. Then use <code>mutate(week = as.integer(week))</code>. Predict the row count and explain what one row represents now. Name one analysis or display that benefits from this long format.</p>
 </section>
 <section id="return-to-wide" class="level3">
 <h3 class="anchored" data-anchor-id="return-to-wide">4. Return to wide</h3>
-<p>Save <code>marker_back</code> using <code>pivot_wider()</code> with <code>id_cols = id</code>, <code>names_from = week</code>, <code>values_from = marker</code>, and <code>names_prefix = "marker_w"</code>. Compare IDs, column names, and values with <code>marker_wide</code> after sorting by ID.</p>
+<p>Save <code>marker_back</code> using <code>pivot_wider()</code> with <code>id_cols = id</code>, <code>names_from = week</code>, <code>values_from = marker</code>, and <code>names_prefix = "marker_w"</code>. Compare IDs, column names, and values with <code>marker_wide</code> after sorting by ID. Explain why this wide form is convenient for calculating week-4 minus baseline.</p>
 </section>
 <section id="clean-and-search-text-with-stringr" class="level3">
 <h3 class="anchored" data-anchor-id="clean-and-search-text-with-stringr">5. Clean and search text with stringr</h3>

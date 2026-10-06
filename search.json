@@ -1131,7 +1131,7 @@
     "href": "course/session07/slides.html#the-main-teaching-route",
     "title": "Joining, Reshaping, and Cleaning Data",
     "section": "The main teaching route",
-    "text": "The main teaching route\n\n\n\nMinutes\nTopic\n\n\n\n\n0–5\nRecap and package roles\n\n\n5–30\nBasic joins and checks\n\n\n30–50\ntidyr and basic pivots\n\n\n50–65\nstringr\n\n\n65–75\nforcats\n\n\n75–85\nlubridate\n\n\n85–90\nConnected example and summary\n\n\n\nThe optional join block and final appendix sit outside this 90-minute route."
+    "text": "The main teaching route\n\n\n\nMinutes\nTopic\n\n\n\n\n0–5\nRecap and package roles\n\n\n5–30\nBasic joins and checks\n\n\n30–50\ntidyr and basic pivots\n\n\n50–65\nstringr\n\n\n65–75\nforcats\n\n\n75–85\nlubridate\n\n\n85–90\nConnected example and summary\n\n\n\nOptional blocks follow the related join or pivot introduction. Use their skip links to stay on the 90-minute main route."
   },
   {
     "objectID": "course/session07/slides.html#two-tables-from-the-same-study",
@@ -1152,7 +1152,7 @@
     "href": "course/session07/slides.html#three-joins-for-todays-work",
     "title": "Joining, Reshaping, and Cleaning Data",
     "section": "Three joins for today’s work",
-    "text": "Three joins for today’s work\n\n\n\nQuestion\nFunction\n\n\n\n\nKeep all measurement rows and add metadata\nleft_join()\n\n\nKeep only participants appearing in both tables\ninner_join()\n\n\nFind measurement rows without metadata\nanti_join()\n\n\n\nleft_join(x, y, by = \"id\") starts with x and matches its IDs against y."
+    "text": "Three joins for today’s work\n\n\n\nQuestion\nFunction\n\n\n\n\nAttach treatment to every measurement row\nleft_join()\n\n\nAnalyze only IDs represented in both files\ninner_join()\n\n\nList enrolled IDs with no lab record\nanti_join()\n\n\n\nleft_join(x, y, by = \"id\") starts with x and matches its IDs against y."
   },
   {
     "objectID": "course/session07/slides.html#a-left-join-row-by-row",
@@ -1166,7 +1166,7 @@
     "href": "course/session07/slides.html#an-inner-join-changes-the-retained-participants",
     "title": "Joining, Reshaping, and Cleaning Data",
     "section": "An inner join changes the retained participants",
-    "text": "An inner join changes the retained participants\n\nmarker_wide |&gt; inner_join(patient_lookup, by = \"id\")\n\n# A tibble: 3 x 4\n  id    marker_w0 marker_w4 arm    \n  &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;  \n1 P01         4.1       4.4 control\n2 P02         5.2       4.7 treated\n3 P03         6         5.1 treated\n\n\nThree participants remain. P05 is absent.\nChoose an inner join when restricting to matched records is the intended rule."
+    "text": "An inner join changes the retained participants\n\nmarker_wide |&gt; inner_join(patient_lookup, by = \"id\")\n\n# A tibble: 3 x 4\n  id    marker_w0 marker_w4 arm    \n  &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt; &lt;chr&gt;  \n1 P01         4.1       4.4 control\n2 P02         5.2       4.7 treated\n3 P03         6         5.1 treated\n\n\nThree participants remain. P05 is absent.\nExample: a planned analysis requires records from both the questionnaire and outcome files. An inner join restricts to their matching IDs. It does not guarantee that every variable in those records is observed."
   },
   {
     "objectID": "course/session07/slides.html#unmatched-records-in-both-directions",
@@ -1509,7 +1509,7 @@
     "href": "course/session07/slides.html#core-summary",
     "title": "Joining, Reshaping, and Cleaning Data",
     "section": "Summary",
-    "text": "Summary\n\ndplyr joins match records by keys.\ntidyr pivots change how measurements occupy rows and columns.\nstringr cleans and searches text.\nforcats distinguishes relabeling from level ordering.\nlubridate parses dates using a known input convention.\n\nThe core lesson ends here. Detailed pivots and window functions follow as optional reference material."
+    "text": "Summary\n\ndplyr joins match records by keys.\ntidyr pivots change how measurements occupy rows and columns.\nstringr cleans and searches text.\nforcats distinguishes relabeling from level ordering.\nlubridate parses dates using a known input convention.\n\nOptional examples appear beside their related topics earlier in the deck. Choose the data operation that answers the study question."
   },
   {
     "objectID": "course/session07/slides.html#optional-two-measurements-encoded-in-column-names",
@@ -4666,7 +4666,7 @@
     "href": "course/session07/index.html#materials",
     "title": "Session 7 · Joins, reshaping, and cleaning",
     "section": "Materials",
-    "text": "Materials\n\nSlides\nGuided lab\nStarter, choose one: R Markdown or Quarto\n\nTasks 1–8 match the main lecture. Additional practice is optional. The slides place optional join details immediately after the join introduction, with a link to skip to tidyr. Detailed reshaping and window examples follow the main summary. They are not prerequisites for the core lab.\nSession 16 retains the fuller treatment of strings and regular expressions."
+    "text": "Materials\n\nSlides\nGuided lab\nStarter, choose one: R Markdown or Quarto\n\nTasks 1–8 match the main lecture. Additional practice is optional. Optional examples follow the related introduction: join details after basic joins, pivot_longer details after wide-to-long, and pivot_wider details after long-to-wide. Optional visit calculations follow the reshaping examples. Each block has a skip link to the next main topic. These details are not prerequisites for the core lab.\nSession 16 retains the fuller treatment of strings and regular expressions."
   },
   {
     "objectID": "course/session07/lab.html",
@@ -4687,7 +4687,7 @@
     "href": "course/session07/lab.html#core-tasks",
     "title": "Session 7 guided lab",
     "section": "Core tasks",
-    "text": "Core tasks\n\n1. Row units and keys\nState what one row represents in patient_lookup and marker_wide. Use count(id) |&gt; filter(n &gt; 1) to check both tables. Identify the participant appearing only in each table by inspecting the data.\n\n\n2. Join and inspect unmatched participants\nSave joined_wide with a left_join() of marker_wide and patient_lookup by id. Compare row counts before and after. Use anti_join() in both directions. Explain the missing arm value. How many rows would an inner_join() keep?\n\n\n3. Wide to long\nReshape marker_wide and save marker_long. Use cols = starts_with(\"marker_w\"), names_to = \"week\", names_prefix = \"marker_w\", and values_to = \"marker\". Then use mutate(week = as.integer(week)). Predict the row count and explain what one row represents now.\n\n\n4. Return to wide\nSave marker_back using pivot_wider() with id_cols = id, names_from = week, values_from = marker, and names_prefix = \"marker_w\". Compare IDs, column names, and values with marker_wide after sorting by ID.\n\n\n5. Clean and search text with stringr\nThe documented ID rule is uppercase with no outer spaces. Save patients_text from raw_patients using mutate(): clean id with str_trim() and str_to_upper(); clean arm and note with str_squish() and str_to_lower(). Keep the raw table unchanged. Show the IDs and notes where str_detect(note, fixed(\"repeat\")) is true.\n\n\n6. Factor labels and order with forcats\nSave patients_factor from patients_text. Use fct_recode() to map control to Control and treated to Treatment. Then use fct_relevel() to put Control first. Print the levels and counts. Explain which step changes labels and which step changes only their order.\n\n\n7. Parse dates with lubridate\nSave patients_clean from patients_factor. Convert enrolled with ymd() into enrolled_date. Add enrolled_year and enrolled_month using year() and month(). Inspect the result and check for missing parsed dates with filter(is.na(enrolled_date)). Explain why \"03/04/2026\" needs a stated month/day or day/month convention.\n\n\n8. Combine the cleaned data\nSave analysis by left-joining marker_long to the id, arm, and enrolled_date columns of patients_clean. Check the row count. Keep week 4 and summarize mean marker by arm using Session 6’s verbs. Explain the group with missing arm instead of silently removing it."
+    "text": "Core tasks\n\n1. Row units and keys\nState what one row represents in patient_lookup and marker_wide. Use count(id) |&gt; filter(n &gt; 1) to check both tables. Identify the participant appearing only in each table by inspecting the data.\n\n\n2. Join and inspect unmatched participants\nSave joined_wide with a left_join() of marker_wide and patient_lookup by id. Compare row counts before and after. Use anti_join() in both directions. Explain the missing arm value. How many rows would an inner_join() keep? If the report instead needs every enrolled participant, which table belongs on the left?\n\n\n3. Wide to long\nReshape marker_wide and save marker_long. Use cols = starts_with(\"marker_w\"), names_to = \"week\", names_prefix = \"marker_w\", and values_to = \"marker\". Then use mutate(week = as.integer(week)). Predict the row count and explain what one row represents now. Name one analysis or display that benefits from this long format.\n\n\n4. Return to wide\nSave marker_back using pivot_wider() with id_cols = id, names_from = week, values_from = marker, and names_prefix = \"marker_w\". Compare IDs, column names, and values with marker_wide after sorting by ID. Explain why this wide form is convenient for calculating week-4 minus baseline.\n\n\n5. Clean and search text with stringr\nThe documented ID rule is uppercase with no outer spaces. Save patients_text from raw_patients using mutate(): clean id with str_trim() and str_to_upper(); clean arm and note with str_squish() and str_to_lower(). Keep the raw table unchanged. Show the IDs and notes where str_detect(note, fixed(\"repeat\")) is true.\n\n\n6. Factor labels and order with forcats\nSave patients_factor from patients_text. Use fct_recode() to map control to Control and treated to Treatment. Then use fct_relevel() to put Control first. Print the levels and counts. Explain which step changes labels and which step changes only their order.\n\n\n7. Parse dates with lubridate\nSave patients_clean from patients_factor. Convert enrolled with ymd() into enrolled_date. Add enrolled_year and enrolled_month using year() and month(). Inspect the result and check for missing parsed dates with filter(is.na(enrolled_date)). Explain why \"03/04/2026\" needs a stated month/day or day/month convention.\n\n\n8. Combine the cleaned data\nSave analysis by left-joining marker_long to the id, arm, and enrolled_date columns of patients_clean. Check the row count. Keep week 4 and summarize mean marker by arm using Session 6’s verbs. Explain the group with missing arm instead of silently removing it."
   },
   {
     "objectID": "course/session07/lab.html#additional-practice",
@@ -6025,5 +6025,75 @@
     "title": "Selected Practical Topics in R",
     "section": "Summary",
     "text": "Summary\n\nStart with literal string operations; add regex only when the rule is patterned.\nR string escaping and regex escaping are separate layers.\nAnchors distinguish finding a pattern from validating a complete value.\nTest near misses and missing values, not only examples that should match.\nTurn a validated pattern into reusable, documented code.\n\n\nNext connection: Use the remaining class time for the practical R issue selected from student needs."
+  },
+  {
+    "objectID": "course/session07/slides.html#why-study-data-arrive-in-separate-tables",
+    "href": "course/session07/slides.html#why-study-data-arrive-in-separate-tables",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Why study data arrive in separate tables",
+    "text": "Why study data arrive in separate tables\n\n\n\nFile\nOne row represents\nTypical identifier\n\n\n\n\nEnrollment\nA participant\nParticipant ID\n\n\nFollow-up measurements\nA participant at a visit\nID and visit\n\n\nSite information\nA study site\nSite code\n\n\n\nDifferent teams or systems may produce these files. A join connects related records using their identifiers."
+  },
+  {
+    "objectID": "course/session07/slides.html#common-reasons-to-join-study-data",
+    "href": "course/session07/slides.html#common-reasons-to-join-study-data",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Common reasons to join study data",
+    "text": "Common reasons to join study data\n\nAdd treatment assignment to each follow-up measurement.\nAttach site names to a file containing only site codes.\nCombine a baseline questionnaire with an outcome file.\nFind enrolled participants who have no laboratory record.\n\nBefore choosing a function, decide which participants or measurements the result must retain."
+  },
+  {
+    "objectID": "course/session07/slides.html#the-left-table-defines-which-records-must-stay",
+    "href": "course/session07/slides.html#the-left-table-defines-which-records-must-stay",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "The left table defines which records must stay",
+    "text": "The left table defines which records must stay\nSuppose the question is: which enrolled participants have measurements?\n\npatient_lookup |&gt; left_join(marker_wide, by = \"id\")\n\n# A tibble: 4 x 4\n  id    arm     marker_w0 marker_w4\n  &lt;chr&gt; &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt;\n1 P01   control       4.1       4.4\n2 P02   treated       5.2       4.7\n3 P03   treated       6         5.1\n4 P04   control      NA        NA  \n\n\nP04 stays with missing measurements. P05 is outside this enrollment list."
+  },
+  {
+    "objectID": "course/session07/slides.html#joining-records-or-stacking-batches",
+    "href": "course/session07/slides.html#joining-records-or-stacking-batches",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Joining records or stacking batches?",
+    "text": "Joining records or stacking batches?\n\n\n\n\n\n\n\nFiles contain\nOperation\n\n\n\n\nEnrollment and lab results for overlapping participants\nJoin by the appropriate ID\n\n\nThe same lab columns for two different recruitment batches\nStack the rows with bind_rows()\n\n\n\nA join matches records. Stacking adds observations with the same variables.\nA worked bind_rows() example follows in the optional join block."
+  },
+  {
+    "objectID": "course/session07/slides.html#optional-other-joins-in-practice",
+    "href": "course/session07/slides.html#optional-other-joins-in-practice",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Optional: Other joins in practice",
+    "text": "Optional: Other joins in practice\n\n\n\n\n\n\n\nStudy task\nChoice\n\n\n\n\nReconcile two participant lists and retain every ID from either source\nfull_join()\n\n\nKeep cohort rows whose IDs appear in an eligibility list, without adding its columns\nsemi_join()\n\n\nPreserve the second table in a join\nright_join(), or swap inputs to left_join()\n\n\n\nA full join can expose records that exist in only one source."
+  },
+  {
+    "objectID": "course/session07/slides.html#data-you-may-receive-in-wide-form",
+    "href": "course/session07/slides.html#data-you-may-receive-in-wide-form",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Data you may receive in wide form",
+    "text": "Data you may receive in wide form\n\n\n\n\n\n\n\nExample\nTypical layout\n\n\n\n\nBaseline questionnaire\nOne participant per row, one question per column\n\n\nScheduled follow-up spreadsheet\nbp_0, bp_6, bp_12 in separate columns\n\n\nPrediction input\nOne participant per row, a column for each predictor\n\n\n\nA baseline table with age, sex, and weight already has separate variables. There is usually no reason to gather all of them into one value column."
+  },
+  {
+    "objectID": "course/session07/slides.html#data-you-may-receive-in-long-form",
+    "href": "course/session07/slides.html#data-you-may-receive-in-long-form",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "Data you may receive in long form",
+    "text": "Data you may receive in long form\n\n\n\n\n\n\n\nExample\nTypical row\n\n\n\n\nElectronic laboratory export\nOne recorded test for a patient/specimen\n\n\nLongitudinal follow-up data\nOne participant at one visit\n\n\nMedication records\nOne prescription or administration event\n\n\n\nRepeated participant IDs are expected in these files. Identify the additional columns that distinguish records."
+  },
+  {
+    "objectID": "course/session07/slides.html#when-to-change-wide-measurements-to-long",
+    "href": "course/session07/slides.html#when-to-change-wide-measurements-to-long",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "When to change wide measurements to long",
+    "text": "When to change wide measurements to long\nWe have marker_w0 and marker_w4, but want to:\n\nPlot marker against visit week.\nCalculate the mean marker separately at each week.\nPrepare repeated measurements for a longitudinal model.\n\npivot_longer() creates a week column and a marker column. Participant IDs repeat once for each visit."
+  },
+  {
+    "objectID": "course/session07/slides.html#when-to-change-long-measurements-to-wide",
+    "href": "course/session07/slides.html#when-to-change-long-measurements-to-wide",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "When to change long measurements to wide",
+    "text": "When to change long measurements to wide\nWe have one measurement per participant-week, but want to:\n\nCalculate week-4 minus baseline marker in one row.\nDisplay baseline and follow-up values side by side.\nSupply one row per participant to a model using separate visit predictors.\n\npivot_wider() makes a column for each requested week. Each participant-week cell needs one value or an explicit summary rule."
+  },
+  {
+    "objectID": "course/session07/slides.html#a-practical-calculation-after-widening",
+    "href": "course/session07/slides.html#a-practical-calculation-after-widening",
+    "title": "Joining, Reshaping, and Cleaning Data",
+    "section": "A practical calculation after widening",
+    "text": "A practical calculation after widening\n\nmarker_back |&gt;\n  mutate(change = marker_w4 - marker_w0) |&gt;\n  select(id, change)\n\n# A tibble: 4 x 2\n  id    change\n  &lt;chr&gt;  &lt;dbl&gt;\n1 P01    0.300\n2 P02   -0.5  \n3 P03   -0.9  \n4 P05    0.100\n\n\nEach row now contains one participant’s baseline-to-week-4 change.\nFor this fixed pair of visits, two measurement columns make the calculation direct."
   }
 ]

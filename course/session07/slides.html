@@ -295,12 +295,52 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </tr>
 </tbody>
 </table>
-<p>The optional join block and final appendix sit outside this 90-minute route.</p>
+<p>Optional blocks follow the related join or pivot introduction. Use their skip links to stay on the 90-minute main route.</p>
 </section>
 <section>
 <section id="joining-tables" class="title-slide slide level1 section-divider center">
 <h1>Joining tables</h1>
 
+</section>
+<section id="why-study-data-arrive-in-separate-tables" class="slide level2 smaller">
+<h2>Why study data arrive in separate tables</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>File</th>
+<th>One row represents</th>
+<th>Typical identifier</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Enrollment</td>
+<td>A participant</td>
+<td>Participant ID</td>
+</tr>
+<tr class="even">
+<td>Follow-up measurements</td>
+<td>A participant at a visit</td>
+<td>ID and visit</td>
+</tr>
+<tr class="odd">
+<td>Site information</td>
+<td>A study site</td>
+<td>Site code</td>
+</tr>
+</tbody>
+</table>
+<p>Different teams or systems may produce these files. A join connects related records using their identifiers.</p>
+</section>
+<section id="common-reasons-to-join-study-data" class="slide level2 smaller">
+<h2>Common reasons to join study data</h2>
+<ul>
+<li>Add treatment assignment to each follow-up measurement.</li>
+<li>Attach site names to a file containing only site codes.</li>
+<li>Combine a baseline questionnaire with an outcome file.</li>
+<li>Find enrolled participants who have no laboratory record.</li>
+</ul>
+<p>Before choosing a function, decide which participants or measurements the result must retain.</p>
 </section>
 <section id="two-tables-from-the-same-study" class="slide level2 smaller">
 <h2>Two tables from the same study</h2>
@@ -355,15 +395,15 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </thead>
 <tbody>
 <tr class="odd">
-<td>Keep all measurement rows and add metadata</td>
+<td>Attach treatment to every measurement row</td>
 <td><code>left_join()</code></td>
 </tr>
 <tr class="even">
-<td>Keep only participants appearing in both tables</td>
+<td>Analyze only IDs represented in both files</td>
 <td><code>inner_join()</code></td>
 </tr>
 <tr class="odd">
-<td>Find measurement rows without metadata</td>
+<td>List enrolled IDs with no lab record</td>
 <td><code>anti_join()</code></td>
 </tr>
 </tbody>
@@ -388,10 +428,27 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <p>P05 stays. Its <code>arm</code> is <code>NA</code> because the metadata table has no matching ID.</p>
 </section>
+<section id="the-left-table-defines-which-records-must-stay" class="slide level2 smaller">
+<h2>The left table defines which records must stay</h2>
+<p>Suppose the question is: <strong>which enrolled participants have measurements?</strong></p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a>patient_lookup <span class="sc">|&gt;</span> <span class="fu">left_join</span>(marker_wide, <span class="at">by =</span> <span class="st">"id"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 x 4
+  id    arm     marker_w0 marker_w4
+  &lt;chr&gt; &lt;chr&gt;       &lt;dbl&gt;     &lt;dbl&gt;
+1 P01   control       4.1       4.4
+2 P02   treated       5.2       4.7
+3 P03   treated       6         5.1
+4 P04   control      NA        NA  </code></pre>
+</div>
+</div>
+<p>P04 stays with missing measurements. P05 is outside this enrollment list.</p>
+</section>
 <section id="an-inner-join-changes-the-retained-participants" class="slide level2 smaller">
 <h2>An inner join changes the retained participants</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a>marker_wide <span class="sc">|&gt;</span> <span class="fu">inner_join</span>(patient_lookup, <span class="at">by =</span> <span class="st">"id"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a aria-hidden="true" tabindex="-1"></a>marker_wide <span class="sc">|&gt;</span> <span class="fu">inner_join</span>(patient_lookup, <span class="at">by =</span> <span class="st">"id"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 x 4
   id    marker_w0 marker_w4 arm    
@@ -402,19 +459,19 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 <p>Three participants remain. P05 is absent.</p>
-<p>Choose an inner join when restricting to matched records is the intended rule.</p>
+<p>Example: a planned analysis requires records from both the questionnaire and outcome files. An inner join restricts to their matching IDs. It does not guarantee that every variable in those records is observed.</p>
 </section>
 <section id="unmatched-records-in-both-directions" class="slide level2 smaller">
 <h2>Unmatched records in both directions</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a aria-hidden="true" tabindex="-1"></a>marker_wide <span class="sc">|&gt;</span> <span class="fu">anti_join</span>(patient_lookup, <span class="at">by =</span> <span class="st">"id"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a aria-hidden="true" tabindex="-1"></a>marker_wide <span class="sc">|&gt;</span> <span class="fu">anti_join</span>(patient_lookup, <span class="at">by =</span> <span class="st">"id"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 x 3
   id    marker_w0 marker_w4
   &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt;
 1 P05         4.8       4.9</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a aria-hidden="true" tabindex="-1"></a>patient_lookup <span class="sc">|&gt;</span> <span class="fu">anti_join</span>(marker_wide, <span class="at">by =</span> <span class="st">"id"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a>patient_lookup <span class="sc">|&gt;</span> <span class="fu">anti_join</span>(marker_wide, <span class="at">by =</span> <span class="st">"id"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 x 2
   id    arm    
@@ -424,14 +481,41 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <p>The first result asks who lacks metadata. The second asks whose metadata has no measurements.</p>
 </section>
+<section id="joining-records-or-stacking-batches" class="slide level2 smaller">
+<h2>Joining records or stacking batches?</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Files contain</th>
+<th>Operation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Enrollment and lab results for overlapping participants</td>
+<td>Join by the appropriate ID</td>
+</tr>
+<tr class="even">
+<td>The same lab columns for two different recruitment batches</td>
+<td>Stack the rows with <code>bind_rows()</code></td>
+</tr>
+</tbody>
+</table>
+<p>A join matches records. Stacking adds observations with the same variables.</p>
+<p>A worked <code>bind_rows()</code> example follows in the optional join block.</p>
+</section>
 <section id="duplicate-lookup-rows-can-repeat-measurements" class="slide level2 smaller">
 <h2>Duplicate lookup rows can repeat measurements</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a>extra_lookup <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb15-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="fu">c</span>(<span class="st">"P01"</span>, <span class="st">"P01"</span>), <span class="at">arm =</span> <span class="fu">c</span>(<span class="st">"control"</span>, <span class="st">"treated"</span>)</span>
-<span id="cb15-3"><a aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb15-4"><a aria-hidden="true" tabindex="-1"></a>marker_wide <span class="sc">|&gt;</span> <span class="fu">filter</span>(id <span class="sc">==</span> <span class="st">"P01"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb15-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(extra_lookup, <span class="at">by =</span> <span class="st">"id"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a>extra_lookup <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb17-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="fu">c</span>(<span class="st">"P01"</span>, <span class="st">"P01"</span>), <span class="at">arm =</span> <span class="fu">c</span>(<span class="st">"control"</span>, <span class="st">"treated"</span>)</span>
+<span id="cb17-3"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb17-4"><a aria-hidden="true" tabindex="-1"></a>marker_wide <span class="sc">|&gt;</span> <span class="fu">filter</span>(id <span class="sc">==</span> <span class="st">"P01"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb17-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(extra_lookup, <span class="at">by =</span> <span class="st">"id"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 x 4
   id    marker_w0 marker_w4 arm    
@@ -451,7 +535,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <li>How many rows remain, and which IDs failed to match?</li>
 </ul>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">before =</span> <span class="fu">nrow</span>(marker_wide), <span class="at">after =</span> <span class="fu">nrow</span>(course_joined))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">before =</span> <span class="fu">nrow</span>(marker_wide), <span class="at">after =</span> <span class="fu">nrow</span>(course_joined))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>before  after 
      4      4 </code></pre>
@@ -538,15 +622,45 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <p>The split is the useful thing here. A <strong>mutating</strong> join changes the columns and may change the rows. A <strong>filtering</strong> join changes only the rows — it is <code>filter()</code> with the condition stored in another table.</p>
 </div>
 </section>
+<section id="optional-other-joins-in-practice" class="slide level2 smaller">
+<h2>Optional: Other joins in practice</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Study task</th>
+<th>Choice</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Reconcile two participant lists and retain every ID from either source</td>
+<td><code>full_join()</code></td>
+</tr>
+<tr class="even">
+<td>Keep cohort rows whose IDs appear in an eligibility list, without adding its columns</td>
+<td><code>semi_join()</code></td>
+</tr>
+<tr class="odd">
+<td>Preserve the second table in a join</td>
+<td><code>right_join()</code>, or swap inputs to <code>left_join()</code></td>
+</tr>
+</tbody>
+</table>
+<p>A full join can expose records that exist in only one source.</p>
+</section>
 <section id="optional-the-other-three" class="slide level2 smaller">
 <h2>Optional: The other three</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">left  =</span> <span class="fu">nrow</span>(<span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
-<span id="cb19-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">inner =</span> <span class="fu">nrow</span>(<span class="fu">inner_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
-<span id="cb19-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">right =</span> <span class="fu">nrow</span>(<span class="fu">right_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
-<span id="cb19-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">full  =</span> <span class="fu">nrow</span>(<span class="fu">full_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
-<span id="cb19-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">semi  =</span> <span class="fu">nrow</span>(<span class="fu">semi_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
-<span id="cb19-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">anti  =</span> <span class="fu">nrow</span>(<span class="fu">anti_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">left  =</span> <span class="fu">nrow</span>(<span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
+<span id="cb21-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">inner =</span> <span class="fu">nrow</span>(<span class="fu">inner_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
+<span id="cb21-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">right =</span> <span class="fu">nrow</span>(<span class="fu">right_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
+<span id="cb21-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">full  =</span> <span class="fu">nrow</span>(<span class="fu">full_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
+<span id="cb21-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">semi  =</span> <span class="fu">nrow</span>(<span class="fu">semi_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
+<span id="cb21-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">anti  =</span> <span class="fu">nrow</span>(<span class="fu">anti_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> left inner right  full  semi  anti 
    60    45    46    61    45    15 </code></pre>
@@ -586,9 +700,9 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="optional-the-metadata-repeats-the-visits-stay" class="slide level2 smaller">
 <h2>Optional: The metadata repeats, the visits stay</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a aria-hidden="true" tabindex="-1"></a>visit_demo <span class="sc">|&gt;</span></span>
-<span id="cb23-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(meta_demo, <span class="at">by =</span> <span class="st">"id"</span>,</span>
-<span id="cb23-3"><a aria-hidden="true" tabindex="-1"></a>            <span class="at">relationship =</span> <span class="st">"many-to-one"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a aria-hidden="true" tabindex="-1"></a>visit_demo <span class="sc">|&gt;</span></span>
+<span id="cb25-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(meta_demo, <span class="at">by =</span> <span class="st">"id"</span>,</span>
+<span id="cb25-3"><a aria-hidden="true" tabindex="-1"></a>            <span class="at">relationship =</span> <span class="st">"many-to-one"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 x 4
   id     week marker arm    
@@ -603,10 +717,10 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="optional-different-names-for-the-same-key" class="slide level2 smaller">
 <h2>Optional: Different names for the same key</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a aria-hidden="true" tabindex="-1"></a>meta_named <span class="ot">&lt;-</span> meta_demo <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">patient_id =</span> id)</span>
-<span id="cb25-2"><a aria-hidden="true" tabindex="-1"></a>visit_demo <span class="sc">|&gt;</span></span>
-<span id="cb25-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(meta_named, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"id"</span> <span class="ot">=</span> <span class="st">"patient_id"</span>),</span>
-<span id="cb25-4"><a aria-hidden="true" tabindex="-1"></a>            <span class="at">relationship =</span> <span class="st">"many-to-one"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a aria-hidden="true" tabindex="-1"></a>meta_named <span class="ot">&lt;-</span> meta_demo <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">patient_id =</span> id)</span>
+<span id="cb27-2"><a aria-hidden="true" tabindex="-1"></a>visit_demo <span class="sc">|&gt;</span></span>
+<span id="cb27-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(meta_named, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"id"</span> <span class="ot">=</span> <span class="st">"patient_id"</span>),</span>
+<span id="cb27-4"><a aria-hidden="true" tabindex="-1"></a>            <span class="at">relationship =</span> <span class="st">"many-to-one"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 x 4
   id     week marker arm    
@@ -621,12 +735,12 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="optional-a-visit-level-join-needs-two-keys" class="slide level2 smaller">
 <h2>Optional: A visit-level join needs two keys</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a aria-hidden="true" tabindex="-1"></a>assay_demo <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="fu">c</span>(<span class="st">"P01"</span>, <span class="st">"P01"</span>, <span class="st">"P02"</span>),</span>
-<span id="cb27-2"><a aria-hidden="true" tabindex="-1"></a>                     <span class="at">week =</span> <span class="fu">c</span>(<span class="dv">0</span>L, <span class="dv">4</span>L, <span class="dv">0</span>L),</span>
-<span id="cb27-3"><a aria-hidden="true" tabindex="-1"></a>                     <span class="at">assay =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">12</span>, <span class="dv">20</span>))</span>
-<span id="cb27-4"><a aria-hidden="true" tabindex="-1"></a>visit_demo <span class="sc">|&gt;</span></span>
-<span id="cb27-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(assay_demo, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"week"</span>),</span>
-<span id="cb27-6"><a aria-hidden="true" tabindex="-1"></a>            <span class="at">relationship =</span> <span class="st">"one-to-one"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a aria-hidden="true" tabindex="-1"></a>assay_demo <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="fu">c</span>(<span class="st">"P01"</span>, <span class="st">"P01"</span>, <span class="st">"P02"</span>),</span>
+<span id="cb29-2"><a aria-hidden="true" tabindex="-1"></a>                     <span class="at">week =</span> <span class="fu">c</span>(<span class="dv">0</span>L, <span class="dv">4</span>L, <span class="dv">0</span>L),</span>
+<span id="cb29-3"><a aria-hidden="true" tabindex="-1"></a>                     <span class="at">assay =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">12</span>, <span class="dv">20</span>))</span>
+<span id="cb29-4"><a aria-hidden="true" tabindex="-1"></a>visit_demo <span class="sc">|&gt;</span></span>
+<span id="cb29-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(assay_demo, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"week"</span>),</span>
+<span id="cb29-6"><a aria-hidden="true" tabindex="-1"></a>            <span class="at">relationship =</span> <span class="st">"one-to-one"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 x 4
   id     week marker assay
@@ -641,9 +755,9 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="optional-what-happens-when-week-is-omitted" class="slide level2 smaller">
 <h2>Optional: What happens when week is omitted?</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a aria-hidden="true" tabindex="-1"></a>visit_demo <span class="sc">|&gt;</span></span>
-<span id="cb29-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(assay_demo, <span class="at">by =</span> <span class="st">"id"</span>,</span>
-<span id="cb29-3"><a aria-hidden="true" tabindex="-1"></a>            <span class="at">relationship =</span> <span class="st">"one-to-one"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a aria-hidden="true" tabindex="-1"></a>visit_demo <span class="sc">|&gt;</span></span>
+<span id="cb31-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(assay_demo, <span class="at">by =</span> <span class="st">"id"</span>,</span>
+<span id="cb31-3"><a aria-hidden="true" tabindex="-1"></a>            <span class="at">relationship =</span> <span class="st">"one-to-one"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in `left_join()`:
 ! Each row in `x` must match at most 1 row in `y`.
@@ -713,11 +827,11 @@ i Row 1 of `x` matches multiple rows in `y`.</code></pre>
 <h2>Optional: Many-to-one: the safe case</h2>
 <p><code>sites</code> has <strong>at most one</strong> row per <code>site</code>, so 60 rows in, 60 rows out.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(trial)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(trial)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 60</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 60</code></pre>
 </div>
@@ -725,7 +839,7 @@ i Row 1 of `x` matches multiple rows in `y`.</code></pre>
 <div class="fragment">
 <p>We are entitled to expect that only because we checked:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a aria-hidden="true" tabindex="-1"></a>sites <span class="sc">|&gt;</span> <span class="fu">count</span>(site) <span class="sc">|&gt;</span> <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a aria-hidden="true" tabindex="-1"></a>sites <span class="sc">|&gt;</span> <span class="fu">count</span>(site) <span class="sc">|&gt;</span> <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] site n   
 &lt;0 rows&gt; (or 0-length row.names)</code></pre>
@@ -749,12 +863,12 @@ i Row 1 of `x` matches multiple rows in `y`.</code></pre>
 <h2>Optional: One-to-many: rows multiply on purpose</h2>
 <p><code>labs</code> has <strong>two</strong> rows per patient — baseline and week 12.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(labs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(labs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 120</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a>trial_labs <span class="ot">&lt;-</span> <span class="fu">left_join</span>(trial, labs, <span class="at">by =</span> <span class="st">"id"</span>)</span>
-<span id="cb39-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(trial_labs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a>trial_labs <span class="ot">&lt;-</span> <span class="fu">left_join</span>(trial, labs, <span class="at">by =</span> <span class="st">"id"</span>)</span>
+<span id="cb41-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(trial_labs)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 120</code></pre>
 </div>
@@ -762,7 +876,7 @@ i Row 1 of `x` matches multiple rows in `y`.</code></pre>
 <div class="fragment">
 <p><code>60 × 2 = 120</code>, predicted before running it.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial_labs[, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"week"</span>, <span class="st">"creat"</span>)], <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trial_labs[, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"week"</span>, <span class="st">"creat"</span>)], <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    id     arm week creat
 1 P001 Placebo    0  1.13
@@ -782,7 +896,7 @@ i Row 1 of `x` matches multiple rows in `y`.</code></pre>
 <h2>Optional: Many-to-many: rows multiply by accident</h2>
 <p><code>sites_dup</code> contains <strong>two conflicting records for site 2</strong> (240 versus 245 beds).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">left_join</span>(trial, sites_dup, <span class="at">by =</span> <span class="st">"site"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">left_join</span>(trial, sites_dup, <span class="at">by =</span> <span class="st">"site"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in left_join(trial, sites_dup, by = "site"): Detected an unexpected many-to-many relationship between `x` and
 `y`.
@@ -815,13 +929,13 @@ i If a many-to-many relationship is expected, set `relationship =
 <h2>Optional: Predict, then check</h2>
 <p>Write the prediction into the code. It costs one line:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a aria-hidden="true" tabindex="-1"></a>joined <span class="ot">&lt;-</span> <span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)</span>
-<span id="cb46-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(joined) <span class="sc">==</span> <span class="fu">nrow</span>(trial))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a aria-hidden="true" tabindex="-1"></a>joined <span class="ot">&lt;-</span> <span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)</span>
+<span id="cb48-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(joined) <span class="sc">==</span> <span class="fu">nrow</span>(trial))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a>joined_bad <span class="ot">&lt;-</span> <span class="fu">left_join</span>(trial, sites_dup, <span class="at">by =</span> <span class="st">"site"</span>)</span>
-<span id="cb47-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(joined_bad) <span class="sc">==</span> <span class="fu">nrow</span>(trial))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a aria-hidden="true" tabindex="-1"></a>joined_bad <span class="ot">&lt;-</span> <span class="fu">left_join</span>(trial, sites_dup, <span class="at">by =</span> <span class="st">"site"</span>)</span>
+<span id="cb49-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(joined_bad) <span class="sc">==</span> <span class="fu">nrow</span>(trial))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error: nrow(joined_bad) == nrow(trial) is not TRUE</code></pre>
 </div>
@@ -837,7 +951,7 @@ i If a many-to-many relationship is expected, set `relationship =
 <h2>Optional: The <code>relationship</code> argument</h2>
 <p>State what you believe, and let the join enforce it:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(trial, sites_dup, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">relationship =</span> <span class="st">"many-to-one"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(trial, sites_dup, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">relationship =</span> <span class="st">"many-to-one"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in `left_join()`:
 ! Each row in `x` must match at most 1 row in `y`.
@@ -853,7 +967,7 @@ i Row 6 of `x` matches multiple rows in `y`.</code></pre>
 <section id="optional-the-unmatched-argument" class="slide level2 smaller">
 <h2>Optional: The <code>unmatched</code> argument</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">unmatched =</span> <span class="st">"error"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">left_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">unmatched =</span> <span class="st">"error"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in `left_join()`:
 ! Each row of `y` must be matched by `x`.
@@ -868,21 +982,98 @@ i Row 4 of `y` was not matched.</code></pre>
 <div class="fragment">
 <p>To assert that every <em>patient</em> matched, use the diagnostic:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">anti_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)) <span class="sc">==</span> <span class="dv">0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">anti_join</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)) <span class="sc">==</span> <span class="dv">0</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE</code></pre>
 </div>
 </div>
 </div>
 </section>
+<section id="optional-stacking-rows-with-bind_rows" class="slide level2 smaller">
+<h2>Optional: stacking rows with <code>bind_rows()</code></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a aria-hidden="true" tabindex="-1"></a>batch_a <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="st">"P01"</span>, <span class="at">marker =</span> <span class="fl">4.1</span>)</span>
+<span id="cb57-2"><a aria-hidden="true" tabindex="-1"></a>batch_b <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="st">"P02"</span>, <span class="at">marker =</span> <span class="fl">5.2</span>, <span class="at">lab =</span> <span class="st">"central"</span>)</span>
+<span id="cb57-3"><a aria-hidden="true" tabindex="-1"></a>stacked <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(<span class="at">A =</span> batch_a, <span class="at">B =</span> batch_b, <span class="at">.id =</span> <span class="st">"batch"</span>)</span>
+<span id="cb57-4"><a aria-hidden="true" tabindex="-1"></a>stacked</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 x 4
+  batch id    marker lab    
+  &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt;  
+1 A     P01      4.1 &lt;NA&gt;   
+2 B     P02      5.2 central</code></pre>
+</div>
+</div>
+<p>Columns align by name. Missing columns get <code>NA</code>. <code>.id</code> records which input supplied each row.</p>
+</section>
+<section id="optional-stacking-versus-matching" class="slide level2 smaller">
+<h2>Optional: stacking versus matching</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Files contain</th>
+<th>Operation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>The same variables for different participants</td>
+<td><code>bind_rows()</code></td>
+</tr>
+<tr class="even">
+<td>Participant measurements and participant metadata</td>
+<td>A join by ID</td>
+</tr>
+<tr class="odd">
+<td>Two visit-level measurements</td>
+<td>A join by ID and week</td>
+</tr>
+</tbody>
+</table>
+<p>After stacking, check keys and column types again. Overlapping exports can introduce duplicated observations.</p>
+</section>
+<section id="optional-competing-columns-after-a-join" class="slide level2 smaller">
+<h2>Optional: competing columns after a join</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a aria-hidden="true" tabindex="-1"></a>clinic <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="fu">c</span>(<span class="st">"P01"</span>, <span class="st">"P02"</span>), <span class="at">age =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="dv">61</span>))</span>
+<span id="cb59-2"><a aria-hidden="true" tabindex="-1"></a>registry <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="fu">c</span>(<span class="st">"P01"</span>, <span class="st">"P02"</span>), <span class="at">age =</span> <span class="fu">c</span>(<span class="dv">58</span>, <span class="dv">62</span>))</span>
+<span id="cb59-3"><a aria-hidden="true" tabindex="-1"></a>ages <span class="ot">&lt;-</span> <span class="fu">left_join</span>(clinic, registry, <span class="at">by =</span> <span class="st">"id"</span>,</span>
+<span id="cb59-4"><a aria-hidden="true" tabindex="-1"></a>                   <span class="at">suffix =</span> <span class="fu">c</span>(<span class="st">"_clinic"</span>, <span class="st">"_registry"</span>),</span>
+<span id="cb59-5"><a aria-hidden="true" tabindex="-1"></a>                   <span class="at">relationship =</span> <span class="st">"one-to-one"</span>)</span>
+<span id="cb59-6"><a aria-hidden="true" tabindex="-1"></a>ages</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 x 3
+  id    age_clinic age_registry
+  &lt;chr&gt;      &lt;dbl&gt;        &lt;dbl&gt;
+1 P01           NA           58
+2 P02           61           62</code></pre>
+</div>
+</div>
+<p>Both age columns survive with suffixes. P02’s sources disagree.</p>
+</section>
+<section id="optional-coalesce-follows-a-priority-rule" class="slide level2 smaller">
+<h2>Optional: <code>coalesce()</code> follows a priority rule</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a aria-hidden="true" tabindex="-1"></a>ages <span class="sc">|&gt;</span></span>
+<span id="cb61-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age =</span> <span class="fu">coalesce</span>(age_clinic, age_registry))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 x 4
+  id    age_clinic age_registry   age
+  &lt;chr&gt;      &lt;dbl&gt;        &lt;dbl&gt; &lt;dbl&gt;
+1 P01           NA           58    58
+2 P02           61           62    61</code></pre>
+</div>
+</div>
+<p>The stated rule here is clinic first, registry only if clinic is missing. P02 keeps 61. <code>coalesce()</code> does not detect or resolve that disagreement.</p>
+</section>
 <section id="optional-merge-arguments" class="slide level2 smaller">
 <h2>Optional: <code>merge()</code> arguments</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Same key name in both tables:</span></span>
-<span id="cb55-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">all.x =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb55-3"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb55-4"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Different key names:</span></span>
-<span id="cb55-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>(trial, site_lookup,</span>
-<span id="cb55-6"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">by.x =</span> <span class="st">"site"</span>, <span class="at">by.y =</span> <span class="st">"site_code"</span>, <span class="at">all.x =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Same key name in both tables:</span></span>
+<span id="cb63-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">all.x =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb63-3"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb63-4"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Different key names:</span></span>
+<span id="cb63-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">merge</span>(trial, site_lookup,</span>
+<span id="cb63-6"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">by.x =</span> <span class="st">"site"</span>, <span class="at">by.y =</span> <span class="st">"site_code"</span>, <span class="at">all.x =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <ul>
 <li><code>all.x = TRUE</code>: keep unmatched rows from <code>x</code>.</li>
 <li><code>all.y = TRUE</code>: keep unmatched rows from <code>y</code>.</li>
@@ -942,10 +1133,10 @@ i Row 4 of `y` was not matched.</code></pre>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">inner =</span> <span class="fu">nrow</span>(<span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
-<span id="cb56-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">left  =</span> <span class="fu">nrow</span>(<span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">all.x =</span> <span class="cn">TRUE</span>)),</span>
-<span id="cb56-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">right =</span> <span class="fu">nrow</span>(<span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">all.y =</span> <span class="cn">TRUE</span>)),</span>
-<span id="cb56-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">full  =</span> <span class="fu">nrow</span>(<span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">all   =</span> <span class="cn">TRUE</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">inner =</span> <span class="fu">nrow</span>(<span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>)),</span>
+<span id="cb64-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">left  =</span> <span class="fu">nrow</span>(<span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">all.x =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb64-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">right =</span> <span class="fu">nrow</span>(<span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">all.y =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb64-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">full  =</span> <span class="fu">nrow</span>(<span class="fu">merge</span>(trial, sites, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">all   =</span> <span class="cn">TRUE</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>inner  left right  full 
    45    60    46    61 </code></pre>
@@ -959,13 +1150,13 @@ i Row 4 of `y` was not matched.</code></pre>
 <div class="columns">
 <div class="column" style="width:49%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a aria-hidden="true" tabindex="-1"></a>trial <span class="sc">|&gt;</span></span>
-<span id="cb58-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(sites, <span class="at">by =</span> <span class="st">"site"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb58-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(site_name) <span class="sc">|&gt;</span></span>
-<span id="cb58-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb58-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">n    =</span> <span class="fu">n</span>(),</span>
-<span id="cb58-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> <span class="fu">round</span>(<span class="fu">mean</span>(sbp_12), <span class="dv">1</span>)</span>
-<span id="cb58-7"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a aria-hidden="true" tabindex="-1"></a>trial <span class="sc">|&gt;</span></span>
+<span id="cb66-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(sites, <span class="at">by =</span> <span class="st">"site"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb66-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(site_name) <span class="sc">|&gt;</span></span>
+<span id="cb66-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb66-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">n    =</span> <span class="fu">n</span>(),</span>
+<span id="cb66-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> <span class="fu">round</span>(<span class="fu">mean</span>(sbp_12), <span class="dv">1</span>)</span>
+<span id="cb66-7"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 3 x 3
   site_name     n  mean
@@ -977,11 +1168,11 @@ i Row 4 of `y` was not matched.</code></pre>
 </div>
 </div><div class="column" style="width:49%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">merge</span>(trial, sites,</span>
-<span id="cb60-2"><a aria-hidden="true" tabindex="-1"></a>           <span class="at">by =</span> <span class="st">"site"</span>)</span>
-<span id="cb60-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(sbp_12 <span class="sc">~</span> site_name,</span>
-<span id="cb60-4"><a aria-hidden="true" tabindex="-1"></a>          <span class="at">data =</span> m,</span>
-<span id="cb60-5"><a aria-hidden="true" tabindex="-1"></a>          <span class="at">FUN  =</span> mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">merge</span>(trial, sites,</span>
+<span id="cb68-2"><a aria-hidden="true" tabindex="-1"></a>           <span class="at">by =</span> <span class="st">"site"</span>)</span>
+<span id="cb68-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(sbp_12 <span class="sc">~</span> site_name,</span>
+<span id="cb68-4"><a aria-hidden="true" tabindex="-1"></a>          <span class="at">data =</span> m,</span>
+<span id="cb68-5"><a aria-hidden="true" tabindex="-1"></a>          <span class="at">FUN  =</span> mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  site_name   sbp_12
 1   Meharry 135.6111
@@ -1031,7 +1222,7 @@ i Row 4 of `y` was not matched.</code></pre>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">merge</span>(trial[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>)], sites))   <span class="co"># no common column</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(<span class="fu">merge</span>(trial[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>)], sites))   <span class="co"># no common column</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 12</code></pre>
 </div>
@@ -1055,10 +1246,70 @@ i Row 4 of `y` was not matched.</code></pre>
 <p>Today: <code>pivot_longer()</code> and <code>pivot_wider()</code>.</p>
 <p>Other tidyr tools split columns or make missing rows explicit. They are optional here.</p>
 </section>
+<section id="data-you-may-receive-in-wide-form" class="slide level2 smaller">
+<h2>Data you may receive in wide form</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Example</th>
+<th>Typical layout</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Baseline questionnaire</td>
+<td>One participant per row, one question per column</td>
+</tr>
+<tr class="even">
+<td>Scheduled follow-up spreadsheet</td>
+<td><code>bp_0</code>, <code>bp_6</code>, <code>bp_12</code> in separate columns</td>
+</tr>
+<tr class="odd">
+<td>Prediction input</td>
+<td>One participant per row, a column for each predictor</td>
+</tr>
+</tbody>
+</table>
+<p>A baseline table with age, sex, and weight already has separate variables. There is usually no reason to gather all of them into one value column.</p>
+</section>
+<section id="data-you-may-receive-in-long-form" class="slide level2 smaller">
+<h2>Data you may receive in long form</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Example</th>
+<th>Typical row</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Electronic laboratory export</td>
+<td>One recorded test for a patient/specimen</td>
+</tr>
+<tr class="even">
+<td>Longitudinal follow-up data</td>
+<td>One participant at one visit</td>
+</tr>
+<tr class="odd">
+<td>Medication records</td>
+<td>One prescription or administration event</td>
+</tr>
+</tbody>
+</table>
+<p>Repeated participant IDs are expected in these files. Identify the additional columns that distinguish records.</p>
+</section>
 <section id="wide-measurements" class="slide level2 smaller">
 <h2>Wide measurements</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a aria-hidden="true" tabindex="-1"></a>marker_wide</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a aria-hidden="true" tabindex="-1"></a>marker_wide</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 x 3
   id    marker_w0 marker_w4
@@ -1072,17 +1323,27 @@ i Row 4 of `y` was not matched.</code></pre>
 <p>One row per participant. <code>marker_w0</code> and <code>marker_w4</code> store the same measurement at different weeks.</p>
 <p>To summarize by week, it helps to give week its own column.</p>
 </section>
+<section id="when-to-change-wide-measurements-to-long" class="slide level2 smaller">
+<h2>When to change wide measurements to long</h2>
+<p>We have <code>marker_w0</code> and <code>marker_w4</code>, but want to:</p>
+<ul>
+<li>Plot marker against visit week.</li>
+<li>Calculate the mean marker separately at each week.</li>
+<li>Prepare repeated measurements for a longitudinal model.</li>
+</ul>
+<p><code>pivot_longer()</code> creates a <code>week</code> column and a <code>marker</code> column. Participant IDs repeat once for each visit.</p>
+</section>
 <section id="wide-to-long-with-pivot_longer" class="slide level2 smaller">
 <h2>Wide to long with pivot_longer</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a aria-hidden="true" tabindex="-1"></a>marker_long <span class="ot">&lt;-</span> marker_wide <span class="sc">|&gt;</span></span>
-<span id="cb66-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb66-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"marker_w"</span>),</span>
-<span id="cb66-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"week"</span>,</span>
-<span id="cb66-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_prefix =</span> <span class="st">"marker_w"</span>,</span>
-<span id="cb66-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"marker"</span></span>
-<span id="cb66-7"><a aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb66-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">week =</span> <span class="fu">as.integer</span>(week))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a aria-hidden="true" tabindex="-1"></a>marker_long <span class="ot">&lt;-</span> marker_wide <span class="sc">|&gt;</span></span>
+<span id="cb74-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb74-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"marker_w"</span>),</span>
+<span id="cb74-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"week"</span>,</span>
+<span id="cb74-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_prefix =</span> <span class="st">"marker_w"</span>,</span>
+<span id="cb74-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"marker"</span></span>
+<span id="cb74-7"><a aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb74-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">week =</span> <span class="fu">as.integer</span>(week))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>The column names supply <code>week</code>. The cell values supply <code>marker</code>.</p>
 </section>
@@ -1108,9 +1369,9 @@ i Row 4 of `y` was not matched.</code></pre>
 <section id="a-summary-by-week" class="slide level2 smaller">
 <h2>A summary by week</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a aria-hidden="true" tabindex="-1"></a>marker_long <span class="sc">|&gt;</span></span>
-<span id="cb68-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(week) <span class="sc">|&gt;</span></span>
-<span id="cb68-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_marker =</span> <span class="fu">mean</span>(marker), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a aria-hidden="true" tabindex="-1"></a>marker_long <span class="sc">|&gt;</span></span>
+<span id="cb76-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(week) <span class="sc">|&gt;</span></span>
+<span id="cb76-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_marker =</span> <span class="fu">mean</span>(marker), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 x 2
    week mean_marker
@@ -1121,24 +1382,180 @@ i Row 4 of `y` was not matched.</code></pre>
 </div>
 <p>This reuses Session 6’s <code>group_by()</code> and <code>summarise()</code>.</p>
 <p>Long form is also useful for plotting measurements against time in Session 8.</p>
+</section></section>
+<section>
+<section id="optional-longer" class="title-slide slide level1 section-divider center">
+<h1>Optional pivot_longer details</h1>
+<p><a href="#/wider-introduction">Skip to the basic pivot_wider example</a></p>
+<p>These examples expand the column-name and missing-value choices in <code>pivot_longer()</code>.</p>
+<p>The blood-pressure examples use the separate synthetic trial: <code>sbp</code> means systolic BP and <code>dbp</code> means diastolic BP.</p>
+</section>
+<section id="optional-two-measurements-encoded-in-column-names" class="slide level2 smaller">
+<h2>Optional: Two measurements encoded in column names</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a aria-hidden="true" tabindex="-1"></a>bp_wide</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    id sbp_0 sbp_12 dbp_0 dbp_12
+1 P001   160    144    98     92
+2 P002   162    156    78     74
+3 P003   157    156    81     80</code></pre>
+</div>
+</div>
+<p><code>sbp_12</code> contains a measurement name and a visit week. The separator is an underscore.</p>
+</section>
+<section id="optional-names_sep-one-value-column" class="slide level2 smaller">
+<h2>Optional: <code>names_sep</code>: one value column</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a aria-hidden="true" tabindex="-1"></a>bp_long <span class="ot">&lt;-</span> bp_wide <span class="sc">|&gt;</span></span>
+<span id="cb80-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb80-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span>id,</span>
+<span id="cb80-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">"measure"</span>, <span class="st">"week"</span>),</span>
+<span id="cb80-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_sep =</span> <span class="st">"_"</span>,</span>
+<span id="cb80-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_transform =</span> <span class="fu">list</span>(<span class="at">week =</span> as.integer),</span>
+<span id="cb80-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"value"</span></span>
+<span id="cb80-8"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>One row now represents a <strong>participant, measurement, and week</strong>.</p>
+</section>
+<section id="optional-the-result-of-splitting-the-names" class="slide level2 smaller">
+<h2>Optional: The result of splitting the names</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bp_long, <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 x 4
+  id    measure  week value
+  &lt;chr&gt; &lt;chr&gt;   &lt;int&gt; &lt;dbl&gt;
+1 P001  sbp         0   160
+2 P001  sbp        12   144
+3 P001  dbp         0    98
+4 P001  dbp        12    92
+5 P002  sbp         0   162
+6 P002  sbp        12   156</code></pre>
+</div>
+</div>
+<p>There are 3 participants × 2 measurements × 2 visits = 12 rows.</p>
+</section>
+<section id="optional-separate-measurement-columns-with-.value" class="slide level2 smaller">
+<h2>Optional: separate measurement columns with <code>.value</code></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a aria-hidden="true" tabindex="-1"></a>bp_by_visit <span class="ot">&lt;-</span> bp_wide <span class="sc">|&gt;</span></span>
+<span id="cb83-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>id,</span>
+<span id="cb83-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">".value"</span>, <span class="st">"week"</span>),</span>
+<span id="cb83-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_sep =</span> <span class="st">"_"</span>,</span>
+<span id="cb83-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_transform =</span> <span class="fu">list</span>(<span class="at">week =</span> as.integer))</span>
+<span id="cb83-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bp_by_visit, <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 x 4
+  id     week   sbp   dbp
+  &lt;chr&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 P001      0   160    98
+2 P001     12   144    92
+3 P002      0   162    78
+4 P002     12   156    74</code></pre>
+</div>
+</div>
+<p><code>.value</code> uses the first name component to create <code>sbp</code> and <code>dbp</code> columns.</p>
+</section>
+<section id="optional-missing-measurements-remain-in-the-long-table" class="slide level2 smaller">
+<h2>Optional: Missing measurements remain in the long table</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a aria-hidden="true" tabindex="-1"></a>missing_wide <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="fu">c</span>(<span class="st">"P01"</span>, <span class="st">"P02"</span>),</span>
+<span id="cb85-2"><a aria-hidden="true" tabindex="-1"></a>                       <span class="at">marker_w0 =</span> <span class="fu">c</span>(<span class="fl">4.1</span>, <span class="fl">5.2</span>),</span>
+<span id="cb85-3"><a aria-hidden="true" tabindex="-1"></a>                       <span class="at">marker_w4 =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="fl">4.7</span>))</span>
+<span id="cb85-4"><a aria-hidden="true" tabindex="-1"></a>missing_long <span class="ot">&lt;-</span> missing_wide <span class="sc">|&gt;</span></span>
+<span id="cb85-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">starts_with</span>(<span class="st">"marker_w"</span>),</span>
+<span id="cb85-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"week"</span>, <span class="at">names_prefix =</span> <span class="st">"marker_w"</span>,</span>
+<span id="cb85-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_transform =</span> <span class="fu">list</span>(<span class="at">week =</span> as.integer),</span>
+<span id="cb85-8"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"marker"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The default is <code>values_drop_na = FALSE</code>: keep the missing measurement.</p>
+</section>
+<section id="optional-a-missing-value-still-has-a-row" class="slide level2 smaller">
+<h2>Optional: A missing value still has a row</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a aria-hidden="true" tabindex="-1"></a>missing_long</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 x 3
+  id     week marker
+  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt;
+1 P01       0    4.1
+2 P01       4   NA  
+3 P02       0    5.2
+4 P02       4    4.7</code></pre>
+</div>
+</div>
+<p><code>values_drop_na = TRUE</code> would remove the P01 week-4 row. That changes the available denominator for visit-level summaries.</p>
+</section>
+<section id="optional-a-missing-row-versus-a-missing-value" class="slide level2 smaller">
+<h2>Optional: a missing row versus a missing value</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a aria-hidden="true" tabindex="-1"></a>incomplete <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="fu">c</span>(<span class="st">"P01"</span>, <span class="st">"P01"</span>, <span class="st">"P02"</span>),</span>
+<span id="cb88-2"><a aria-hidden="true" tabindex="-1"></a>                     <span class="at">week =</span> <span class="fu">c</span>(<span class="dv">0</span>L, <span class="dv">4</span>L, <span class="dv">0</span>L),</span>
+<span id="cb88-3"><a aria-hidden="true" tabindex="-1"></a>                     <span class="at">marker =</span> <span class="fu">c</span>(<span class="fl">4.1</span>, <span class="cn">NA</span>, <span class="fl">5.2</span>))</span>
+<span id="cb88-4"><a aria-hidden="true" tabindex="-1"></a>incomplete</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 x 3
+  id     week marker
+  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt;
+1 P01       0    4.1
+2 P01       4   NA  
+3 P02       0    5.2</code></pre>
+</div>
+</div>
+<p>P01 week 4 exists with a missing marker. P02 week 4 has no row.</p>
+</section>
+<section id="optional-complete-makes-expected-visits-explicit" class="slide level2 smaller">
+<h2>Optional: <code>complete()</code> makes expected visits explicit</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a aria-hidden="true" tabindex="-1"></a>completed <span class="ot">&lt;-</span> incomplete <span class="sc">|&gt;</span></span>
+<span id="cb90-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">record_present =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb90-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">complete</span>(id, <span class="at">week =</span> <span class="fu">c</span>(<span class="dv">0</span>L, <span class="dv">4</span>L),</span>
+<span id="cb90-4"><a aria-hidden="true" tabindex="-1"></a>           <span class="at">fill =</span> <span class="fu">list</span>(<span class="at">record_present =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb90-5"><a aria-hidden="true" tabindex="-1"></a>completed</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 x 4
+  id     week marker record_present
+  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt; &lt;lgl&gt;         
+1 P01       0    4.1 TRUE          
+2 P01       4   NA   TRUE          
+3 P02       0    5.2 TRUE          
+4 P02       4   NA   FALSE         </code></pre>
+</div>
+</div>
+<p>The added marker stays <code>NA</code>. No measurement was invented. Use an expected visit schedule, not every imaginable ID-time combination.</p>
+</section></section>
+<section>
+<section id="wider-introduction" class="title-slide slide level1 section-divider center">
+<h1>Returning to wide data</h1>
+<p>The main lesson continues here.</p>
+</section>
+<section id="when-to-change-long-measurements-to-wide" class="slide level2 smaller">
+<h2>When to change long measurements to wide</h2>
+<p>We have one measurement per participant-week, but want to:</p>
+<ul>
+<li>Calculate week-4 minus baseline marker in one row.</li>
+<li>Display baseline and follow-up values side by side.</li>
+<li>Supply one row per participant to a model using separate visit predictors.</li>
+</ul>
+<p><code>pivot_wider()</code> makes a column for each requested week. Each participant-week cell needs one value or an explicit summary rule.</p>
 </section>
 <section id="long-to-wide-with-pivot_wider" class="slide level2 smaller">
 <h2>Long to wide with pivot_wider</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a aria-hidden="true" tabindex="-1"></a>marker_back <span class="ot">&lt;-</span> marker_long <span class="sc">|&gt;</span></span>
-<span id="cb70-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
-<span id="cb70-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">id_cols =</span> id,</span>
-<span id="cb70-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> week,</span>
-<span id="cb70-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> marker,</span>
-<span id="cb70-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_prefix =</span> <span class="st">"marker_w"</span></span>
-<span id="cb70-7"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a aria-hidden="true" tabindex="-1"></a>marker_back <span class="ot">&lt;-</span> marker_long <span class="sc">|&gt;</span></span>
+<span id="cb92-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb92-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">id_cols =</span> id,</span>
+<span id="cb92-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> week,</span>
+<span id="cb92-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> marker,</span>
+<span id="cb92-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_prefix =</span> <span class="st">"marker_w"</span></span>
+<span id="cb92-7"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><code>id_cols</code> identifies an output row. <code>names_from</code> supplies column names. <code>values_from</code> supplies cell contents.</p>
 </section>
 <section id="a-check-after-reshaping" class="slide level2 smaller">
 <h2>A check after reshaping</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a aria-hidden="true" tabindex="-1"></a>marker_back</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a aria-hidden="true" tabindex="-1"></a>marker_back</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 x 3
   id    marker_w0 marker_w4
@@ -1156,383 +1573,41 @@ i Row 4 of `y` was not matched.</code></pre>
 <li>Same row count after returning to wide?</li>
 </ul>
 <p>Wide and long formats are useful for different tasks.</p>
-</section></section>
-<section>
-<section id="stringr-text-columns" class="title-slide slide level1 section-divider center">
-<h1>stringr: text columns</h1>
-
 </section>
-<section id="text-differences-that-affect-matching" class="slide level2 smaller">
-<h2>Text differences that affect matching</h2>
+<section id="a-practical-calculation-after-widening" class="slide level2 smaller">
+<h2>A practical calculation after widening</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a aria-hidden="true" tabindex="-1"></a>raw_patients <span class="sc">|&gt;</span> <span class="fu">select</span>(id, arm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a aria-hidden="true" tabindex="-1"></a>marker_back <span class="sc">|&gt;</span></span>
+<span id="cb95-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">change =</span> marker_w4 <span class="sc">-</span> marker_w0) <span class="sc">|&gt;</span></span>
+<span id="cb95-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, change)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4 x 2
-  id      arm        
-  &lt;chr&gt;   &lt;chr&gt;      
-1 " p01 " " Control "
-2 "p02"   "TREATED"  
-3 " P03"  " treated "
-4 "p04 "  "control"  </code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a aria-hidden="true" tabindex="-1"></a><span class="st">" p01 "</span> <span class="sc">==</span> <span class="st">"P01"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] FALSE</code></pre>
+  id    change
+  &lt;chr&gt;  &lt;dbl&gt;
+1 P01    0.300
+2 P02   -0.5  
+3 P03   -0.9  
+4 P05    0.100</code></pre>
 </div>
 </div>
-<p>Our study’s documented ID convention is uppercase with no surrounding spaces. The raw export does not consistently follow it.</p>
-</section>
-<section id="spaces-and-capitalization" class="slide level2 smaller">
-<h2>Spaces and capitalization</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_trim</span>(<span class="st">"  Repeat   visit "</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "Repeat   visit"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_squish</span>(<span class="st">"  Repeat   visit "</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "Repeat visit"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_to_lower</span>(<span class="st">"TREATED"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "treated"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_to_upper</span>(<span class="st">"p01"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "P01"</code></pre>
-</div>
-</div>
-<p><code>str_trim()</code> removes outer spaces. <code>str_squish()</code> also reduces internal whitespace to one space.</p>
-</section>
-<section id="cleaning-inside-mutate" class="slide level2 smaller">
-<h2>Cleaning inside mutate</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a aria-hidden="true" tabindex="-1"></a>patients_text <span class="ot">&lt;-</span> raw_patients <span class="sc">|&gt;</span></span>
-<span id="cb85-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb85-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="fu">str_to_upper</span>(<span class="fu">str_trim</span>(id)),</span>
-<span id="cb85-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">arm =</span> <span class="fu">str_to_lower</span>(<span class="fu">str_squish</span>(arm)),</span>
-<span id="cb85-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">note =</span> <span class="fu">str_to_lower</span>(<span class="fu">str_squish</span>(note))</span>
-<span id="cb85-6"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>Keep <code>raw_patients</code> unchanged so the original values remain available.</p>
-</section>
-<section id="the-cleaned-text-columns" class="slide level2 smaller">
-<h2>The cleaned text columns</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a aria-hidden="true" tabindex="-1"></a>patients_text <span class="sc">|&gt;</span> <span class="fu">select</span>(id, arm, note)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 x 3
-  id    arm     note         
-  &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;        
-1 P01   control first visit  
-2 P02   treated repeat sample
-3 P03   treated repeat visit 
-4 P04   control first visit  </code></pre>
-</div>
-</div>
-<p>The IDs now match the study’s convention. Spacing and capitalization are consistent, while each participant keeps the same treatment category.</p>
-</section>
-<section id="detecting-literal-text" class="slide level2 smaller">
-<h2>Detecting literal text</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a aria-hidden="true" tabindex="-1"></a>patients_text <span class="sc">|&gt;</span></span>
-<span id="cb88-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">has_repeat =</span> <span class="fu">str_detect</span>(note, <span class="fu">fixed</span>(<span class="st">"repeat"</span>))) <span class="sc">|&gt;</span></span>
-<span id="cb88-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, note, has_repeat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 x 3
-  id    note          has_repeat
-  &lt;chr&gt; &lt;chr&gt;         &lt;lgl&gt;     
-1 P01   first visit   FALSE     
-2 P02   repeat sample TRUE      
-3 P03   repeat visit  TRUE      
-4 P04   first visit   FALSE     </code></pre>
-</div>
-</div>
-<p><code>str_detect()</code> returns TRUE/FALSE. <code>fixed("repeat")</code> requests a literal substring.</p>
-</section>
-<section id="a-text-condition-inside-filter" class="slide level2 smaller">
-<h2>A text condition inside filter</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a aria-hidden="true" tabindex="-1"></a>patients_text <span class="sc">|&gt;</span></span>
-<span id="cb90-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(note, <span class="fu">fixed</span>(<span class="st">"repeat"</span>))) <span class="sc">|&gt;</span></span>
-<span id="cb90-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, note)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 x 2
-  id    note         
-  &lt;chr&gt; &lt;chr&gt;        
-1 P02   repeat sample
-2 P03   repeat visit </code></pre>
-</div>
-</div>
-<p><code>mutate()</code> can retain the flag. <code>filter()</code> can retain just matching rows.</p>
-<p>As in Session 6, <code>filter()</code> drops conditions that evaluate to <code>NA</code>.</p>
+<p>Each row now contains one participant’s baseline-to-week-4 change.</p>
+<p>For this fixed pair of visits, two measurement columns make the calculation direct.</p>
 </section></section>
 <section>
-<section id="forcats-factors" class="title-slide slide level1 section-divider center">
-<h1>forcats: factors</h1>
-
-</section>
-<section id="factor-labels-and-level-order" class="slide level2 smaller">
-<h2>Factor labels and level order</h2>
-<p>Session 4 introduced <code>factor()</code>, <code>levels()</code>, and <code>relevel()</code>.</p>
-<p><code>forcats</code> provides functions for the same kinds of categorical-data tasks.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a aria-hidden="true" tabindex="-1"></a>arm_factor <span class="ot">&lt;-</span> <span class="fu">factor</span>(</span>
-<span id="cb92-2"><a aria-hidden="true" tabindex="-1"></a>  patients_text<span class="sc">$</span>arm, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"treated"</span>, <span class="st">"control"</span>)</span>
-<span id="cb92-3"><a aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb92-4"><a aria-hidden="true" tabindex="-1"></a>arm_factor</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] control treated treated control
-Levels: treated control</code></pre>
-</div>
-</div>
-<p>Each participant has a category. The factor also stores an order of levels.</p>
-</section>
-<section id="fct_relevel-changes-the-level-order" class="slide level2 smaller">
-<h2>fct_relevel changes the level order</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a aria-hidden="true" tabindex="-1"></a>arm_ordered <span class="ot">&lt;-</span> <span class="fu">fct_relevel</span>(arm_factor, <span class="st">"control"</span>)</span>
-<span id="cb94-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(arm_ordered)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "control" "treated"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.character</span>(arm_factor) <span class="sc">==</span> <span class="fu">as.character</span>(arm_ordered)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] TRUE TRUE TRUE TRUE</code></pre>
-</div>
-</div>
-<p>The participant labels stay the same.</p>
-<p>Under the usual treatment contrasts, the first level is the model reference.</p>
-<p>For a full order: <code>fct_relevel(x, "c", "b", "a")</code>.</p>
-</section>
-<section id="fct_recode-changes-the-labels" class="slide level2 smaller">
-<h2>fct_recode changes the labels</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a aria-hidden="true" tabindex="-1"></a>arm_labeled <span class="ot">&lt;-</span> <span class="fu">fct_recode</span>(</span>
-<span id="cb98-2"><a aria-hidden="true" tabindex="-1"></a>  arm_ordered,</span>
-<span id="cb98-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">Control =</span> <span class="st">"control"</span>,</span>
-<span id="cb98-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">Treatment =</span> <span class="st">"treated"</span></span>
-<span id="cb98-5"><a aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb98-6"><a aria-hidden="true" tabindex="-1"></a>arm_labeled</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] Control   Treatment Treatment Control  
-Levels: Control Treatment</code></pre>
-</div>
-</div>
-<p>The syntax is <code>new_label = "old_label"</code>. This deliberately changes category labels, rather than only their order.</p>
-</section>
-<section id="factor-operations-inside-mutate" class="slide level2 smaller">
-<h2>Factor operations inside mutate</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a aria-hidden="true" tabindex="-1"></a>patients_factor <span class="ot">&lt;-</span> patients_text <span class="sc">|&gt;</span></span>
-<span id="cb100-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb100-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">arm =</span> <span class="fu">fct_recode</span>(arm,</span>
-<span id="cb100-4"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">Control =</span> <span class="st">"control"</span>, <span class="at">Treatment =</span> <span class="st">"treated"</span>),</span>
-<span id="cb100-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">arm =</span> <span class="fu">fct_relevel</span>(arm, <span class="st">"Control"</span>)</span>
-<span id="cb100-6"><a aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb100-7"><a aria-hidden="true" tabindex="-1"></a>patients_factor <span class="sc">|&gt;</span> <span class="fu">count</span>(arm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 x 2
-  arm           n
-  &lt;fct&gt;     &lt;int&gt;
-1 Control       2
-2 Treatment     2</code></pre>
-</div>
-</div>
-<p><code>fct_recode()</code> can accept a character column and returns a factor.</p>
-</section>
-<section id="frequency-order-for-a-display" class="slide level2 smaller">
-<h2>Frequency order for a display</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a aria-hidden="true" tabindex="-1"></a>reported_site <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"East"</span>, <span class="st">"West"</span>, <span class="st">"West"</span>, <span class="st">"West"</span>, <span class="st">"East"</span>))</span>
-<span id="cb102-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(<span class="fu">fct_infreq</span>(reported_site))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "West" "East"</code></pre>
-</div>
-</div>
-<p><code>fct_infreq()</code> puts the most frequent level first.</p>
-<p>Useful for displays. Use a deliberate scientific reference category for modeling.</p>
-</section></section>
-<section>
-<section id="lubridate-dates" class="title-slide slide level1 section-divider center">
-<h1>lubridate: dates</h1>
-
-</section>
-<section id="date-parsers-describe-the-input-order" class="slide level2 smaller">
-<h2>Date parsers describe the input order</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="st">"2026-10-18"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "2026-10-18"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mdy</span>(<span class="st">"10/18/2026"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "2026-10-18"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dmy</span>(<span class="st">"18/10/2026"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "2026-10-18"</code></pre>
-</div>
-</div>
-<p>All three represent October 18, 2026.</p>
-<p>Choose the parser using the source’s date convention.</p>
-</section>
-<section id="an-ambiguous-date-still-needs-a-decision" class="slide level2 smaller">
-<h2>An ambiguous date still needs a decision</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mdy</span>(<span class="st">"03/04/2026"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "2026-03-04"</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dmy</span>(<span class="st">"03/04/2026"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "2026-04-03"</code></pre>
-</div>
-</div>
-<p>Both conversions succeed, but they mean different days.</p>
-<p>A parser cannot tell you which convention the data producer intended.</p>
-</section>
-<section id="parsing-a-column-and-extracting-components" class="slide level2 smaller">
-<h2>Parsing a column and extracting components</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a aria-hidden="true" tabindex="-1"></a>patients_clean <span class="ot">&lt;-</span> patients_factor <span class="sc">|&gt;</span></span>
-<span id="cb114-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb114-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">enrolled_date =</span> <span class="fu">ymd</span>(enrolled),</span>
-<span id="cb114-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">enrolled_year =</span> <span class="fu">year</span>(enrolled_date),</span>
-<span id="cb114-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">enrolled_month =</span> <span class="fu">month</span>(enrolled_date)</span>
-<span id="cb114-6"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>The original text column remains available for checking.</p>
-</section>
-<section id="dates-and-their-components" class="slide level2 smaller">
-<h2>Dates and their components</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb115"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a aria-hidden="true" tabindex="-1"></a>patients_clean <span class="sc">|&gt;</span></span>
-<span id="cb115-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, enrolled_date, enrolled_month)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 x 3
-  id    enrolled_date enrolled_month
-  &lt;chr&gt; &lt;date&gt;                 &lt;dbl&gt;
-1 P01   2026-09-01                 9
-2 P02   2026-09-03                 9
-3 P03   2026-10-01                10
-4 P04   2026-10-02                10</code></pre>
-</div>
-</div>
-<p><code>enrolled_date</code> contains Date values. <code>enrolled_month</code> contains month numbers.</p>
-</section>
-<section id="a-check-after-date-conversion" class="slide level2 smaller">
-<h2>A check after date conversion</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb117"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb117-1"><a aria-hidden="true" tabindex="-1"></a>patients_clean <span class="sc">|&gt;</span></span>
-<span id="cb117-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(enrolled_date)) <span class="sc">|&gt;</span></span>
-<span id="cb117-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, enrolled)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 0 x 2
-# i 2 variables: id &lt;chr&gt;, enrolled &lt;chr&gt;</code></pre>
-</div>
-</div>
-<p>Zero rows means no missing parsed dates in this example.</p>
-<p>Also inspect the range and whether the dates make sense for the study. A successful parse alone does not establish correctness.</p>
-</section>
-<section id="one-connected-analysis" class="slide level2 smaller">
-<h2>One connected analysis</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb119"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a aria-hidden="true" tabindex="-1"></a>analysis <span class="ot">&lt;-</span> marker_long <span class="sc">|&gt;</span></span>
-<span id="cb119-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
-<span id="cb119-3"><a aria-hidden="true" tabindex="-1"></a>    patients_clean <span class="sc">|&gt;</span> <span class="fu">select</span>(id, arm, enrolled_date),</span>
-<span id="cb119-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="st">"id"</span></span>
-<span id="cb119-5"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>The measurement table defines the rows. The cleaned metadata supplies each participant’s treatment label and enrollment date.</p>
-</section>
-<section id="the-week-4-summary" class="slide level2 smaller">
-<h2>The week-4 summary</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a aria-hidden="true" tabindex="-1"></a>analysis <span class="sc">|&gt;</span> <span class="fu">filter</span>(week <span class="sc">==</span> <span class="dv">4</span>) <span class="sc">|&gt;</span></span>
-<span id="cb120-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(arm) <span class="sc">|&gt;</span></span>
-<span id="cb120-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_marker =</span> <span class="fu">mean</span>(marker), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 x 2
-  arm       mean_marker
-  &lt;fct&gt;           &lt;dbl&gt;
-1 Control           4.4
-2 Treatment         4.9
-3 &lt;NA&gt;              4.9</code></pre>
-</div>
-</div>
-<p>P05 still has missing metadata. Keep that visible and investigate.</p>
-</section>
-<section id="core-summary" class="slide level2 smaller">
-<h2>Summary</h2>
-<ul>
-<li><code>dplyr</code> joins match records by keys.</li>
-<li><code>tidyr</code> pivots change how measurements occupy rows and columns.</li>
-<li><code>stringr</code> cleans and searches text.</li>
-<li><code>forcats</code> distinguishes relabeling from level ordering.</li>
-<li><code>lubridate</code> parses dates using a known input convention.</li>
-</ul>
-<p>The core lesson ends here. Detailed pivots and window functions follow as optional reference material.</p>
-</section></section>
-<section>
-<section id="optional-appendix" class="title-slide slide level1 section-divider center">
-<h1>Optional reshaping and window examples</h1>
-<p><a href="#/core-summary">Return to the core summary</a></p>
-</section>
-<section id="optional-two-measurements-encoded-in-column-names" class="slide level2 smaller">
-<h2>Optional: Two measurements encoded in column names</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a aria-hidden="true" tabindex="-1"></a>bp_wide</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>    id sbp_0 sbp_12 dbp_0 dbp_12
-1 P001   160    144    98     92
-2 P002   162    156    78     74
-3 P003   157    156    81     80</code></pre>
-</div>
-</div>
-<p><code>sbp_12</code> contains a measurement name and a visit week. The separator is an underscore.</p>
-</section>
-<section id="optional-names_sep-one-value-column" class="slide level2 smaller">
-<h2>Optional: <code>names_sep</code>: one value column</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a aria-hidden="true" tabindex="-1"></a>bp_long <span class="ot">&lt;-</span> bp_wide <span class="sc">|&gt;</span></span>
-<span id="cb124-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
-<span id="cb124-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="sc">-</span>id,</span>
-<span id="cb124-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">"measure"</span>, <span class="st">"week"</span>),</span>
-<span id="cb124-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_sep =</span> <span class="st">"_"</span>,</span>
-<span id="cb124-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_transform =</span> <span class="fu">list</span>(<span class="at">week =</span> as.integer),</span>
-<span id="cb124-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"value"</span></span>
-<span id="cb124-8"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>One row now represents a <strong>participant, measurement, and week</strong>.</p>
-</section>
-<section id="optional-the-result-of-splitting-the-names" class="slide level2 smaller">
-<h2>Optional: The result of splitting the names</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb125"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bp_long, <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 x 4
-  id    measure  week value
-  &lt;chr&gt; &lt;chr&gt;   &lt;int&gt; &lt;dbl&gt;
-1 P001  sbp         0   160
-2 P001  sbp        12   144
-3 P001  dbp         0    98
-4 P001  dbp        12    92
-5 P002  sbp         0   162
-6 P002  sbp        12   156</code></pre>
-</div>
-</div>
-<p>There are 3 participants × 2 measurements × 2 visits = 12 rows.</p>
+<section id="optional-wider" class="title-slide slide level1 section-divider center">
+<h1>Optional pivot_wider and reshape details</h1>
+<p><a href="#/stringr-text">Skip to stringr</a></p>
+<p>These examples follow the basic round trip. They cover repeated measurements targeting the same output cell and a base-R alternative.</p>
 </section>
 <section id="optional-one-output-cell-needs-one-value" class="slide level2 smaller">
 <h2>Optional: One output cell needs one value</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb127"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb127-1"><a aria-hidden="true" tabindex="-1"></a>repeat_readings <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
-<span id="cb127-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="fu">c</span>(<span class="st">"P01"</span>, <span class="st">"P01"</span>),</span>
-<span id="cb127-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">week =</span> <span class="fu">c</span>(<span class="dv">4</span>L, <span class="dv">4</span>L),</span>
-<span id="cb127-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">marker =</span> <span class="fu">c</span>(<span class="fl">4.4</span>, <span class="fl">4.6</span>)</span>
-<span id="cb127-5"><a aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb127-6"><a aria-hidden="true" tabindex="-1"></a>repeat_readings <span class="sc">|&gt;</span> <span class="fu">count</span>(id, week)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a aria-hidden="true" tabindex="-1"></a>repeat_readings <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb97-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">id =</span> <span class="fu">c</span>(<span class="st">"P01"</span>, <span class="st">"P01"</span>),</span>
+<span id="cb97-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">week =</span> <span class="fu">c</span>(<span class="dv">4</span>L, <span class="dv">4</span>L),</span>
+<span id="cb97-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">marker =</span> <span class="fu">c</span>(<span class="fl">4.4</span>, <span class="fl">4.6</span>)</span>
+<span id="cb97-5"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb97-6"><a aria-hidden="true" tabindex="-1"></a>repeat_readings <span class="sc">|&gt;</span> <span class="fu">count</span>(id, week)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 x 3
   id     week     n
@@ -1545,9 +1620,9 @@ Levels: Control Treatment</code></pre>
 <section id="optional-a-duplicate-cell-warning" class="slide level2 smaller">
 <h2>Optional: A duplicate-cell warning</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb129"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb129-1"><a aria-hidden="true" tabindex="-1"></a>repeat_readings <span class="sc">|&gt;</span></span>
-<span id="cb129-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">id_cols =</span> id, <span class="at">names_from =</span> week,</span>
-<span id="cb129-3"><a aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> marker)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a aria-hidden="true" tabindex="-1"></a>repeat_readings <span class="sc">|&gt;</span></span>
+<span id="cb99-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">id_cols =</span> id, <span class="at">names_from =</span> week,</span>
+<span id="cb99-3"><a aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> marker)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Values from `marker` are not uniquely identified; output will
 contain list-cols.
@@ -1567,56 +1642,26 @@ contain list-cols.
 </div>
 <p>The output contains a list column because both values need somewhere to go. Using <code>values_fn = mean</code> would impose an averaging rule. Use that rule only when the analysis calls for it.</p>
 </section>
-<section id="optional-missing-measurements-remain-in-the-long-table" class="slide level2 smaller">
-<h2>Optional: Missing measurements remain in the long table</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb132"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a aria-hidden="true" tabindex="-1"></a>missing_wide <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="fu">c</span>(<span class="st">"P01"</span>, <span class="st">"P02"</span>),</span>
-<span id="cb132-2"><a aria-hidden="true" tabindex="-1"></a>                       <span class="at">marker_w0 =</span> <span class="fu">c</span>(<span class="fl">4.1</span>, <span class="fl">5.2</span>),</span>
-<span id="cb132-3"><a aria-hidden="true" tabindex="-1"></a>                       <span class="at">marker_w4 =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="fl">4.7</span>))</span>
-<span id="cb132-4"><a aria-hidden="true" tabindex="-1"></a>missing_long <span class="ot">&lt;-</span> missing_wide <span class="sc">|&gt;</span></span>
-<span id="cb132-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="fu">starts_with</span>(<span class="st">"marker_w"</span>),</span>
-<span id="cb132-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"week"</span>, <span class="at">names_prefix =</span> <span class="st">"marker_w"</span>,</span>
-<span id="cb132-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_transform =</span> <span class="fu">list</span>(<span class="at">week =</span> as.integer),</span>
-<span id="cb132-8"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"marker"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<p>The default is <code>values_drop_na = FALSE</code>: keep the missing measurement.</p>
-</section>
-<section id="optional-a-missing-value-still-has-a-row" class="slide level2 smaller">
-<h2>Optional: A missing value still has a row</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb133"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb133-1"><a aria-hidden="true" tabindex="-1"></a>missing_long</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 x 3
-  id     week marker
-  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt;
-1 P01       0    4.1
-2 P01       4   NA  
-3 P02       0    5.2
-4 P02       4    4.7</code></pre>
-</div>
-</div>
-<p><code>values_drop_na = TRUE</code> would remove the P01 week-4 row. That changes the available denominator for visit-level summaries.</p>
-</section>
 <section id="optional-base-reshape-recognition-only" class="slide level2 smaller">
 <h2>Optional: Base <code>reshape()</code>: recognition only</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb135"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb135-1"><a aria-hidden="true" tabindex="-1"></a>sbp_long <span class="ot">&lt;-</span> <span class="fu">reshape</span>(wide3,</span>
-<span id="cb135-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">direction =</span> <span class="st">"long"</span>,</span>
-<span id="cb135-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">idvar     =</span> <span class="st">"id"</span>,</span>
-<span id="cb135-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">varying   =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">"sbp_0"</span>, <span class="st">"sbp_6"</span>, <span class="st">"sbp_12"</span>)),</span>
-<span id="cb135-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">v.names   =</span> <span class="st">"sbp"</span>,</span>
-<span id="cb135-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">timevar   =</span> <span class="st">"week"</span>,</span>
-<span id="cb135-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">times     =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">6</span>, <span class="dv">12</span>))</span>
-<span id="cb135-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(sbp_long)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a aria-hidden="true" tabindex="-1"></a>sbp_long <span class="ot">&lt;-</span> <span class="fu">reshape</span>(wide3,</span>
+<span id="cb102-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">direction =</span> <span class="st">"long"</span>,</span>
+<span id="cb102-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">idvar     =</span> <span class="st">"id"</span>,</span>
+<span id="cb102-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">varying   =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="st">"sbp_0"</span>, <span class="st">"sbp_6"</span>, <span class="st">"sbp_12"</span>)),</span>
+<span id="cb102-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">v.names   =</span> <span class="st">"sbp"</span>,</span>
+<span id="cb102-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">timevar   =</span> <span class="st">"week"</span>,</span>
+<span id="cb102-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">times     =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">6</span>, <span class="dv">12</span>))</span>
+<span id="cb102-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(sbp_long)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 180   4</code></pre>
 </div>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb137"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb137-1"><a aria-hidden="true" tabindex="-1"></a>back <span class="ot">&lt;-</span> <span class="fu">reshape</span>(sbp_long, <span class="at">direction =</span> <span class="st">"wide"</span>, <span class="at">idvar =</span> <span class="st">"id"</span>,</span>
-<span id="cb137-2"><a aria-hidden="true" tabindex="-1"></a>                <span class="at">timevar =</span> <span class="st">"week"</span>, <span class="at">v.names =</span> <span class="st">"sbp"</span>, <span class="at">sep =</span> <span class="st">"_"</span>)</span>
-<span id="cb137-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(back)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a aria-hidden="true" tabindex="-1"></a>back <span class="ot">&lt;-</span> <span class="fu">reshape</span>(sbp_long, <span class="at">direction =</span> <span class="st">"wide"</span>, <span class="at">idvar =</span> <span class="st">"id"</span>,</span>
+<span id="cb104-2"><a aria-hidden="true" tabindex="-1"></a>                <span class="at">timevar =</span> <span class="st">"week"</span>, <span class="at">v.names =</span> <span class="st">"sbp"</span>, <span class="at">sep =</span> <span class="st">"_"</span>)</span>
+<span id="cb104-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(back)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 60  5</code></pre>
 </div>
@@ -1638,9 +1683,9 @@ contain list-cols.
 <section id="optional-why-long-the-plot" class="slide level2 smaller">
 <h2>Optional: Why long: the plot</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb139"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sbp_long, <span class="fu">aes</span>(week, sbp, <span class="at">colour =</span> arm)) <span class="sc">+</span></span>
-<span id="cb139-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"line"</span>, <span class="at">linewidth =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
-<span id="cb139-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Mean SBP (mmHg)"</span>, <span class="at">colour =</span> <span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sbp_long, <span class="fu">aes</span>(week, sbp, <span class="at">colour =</span> arm)) <span class="sc">+</span></span>
+<span id="cb106-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"line"</span>, <span class="at">linewidth =</span> <span class="fl">1.1</span>) <span class="sc">+</span></span>
+<span id="cb106-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Week"</span>, <span class="at">y =</span> <span class="st">"Mean SBP (mmHg)"</span>, <span class="at">colour =</span> <span class="cn">NULL</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 </div>
 <img data-src="slides_files/figure-revealjs/fig-spaghetti-1.png" width="768" class="r-stretch quarto-figure-center" id="fig-spaghetti"><p class="caption">
@@ -1648,25 +1693,31 @@ Figure&nbsp;1: Mean systolic BP by visit and arm. Long format, three lines of gg
 </p><div class="smaller">
 <p>Borrowed from session 1’s minimum-viable plot — the grammar is session 8.</p>
 </div>
+</section></section>
+<section>
+<section id="optional-window" class="title-slide slide level1 section-divider center">
+<h1>Optional calculations across visits</h1>
+<p><a href="#/stringr-text">Skip to stringr</a></p>
+<p>After arranging measurements in long form, we can compare successive visits within each participant. The following slides introduce <code>lag()</code> and related tools.</p>
 </section>
 <section id="optional-within-patient-in-order" class="slide level2 smaller">
 <h2>Optional: Within patient, in order</h2>
 <p><code>lag()</code> looks back one row. <code>group_by()</code> says <em>back within what</em>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb140"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb140-1"><a aria-hidden="true" tabindex="-1"></a>visits <span class="ot">&lt;-</span> sbp_long <span class="sc">|&gt;</span></span>
-<span id="cb140-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(id, week) <span class="sc">|&gt;</span></span>
-<span id="cb140-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id) <span class="sc">|&gt;</span></span>
-<span id="cb140-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb140-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">prev_sbp =</span> <span class="fu">lag</span>(sbp),</span>
-<span id="cb140-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">change   =</span> sbp <span class="sc">-</span> <span class="fu">lag</span>(sbp)</span>
-<span id="cb140-7"><a aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb140-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb107"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb107-1"><a aria-hidden="true" tabindex="-1"></a>visits <span class="ot">&lt;-</span> sbp_long <span class="sc">|&gt;</span></span>
+<span id="cb107-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(id, week) <span class="sc">|&gt;</span></span>
+<span id="cb107-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id) <span class="sc">|&gt;</span></span>
+<span id="cb107-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb107-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">prev_sbp =</span> <span class="fu">lag</span>(sbp),</span>
+<span id="cb107-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">change   =</span> sbp <span class="sc">-</span> <span class="fu">lag</span>(sbp)</span>
+<span id="cb107-7"><a aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb107-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="optional-previous-visit-changes-the-output" class="slide level2 smaller">
 <h2>Optional: Previous-visit changes: the output</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb141"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb141-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">as.data.frame</span>(visits), <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">as.data.frame</span>(visits), <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    id     arm week sbp prev_sbp change
 1 P001 Placebo    0 160       NA     NA
@@ -1682,21 +1733,21 @@ Figure&nbsp;1: Mean systolic BP by visit and arm. Long format, three lines of gg
 <section id="optional-numbering-looking-forward-and-baselines" class="slide level2 smaller">
 <h2>Optional: Numbering, looking forward, and baselines</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb143"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb143-1"><a aria-hidden="true" tabindex="-1"></a>numbered_visits <span class="ot">&lt;-</span> sbp_long <span class="sc">|&gt;</span></span>
-<span id="cb143-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(id, week) <span class="sc">|&gt;</span></span>
-<span id="cb143-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id) <span class="sc">|&gt;</span></span>
-<span id="cb143-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb143-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">visit      =</span> <span class="fu">row_number</span>(),</span>
-<span id="cb143-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">next_sbp   =</span> <span class="fu">lead</span>(sbp),</span>
-<span id="cb143-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">from_base  =</span> sbp <span class="sc">-</span> <span class="fu">first</span>(sbp)</span>
-<span id="cb143-8"><a aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
-<span id="cb143-9"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a aria-hidden="true" tabindex="-1"></a>numbered_visits <span class="ot">&lt;-</span> sbp_long <span class="sc">|&gt;</span></span>
+<span id="cb110-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(id, week) <span class="sc">|&gt;</span></span>
+<span id="cb110-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id) <span class="sc">|&gt;</span></span>
+<span id="cb110-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb110-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">visit      =</span> <span class="fu">row_number</span>(),</span>
+<span id="cb110-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">next_sbp   =</span> <span class="fu">lead</span>(sbp),</span>
+<span id="cb110-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">from_base  =</span> sbp <span class="sc">-</span> <span class="fu">first</span>(sbp)</span>
+<span id="cb110-8"><a aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb110-9"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="optional-visit-numbers-and-baseline-changes-the-output" class="slide level2 smaller">
 <h2>Optional: Visit numbers and baseline changes: the output</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb144"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb144-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">as.data.frame</span>(numbered_visits), <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">as.data.frame</span>(numbered_visits), <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    id     arm week sbp visit next_sbp from_base
 1 P001 Placebo    0 160     1      146         0
@@ -1737,20 +1788,20 @@ Figure&nbsp;1: Mean systolic BP by visit and arm. Long format, three lines of gg
 <section id="optional-cumulative-observed-measurements" class="slide level2 smaller">
 <h2>Optional: Cumulative observed measurements</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb146"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb146-1"><a aria-hidden="true" tabindex="-1"></a>tracking <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"P01"</span>, <span class="st">"P02"</span>), <span class="at">each =</span> <span class="dv">3</span>),</span>
-<span id="cb146-2"><a aria-hidden="true" tabindex="-1"></a>                   <span class="at">week =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>L, <span class="dv">4</span>L, <span class="dv">8</span>L), <span class="dv">2</span>),</span>
-<span id="cb146-3"><a aria-hidden="true" tabindex="-1"></a>                   <span class="at">marker =</span> <span class="fu">c</span>(<span class="fl">4.1</span>, <span class="cn">NA</span>, <span class="fl">4.5</span>, <span class="fl">5.2</span>, <span class="fl">4.7</span>, <span class="cn">NA</span>))</span>
-<span id="cb146-4"><a aria-hidden="true" tabindex="-1"></a>tracked <span class="ot">&lt;-</span> tracking <span class="sc">|&gt;</span></span>
-<span id="cb146-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(id, week) <span class="sc">|&gt;</span></span>
-<span id="cb146-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id) <span class="sc">|&gt;</span></span>
-<span id="cb146-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">observed_so_far =</span> <span class="fu">cumsum</span>(<span class="sc">!</span><span class="fu">is.na</span>(marker))) <span class="sc">|&gt;</span></span>
-<span id="cb146-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a aria-hidden="true" tabindex="-1"></a>tracking <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"P01"</span>, <span class="st">"P02"</span>), <span class="at">each =</span> <span class="dv">3</span>),</span>
+<span id="cb113-2"><a aria-hidden="true" tabindex="-1"></a>                   <span class="at">week =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">0</span>L, <span class="dv">4</span>L, <span class="dv">8</span>L), <span class="dv">2</span>),</span>
+<span id="cb113-3"><a aria-hidden="true" tabindex="-1"></a>                   <span class="at">marker =</span> <span class="fu">c</span>(<span class="fl">4.1</span>, <span class="cn">NA</span>, <span class="fl">4.5</span>, <span class="fl">5.2</span>, <span class="fl">4.7</span>, <span class="cn">NA</span>))</span>
+<span id="cb113-4"><a aria-hidden="true" tabindex="-1"></a>tracked <span class="ot">&lt;-</span> tracking <span class="sc">|&gt;</span></span>
+<span id="cb113-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(id, week) <span class="sc">|&gt;</span></span>
+<span id="cb113-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(id) <span class="sc">|&gt;</span></span>
+<span id="cb113-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">observed_so_far =</span> <span class="fu">cumsum</span>(<span class="sc">!</span><span class="fu">is.na</span>(marker))) <span class="sc">|&gt;</span></span>
+<span id="cb113-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="optional-cumulative-counts-the-output" class="slide level2 smaller">
 <h2>Optional: Cumulative counts: the output</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb147"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb147-1"><a aria-hidden="true" tabindex="-1"></a>tracked</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a aria-hidden="true" tabindex="-1"></a>tracked</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 x 4
   id     week marker observed_so_far
@@ -1764,142 +1815,323 @@ Figure&nbsp;1: Mean systolic BP by visit and arm. Long format, three lines of gg
 </div>
 </div>
 <p><code>!is.na(marker)</code> gives TRUE/FALSE; cumulative sums count observed visits.</p>
+</section></section>
+<section>
+<section id="stringr-text" class="title-slide slide level1 section-divider center">
+<h1>stringr: text columns</h1>
+
 </section>
-<section id="optional-stacking-rows-with-bind_rows" class="slide level2 smaller">
-<h2>Optional: stacking rows with <code>bind_rows()</code></h2>
+<section id="text-differences-that-affect-matching" class="slide level2 smaller">
+<h2>Text differences that affect matching</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb149"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb149-1"><a aria-hidden="true" tabindex="-1"></a>batch_a <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="st">"P01"</span>, <span class="at">marker =</span> <span class="fl">4.1</span>)</span>
-<span id="cb149-2"><a aria-hidden="true" tabindex="-1"></a>batch_b <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="st">"P02"</span>, <span class="at">marker =</span> <span class="fl">5.2</span>, <span class="at">lab =</span> <span class="st">"central"</span>)</span>
-<span id="cb149-3"><a aria-hidden="true" tabindex="-1"></a>stacked <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(<span class="at">A =</span> batch_a, <span class="at">B =</span> batch_b, <span class="at">.id =</span> <span class="st">"batch"</span>)</span>
-<span id="cb149-4"><a aria-hidden="true" tabindex="-1"></a>stacked</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a aria-hidden="true" tabindex="-1"></a>raw_patients <span class="sc">|&gt;</span> <span class="fu">select</span>(id, arm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 x 4
-  batch id    marker lab    
-  &lt;chr&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt;  
-1 A     P01      4.1 &lt;NA&gt;   
-2 B     P02      5.2 central</code></pre>
+<pre><code># A tibble: 4 x 2
+  id      arm        
+  &lt;chr&gt;   &lt;chr&gt;      
+1 " p01 " " Control "
+2 "p02"   "TREATED"  
+3 " P03"  " treated "
+4 "p04 "  "control"  </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a aria-hidden="true" tabindex="-1"></a><span class="st">" p01 "</span> <span class="sc">==</span> <span class="st">"P01"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
 </div>
 </div>
-<p>Columns align by name. Missing columns get <code>NA</code>. <code>.id</code> records which input supplied each row.</p>
+<p>Our study’s documented ID convention is uppercase with no surrounding spaces. The raw export does not consistently follow it.</p>
 </section>
-<section id="optional-stacking-versus-matching" class="slide level2 smaller">
-<h2>Optional: stacking versus matching</h2>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Files contain</th>
-<th>Operation</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>The same variables for different participants</td>
-<td><code>bind_rows()</code></td>
-</tr>
-<tr class="even">
-<td>Participant measurements and participant metadata</td>
-<td>A join by ID</td>
-</tr>
-<tr class="odd">
-<td>Two visit-level measurements</td>
-<td>A join by ID and week</td>
-</tr>
-</tbody>
-</table>
-<p>After stacking, check keys and column types again. Overlapping exports can introduce duplicated observations.</p>
-</section>
-<section id="optional-competing-columns-after-a-join" class="slide level2 smaller">
-<h2>Optional: competing columns after a join</h2>
+<section id="spaces-and-capitalization" class="slide level2 smaller">
+<h2>Spaces and capitalization</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb151"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb151-1"><a aria-hidden="true" tabindex="-1"></a>clinic <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="fu">c</span>(<span class="st">"P01"</span>, <span class="st">"P02"</span>), <span class="at">age =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="dv">61</span>))</span>
-<span id="cb151-2"><a aria-hidden="true" tabindex="-1"></a>registry <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="fu">c</span>(<span class="st">"P01"</span>, <span class="st">"P02"</span>), <span class="at">age =</span> <span class="fu">c</span>(<span class="dv">58</span>, <span class="dv">62</span>))</span>
-<span id="cb151-3"><a aria-hidden="true" tabindex="-1"></a>ages <span class="ot">&lt;-</span> <span class="fu">left_join</span>(clinic, registry, <span class="at">by =</span> <span class="st">"id"</span>,</span>
-<span id="cb151-4"><a aria-hidden="true" tabindex="-1"></a>                   <span class="at">suffix =</span> <span class="fu">c</span>(<span class="st">"_clinic"</span>, <span class="st">"_registry"</span>),</span>
-<span id="cb151-5"><a aria-hidden="true" tabindex="-1"></a>                   <span class="at">relationship =</span> <span class="st">"one-to-one"</span>)</span>
-<span id="cb151-6"><a aria-hidden="true" tabindex="-1"></a>ages</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_trim</span>(<span class="st">"  Repeat   visit "</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 x 3
-  id    age_clinic age_registry
-  &lt;chr&gt;      &lt;dbl&gt;        &lt;dbl&gt;
-1 P01           NA           58
-2 P02           61           62</code></pre>
+<pre><code>[1] "Repeat   visit"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_squish</span>(<span class="st">"  Repeat   visit "</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Repeat visit"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_to_lower</span>(<span class="st">"TREATED"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "treated"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str_to_upper</span>(<span class="st">"p01"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "P01"</code></pre>
 </div>
 </div>
-<p>Both age columns survive with suffixes. P02’s sources disagree.</p>
+<p><code>str_trim()</code> removes outer spaces. <code>str_squish()</code> also reduces internal whitespace to one space.</p>
 </section>
-<section id="optional-coalesce-follows-a-priority-rule" class="slide level2 smaller">
-<h2>Optional: <code>coalesce()</code> follows a priority rule</h2>
+<section id="cleaning-inside-mutate" class="slide level2 smaller">
+<h2>Cleaning inside mutate</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb153"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb153-1"><a aria-hidden="true" tabindex="-1"></a>ages <span class="sc">|&gt;</span></span>
-<span id="cb153-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age =</span> <span class="fu">coalesce</span>(age_clinic, age_registry))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 x 4
-  id    age_clinic age_registry   age
-  &lt;chr&gt;      &lt;dbl&gt;        &lt;dbl&gt; &lt;dbl&gt;
-1 P01           NA           58    58
-2 P02           61           62    61</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a aria-hidden="true" tabindex="-1"></a>patients_text <span class="ot">&lt;-</span> raw_patients <span class="sc">|&gt;</span></span>
+<span id="cb128-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb128-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> <span class="fu">str_to_upper</span>(<span class="fu">str_trim</span>(id)),</span>
+<span id="cb128-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">arm =</span> <span class="fu">str_to_lower</span>(<span class="fu">str_squish</span>(arm)),</span>
+<span id="cb128-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">note =</span> <span class="fu">str_to_lower</span>(<span class="fu">str_squish</span>(note))</span>
+<span id="cb128-6"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-</div>
-<p>The stated rule here is clinic first, registry only if clinic is missing. P02 keeps 61. <code>coalesce()</code> does not detect or resolve that disagreement.</p>
+<p>Keep <code>raw_patients</code> unchanged so the original values remain available.</p>
 </section>
-<section id="optional-separate-measurement-columns-with-.value" class="slide level2 smaller">
-<h2>Optional: separate measurement columns with <code>.value</code></h2>
+<section id="the-cleaned-text-columns" class="slide level2 smaller">
+<h2>The cleaned text columns</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb155"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb155-1"><a aria-hidden="true" tabindex="-1"></a>bp_by_visit <span class="ot">&lt;-</span> bp_wide <span class="sc">|&gt;</span></span>
-<span id="cb155-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="sc">-</span>id,</span>
-<span id="cb155-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">".value"</span>, <span class="st">"week"</span>),</span>
-<span id="cb155-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_sep =</span> <span class="st">"_"</span>,</span>
-<span id="cb155-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">names_transform =</span> <span class="fu">list</span>(<span class="at">week =</span> as.integer))</span>
-<span id="cb155-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(bp_by_visit, <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb129"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb129-1"><a aria-hidden="true" tabindex="-1"></a>patients_text <span class="sc">|&gt;</span> <span class="fu">select</span>(id, arm, note)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 x 4
-  id     week   sbp   dbp
-  &lt;chr&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;
-1 P001      0   160    98
-2 P001     12   144    92
-3 P002      0   162    78
-4 P002     12   156    74</code></pre>
+<pre><code># A tibble: 4 x 3
+  id    arm     note         
+  &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;        
+1 P01   control first visit  
+2 P02   treated repeat sample
+3 P03   treated repeat visit 
+4 P04   control first visit  </code></pre>
 </div>
 </div>
-<p><code>.value</code> uses the first name component to create <code>sbp</code> and <code>dbp</code> columns.</p>
+<p>The IDs now match the study’s convention. Spacing and capitalization are consistent, while each participant keeps the same treatment category.</p>
 </section>
-<section id="optional-a-missing-row-versus-a-missing-value" class="slide level2 smaller">
-<h2>Optional: a missing row versus a missing value</h2>
+<section id="detecting-literal-text" class="slide level2 smaller">
+<h2>Detecting literal text</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb157"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb157-1"><a aria-hidden="true" tabindex="-1"></a>incomplete <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">id =</span> <span class="fu">c</span>(<span class="st">"P01"</span>, <span class="st">"P01"</span>, <span class="st">"P02"</span>),</span>
-<span id="cb157-2"><a aria-hidden="true" tabindex="-1"></a>                     <span class="at">week =</span> <span class="fu">c</span>(<span class="dv">0</span>L, <span class="dv">4</span>L, <span class="dv">0</span>L),</span>
-<span id="cb157-3"><a aria-hidden="true" tabindex="-1"></a>                     <span class="at">marker =</span> <span class="fu">c</span>(<span class="fl">4.1</span>, <span class="cn">NA</span>, <span class="fl">5.2</span>))</span>
-<span id="cb157-4"><a aria-hidden="true" tabindex="-1"></a>incomplete</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb131"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb131-1"><a aria-hidden="true" tabindex="-1"></a>patients_text <span class="sc">|&gt;</span></span>
+<span id="cb131-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">has_repeat =</span> <span class="fu">str_detect</span>(note, <span class="fu">fixed</span>(<span class="st">"repeat"</span>))) <span class="sc">|&gt;</span></span>
+<span id="cb131-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, note, has_repeat)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 x 3
-  id     week marker
-  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt;
-1 P01       0    4.1
-2 P01       4   NA  
-3 P02       0    5.2</code></pre>
+<pre><code># A tibble: 4 x 3
+  id    note          has_repeat
+  &lt;chr&gt; &lt;chr&gt;         &lt;lgl&gt;     
+1 P01   first visit   FALSE     
+2 P02   repeat sample TRUE      
+3 P03   repeat visit  TRUE      
+4 P04   first visit   FALSE     </code></pre>
 </div>
 </div>
-<p>P01 week 4 exists with a missing marker. P02 week 4 has no row.</p>
+<p><code>str_detect()</code> returns TRUE/FALSE. <code>fixed("repeat")</code> requests a literal substring.</p>
 </section>
-<section id="optional-complete-makes-expected-visits-explicit" class="slide level2 smaller">
-<h2>Optional: <code>complete()</code> makes expected visits explicit</h2>
+<section id="a-text-condition-inside-filter" class="slide level2 smaller">
+<h2>A text condition inside filter</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb159"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb159-1"><a aria-hidden="true" tabindex="-1"></a>completed <span class="ot">&lt;-</span> incomplete <span class="sc">|&gt;</span></span>
-<span id="cb159-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">record_present =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
-<span id="cb159-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">complete</span>(id, <span class="at">week =</span> <span class="fu">c</span>(<span class="dv">0</span>L, <span class="dv">4</span>L),</span>
-<span id="cb159-4"><a aria-hidden="true" tabindex="-1"></a>           <span class="at">fill =</span> <span class="fu">list</span>(<span class="at">record_present =</span> <span class="cn">FALSE</span>))</span>
-<span id="cb159-5"><a aria-hidden="true" tabindex="-1"></a>completed</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb133"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb133-1"><a aria-hidden="true" tabindex="-1"></a>patients_text <span class="sc">|&gt;</span></span>
+<span id="cb133-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(note, <span class="fu">fixed</span>(<span class="st">"repeat"</span>))) <span class="sc">|&gt;</span></span>
+<span id="cb133-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, note)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 x 4
-  id     week marker record_present
-  &lt;chr&gt; &lt;int&gt;  &lt;dbl&gt; &lt;lgl&gt;         
-1 P01       0    4.1 TRUE          
-2 P01       4   NA   TRUE          
-3 P02       0    5.2 TRUE          
-4 P02       4   NA   FALSE         </code></pre>
+<pre><code># A tibble: 2 x 2
+  id    note         
+  &lt;chr&gt; &lt;chr&gt;        
+1 P02   repeat sample
+2 P03   repeat visit </code></pre>
 </div>
 </div>
-<p>The added marker stays <code>NA</code>. No measurement was invented. Use an expected visit schedule, not every imaginable ID-time combination.</p>
+<p><code>mutate()</code> can retain the flag. <code>filter()</code> can retain just matching rows.</p>
+<p>As in Session 6, <code>filter()</code> drops conditions that evaluate to <code>NA</code>.</p>
+</section></section>
+<section>
+<section id="forcats-factors" class="title-slide slide level1 section-divider center">
+<h1>forcats: factors</h1>
+
+</section>
+<section id="factor-labels-and-level-order" class="slide level2 smaller">
+<h2>Factor labels and level order</h2>
+<p>Session 4 introduced <code>factor()</code>, <code>levels()</code>, and <code>relevel()</code>.</p>
+<p><code>forcats</code> provides functions for the same kinds of categorical-data tasks.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb135"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb135-1"><a aria-hidden="true" tabindex="-1"></a>arm_factor <span class="ot">&lt;-</span> <span class="fu">factor</span>(</span>
+<span id="cb135-2"><a aria-hidden="true" tabindex="-1"></a>  patients_text<span class="sc">$</span>arm, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"treated"</span>, <span class="st">"control"</span>)</span>
+<span id="cb135-3"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb135-4"><a aria-hidden="true" tabindex="-1"></a>arm_factor</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] control treated treated control
+Levels: treated control</code></pre>
+</div>
+</div>
+<p>Each participant has a category. The factor also stores an order of levels.</p>
+</section>
+<section id="fct_relevel-changes-the-level-order" class="slide level2 smaller">
+<h2>fct_relevel changes the level order</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb137"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb137-1"><a aria-hidden="true" tabindex="-1"></a>arm_ordered <span class="ot">&lt;-</span> <span class="fu">fct_relevel</span>(arm_factor, <span class="st">"control"</span>)</span>
+<span id="cb137-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(arm_ordered)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "control" "treated"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb139"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">as.character</span>(arm_factor) <span class="sc">==</span> <span class="fu">as.character</span>(arm_ordered)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE TRUE TRUE TRUE</code></pre>
+</div>
+</div>
+<p>The participant labels stay the same.</p>
+<p>Under the usual treatment contrasts, the first level is the model reference.</p>
+<p>For a full order: <code>fct_relevel(x, "c", "b", "a")</code>.</p>
+</section>
+<section id="fct_recode-changes-the-labels" class="slide level2 smaller">
+<h2>fct_recode changes the labels</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb141"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb141-1"><a aria-hidden="true" tabindex="-1"></a>arm_labeled <span class="ot">&lt;-</span> <span class="fu">fct_recode</span>(</span>
+<span id="cb141-2"><a aria-hidden="true" tabindex="-1"></a>  arm_ordered,</span>
+<span id="cb141-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">Control =</span> <span class="st">"control"</span>,</span>
+<span id="cb141-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">Treatment =</span> <span class="st">"treated"</span></span>
+<span id="cb141-5"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb141-6"><a aria-hidden="true" tabindex="-1"></a>arm_labeled</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] Control   Treatment Treatment Control  
+Levels: Control Treatment</code></pre>
+</div>
+</div>
+<p>The syntax is <code>new_label = "old_label"</code>. This deliberately changes category labels, rather than only their order.</p>
+</section>
+<section id="factor-operations-inside-mutate" class="slide level2 smaller">
+<h2>Factor operations inside mutate</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb143"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb143-1"><a aria-hidden="true" tabindex="-1"></a>patients_factor <span class="ot">&lt;-</span> patients_text <span class="sc">|&gt;</span></span>
+<span id="cb143-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb143-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">arm =</span> <span class="fu">fct_recode</span>(arm,</span>
+<span id="cb143-4"><a aria-hidden="true" tabindex="-1"></a>      <span class="at">Control =</span> <span class="st">"control"</span>, <span class="at">Treatment =</span> <span class="st">"treated"</span>),</span>
+<span id="cb143-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">arm =</span> <span class="fu">fct_relevel</span>(arm, <span class="st">"Control"</span>)</span>
+<span id="cb143-6"><a aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb143-7"><a aria-hidden="true" tabindex="-1"></a>patients_factor <span class="sc">|&gt;</span> <span class="fu">count</span>(arm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 x 2
+  arm           n
+  &lt;fct&gt;     &lt;int&gt;
+1 Control       2
+2 Treatment     2</code></pre>
+</div>
+</div>
+<p><code>fct_recode()</code> can accept a character column and returns a factor.</p>
+</section>
+<section id="frequency-order-for-a-display" class="slide level2 smaller">
+<h2>Frequency order for a display</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb145"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb145-1"><a aria-hidden="true" tabindex="-1"></a>reported_site <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">c</span>(<span class="st">"East"</span>, <span class="st">"West"</span>, <span class="st">"West"</span>, <span class="st">"West"</span>, <span class="st">"East"</span>))</span>
+<span id="cb145-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">levels</span>(<span class="fu">fct_infreq</span>(reported_site))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "West" "East"</code></pre>
+</div>
+</div>
+<p><code>fct_infreq()</code> puts the most frequent level first.</p>
+<p>Useful for displays. Use a deliberate scientific reference category for modeling.</p>
+</section></section>
+<section>
+<section id="lubridate-dates" class="title-slide slide level1 section-divider center">
+<h1>lubridate: dates</h1>
+
+</section>
+<section id="date-parsers-describe-the-input-order" class="slide level2 smaller">
+<h2>Date parsers describe the input order</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb147"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb147-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ymd</span>(<span class="st">"2026-10-18"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2026-10-18"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb149"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb149-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mdy</span>(<span class="st">"10/18/2026"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2026-10-18"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb151"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb151-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dmy</span>(<span class="st">"18/10/2026"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2026-10-18"</code></pre>
+</div>
+</div>
+<p>All three represent October 18, 2026.</p>
+<p>Choose the parser using the source’s date convention.</p>
+</section>
+<section id="an-ambiguous-date-still-needs-a-decision" class="slide level2 smaller">
+<h2>An ambiguous date still needs a decision</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb153"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb153-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mdy</span>(<span class="st">"03/04/2026"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2026-03-04"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb155"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb155-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dmy</span>(<span class="st">"03/04/2026"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2026-04-03"</code></pre>
+</div>
+</div>
+<p>Both conversions succeed, but they mean different days.</p>
+<p>A parser cannot tell you which convention the data producer intended.</p>
+</section>
+<section id="parsing-a-column-and-extracting-components" class="slide level2 smaller">
+<h2>Parsing a column and extracting components</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb157"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb157-1"><a aria-hidden="true" tabindex="-1"></a>patients_clean <span class="ot">&lt;-</span> patients_factor <span class="sc">|&gt;</span></span>
+<span id="cb157-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb157-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">enrolled_date =</span> <span class="fu">ymd</span>(enrolled),</span>
+<span id="cb157-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">enrolled_year =</span> <span class="fu">year</span>(enrolled_date),</span>
+<span id="cb157-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">enrolled_month =</span> <span class="fu">month</span>(enrolled_date)</span>
+<span id="cb157-6"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The original text column remains available for checking.</p>
+</section>
+<section id="dates-and-their-components" class="slide level2 smaller">
+<h2>Dates and their components</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb158"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb158-1"><a aria-hidden="true" tabindex="-1"></a>patients_clean <span class="sc">|&gt;</span></span>
+<span id="cb158-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, enrolled_date, enrolled_month)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 x 3
+  id    enrolled_date enrolled_month
+  &lt;chr&gt; &lt;date&gt;                 &lt;dbl&gt;
+1 P01   2026-09-01                 9
+2 P02   2026-09-03                 9
+3 P03   2026-10-01                10
+4 P04   2026-10-02                10</code></pre>
+</div>
+</div>
+<p><code>enrolled_date</code> contains Date values. <code>enrolled_month</code> contains month numbers.</p>
+</section>
+<section id="a-check-after-date-conversion" class="slide level2 smaller">
+<h2>A check after date conversion</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb160"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb160-1"><a aria-hidden="true" tabindex="-1"></a>patients_clean <span class="sc">|&gt;</span></span>
+<span id="cb160-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">is.na</span>(enrolled_date)) <span class="sc">|&gt;</span></span>
+<span id="cb160-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, enrolled)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 0 x 2
+# i 2 variables: id &lt;chr&gt;, enrolled &lt;chr&gt;</code></pre>
+</div>
+</div>
+<p>Zero rows means no missing parsed dates in this example.</p>
+<p>Also inspect the range and whether the dates make sense for the study. A successful parse alone does not establish correctness.</p>
+</section>
+<section id="one-connected-analysis" class="slide level2 smaller">
+<h2>One connected analysis</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb162"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb162-1"><a aria-hidden="true" tabindex="-1"></a>analysis <span class="ot">&lt;-</span> marker_long <span class="sc">|&gt;</span></span>
+<span id="cb162-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(</span>
+<span id="cb162-3"><a aria-hidden="true" tabindex="-1"></a>    patients_clean <span class="sc">|&gt;</span> <span class="fu">select</span>(id, arm, enrolled_date),</span>
+<span id="cb162-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="st">"id"</span></span>
+<span id="cb162-5"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The measurement table defines the rows. The cleaned metadata supplies each participant’s treatment label and enrollment date.</p>
+</section>
+<section id="the-week-4-summary" class="slide level2 smaller">
+<h2>The week-4 summary</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb163"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb163-1"><a aria-hidden="true" tabindex="-1"></a>analysis <span class="sc">|&gt;</span> <span class="fu">filter</span>(week <span class="sc">==</span> <span class="dv">4</span>) <span class="sc">|&gt;</span></span>
+<span id="cb163-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(arm) <span class="sc">|&gt;</span></span>
+<span id="cb163-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_marker =</span> <span class="fu">mean</span>(marker), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 x 2
+  arm       mean_marker
+  &lt;fct&gt;           &lt;dbl&gt;
+1 Control           4.4
+2 Treatment         4.9
+3 &lt;NA&gt;              4.9</code></pre>
+</div>
+</div>
+<p>P05 still has missing metadata. Keep that visible and investigate.</p>
+</section>
+<section id="core-summary" class="slide level2 smaller">
+<h2>Summary</h2>
+<ul>
+<li><code>dplyr</code> joins match records by keys.</li>
+<li><code>tidyr</code> pivots change how measurements occupy rows and columns.</li>
+<li><code>stringr</code> cleans and searches text.</li>
+<li><code>forcats</code> distinguishes relabeling from level ordering.</li>
+<li><code>lubridate</code> parses dates using a known input convention.</li>
+</ul>
+<p>Optional examples appear beside their related topics earlier in the deck. Choose the data operation that answers the study question.</p>
 
 
 </section></section>
