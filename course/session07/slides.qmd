@@ -150,10 +150,34 @@ These packages work together inside the same `mutate()` and pipe workflows.
 | 75–85 | lubridate |
 | 85–90 | Connected example and summary |
 
-The optional join block and final appendix sit outside this 90-minute route.
+Optional blocks follow the related join or pivot introduction.
+Use their skip links to stay on the 90-minute main route.
 
 
 # Joining tables {.section-divider}
+
+## Why study data arrive in separate tables {.smaller}
+
+| File | One row represents | Typical identifier |
+|---|---|---|
+| Enrollment | A participant | Participant ID |
+| Follow-up measurements | A participant at a visit | ID and visit |
+| Site information | A study site | Site code |
+
+Different teams or systems may produce these files.
+A join connects related records using their identifiers.
+
+
+## Common reasons to join study data {.smaller}
+
+- Add treatment assignment to each follow-up measurement.
+- Attach site names to a file containing only site codes.
+- Combine a baseline questionnaire with an outcome file.
+- Find enrolled participants who have no laboratory record.
+
+Before choosing a function, decide which participants or measurements
+the result must retain.
+
 
 ## Two tables from the same study {.smaller}
 
@@ -186,9 +210,9 @@ would also need a visit variable.
 
 | Question | Function |
 |---|---|
-| Keep all measurement rows and add metadata | `left_join()` |
-| Keep only participants appearing in both tables | `inner_join()` |
-| Find measurement rows without metadata | `anti_join()` |
+| Attach treatment to every measurement row | `left_join()` |
+| Analyze only IDs represented in both files | `inner_join()` |
+| List enrolled IDs with no lab record | `anti_join()` |
 
 `left_join(x, y, by = "id")` starts with `x` and matches its IDs against `y`.
 
@@ -204,6 +228,18 @@ course_joined
 
 P05 stays. Its `arm` is `NA` because the metadata table has no matching ID.
 
+## The left table defines which records must stay {.smaller}
+
+Suppose the question is: **which enrolled participants have measurements?**
+
+```{r}
+#| label: practical-cohort-left
+patient_lookup |> left_join(marker_wide, by = "id")
+```
+
+P04 stays with missing measurements. P05 is outside this enrollment list.
+
+
 ## An inner join changes the retained participants {.smaller}
 
 ```{r}
@@ -213,7 +249,9 @@ marker_wide |> inner_join(patient_lookup, by = "id")
 
 Three participants remain. P05 is absent.
 
-Choose an inner join when restricting to matched records is the intended rule.
+Example: a planned analysis requires records from both the questionnaire
+and outcome files. An inner join restricts to their matching IDs.
+It does not guarantee that every variable in those records is observed.
 
 ## Unmatched records in both directions {.smaller}
 
@@ -225,6 +263,18 @@ patient_lookup |> anti_join(marker_wide, by = "id")
 
 The first result asks who lacks metadata.
 The second asks whose metadata has no measurements.
+
+
+## Joining records or stacking batches? {.smaller}
+
+| Files contain | Operation |
+|---|---|
+| Enrollment and lab results for overlapping participants | Join by the appropriate ID |
+| The same lab columns for two different recruitment batches | Stack the rows with `bind_rows()` |
+
+A join matches records. Stacking adds observations with the same variables.
+
+A worked `bind_rows()` example follows in the optional join block.
 
 
 ## Duplicate lookup rows can repeat measurements {.smaller}
@@ -291,6 +341,17 @@ These examples are for reference. The core lab does not require them.
 The split is the useful thing here. A **mutating** join changes the columns and
 may change the rows. A **filtering** join changes only the rows — it is
 `filter()` with the condition stored in another table.
+
+
+## Optional: Other joins in practice {.smaller}
+
+| Study task | Choice |
+|---|---|
+| Reconcile two participant lists and retain every ID from either source | `full_join()` |
+| Keep cohort rows whose IDs appear in an eligibility list, without adding its columns | `semi_join()` |
+| Preserve the second table in a join | `right_join()`, or swap inputs to `left_join()` |
+
+A full join can expose records that exist in only one source.
 
 
 ## Optional: The other three {.smaller}
@@ -568,6 +629,57 @@ nrow(anti_join(trial, sites, by = "site")) == 0
 ```
 
 
+## Optional: stacking rows with `bind_rows()` {.smaller}
+
+```{r}
+#| label: bind-rows-demo
+batch_a <- tibble(id = "P01", marker = 4.1)
+batch_b <- tibble(id = "P02", marker = 5.2, lab = "central")
+stacked <- bind_rows(A = batch_a, B = batch_b, .id = "batch")
+stacked
+```
+
+Columns align by name. Missing columns get `NA`.
+`.id` records which input supplied each row.
+
+
+## Optional: stacking versus matching {.smaller}
+
+| Files contain | Operation |
+|---|---|
+| The same variables for different participants | `bind_rows()` |
+| Participant measurements and participant metadata | A join by ID |
+| Two visit-level measurements | A join by ID and week |
+
+After stacking, check keys and column types again.
+Overlapping exports can introduce duplicated observations.
+
+## Optional: competing columns after a join {.smaller}
+
+```{r}
+#| label: suffix-demo
+clinic <- tibble(id = c("P01", "P02"), age = c(NA, 61))
+registry <- tibble(id = c("P01", "P02"), age = c(58, 62))
+ages <- left_join(clinic, registry, by = "id",
+                   suffix = c("_clinic", "_registry"),
+                   relationship = "one-to-one")
+ages
+```
+
+Both age columns survive with suffixes. P02's sources disagree.
+
+## Optional: `coalesce()` follows a priority rule {.smaller}
+
+```{r}
+#| label: coalesce-demo
+ages |>
+  mutate(age = coalesce(age_clinic, age_registry))
+```
+
+The stated rule here is clinic first, registry only if clinic is missing.
+P02 keeps 61. `coalesce()` does not detect or resolve that disagreement.
+
+
 ## Optional: `merge()` arguments {.smaller}
 
 ```r
@@ -680,6 +792,30 @@ Other tidyr tools split columns or make missing rows explicit.
 They are optional here.
 
 
+## Data you may receive in wide form {.smaller}
+
+| Example | Typical layout |
+|---|---|
+| Baseline questionnaire | One participant per row, one question per column |
+| Scheduled follow-up spreadsheet | `bp_0`, `bp_6`, `bp_12` in separate columns |
+| Prediction input | One participant per row, a column for each predictor |
+
+A baseline table with age, sex, and weight already has separate variables.
+There is usually no reason to gather all of them into one value column.
+
+
+## Data you may receive in long form {.smaller}
+
+| Example | Typical row |
+|---|---|
+| Electronic laboratory export | One recorded test for a patient/specimen |
+| Longitudinal follow-up data | One participant at one visit |
+| Medication records | One prescription or administration event |
+
+Repeated participant IDs are expected in these files.
+Identify the additional columns that distinguish records.
+
+
 ## Wide measurements {.smaller}
 
 ```{r}
@@ -691,6 +827,18 @@ One row per participant. `marker_w0` and `marker_w4` store the same
 measurement at different weeks.
 
 To summarize by week, it helps to give week its own column.
+
+## When to change wide measurements to long {.smaller}
+
+We have `marker_w0` and `marker_w4`, but want to:
+
+- Plot marker against visit week.
+- Calculate the mean marker separately at each week.
+- Prepare repeated measurements for a longitudinal model.
+
+`pivot_longer()` creates a `week` column and a `marker` column.
+Participant IDs repeat once for each visit.
+
 
 ## Wide to long with pivot_longer {.smaller}
 
@@ -734,6 +882,147 @@ This reuses Session 6's `group_by()` and `summarise()`.
 
 Long form is also useful for plotting measurements against time in Session 8.
 
+
+# Optional pivot_longer details {.section-divider #optional-longer}
+
+[Skip to the basic pivot_wider example](#wider-introduction)
+
+These examples expand the column-name and missing-value choices in `pivot_longer()`.
+
+The blood-pressure examples use the separate synthetic trial:
+`sbp` means systolic BP and `dbp` means diastolic BP.
+
+```{r}
+#| label: reshape-reference-setup
+#| include: false
+sbp_long <- wide3 |>
+  pivot_longer(starts_with("sbp_"),
+    names_to = "week", names_prefix = "sbp_",
+    names_transform = list(week = as.integer), values_to = "sbp")
+```
+
+## Optional: Two measurements encoded in column names {.smaller}
+
+```{r}
+#| label: bp-wide
+bp_wide
+```
+
+`sbp_12` contains a measurement name and a visit week.
+The separator is an underscore.
+
+## Optional: `names_sep`: one value column {.smaller}
+
+```{r}
+#| label: names-sep-live
+bp_long <- bp_wide |>
+  pivot_longer(
+    cols = -id,
+    names_to = c("measure", "week"),
+    names_sep = "_",
+    names_transform = list(week = as.integer),
+    values_to = "value"
+  )
+```
+
+One row now represents a **participant, measurement, and week**.
+
+
+## Optional: The result of splitting the names {.smaller}
+
+```{r}
+#| label: names-sep-output
+head(bp_long, 6)
+```
+
+There are 3 participants × 2 measurements × 2 visits = 12 rows.
+
+## Optional: separate measurement columns with `.value` {.smaller}
+
+```{r}
+#| label: pivot-value-demo
+bp_by_visit <- bp_wide |>
+  pivot_longer(-id,
+    names_to = c(".value", "week"),
+    names_sep = "_",
+    names_transform = list(week = as.integer))
+head(bp_by_visit, 4)
+```
+
+`.value` uses the first name component to create `sbp` and `dbp` columns.
+
+
+## Optional: Missing measurements remain in the long table {.smaller}
+
+```{r}
+#| label: pivot-missing
+missing_wide <- tibble(id = c("P01", "P02"),
+                       marker_w0 = c(4.1, 5.2),
+                       marker_w4 = c(NA, 4.7))
+missing_long <- missing_wide |>
+  pivot_longer(starts_with("marker_w"),
+    names_to = "week", names_prefix = "marker_w",
+    names_transform = list(week = as.integer),
+    values_to = "marker")
+```
+
+The default is `values_drop_na = FALSE`: keep the missing measurement.
+
+## Optional: A missing value still has a row {.smaller}
+
+```{r}
+#| label: pivot-missing-output
+missing_long
+```
+
+`values_drop_na = TRUE` would remove the P01 week-4 row.
+That changes the available denominator for visit-level summaries.
+
+
+## Optional: a missing row versus a missing value {.smaller}
+
+```{r}
+#| label: complete-input
+incomplete <- tibble(id = c("P01", "P01", "P02"),
+                     week = c(0L, 4L, 0L),
+                     marker = c(4.1, NA, 5.2))
+incomplete
+```
+
+P01 week 4 exists with a missing marker.
+P02 week 4 has no row.
+
+## Optional: `complete()` makes expected visits explicit {.smaller}
+
+```{r}
+#| label: complete-demo
+completed <- incomplete |>
+  mutate(record_present = TRUE) |>
+  complete(id, week = c(0L, 4L),
+           fill = list(record_present = FALSE))
+completed
+```
+
+The added marker stays `NA`. No measurement was invented.
+Use an expected visit schedule, not every imaginable ID-time combination.
+
+
+# Returning to wide data {.section-divider #wider-introduction}
+
+The main lesson continues here.
+
+## When to change long measurements to wide {.smaller}
+
+We have one measurement per participant-week, but want to:
+
+- Calculate week-4 minus baseline marker in one row.
+- Display baseline and follow-up values side by side.
+- Supply one row per participant to a model using separate visit predictors.
+
+`pivot_wider()` makes a column for each requested week.
+Each participant-week cell needs one value or an explicit summary rule.
+
+
 ## Long to wide with pivot_wider {.smaller}
 
 ```{r}
@@ -766,7 +1055,206 @@ Compare this with `marker_wide`:
 
 Wide and long formats are useful for different tasks.
 
-# stringr: text columns {.section-divider}
+
+## A practical calculation after widening {.smaller}
+
+```{r}
+#| label: practical-wide-change
+marker_back |>
+  mutate(change = marker_w4 - marker_w0) |>
+  select(id, change)
+```
+
+Each row now contains one participant's baseline-to-week-4 change.
+
+For this fixed pair of visits, two measurement columns make the calculation direct.
+
+
+# Optional pivot_wider and reshape details {.section-divider #optional-wider}
+
+[Skip to stringr](#stringr-text)
+
+These examples follow the basic round trip. They cover repeated measurements
+targeting the same output cell and a base-R alternative.
+
+## Optional: One output cell needs one value {.smaller}
+
+```{r}
+#| label: pivot-duplicate-input
+repeat_readings <- tibble(
+  id = c("P01", "P01"),
+  week = c(4L, 4L),
+  marker = c(4.4, 4.6)
+)
+repeat_readings |> count(id, week)
+```
+
+Two readings target the same participant-week cell.
+Decide whether these are valid repeats, a correction, or an error.
+
+## Optional: A duplicate-cell warning {.smaller}
+
+```{r}
+#| label: pivot-duplicate-warning
+#| warning: true
+repeat_readings |>
+  pivot_wider(id_cols = id, names_from = week,
+              values_from = marker)
+```
+
+The output contains a list column because both values need somewhere to go.
+Using `values_fn = mean` would impose an averaging rule.
+Use that rule only when the analysis calls for it.
+
+
+## Optional: Base `reshape()`: recognition only {.smaller}
+
+```{r}
+#| label: base-reshape
+sbp_long <- reshape(wide3,
+  direction = "long",
+  idvar     = "id",
+  varying   = list(c("sbp_0", "sbp_6", "sbp_12")),
+  v.names   = "sbp",
+  timevar   = "week",
+  times     = c(0, 6, 12))
+dim(sbp_long)
+```
+
+. . .
+
+```{r}
+#| label: base-reshape-back
+back <- reshape(sbp_long, direction = "wide", idvar = "id",
+                timevar = "week", v.names = "sbp", sep = "_")
+dim(back)
+```
+
+. . .
+
+::: {.callout-important appearance="simple"}
+`reshape()` provides a base-R alternative. Its `idvar`, `timevar`, and
+`varying` arguments describe the same reshaping task with different syntax.
+Today's exercises use `pivot_longer()`. Either dialect is useful in other work.
+:::
+
+
+## Optional: Why long: the plot {.smaller}
+
+```{r}
+#| label: fig-spaghetti
+#| fig-cap: "Mean systolic BP by visit and arm. Long format, three lines of ggplot2."
+#| fig-width: 8
+#| fig-height: 3.0
+ggplot(sbp_long, aes(week, sbp, colour = arm)) +
+  stat_summary(fun = mean, geom = "line", linewidth = 1.1) +
+  labs(x = "Week", y = "Mean SBP (mmHg)", colour = NULL)
+```
+
+::: {.smaller}
+Borrowed from session 1's minimum-viable plot — the grammar is session 8.
+:::
+
+
+# Optional calculations across visits {.section-divider #optional-window}
+
+[Skip to stringr](#stringr-text)
+
+After arranging measurements in long form, we can compare successive visits
+within each participant. The following slides introduce `lag()` and related tools.
+
+## Optional: Within patient, in order {.smaller}
+
+`lag()` looks back one row. `group_by()` says *back within what*.
+
+```{r}
+#| label: lag-demo
+visits <- sbp_long |>
+  arrange(id, week) |>
+  group_by(id) |>
+  mutate(
+    prev_sbp = lag(sbp),
+    change   = sbp - lag(sbp)
+  ) |>
+  ungroup()
+```
+
+## Optional: Previous-visit changes: the output {.smaller}
+
+```{r}
+#| label: lag-demo-output
+head(as.data.frame(visits), 6)
+```
+
+Each participant starts with a missing previous value and change.
+
+
+## Optional: Numbering, looking forward, and baselines {.smaller}
+
+```{r}
+#| label: window-more
+numbered_visits <- sbp_long |>
+  arrange(id, week) |>
+  group_by(id) |>
+  mutate(
+    visit      = row_number(),
+    next_sbp   = lead(sbp),
+    from_base  = sbp - first(sbp)
+  ) |>
+  ungroup()
+```
+
+## Optional: Visit numbers and baseline changes: the output {.smaller}
+
+```{r}
+#| label: window-more-output
+head(as.data.frame(numbered_visits), 6)
+```
+
+::: {.smaller}
+`row_number()` numbers rows within group · `lead()` looks forward · `first()`
+takes the group's first value · `cumsum()` accumulates.
+:::
+
+
+## Optional: What does change compare? {.smaller}
+
+For each participant, after `arrange(id, week)`:
+
+| Expression | Meaning |
+|---|---|
+| `marker - lag(marker)` | Change since the previous recorded row |
+| `marker - first(marker)` | Change from the first recorded row |
+
+The first recorded row is baseline only if baseline is present.
+With irregular visits, a previous-row change is not automatically a four-week change.
+
+
+## Optional: Cumulative observed measurements {.smaller}
+
+```{r}
+#| label: cumulative-data
+tracking <- tibble(id = rep(c("P01", "P02"), each = 3),
+                   week = rep(c(0L, 4L, 8L), 2),
+                   marker = c(4.1, NA, 4.5, 5.2, 4.7, NA))
+tracked <- tracking |>
+  arrange(id, week) |>
+  group_by(id) |>
+  mutate(observed_so_far = cumsum(!is.na(marker))) |>
+  ungroup()
+```
+
+## Optional: Cumulative counts: the output {.smaller}
+
+```{r}
+#| label: cumulative-output
+tracked
+```
+
+`!is.na(marker)` gives TRUE/FALSE; cumulative sums count observed visits.
+
+
+# stringr: text columns {.section-divider #stringr-text}
 
 ## Text differences that affect matching {.smaller}
 
@@ -1023,348 +1511,6 @@ P05 still has missing metadata. Keep that visible and investigate.
 - `forcats` distinguishes relabeling from level ordering.
 - `lubridate` parses dates using a known input convention.
 
-The core lesson ends here. Detailed pivots and window functions follow as
-optional reference material.
-
-
-# Optional reshaping and window examples {.section-divider #optional-appendix}
-
-[Return to the core summary](#core-summary)
-
-```{r}
-#| label: appendix-setup
-#| include: false
-sbp_long <- wide3 |>
-  pivot_longer(starts_with("sbp_"),
-    names_to = "week", names_prefix = "sbp_",
-    names_transform = list(week = as.integer), values_to = "sbp")
-```
-
-## Optional: Two measurements encoded in column names {.smaller}
-
-```{r}
-#| label: bp-wide
-bp_wide
-```
-
-`sbp_12` contains a measurement name and a visit week.
-The separator is an underscore.
-
-## Optional: `names_sep`: one value column {.smaller}
-
-```{r}
-#| label: names-sep-live
-bp_long <- bp_wide |>
-  pivot_longer(
-    cols = -id,
-    names_to = c("measure", "week"),
-    names_sep = "_",
-    names_transform = list(week = as.integer),
-    values_to = "value"
-  )
-```
-
-One row now represents a **participant, measurement, and week**.
-
-
-## Optional: The result of splitting the names {.smaller}
-
-```{r}
-#| label: names-sep-output
-head(bp_long, 6)
-```
-
-There are 3 participants × 2 measurements × 2 visits = 12 rows.
-
-## Optional: One output cell needs one value {.smaller}
-
-```{r}
-#| label: pivot-duplicate-input
-repeat_readings <- tibble(
-  id = c("P01", "P01"),
-  week = c(4L, 4L),
-  marker = c(4.4, 4.6)
-)
-repeat_readings |> count(id, week)
-```
-
-Two readings target the same participant-week cell.
-Decide whether these are valid repeats, a correction, or an error.
-
-## Optional: A duplicate-cell warning {.smaller}
-
-```{r}
-#| label: pivot-duplicate-warning
-#| warning: true
-repeat_readings |>
-  pivot_wider(id_cols = id, names_from = week,
-              values_from = marker)
-```
-
-The output contains a list column because both values need somewhere to go.
-Using `values_fn = mean` would impose an averaging rule.
-Use that rule only when the analysis calls for it.
-
-
-## Optional: Missing measurements remain in the long table {.smaller}
-
-```{r}
-#| label: pivot-missing
-missing_wide <- tibble(id = c("P01", "P02"),
-                       marker_w0 = c(4.1, 5.2),
-                       marker_w4 = c(NA, 4.7))
-missing_long <- missing_wide |>
-  pivot_longer(starts_with("marker_w"),
-    names_to = "week", names_prefix = "marker_w",
-    names_transform = list(week = as.integer),
-    values_to = "marker")
-```
-
-The default is `values_drop_na = FALSE`: keep the missing measurement.
-
-## Optional: A missing value still has a row {.smaller}
-
-```{r}
-#| label: pivot-missing-output
-missing_long
-```
-
-`values_drop_na = TRUE` would remove the P01 week-4 row.
-That changes the available denominator for visit-level summaries.
-
-
-## Optional: Base `reshape()`: recognition only {.smaller}
-
-```{r}
-#| label: base-reshape
-sbp_long <- reshape(wide3,
-  direction = "long",
-  idvar     = "id",
-  varying   = list(c("sbp_0", "sbp_6", "sbp_12")),
-  v.names   = "sbp",
-  timevar   = "week",
-  times     = c(0, 6, 12))
-dim(sbp_long)
-```
-
-. . .
-
-```{r}
-#| label: base-reshape-back
-back <- reshape(sbp_long, direction = "wide", idvar = "id",
-                timevar = "week", v.names = "sbp", sep = "_")
-dim(back)
-```
-
-. . .
-
-::: {.callout-important appearance="simple"}
-`reshape()` provides a base-R alternative. Its `idvar`, `timevar`, and
-`varying` arguments describe the same reshaping task with different syntax.
-Today's exercises use `pivot_longer()`. Either dialect is useful in other work.
-:::
-
-
-## Optional: Why long: the plot {.smaller}
-
-```{r}
-#| label: fig-spaghetti
-#| fig-cap: "Mean systolic BP by visit and arm. Long format, three lines of ggplot2."
-#| fig-width: 8
-#| fig-height: 3.0
-ggplot(sbp_long, aes(week, sbp, colour = arm)) +
-  stat_summary(fun = mean, geom = "line", linewidth = 1.1) +
-  labs(x = "Week", y = "Mean SBP (mmHg)", colour = NULL)
-```
-
-::: {.smaller}
-Borrowed from session 1's minimum-viable plot — the grammar is session 8.
-:::
-
-
-
-## Optional: Within patient, in order {.smaller}
-
-`lag()` looks back one row. `group_by()` says *back within what*.
-
-```{r}
-#| label: lag-demo
-visits <- sbp_long |>
-  arrange(id, week) |>
-  group_by(id) |>
-  mutate(
-    prev_sbp = lag(sbp),
-    change   = sbp - lag(sbp)
-  ) |>
-  ungroup()
-```
-
-## Optional: Previous-visit changes: the output {.smaller}
-
-```{r}
-#| label: lag-demo-output
-head(as.data.frame(visits), 6)
-```
-
-Each participant starts with a missing previous value and change.
-
-
-## Optional: Numbering, looking forward, and baselines {.smaller}
-
-```{r}
-#| label: window-more
-numbered_visits <- sbp_long |>
-  arrange(id, week) |>
-  group_by(id) |>
-  mutate(
-    visit      = row_number(),
-    next_sbp   = lead(sbp),
-    from_base  = sbp - first(sbp)
-  ) |>
-  ungroup()
-```
-
-## Optional: Visit numbers and baseline changes: the output {.smaller}
-
-```{r}
-#| label: window-more-output
-head(as.data.frame(numbered_visits), 6)
-```
-
-::: {.smaller}
-`row_number()` numbers rows within group · `lead()` looks forward · `first()`
-takes the group's first value · `cumsum()` accumulates.
-:::
-
-
-## Optional: What does change compare? {.smaller}
-
-For each participant, after `arrange(id, week)`:
-
-| Expression | Meaning |
-|---|---|
-| `marker - lag(marker)` | Change since the previous recorded row |
-| `marker - first(marker)` | Change from the first recorded row |
-
-The first recorded row is baseline only if baseline is present.
-With irregular visits, a previous-row change is not automatically a four-week change.
-
-
-## Optional: Cumulative observed measurements {.smaller}
-
-```{r}
-#| label: cumulative-data
-tracking <- tibble(id = rep(c("P01", "P02"), each = 3),
-                   week = rep(c(0L, 4L, 8L), 2),
-                   marker = c(4.1, NA, 4.5, 5.2, 4.7, NA))
-tracked <- tracking |>
-  arrange(id, week) |>
-  group_by(id) |>
-  mutate(observed_so_far = cumsum(!is.na(marker))) |>
-  ungroup()
-```
-
-## Optional: Cumulative counts: the output {.smaller}
-
-```{r}
-#| label: cumulative-output
-tracked
-```
-
-`!is.na(marker)` gives TRUE/FALSE; cumulative sums count observed visits.
-
-
-
-## Optional: stacking rows with `bind_rows()` {.smaller}
-
-```{r}
-#| label: bind-rows-demo
-batch_a <- tibble(id = "P01", marker = 4.1)
-batch_b <- tibble(id = "P02", marker = 5.2, lab = "central")
-stacked <- bind_rows(A = batch_a, B = batch_b, .id = "batch")
-stacked
-```
-
-Columns align by name. Missing columns get `NA`.
-`.id` records which input supplied each row.
-
-
-## Optional: stacking versus matching {.smaller}
-
-| Files contain | Operation |
-|---|---|
-| The same variables for different participants | `bind_rows()` |
-| Participant measurements and participant metadata | A join by ID |
-| Two visit-level measurements | A join by ID and week |
-
-After stacking, check keys and column types again.
-Overlapping exports can introduce duplicated observations.
-
-## Optional: competing columns after a join {.smaller}
-
-```{r}
-#| label: suffix-demo
-clinic <- tibble(id = c("P01", "P02"), age = c(NA, 61))
-registry <- tibble(id = c("P01", "P02"), age = c(58, 62))
-ages <- left_join(clinic, registry, by = "id",
-                   suffix = c("_clinic", "_registry"),
-                   relationship = "one-to-one")
-ages
-```
-
-Both age columns survive with suffixes. P02's sources disagree.
-
-## Optional: `coalesce()` follows a priority rule {.smaller}
-
-```{r}
-#| label: coalesce-demo
-ages |>
-  mutate(age = coalesce(age_clinic, age_registry))
-```
-
-The stated rule here is clinic first, registry only if clinic is missing.
-P02 keeps 61. `coalesce()` does not detect or resolve that disagreement.
-
-
-## Optional: separate measurement columns with `.value` {.smaller}
-
-```{r}
-#| label: pivot-value-demo
-bp_by_visit <- bp_wide |>
-  pivot_longer(-id,
-    names_to = c(".value", "week"),
-    names_sep = "_",
-    names_transform = list(week = as.integer))
-head(bp_by_visit, 4)
-```
-
-`.value` uses the first name component to create `sbp` and `dbp` columns.
-
-
-## Optional: a missing row versus a missing value {.smaller}
-
-```{r}
-#| label: complete-input
-incomplete <- tibble(id = c("P01", "P01", "P02"),
-                     week = c(0L, 4L, 0L),
-                     marker = c(4.1, NA, 5.2))
-incomplete
-```
-
-P01 week 4 exists with a missing marker.
-P02 week 4 has no row.
-
-## Optional: `complete()` makes expected visits explicit {.smaller}
-
-```{r}
-#| label: complete-demo
-completed <- incomplete |>
-  mutate(record_present = TRUE) |>
-  complete(id, week = c(0L, 4L),
-           fill = list(record_present = FALSE))
-completed
-```
-
-The added marker stays `NA`. No measurement was invented.
-Use an expected visit schedule, not every imaginable ID-time combination.
+Optional examples appear beside their related topics earlier in the deck.
+Choose the data operation that answers the study question.
 
