@@ -7,7 +7,9 @@ date-format: "[Session 8]"
 format:
   revealjs:
     theme: simple
-    css: ../../slides.css
+    css:
+      - ../../slides.css
+      - slides-session08.css
     slide-number: c/t
     show-slide-number: all
     incremental: false
@@ -24,7 +26,7 @@ execute:
   echo: true
   warning: false
   message: false
-  freeze: auto
+  freeze: false
 ---
 
 ```{r}
@@ -60,15 +62,14 @@ trial$crp    <- round(exp(rnorm(n, 1.1, 0.9)), 2)
 trial$site_f <- factor(trial$site, levels = 1:4,
                        labels = paste("Site", 1:4))
 
-# Long form, one row per patient-visit. Session 7 would build this with
-# tidyr::pivot_longer(); assembled here in base R because this deck's R
-# install is deliberately minimal.
-trial_long <- data.frame(
-  id   = rep(trial$id, 3),
-  arm  = rep(trial$arm, 3),
-  week = rep(c(0, 6, 12), each = n),
-  sbp  = c(trial$sbp_0, trial$sbp_6, trial$sbp_12)
-)
+# One row per patient-visit, using the reshape from Session 7.
+trial_long <- trial |>
+  select(id, arm, sbp_0, sbp_6, sbp_12) |>
+  tidyr::pivot_longer(starts_with("sbp_"),
+                      names_to = "week", names_prefix = "sbp_",
+                      values_to = "sbp") |>
+  mutate(week = as.numeric(week))
+arm_col <- c(Placebo = "#D55E00", Treatment = "#0072B2")
 
 theme_set(theme_minimal(base_size = 14))
 
@@ -90,7 +91,7 @@ knitr::opts_chunk$set(out.width = "100%")
 Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
 
 
-## What you will be able to do {.smaller}
+## What you will be able to do
 
 ::: {.smaller}
 [1]{.objective-num} **Read** base-R plotting code and produce a fast diagnostic
@@ -120,23 +121,27 @@ and resolution.
 
 | | Block | Minutes |
 |---|---|---|
-| 1 | Base graphics, and why we then move on | 10 |
-| 2 | The grammar of graphics | 15 |
-| 3 | Layers: geoms, facets, scales, positions | 30 |
-| 4 | **Design principles** | 25 |
-| 5 | Publication output | 8 |
-| 6 | Practice and summary | 2 |
+| 1 | Base R plots and annotations | 25 |
+| 2 | Build a first ggplot | 12 |
+| 3 | Choose displays for distributions and groups | 12 |
+| 4 | Add summaries and uncertainty | 10 |
+| 5 | Show repeated visits | 10 |
+| 6 | Refine scales and display choices | 6 |
+| 7 | Critique and improve a figure | 8 |
+| 8 | Export and summary | 7 |
 
 : {tbl-colwidths="[6,64,30]"}
 
 . . .
 
-Every figure in this deck was **rendered when the deck was built**. None of them
-is a screenshot.
+Figures are generated from R code when this deck renders.
+Optional reference slides provide extra examples for review.
 
 
-# 1 · Base graphics, briefly {.section-divider}
+# 1 · Base R graphics {.section-divider}
 
+
+{{< include _base-examples.qmd >}}
 
 ## Base graphics in four functions {.smaller}
 
@@ -147,8 +152,9 @@ is a screenshot.
 par(mfrow = c(1, 3), mar = c(4, 4, 2, 1))
 hist(trial$sbp_0, main = "hist", xlab = "SBP baseline")
 boxplot(sbp_12 ~ arm, data = trial, main = "boxplot", xlab = "")
-plot(trial$sbp_0, trial$sbp_12, main = "plot", xlab = "Session 0",
-     ylab = "Session 12")
+plot(trial$sbp_0, trial$sbp_12, main = "plot", xlab = "Week 0",
+     ylab = "Week 12")
+par(mfrow = c(1, 1))
 ```
 
 ::: {.smaller}
@@ -157,7 +163,7 @@ state**: it stays set until you change it back.
 :::
 
 
-## The one base-graphics habit worth keeping {.smaller}
+## A quick panel of distributions {.smaller}
 
 ```{r}
 #| label: base-diagnostic
@@ -168,6 +174,7 @@ hist(trial$age,       main = "age")
 hist(trial$weight_kg, main = "weight_kg")
 hist(trial$sbp_0,     main = "sbp_0")
 hist(trial$crp,       main = "crp")
+par(mfrow = c(1, 1))
 ```
 
 . . .
@@ -179,366 +186,38 @@ you now know it before you fit anything.
 :::
 
 
-## Why we then move on {.smaller}
+## Two plotting workflows
 
-::: {style="font-size:0.88em"}
-| Base graphics | Consequence |
-|---|---|
-| Each function has its own arguments | `hist(breaks=)`, `boxplot(names=)`, `plot(pch=)` — nothing transfers |
-| A plot is a **sequence of side effects** on a device | You cannot store it, modify it, or return it from anything |
-| Grouping means splitting the data yourself | Colour by arm is your job, and so is the legend |
-| Faceting has no equivalent | You manage `mfrow` and the axis limits by hand |
-| Styling is argument soup | Twenty arguments and a `par()` call to get one journal figure |
-:::
+- **Base graphics:** draw to a graphics device, then add points, lines, or labels.
+  Many functions share options such as `col`, `xlab`, and `ylim`.
+- **ggplot2:** build a plot object, then add or change layers and scales.
+  Grouping, legends, and facets follow shared rules.
+- Both can produce reproducible, publication-quality figures. Choose the
+  workflow that makes your analysis easy to understand and maintain.
 
-. . .
 
-**None of this is a bug.** Base graphics is thirty years old, it draws anything,
-and it is in every R installation. It simply has no *grammar* — no shared
-vocabulary that composes.
+{{< include _ggplot-examples.qmd >}}
 
+# 7 · Critiquing and improving a figure {.section-divider}
 
-# 2 · The grammar of graphics {.section-divider}
 
-
-## A plot is a specification {.smaller}
-
-Wilkinson's idea, by way of Wickham: stop naming chart *types*. Describe the
-**mapping from data to visual channels**, and the chart type falls out.
-
-. . .
-
-::: {style="font-size:0.9em"}
-| Instead of | Say |
-|---|---|
-| "a grouped bar chart" | x = arm, y = mean, fill = sex, bars, dodged |
-| "a scatter plot with a trend line" | x = Session 0, y = Session 12, points **and** a smooth |
-| "a boxplot" | x = arm, y = SBP, boxplot statistic |
-:::
-
-. . .
-
-::: {.callout-important appearance="simple"}
-There is no list of chart types to memorise. There is a small set of components
-that combine, which is why the learning curve is worth it: the fifth plot type
-costs you nothing new.
-:::
-
-
-## Seven components, plus a theme {.smaller}
-
-::: {style="font-size:0.84em"}
-| Component | Question it answers | Code |
-|---|---|---|
-| **data** | What is being plotted? | `ggplot(trial, ...)` |
-| **aesthetics** | Which variable drives which channel? | `aes(x = arm, y = sbp_12)` |
-| **geoms** | What marks appear? | `geom_point()`, `geom_col()` |
-| **stats** | What is computed before drawing? | `stat_smooth()`, the count in a histogram |
-| **scales** | How do data values become positions, colours, sizes? | `scale_y_log10()` |
-| **coords** | What is the coordinate system? | `coord_flip()`, `coord_cartesian()` |
-| **facets** | How is the plot split into panels? | `facet_wrap(~ site_f)` |
-| **themes** | What does everything *not* data-driven look like? | `theme_minimal()` |
-:::
-
-. . .
-
-::: {.smaller}
-Only **data**, **aesthetics** and one **geom** are required. Everything else has
-a default that is usually right.
-:::
-
-
-## Minimum viable ggplot, then a layer {.smaller}
-
-::: columns
-::: {.column width="49%"}
-```{r}
-#| label: mvp
-#| fig-width: 4.6
-#| fig-height: 2.9
-ggplot(trial, aes(sbp_0, sbp_12)) +
-  geom_point()
-```
-:::
-
-::: {.column width="49%"}
-```{r}
-#| label: mvp-plus
-#| fig-width: 4.6
-#| fig-height: 2.9
-ggplot(trial, aes(sbp_0, sbp_12)) +
-  geom_point(alpha = 0.6) +
-  geom_smooth(method = "lm")
-```
-:::
-:::
-
-::: {.smaller}
-Same data, same aesthetics, **one more layer**. The second geom inherits both.
-:::
-
-
-## `aes()` means *map*. Outside means *set* {.smaller}
-
-::: columns
-::: {.column width="49%"}
-```{r}
-#| label: aes-inside
-#| fig-width: 4.6
-#| fig-height: 2.6
-ggplot(trial, aes(sbp_0, sbp_12,
-                  colour = arm)) +
-  geom_point()
-```
-:::
-
-::: {.column width="49%"}
-```{r}
-#| label: aes-outside
-#| fig-width: 4.6
-#| fig-height: 2.6
-ggplot(trial, aes(sbp_0, sbp_12)) +
-  geom_point(colour = "steelblue")
-```
-:::
-:::
-
-::: {.smaller}
-Inside `aes()`: colour **carries information**, and you get a legend.
-Outside: colour is decoration, and no legend is possible.
-:::
-
-
-# 3 · Layers in practice {.section-divider}
-
-
-## Distributions: histogram and density {.smaller}
-
-::: columns
-::: {.column width="49%"}
-```{r}
-#| label: geom-hist
-#| fig-width: 4.6
-#| fig-height: 2.6
-ggplot(trial, aes(sbp_0)) +
-  geom_histogram(binwidth = 8,
-                 fill = "grey35")
-```
-:::
-
-::: {.column width="49%"}
-```{r}
-#| label: geom-density
-#| fig-width: 4.6
-#| fig-height: 2.6
-ggplot(trial, aes(sbp_0)) +
-  geom_density(fill = "grey80")
-```
-:::
-:::
-
-::: {.smaller}
-Set `binwidth` in the units of the variable — "8 mmHg" is a decision you can
-defend. `bins = 30` is a default you cannot.
-
-**The base R way:** `hist(trial$sbp_0)` · `plot(density(trial$sbp_0))`
-:::
-
-
-## Distributions compared: boxplot and violin {.smaller}
-
-::: columns
-::: {.column width="49%"}
-```{r}
-#| label: geom-box
-#| fig-width: 4.6
-#| fig-height: 2.6
-ggplot(trial, aes(arm, sbp_12)) +
-  geom_boxplot(width = 0.5)
-```
-:::
-
-::: {.column width="49%"}
-```{r}
-#| label: geom-violin
-#| fig-width: 4.6
-#| fig-height: 2.6
-ggplot(trial, aes(arm, sbp_12)) +
-  geom_violin(fill = "grey85")
-```
-:::
-:::
-
-::: {.smaller}
-A boxplot shows five numbers. A violin shows a density. **Neither shows n**, and
-neither would look different if half the data were missing.
-
-**The base R way:** `boxplot(sbp_12 ~ arm, data = trial)`
-:::
-
-
-## Show the data, not only the summary {.smaller}
-
-```{r}
-#| label: geom-jitter
-#| fig-width: 9
-#| fig-height: 2.9
-ggplot(trial, aes(arm, sbp_12)) +
-  geom_boxplot(width = 0.45, outlier.shape = NA) +
-  geom_jitter(width = 0.12, alpha = 0.7, size = 2)
-```
-
-::: {.smaller}
-`outlier.shape = NA` stops the boxplot drawing outliers that `geom_jitter()`
-already drew. Two marks for one observation is a real error, not a style choice.
-:::
-
-
-## Comparisons: bars, and position adjustments {.smaller}
-
-```{r}
-#| label: geom-bar
-#| fig-width: 9
-#| fig-height: 2.7
-ggplot(trial, aes(site_f, fill = sex)) +
-  geom_bar(position = "dodge")
-```
-
-::: {.smaller}
-| `position =` | Shows | Good for |
-|---|---|---|
-| `"stack"` *(default)* | Counts, one bar per group | Totals |
-| `"dodge"` | Counts, side by side | Comparing subgroups |
-| `"fill"` | Proportions, all bars to 1 | Composition — but hides n |
-:::
-
-
-## Relationships: points and a smooth {.smaller}
-
-```{r}
-#| label: geom-smooth
-#| fig-width: 9
-#| fig-height: 2.8
-ggplot(trial, aes(age, sbp_12, colour = arm)) +
-  geom_point(alpha = 0.7) +
-  geom_smooth(method = "lm", se = TRUE, alpha = 0.15)
-```
-
-::: {.smaller}
-`method = "lm"` is a model you have chosen. The default, `"loess"`, is a model
-you have not — and the band is a confidence band for the *fit*, not a prediction
-interval.
-:::
-
-
-## Uncertainty: an estimate needs an interval {.smaller}
-
-```{r}
-#| label: geom-pointrange
-#| fig-width: 9
-#| fig-height: 2.6
-by_arm <- trial |>
-  group_by(arm) |>
-  summarise(mean_sbp = mean(sbp_12),
-            se = sd(sbp_12) / sqrt(n()))
-
-ggplot(by_arm, aes(arm, mean_sbp)) +
-  geom_pointrange(aes(ymin = mean_sbp - 1.96 * se,
-                      ymax = mean_sbp + 1.96 * se))
-```
-
-
-## Uncertainty over time: the ribbon {.smaller}
-
-```{r}
-#| label: geom-ribbon
-#| fig-width: 9
-#| fig-height: 2.4
-by_week <- trial_long |>
-  group_by(arm, week) |>
-  summarise(m = mean(sbp), se = sd(sbp) / sqrt(n()),
-            .groups = "drop")
-
-ggplot(by_week, aes(week, m, colour = arm, fill = arm)) +
-  geom_ribbon(aes(ymin = m - 1.96 * se, ymax = m + 1.96 * se),
-              alpha = 0.2, colour = NA) +
-  geom_line(linewidth = 1) +
-  scale_x_continuous(breaks = c(0, 6, 12))
-```
-
-
-## Facets: the same plot, split {.smaller}
-
-```{r}
-#| label: facet-wrap
-#| fig-width: 9
-#| fig-height: 2.6
-ggplot(trial, aes(sbp_0, sbp_12, colour = arm)) +
-  geom_point(alpha = 0.8) +
-  facet_wrap(~ site_f, nrow = 1)
-```
-
-::: {.smaller}
-`facet_wrap(~ x)` wraps one variable into panels · `facet_grid(a ~ b)` makes a
-matrix of two · `scales = "free_y"` lets each panel set its own axis, **which
-breaks comparability**.
-:::
-
-
-## Scales: where the transformation belongs {.smaller}
-
-::: columns
-::: {.column width="49%"}
-```{r}
-#| label: scale-raw
-#| fig-width: 4.6
-#| fig-height: 2.5
-ggplot(trial, aes(arm, crp)) +
-  geom_jitter(width = 0.1)
-```
-:::
-
-::: {.column width="49%"}
-```{r}
-#| label: scale-log
-#| fig-width: 4.6
-#| fig-height: 2.5
-ggplot(trial, aes(arm, crp)) +
-  geom_jitter(width = 0.1) +
-  scale_y_log10()
-```
-:::
-:::
-
-::: {.smaller}
-`scale_y_log10()` transforms the **scale** and keeps the axis in original units.
-`aes(y = log10(crp))` transforms the **data** and labels the axis `log10(crp)`.
-Prefer the scale.
-:::
-
-
-# 4 · Design principles {.section-divider}
-
-
-## The perceptual hierarchy {.smaller}
+## The perceptual hierarchy {.concept}
 
 How accurately a reader can decode a quantity, best first:
 
-::: {style="font-size:0.9em"}
 | Rank | Channel | Use it for |
 |---|---|---|
 | 1 | **Position** on a common scale | The number that carries your argument |
 | 2 | **Length** | Second choice; needs a zero baseline |
 | 3 | Angle, slope | Trends, reluctantly |
 | 4 | **Area** | Rough magnitude only |
-| 5 | Colour intensity, saturation | A third variable, not the main one |
-:::
+| 5 | Colour intensity, saturation | Broad patterns or a third variable |
 
 . . .
 
 ::: {.callout-important appearance="simple"}
-**Position beats length beats area beats colour.** Put your primary comparison on
-a shared axis, and never encode the effect you care about in colour.
+For precise comparisons, prefer positions on a shared axis. Colour remains
+useful for group identity and for patterns across large matrices.
 :::
 
 
@@ -585,7 +264,7 @@ ggplot(trial, aes(arm, sbp_12)) +
 ```
 
 
-## Two chart types to refuse {.smaller}
+## Pie charts and dual axes need care {.smaller}
 
 ::: columns
 ::: {.column width="46%"}
@@ -684,11 +363,10 @@ was doing work that shape or a direct label should have been doing.
 ggplot(by_week, aes(week, m, colour = arm)) +
   geom_line(linewidth = 1.1) +
   geom_point(size = 2) +
-  annotate("text", x = 12.4, y = 133, label = "Treatment",
-           colour = "#0072B2", hjust = 0, fontface = "bold") +
-  annotate("text", x = 12.4, y = 145, label = "Placebo",
-           colour = "#D55E00", hjust = 0, fontface = "bold") +
-  scale_colour_manual(values = c("#D55E00", "#0072B2")) +
+  geom_text(data = filter(by_week, week == 12),
+            aes(x = 12.4, label = arm),
+            hjust = 0, fontface = "bold") +
+  scale_colour_manual(values = arm_col) +
   scale_x_continuous(breaks = c(0, 6, 12),
                      limits = c(0, 16)) +
   labs(x = "Week", y = "Mean SBP (mmHg)") +
@@ -725,7 +403,7 @@ the test is: **remove it. Did the figure lose anything?**
 :::
 
 
-# 5 · Publication output {.section-divider}
+# 8 · Exporting the final figure {.section-divider}
 
 
 ## Finish it: `labs()` and a theme {.smaller}
@@ -751,11 +429,12 @@ p_final
 ## `ggsave()`, with the arguments filled in {.smaller}
 
 ```r
+dir.create("output", showWarnings = FALSE)
 ggsave(
-  filename = here::here("output", "fig-sbp-arm.png"),
+  filename = "output/fig-sbp-arm.png",
   plot     = p_final,
   width    = 6.5,     # inches - the column width of your journal
-  height   = 4,
+  height   = 4, units = "in",
   dpi      = 300,     # 300 for raster; journals ask for 300-600
   bg       = "white"
 )
@@ -766,8 +445,8 @@ ggsave(
 |---|---|
 | `width`, `height` | The last size of your **plot pane**. Irreproducible by construction |
 | `dpi` | 300 by default, but state it — reviewers ask |
-| `bg` | A transparent background that prints as grey in Word |
-| `.pdf` / `.svg` extension | Vector output: infinitely scalable, and what a typesetter wants |
+| `bg` | Background comes from the plot theme and may be transparent |
+| `.pdf` / `.svg` extension | Vector marks scale without pixelation; embedded raster layers still have finite resolution |
 :::
 
 
@@ -786,10 +465,10 @@ no warning appears anywhere.
 ::: {.column width="48%"}
 ### `ggsave()` in the document
 
-The figure is regenerated from the data on every render.
+The figure is regenerated when its code executes during rendering.
 
-**It cannot disagree with the analysis**, because there is only one copy of the
-truth.
+The script records the data and plotting steps. Check data versions and caching
+settings so the figure stays aligned with the analysis.
 :::
 :::
 
@@ -818,7 +497,7 @@ p_time <- ggplot(by_week, aes(week, m, colour = arm)) + geom_line()
 `|` side by side · `/` stacked · `plot_annotation(tag_levels = "A")` labels the
 panels **A**, **B**, **C** the way a journal wants them.
 
-Not installed on this machine — `install.packages("patchwork")`.
+Optional extension package: `install.packages("patchwork")` if needed.
 :::
 
 
@@ -826,6 +505,7 @@ Not installed on this machine — `install.packages("patchwork")`.
 ## Summary {.smaller}
 
 - Choose a figure from the statistical question and observation unit.
+- Base R supports complete figures with drawing commands, annotations, and file devices.
 - A ggplot is a specification of mappings, layers, scales, coordinates, facets, and theme.
 - Mapping a variable differs from setting a display property.
 - Show distributions and uncertainty rather than only summary bars.
@@ -835,3 +515,15 @@ Not installed on this machine — `install.packages("patchwork")`.
 
 **Next connection:** Session 9 introduces Positron and GitHub Copilot; course-approved AI use begins only under that session's policy.
 
+
+## Function references
+
+- [Base R graphics and graphical parameters](https://stat.ethz.ch/R-manual/R-devel/library/graphics/html/par.html)
+- [Base R plot()](https://stat.ethz.ch/R-manual/R-devel/library/graphics/html/plot.default.html)
+- [ggplot2 functions and geoms](https://ggplot2.tidyverse.org/reference/index.html)
+- [ggplot2 smoothing methods](https://ggplot2.tidyverse.org/reference/geom_smooth.html)
+- [ggplot2 interval geoms](https://ggplot2.tidyverse.org/reference/geom_linerange.html)
+- [ggplot2 export with ggsave()](https://ggplot2.tidyverse.org/reference/ggsave.html)
+
+The geom catalogue records the local package version and checks that every
+exported `geom_*()` name has an entry when the deck renders.

@@ -1,0 +1,32 @@
+/* Keep the existing course design, with readable code on added teaching slides. */
+.reveal .slide pre { font-size: 21px; line-height: 1.25; }
+.reveal .slide pre code { max-height: none; white-space: pre-wrap; }
+.reveal .slide .smaller { font-size: 0.92em; }
+.reveal .slide table { font-size: 0.83em; }
+.reveal .slide.geom-reference table { font-size: 0.88em; }
+.reveal .slide.geom-reference code { white-space: nowrap; }
+.reveal .slide .column { min-width: 0; }
+/* Code beside its generated figure avoids shrinking either beneath long code. */
+.reveal .slide > .cell:has(> .code-copy-outer-scaffold):has(img) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+}
+.reveal .slide > .cell:has(img) pre code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.reveal .slide .cell-output-display img {
+  max-height: 350px;
+  object-fit: contain;
+}
+/* Avoid compounded .smaller/table reductions on conceptual teaching slides. */
+.reveal .slides section.slide { font-size: 30px; line-height: 1.28; }
+.reveal .slides section.slide h2 { font-size: 40px; line-height: 1.15; }
+.reveal .slides section.slide.concept { font-size: 32px; }
+.reveal .slides section.slide.concept table { font-size: 30px; }
+.reveal .slides section.slide.geom-reference table { font-size: 26px; }
+.reveal .slides section.slide.gallery { font-size: 29px; }
+.reveal .slide.gallery .cell-output-display img { max-height: 390px; }
+.reveal .slide.gallery figure { margin: 0; }
