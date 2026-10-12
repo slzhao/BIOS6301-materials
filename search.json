@@ -1096,21 +1096,21 @@
     "href": "course/session08/index.html",
     "title": "Session 8 · Visualization",
     "section": "",
-    "text": "Choose a plot for a statistical question, read and construct layered ggplot2 code, create a fast base R diagnostic, and export a figure at an explicit size."
+    "text": "Choose a plot for a statistical question, construct and annotate base R plots, read and build layered ggplot2 code, and export a figure at an explicit size. Use the optional geom catalogue to find less familiar drawing methods."
   },
   {
     "objectID": "course/session08/index.html#learning-goals",
     "href": "course/session08/index.html#learning-goals",
     "title": "Session 8 · Visualization",
     "section": "",
-    "text": "Choose a plot for a statistical question, read and construct layered ggplot2 code, create a fast base R diagnostic, and export a figure at an explicit size."
+    "text": "Choose a plot for a statistical question, construct and annotate base R plots, read and build layered ggplot2 code, and export a figure at an explicit size. Use the optional geom catalogue to find less familiar drawing methods."
   },
   {
     "objectID": "course/session08/index.html#materials",
     "href": "course/session08/index.html#materials",
     "title": "Session 8 · Visualization",
     "section": "Materials",
-    "text": "Materials\n\nSlides\nGuided lab\nLab starter—choose one: starter/visualization-lab.Rmd or starter/visualization-lab.qmd\n\nEither base graphics or ggplot2 may be used where both support the communication goal. The lab asks for one figure in each style so that you can read both."
+    "text": "Materials\n\nSlides\nComplete ggplot2 geom catalogue in the slides\nGuided lab\nLab starter—choose one: starter/visualization-lab.Rmd or starter/visualization-lab.qmd\n\nEither base graphics or ggplot2 may be used where both support the communication goal. The lab asks for one figure in each style so that you can read both."
   },
   {
     "objectID": "course/session07/slides.html#session-6-skills-we-will-reuse",
@@ -4729,14 +4729,14 @@
     "href": "course/session08/slides.html#roadmap-for-today",
     "title": "Visualization",
     "section": "Roadmap for today",
-    "text": "Roadmap for today\n\n\n\n\n\n\n\n\n\nBlock\nMinutes\n\n\n\n\n1\nBase graphics, and why we then move on\n10\n\n\n2\nThe grammar of graphics\n15\n\n\n3\nLayers: geoms, facets, scales, positions\n30\n\n\n4\nDesign principles\n25\n\n\n5\nPublication output\n8\n\n\n6\nPractice and summary\n2\n\n\n\n\nEvery figure in this deck was rendered when the deck was built. None of them is a screenshot."
+    "text": "Roadmap for today\n\n\n\n\n\n\n\n\n\nBlock\nMinutes\n\n\n\n\n1\nBase R plots and annotations\n25\n\n\n2\nBuild a first ggplot\n12\n\n\n3\nChoose displays for distributions and groups\n12\n\n\n4\nAdd summaries and uncertainty\n10\n\n\n5\nShow repeated visits\n10\n\n\n6\nRefine scales and display choices\n6\n\n\n7\nCritique and improve a figure\n8\n\n\n8\nExport and summary\n7\n\n\n\n\nFigures are generated from R code when this deck renders. Optional reference slides provide extra examples for review."
   },
   {
     "objectID": "course/session08/slides.html#base-graphics-in-four-functions",
     "href": "course/session08/slides.html#base-graphics-in-four-functions",
     "title": "Visualization",
     "section": "Base graphics in four functions",
-    "text": "Base graphics in four functions\n\npar(mfrow = c(1, 3), mar = c(4, 4, 2, 1))\nhist(trial$sbp_0, main = \"hist\", xlab = \"SBP baseline\")\nboxplot(sbp_12 ~ arm, data = trial, main = \"boxplot\", xlab = \"\")\nplot(trial$sbp_0, trial$sbp_12, main = \"plot\", xlab = \"Session 0\",\n     ylab = \"Session 12\")\n\n\n\n\n\n\n\n\n\npar(mfrow = c(1, 3)) splits the device into a 1 × 3 grid. It is device state: it stays set until you change it back."
+    "text": "Base graphics in four functions\n\npar(mfrow = c(1, 3), mar = c(4, 4, 2, 1))\nhist(trial$sbp_0, main = \"hist\", xlab = \"SBP baseline\")\nboxplot(sbp_12 ~ arm, data = trial, main = \"boxplot\", xlab = \"\")\nplot(trial$sbp_0, trial$sbp_12, main = \"plot\", xlab = \"Week 0\",\n     ylab = \"Week 12\")\n\n\n\n\n\n\n\npar(mfrow = c(1, 1))\n\n\npar(mfrow = c(1, 3)) splits the device into a 1 × 3 grid. It is device state: it stays set until you change it back."
   },
   {
     "objectID": "course/session08/slides.html#the-one-base-graphics-habit-worth-keeping",
@@ -4757,14 +4757,14 @@
     "href": "course/session08/slides.html#a-plot-is-a-specification",
     "title": "Visualization",
     "section": "A plot is a specification",
-    "text": "A plot is a specification\nWilkinson’s idea, by way of Wickham: stop naming chart types. Describe the mapping from data to visual channels, and the chart type falls out.\n\n\n\n\n\n\n\n\n\nInstead of\nSay\n\n\n\n\n“a grouped bar chart”\nx = arm, y = mean, fill = sex, bars, dodged\n\n\n“a scatter plot with a trend line”\nx = Session 0, y = Session 12, points and a smooth\n\n\n“a boxplot”\nx = arm, y = SBP, boxplot statistic\n\n\n\n\n\n\n\n\n\n\n\n\nThere is no list of chart types to memorise. There is a small set of components that combine, which is why the learning curve is worth it: the fifth plot type costs you nothing new."
+    "text": "A plot is a specification\nQuestion: How does baseline blood pressure relate to week 12?\n\nData: one row per participant.\nx: baseline SBP.\ny: week 12 SBP.\nMarks: one point per participant.\n\nggplot(trial, aes(x = sbp_0, y = sbp_12)) +\n  geom_point()\nWe describe the data and its visual mappings, then choose how to draw it."
   },
   {
     "objectID": "course/session08/slides.html#seven-components-plus-a-theme",
     "href": "course/session08/slides.html#seven-components-plus-a-theme",
     "title": "Visualization",
     "section": "Seven components, plus a theme",
-    "text": "Seven components, plus a theme\n\n\n\n\n\n\n\n\n\nComponent\nQuestion it answers\nCode\n\n\n\n\ndata\nWhat is being plotted?\nggplot(trial, ...)\n\n\naesthetics\nWhich variable drives which channel?\naes(x = arm, y = sbp_12)\n\n\ngeoms\nWhat marks appear?\ngeom_point(), geom_col()\n\n\nstats\nWhat is computed before drawing?\nstat_smooth(), the count in a histogram\n\n\nscales\nHow do data values become positions, colours, sizes?\nscale_y_log10()\n\n\ncoords\nWhat is the coordinate system?\ncoord_flip(), coord_cartesian()\n\n\nfacets\nHow is the plot split into panels?\nfacet_wrap(~ site_f)\n\n\nthemes\nWhat does everything not data-driven look like?\ntheme_minimal()\n\n\n\n\n\n\nOnly data, aesthetics and one geom are required. Everything else has a default that is usually right."
+    "text": "Seven components, plus a theme\nThe first four determine the data shown in a layer.\n\n\n\nComponent\nIn our study\n\n\n\n\nData\nParticipant records in trial\n\n\nAesthetics\naes(x = sbp_0, y = sbp_12)\n\n\nGeom\ngeom_point() draws each participant\n\n\nStat\nPoints use raw values; a histogram counts bins\n\n\n\nMost early examples need only data, mappings, and a geom."
   },
   {
     "objectID": "course/session08/slides.html#minimum-viable-ggplot-then-a-layer",
@@ -4778,21 +4778,21 @@
     "href": "course/session08/slides.html#aes-means-map.-outside-means-set",
     "title": "Visualization",
     "section": "aes() means map. Outside means set",
-    "text": "aes() means map. Outside means set\n\n\n\nggplot(trial, aes(sbp_0, sbp_12,\n                  colour = arm)) +\n  geom_point()\n\n\n\n\n\n\n\n\n\n\nggplot(trial, aes(sbp_0, sbp_12)) +\n  geom_point(colour = \"steelblue\")\n\n\n\n\n\n\n\n\n\n\nInside aes(): colour carries information, and you get a legend. Outside: colour is decoration, and no legend is possible."
+    "text": "aes() means map. Outside means set\n\n\n\nggplot(trial, aes(sbp_0, sbp_12,\n                  colour = arm)) +\n  geom_point()\n\n\n\n\n\n\n\n\n\n\nggplot(trial, aes(sbp_0, sbp_12)) +\n  geom_point(colour = \"steelblue\")\n\n\n\n\n\n\n\n\n\n\nInside aes(): colour carries information, and you get a legend. Outside: colour is fixed, and this setting does not create a mapped legend."
   },
   {
     "objectID": "course/session08/slides.html#distributions-histogram-and-density",
     "href": "course/session08/slides.html#distributions-histogram-and-density",
     "title": "Visualization",
     "section": "Distributions: histogram and density",
-    "text": "Distributions: histogram and density\n\n\n\nggplot(trial, aes(sbp_0)) +\n  geom_histogram(binwidth = 8,\n                 fill = \"grey35\")\n\n\n\n\n\n\n\n\n\n\nggplot(trial, aes(sbp_0)) +\n  geom_density(fill = \"grey80\")\n\n\n\n\n\n\n\n\n\n\nSet binwidth in the units of the variable — “8 mmHg” is a decision you can defend. bins = 30 is a default you cannot.\nThe base R way: hist(trial$sbp_0) · plot(density(trial$sbp_0))"
+    "text": "Distributions: histogram and density\n\n\n\nggplot(trial, aes(sbp_0)) +\n  geom_histogram(binwidth = 8,\n                 fill = \"grey35\")\n\n\n\n\n\n\n\n\n\n\nggplot(trial, aes(sbp_0)) +\n  geom_density(fill = \"grey80\")\n\n\n\n\n\n\n\n\n\n\nbinwidth = 8 uses 8-mmHg bins. bins = 30 asks for a number of bins. Either choice needs checking: try alternatives and see whether the pattern persists.\nThe base R way: hist(trial$sbp_0) · plot(density(trial$sbp_0))"
   },
   {
     "objectID": "course/session08/slides.html#distributions-compared-boxplot-and-violin",
     "href": "course/session08/slides.html#distributions-compared-boxplot-and-violin",
     "title": "Visualization",
     "section": "Distributions compared: boxplot and violin",
-    "text": "Distributions compared: boxplot and violin\n\n\n\nggplot(trial, aes(arm, sbp_12)) +\n  geom_boxplot(width = 0.5)\n\n\n\n\n\n\n\n\n\n\nggplot(trial, aes(arm, sbp_12)) +\n  geom_violin(fill = \"grey85\")\n\n\n\n\n\n\n\n\n\n\nA boxplot shows five numbers. A violin shows a density. Neither shows n, and neither would look different if half the data were missing.\nThe base R way: boxplot(sbp_12 ~ arm, data = trial)"
+    "text": "Distributions compared: boxplot and violin\n\n\n\nggplot(trial, aes(arm, sbp_12)) +\n  geom_boxplot(width = 0.5)\n\n\n\n\n\n\n\n\n\n\nggplot(trial, aes(arm, sbp_12)) +\n  geom_violin(fill = \"grey85\")\n\n\n\n\n\n\n\n\n\n\nA boxplot shows the median, quartiles, whiskers, and possible outlying points. A violin shows an estimated density. Neither displays the sample size by default.\nThe base R way: boxplot(sbp_12 ~ arm, data = trial)"
   },
   {
     "objectID": "course/session08/slides.html#show-the-data-not-only-the-summary",
@@ -4813,7 +4813,7 @@
     "href": "course/session08/slides.html#relationships-points-and-a-smooth",
     "title": "Visualization",
     "section": "Relationships: points and a smooth",
-    "text": "Relationships: points and a smooth\n\nggplot(trial, aes(age, sbp_12, colour = arm)) +\n  geom_point(alpha = 0.7) +\n  geom_smooth(method = \"lm\", se = TRUE, alpha = 0.15)\n\n\n\n\n\n\n\n\n\nmethod = \"lm\" is a model you have chosen. The default, \"loess\", is a model you have not — and the band is a confidence band for the fit, not a prediction interval."
+    "text": "Relationships: points and a smooth\n\nggplot(trial, aes(age, sbp_12, colour = arm)) +\n  geom_point(alpha = 0.7) +\n  geom_smooth(method = \"lm\", se = TRUE, alpha = 0.15)\n\n\n\n\n\n\n\n\n\nmethod = \"lm\" specifies a linear fit. With method = NULL, ggplot2 chooses loess or GAM according to the largest group’s size. The band describes uncertainty in the fitted mean, not a prediction interval for an individual."
   },
   {
     "objectID": "course/session08/slides.html#uncertainty-an-estimate-needs-an-interval",
@@ -4848,7 +4848,7 @@
     "href": "course/session08/slides.html#the-perceptual-hierarchy",
     "title": "Visualization",
     "section": "The perceptual hierarchy",
-    "text": "The perceptual hierarchy\nHow accurately a reader can decode a quantity, best first:\n\n\n\n\n\n\n\n\n\nRank\nChannel\nUse it for\n\n\n\n\n1\nPosition on a common scale\nThe number that carries your argument\n\n\n2\nLength\nSecond choice; needs a zero baseline\n\n\n3\nAngle, slope\nTrends, reluctantly\n\n\n4\nArea\nRough magnitude only\n\n\n5\nColour intensity, saturation\nA third variable, not the main one\n\n\n\n\n\n\n\n\n\n\n\nPosition beats length beats area beats colour. Put your primary comparison on a shared axis, and never encode the effect you care about in colour."
+    "text": "The perceptual hierarchy\nHow accurately a reader can decode a quantity, best first:\n\n\n\n\n\n\n\n\nRank\nChannel\nUse it for\n\n\n\n\n1\nPosition on a common scale\nThe number that carries your argument\n\n\n2\nLength\nSecond choice; needs a zero baseline\n\n\n3\nAngle, slope\nTrends, reluctantly\n\n\n4\nArea\nRough magnitude only\n\n\n5\nColour intensity, saturation\nBroad patterns or a third variable\n\n\n\n\n\n\n\n\n\n\nFor precise comparisons, prefer positions on a shared axis. Colour remains useful for group identity and for patterns across large matrices."
   },
   {
     "objectID": "course/session08/slides.html#critique-what-is-wrong-here",
@@ -4904,28 +4904,28 @@
     "href": "course/session08/slides.html#ggsave-with-the-arguments-filled-in",
     "title": "Visualization",
     "section": "ggsave(), with the arguments filled in",
-    "text": "ggsave(), with the arguments filled in\nggsave(\n  filename = here::here(\"output\", \"fig-sbp-arm.png\"),\n  plot     = p_final,\n  width    = 6.5,     # inches - the column width of your journal\n  height   = 4,\n  dpi      = 300,     # 300 for raster; journals ask for 300-600\n  bg       = \"white\"\n)\n\n\n\n\n\n\n\n\nArgument\nLeave it out and you get\n\n\n\n\nwidth, height\nThe last size of your plot pane. Irreproducible by construction\n\n\ndpi\n300 by default, but state it — reviewers ask\n\n\nbg\nA transparent background that prints as grey in Word\n\n\n.pdf / .svg extension\nVector output: infinitely scalable, and what a typesetter wants"
+    "text": "ggsave(), with the arguments filled in\ndir.create(\"output\", showWarnings = FALSE)\nggsave(\n  filename = \"output/fig-sbp-arm.png\",\n  plot     = p_final,\n  width    = 6.5,     # inches - the column width of your journal\n  height   = 4, units = \"in\",\n  dpi      = 300,     # 300 for raster; journals ask for 300-600\n  bg       = \"white\"\n)\n\n\n\n\n\n\n\n\nArgument\nLeave it out and you get\n\n\n\n\nwidth, height\nThe last size of your plot pane. Irreproducible by construction\n\n\ndpi\n300 by default, but state it — reviewers ask\n\n\nbg\nBackground comes from the plot theme and may be transparent\n\n\n.pdf / .svg extension\nVector marks scale without pixelation; embedded raster layers still have finite resolution"
   },
   {
     "objectID": "course/session08/slides.html#why-the-plot-pane-is-not-a-workflow",
     "href": "course/session08/slides.html#why-the-plot-pane-is-not-a-workflow",
     "title": "Visualization",
     "section": "Why the plot pane is not a workflow",
-    "text": "Why the plot pane is not a workflow\n\n\nExport → paste\nRight-click, copy, paste into Word.\nNothing records what produced it. The data changes, the figure does not, and no warning appears anywhere.\n\nggsave() in the document\nThe figure is regenerated from the data on every render.\nIt cannot disagree with the analysis, because there is only one copy of the truth.\n\n\n\n\n\n\n\n\nA pasted figure is the same class of error as a number typed by hand — and it is harder to spot, because a stale figure still looks like a figure."
+    "text": "Why the plot pane is not a workflow\n\n\nExport → paste\nRight-click, copy, paste into Word.\nNothing records what produced it. The data changes, the figure does not, and no warning appears anywhere.\n\nggsave() in the document\nThe figure is regenerated when its code executes during rendering.\nThe script records the data and plotting steps. Check data versions and caching settings so the figure stays aligned with the analysis.\n\n\n\n\n\n\n\n\nA pasted figure is the same class of error as a number typed by hand — and it is harder to spot, because a stale figure still looks like a figure."
   },
   {
     "objectID": "course/session08/slides.html#patchwork-several-panels-one-figure",
     "href": "course/session08/slides.html#patchwork-several-panels-one-figure",
     "title": "Visualization",
     "section": "patchwork: several panels, one figure",
-    "text": "patchwork: several panels, one figure\nlibrary(patchwork)\n\np_box  &lt;- ggplot(trial, aes(arm, sbp_12)) + geom_boxplot()\np_scat &lt;- ggplot(trial, aes(sbp_0, sbp_12)) + geom_point()\np_time &lt;- ggplot(by_week, aes(week, m, colour = arm)) + geom_line()\n\n(p_box | p_scat) / p_time +\n  plot_annotation(tag_levels = \"A\")\n\n| side by side · / stacked · plot_annotation(tag_levels = \"A\") labels the panels A, B, C the way a journal wants them.\nNot installed on this machine — install.packages(\"patchwork\")."
+    "text": "patchwork: several panels, one figure\nlibrary(patchwork)\n\np_box  &lt;- ggplot(trial, aes(arm, sbp_12)) + geom_boxplot()\np_scat &lt;- ggplot(trial, aes(sbp_0, sbp_12)) + geom_point()\np_time &lt;- ggplot(by_week, aes(week, m, colour = arm)) + geom_line()\n\n(p_box | p_scat) / p_time +\n  plot_annotation(tag_levels = \"A\")\n\n| side by side · / stacked · plot_annotation(tag_levels = \"A\") labels the panels A, B, C the way a journal wants them.\nOptional extension package: install.packages(\"patchwork\") if needed."
   },
   {
     "objectID": "course/session08/slides.html#summary",
     "href": "course/session08/slides.html#summary",
     "title": "Visualization",
     "section": "Summary",
-    "text": "Summary\n\nChoose a figure from the statistical question and observation unit.\nA ggplot is a specification of mappings, layers, scales, coordinates, facets, and theme.\nMapping a variable differs from setting a display property.\nShow distributions and uncertainty rather than only summary bars.\nExported dimensions, labels, accessibility, and reproducibility are part of the figure.\n\n\nNext connection: Session 9 introduces Positron and GitHub Copilot; course-approved AI use begins only under that session’s policy."
+    "text": "Summary\n\nChoose a figure from the statistical question and observation unit.\nBase R supports complete figures with drawing commands, annotations, and file devices.\nA ggplot is a specification of mappings, layers, scales, coordinates, facets, and theme.\nMapping a variable differs from setting a display property.\nShow distributions and uncertainty rather than only summary bars.\nExported dimensions, labels, accessibility, and reproducibility are part of the figure.\n\n\nNext connection: Session 9 introduces Positron and GitHub Copilot; course-approved AI use begins only under that session’s policy."
   },
   {
     "objectID": "course/session09/index.html",
@@ -6095,5 +6095,425 @@
     "title": "Joining, Reshaping, and Cleaning Data",
     "section": "A practical calculation after widening",
     "text": "A practical calculation after widening\n\nmarker_back |&gt;\n  mutate(change = marker_w4 - marker_w0) |&gt;\n  select(id, change)\n\n# A tibble: 4 x 2\n  id    change\n  &lt;chr&gt;  &lt;dbl&gt;\n1 P01    0.300\n2 P02   -0.5  \n3 P03   -0.9  \n4 P05    0.100\n\n\nEach row now contains one participant’s baseline-to-week-4 change.\nFor this fixed pair of visits, two measurement columns make the calculation direct."
+  },
+  {
+    "objectID": "course/session08/slides.html#the-teaching-data",
+    "href": "course/session08/slides.html#the-teaching-data",
+    "title": "Visualization",
+    "section": "The teaching data",
+    "text": "The teaching data\nAll observations in this session are synthetic.\n\n\n\n\n\nid\narm\nage\nsbp_0\nsbp_12\n\n\n\n\nP001\nPlacebo\n47\n160\n144\n\n\nP002\nPlacebo\n59\n162\n156\n\n\nP003\nPlacebo\n61\n157\n156\n\n\nP004\nPlacebo\n48\n157\n163\n\n\n\n\n\n\nOne row represents one participant.\nsbp_0 and sbp_12 are systolic blood pressure at baseline and week 12, in mmHg.\ntrial_long has one row per participant per visit, as in Session 7."
+  },
+  {
+    "objectID": "course/session08/slides.html#a-plot-starts-with-a-question",
+    "href": "course/session08/slides.html#a-plot-starts-with-a-question",
+    "title": "Visualization",
+    "section": "A plot starts with a question",
+    "text": "A plot starts with a question\n\n\n\n\n\n\n\nQuestion\nUseful starting plot\n\n\n\n\nWhat values and unusual observations occur?\nHistogram or dot plot\n\n\nHow do participant values differ by arm?\nBoxplot with individual points\n\n\nHow does baseline relate to follow-up?\nScatterplot\n\n\nHow does one participant change over time?\nConnected points, grouped by ID\n\n\nHow many participants come from each site?\nBar chart of counts\n\n\n\nThe same plotting function may answer different questions. Labels and the observation unit tell the reader which question you mean."
+  },
+  {
+    "objectID": "course/session08/slides.html#a-labelled-scatterplot-in-base-r",
+    "href": "course/session08/slides.html#a-labelled-scatterplot-in-base-r",
+    "title": "Visualization",
+    "section": "A labelled scatterplot in base R",
+    "text": "A labelled scatterplot in base R\n\nplot(trial$sbp_0, trial$sbp_12,\n     xlab = \"Baseline SBP (mmHg)\",\n     ylab = \"Week 12 SBP (mmHg)\",\n     main = \"Baseline and follow-up\",\n     pch = 19, col = \"steelblue\")\n\n\n\n\n\n\n\n\nplot(x, y) puts the first numeric vector on x and the second on y."
+  },
+  {
+    "objectID": "course/session08/slides.html#common-base-r-plotting-arguments",
+    "href": "course/session08/slides.html#common-base-r-plotting-arguments",
+    "title": "Visualization",
+    "section": "Common base R plotting arguments",
+    "text": "Common base R plotting arguments\n\n\n\n\n\n\n\n\nArgument\nMeaning\nExample\n\n\n\n\npch\nPoint symbol\npch = 19 for a filled circle\n\n\ncol\nColour\ncol = \"steelblue\"\n\n\ncex\nSymbol/text size multiplier\ncex = 1.3\n\n\nlty, lwd\nLine pattern and width\nlty = 2, lwd = 2\n\n\nxlab, ylab, main\nAxis labels and title\nylab = \"SBP (mmHg)\"\n\n\nxlim, ylim\nDisplay limits\nylim = c(90, 190)\n\n\n\nUse ?plot.default and ?par to look up options as needed."
+  },
+  {
+    "objectID": "course/session08/slides.html#adding-a-reference-line",
+    "href": "course/session08/slides.html#adding-a-reference-line",
+    "title": "Visualization",
+    "section": "Adding a reference line",
+    "text": "Adding a reference line\n\nplot(trial$sbp_0, trial$sbp_12,\n     xlab = \"Baseline SBP (mmHg)\", ylab = \"Week 12 SBP (mmHg)\",\n     xlim = c(90, 190), ylim = c(90, 190), pch = 19)\nabline(a = 0, b = 1, lty = 2, col = \"grey40\")\n\n\n\n\n\n\n\n\na is the intercept and b is the slope. Below the line, follow-up is lower than baseline. This line represents equality, not a fitted regression."
+  },
+  {
+    "objectID": "course/session08/slides.html#colours-and-a-legend-by-treatment-arm",
+    "href": "course/session08/slides.html#colours-and-a-legend-by-treatment-arm",
+    "title": "Visualization",
+    "section": "Colours and a legend by treatment arm",
+    "text": "Colours and a legend by treatment arm\n\nplot(trial$sbp_0, trial$sbp_12, pch = 19,\n     col = arm_col[trial$arm],\n     xlab = \"Baseline SBP (mmHg)\", ylab = \"Week 12 SBP (mmHg)\")\nlegend(\"topleft\", legend = names(arm_col),\n       col = arm_col, pch = 19, bty = \"n\")\n\n\n\n\n\n\n\n\narm_col is a named vector: c(Placebo = \"#D55E00\", Treatment = \"#0072B2\"). Indexing it by arm assigns the same colour consistently."
+  },
+  {
+    "objectID": "course/session08/slides.html#new-plot-or-added-marks",
+    "href": "course/session08/slides.html#new-plot-or-added-marks",
+    "title": "Visualization",
+    "section": "New plot or added marks?",
+    "text": "New plot or added marks?\n\n\n\nCreates a new plot\nAdds to the current plot\n\n\n\n\nplot()\npoints()\n\n\nhist()\nlines()\n\n\nboxplot()\nabline()\n\n\nbarplot()\ntext(), legend()\n\n\n\nFor example, points(x, y, col = \"red\") adds observations to existing axes. Calling plot(x, y) again normally starts a new plot."
+  },
+  {
+    "objectID": "course/session08/slides.html#connected-measurements-from-one-participant",
+    "href": "course/session08/slides.html#connected-measurements-from-one-participant",
+    "title": "Visualization",
+    "section": "Connected measurements from one participant",
+    "text": "Connected measurements from one participant\n\nweeks &lt;- c(0, 6, 12)\nvalues &lt;- c(trial$sbp_0[1], trial$sbp_6[1], trial$sbp_12[1])\nplot(weeks, values, type = \"b\", pch = 19,\n     xlab = \"Week\", ylab = \"SBP (mmHg)\", xaxt = \"n\")\naxis(1, at = weeks)\n\n\n\n\n\n\n\n\ntype = \"p\" draws points, \"l\" draws lines, and \"b\" draws both. Base R connects points in supplied order, so arrange time first."
+  },
+  {
+    "objectID": "course/session08/slides.html#histogram-bins-change-the-picture",
+    "href": "course/session08/slides.html#histogram-bins-change-the-picture",
+    "title": "Visualization",
+    "section": "Histogram bins change the picture",
+    "text": "Histogram bins change the picture\n\nsaved_par &lt;- par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))\nhist(trial$sbp_0, breaks = seq(80, 210, 5),\n     main = \"5-mmHg bins\", xlab = \"Baseline SBP (mmHg)\")\nhist(trial$sbp_0, breaks = seq(80, 220, 20),\n     main = \"20-mmHg bins\", xlab = \"Baseline SBP (mmHg)\")\n\n\n\n\n\n\n\npar(saved_par)\n\nA vector in breaks specifies bin boundaries. A single number requests an approximate number of bins. A pattern should not depend on one convenient choice."
+  },
+  {
+    "objectID": "course/session08/slides.html#boxplots-with-participant-level-values",
+    "href": "course/session08/slides.html#boxplots-with-participant-level-values",
+    "title": "Visualization",
+    "section": "Boxplots with participant-level values",
+    "text": "Boxplots with participant-level values\n\nboxplot(sbp_12 ~ arm, data = trial, outline = FALSE,\n        ylab = \"Week 12 SBP (mmHg)\", xlab = \"\")\nstripchart(sbp_12 ~ arm, data = trial,\n           vertical = TRUE, method = \"jitter\",\n           pch = 19, col = \"steelblue\", add = TRUE)\n\n\n\n\n\n\n\n\nThe formula outcome ~ group splits the outcome by group. The added dots expose individual variation. outline = FALSE avoids drawing extreme observations twice."
+  },
+  {
+    "objectID": "course/session08/slides.html#bar-charts-use-counts-or-summaries",
+    "href": "course/session08/slides.html#bar-charts-use-counts-or-summaries",
+    "title": "Visualization",
+    "section": "Bar charts use counts or summaries",
+    "text": "Bar charts use counts or summaries\n\nsite_counts &lt;- table(trial$site_f)\nbarplot(site_counts, col = \"steelblue\",\n        xlab = \"Recruiting site\", ylab = \"Number of participants\")\n\n\n\n\n\n\n\n\ntable() calculates the counts. barplot() draws their heights. A histogram instead bins a numeric variable such as blood pressure."
+  },
+  {
+    "objectID": "course/session08/slides.html#base-diagnostics",
+    "href": "course/session08/slides.html#base-diagnostics",
+    "title": "Visualization",
+    "section": "Optional: distribution diagnostics",
+    "text": "Optional: distribution diagnostics\n\nsaved_par &lt;- par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))\nplot(ecdf(trial$sbp_0), main = \"Cumulative proportion\",\n     xlab = \"Baseline SBP (mmHg)\", ylab = \"Proportion at or below x\")\nqqnorm(trial$sbp_0, main = \"Normal Q-Q plot\")\nqqline(trial$sbp_0, col = \"steelblue\")\n\n\n\n\n\n\n\npar(saved_par)\n\nAn empirical CDF needs no bins. A Q-Q plot compares sample quantiles with a reference distribution. A roughly straight pattern is not proof of normality."
+  },
+  {
+    "objectID": "course/session08/slides.html#multiple-panels-and-graphics-state",
+    "href": "course/session08/slides.html#multiple-panels-and-graphics-state",
+    "title": "Visualization",
+    "section": "Multiple panels and graphics state",
+    "text": "Multiple panels and graphics state\nsaved_par &lt;- par(mfrow = c(1, 2))  # one row, two columns\nhist(trial$sbp_0)\nhist(trial$sbp_12)\npar(saved_par)                    # restore changed settings\n\npar() affects the current graphics device.\nRestore settings after the multi-panel display.\nIf separate panels need direct comparison, choose common axis limits.\npar(mfrow = c(1, 1)) resets the layout, but does not reset every other option."
+  },
+  {
+    "objectID": "course/session08/slides.html#saving-a-base-r-figure",
+    "href": "course/session08/slides.html#saving-a-base-r-figure",
+    "title": "Visualization",
+    "section": "Saving a base R figure",
+    "text": "Saving a base R figure\ndir.create(\"output\", showWarnings = FALSE)\npng(\"output/base-sbp.png\", width = 6, height = 4,\n    units = \"in\", res = 300)\nplot(trial$sbp_0, trial$sbp_12,\n     xlab = \"Baseline SBP (mmHg)\", ylab = \"Week 12 SBP (mmHg)\")\ndev.off()\nThe file device receives drawing commands until dev.off() closes it. Use pdf(\"output/base-sbp.pdf\", width = 6, height = 4) for vector output."
+  },
+  {
+    "objectID": "course/session08/slides.html#a-quick-panel-of-distributions",
+    "href": "course/session08/slides.html#a-quick-panel-of-distributions",
+    "title": "Visualization",
+    "section": "A quick panel of distributions",
+    "text": "A quick panel of distributions\n\npar(mfrow = c(1, 4), mar = c(4, 4, 2, 1))\nhist(trial$age,       main = \"age\")\nhist(trial$weight_kg, main = \"weight_kg\")\nhist(trial$sbp_0,     main = \"sbp_0\")\nhist(trial$crp,       main = \"crp\")\n\n\n\n\n\n\n\npar(mfrow = c(1, 1))\n\n\n\nFour columns, one screen, five seconds. You are not making a figure — you are checking that the file is what you think it is. crp is right-skewed and you now know it before you fit anything."
+  },
+  {
+    "objectID": "course/session08/slides.html#two-plotting-workflows",
+    "href": "course/session08/slides.html#two-plotting-workflows",
+    "title": "Visualization",
+    "section": "Two plotting workflows",
+    "text": "Two plotting workflows\n\nBase graphics: draw to a graphics device, then add points, lines, or labels. Many functions share options such as col, xlab, and ylim.\nggplot2: build a plot object, then add or change layers and scales. Grouping, legends, and facets follow shared rules.\nBoth can produce reproducible, publication-quality figures. Choose the workflow that makes your analysis easy to understand and maintain."
+  },
+  {
+    "objectID": "course/session08/slides.html#our-ggplot2-route",
+    "href": "course/session08/slides.html#our-ggplot2-route",
+    "title": "Visualization",
+    "section": "Our ggplot2 route",
+    "text": "Our ggplot2 route\nWe will keep returning to the same synthetic blood-pressure study.\n\nBuild a plot: baseline versus follow-up.\nChoose displays: distributions and arm comparisons.\nAdd summaries: means, intervals, and fitted trends.\nShow repeated visits: one line per participant.\nRefine and export: scales, labels, accessibility, and file size."
+  },
+  {
+    "objectID": "course/session08/slides.html#scales-coordinates-facets-and-theme",
+    "href": "course/session08/slides.html#scales-coordinates-facets-and-theme",
+    "title": "Visualization",
+    "section": "Scales, coordinates, facets, and theme",
+    "text": "Scales, coordinates, facets, and theme\nThe remaining components control how the plot appears.\n\n\n\n\n\n\n\n\nComponent\nRole\nExample\n\n\n\n\nScales\nTranslate values to positions or colours\nLogarithmic y axis\n\n\nCoordinates\nDefine the plotting space and view\nZoom into a region\n\n\nFacets\nRepeat a plot for subsets\nOne panel per site\n\n\nTheme\nStyle non-data elements\nFonts and grid lines\n\n\n\nWe will add these after the basic plot answers the scientific question."
+  },
+  {
+    "objectID": "course/session08/slides.html#a-first-ggplot-axes-then-points",
+    "href": "course/session08/slides.html#a-first-ggplot-axes-then-points",
+    "title": "Visualization",
+    "section": "A first ggplot: axes, then points",
+    "text": "A first ggplot: axes, then points\n\n\n\nggplot(trial, aes(sbp_0, sbp_12))\n\n\n\n\n\n\n\n\n\n\nggplot(trial, aes(sbp_0, sbp_12)) +\n  geom_point()\n\n\n\n\n\n\n\n\n\nData and mappings establish the axes. The geom adds visible marks."
+  },
+  {
+    "objectID": "course/session08/slides.html#the-pipe-and-the-plus-sign-have-different-jobs",
+    "href": "course/session08/slides.html#the-pipe-and-the-plus-sign-have-different-jobs",
+    "title": "Visualization",
+    "section": "The pipe and the plus sign have different jobs",
+    "text": "The pipe and the plus sign have different jobs\ntrial |&gt;\n  filter(site == 1) |&gt;\n  ggplot(aes(sbp_0, sbp_12)) +\n  geom_point() +\n  labs(x = \"Baseline SBP (mmHg)\",\n       y = \"Week 12 SBP (mmHg)\")\n\n|&gt; passes the filtered data into ggplot().\n+ adds plotting components to the ggplot object.\nPut + at the end of a line when continuing the expression.\nggplot(...) |&gt; geom_point() does not mean “add a point layer.”"
+  },
+  {
+    "objectID": "course/session08/slides.html#a-ggplot-object-can-be-revised",
+    "href": "course/session08/slides.html#a-ggplot-object-can-be-revised",
+    "title": "Visualization",
+    "section": "A ggplot object can be revised",
+    "text": "A ggplot object can be revised\n\np_scatter &lt;- ggplot(trial, aes(sbp_0, sbp_12)) +\n  geom_point()\np_scatter + labs(x = \"Baseline SBP (mmHg)\",\n                 y = \"Week 12 SBP (mmHg)\")\n\n\n\n\n\n\n\n\np_scatter + ... displays a revised plot. To keep that version, assign it: p_scatter &lt;- p_scatter + labs(...)."
+  },
+  {
+    "objectID": "course/session08/slides.html#colour-fill-and-shape",
+    "href": "course/session08/slides.html#colour-fill-and-shape",
+    "title": "Visualization",
+    "section": "Colour, fill, and shape",
+    "text": "Colour, fill, and shape\n\nggplot(trial, aes(sbp_0, sbp_12, fill = arm)) +\n  geom_point(shape = 21, colour = \"black\", size = 3) +\n  scale_fill_manual(values = arm_col) +\n  labs(x = \"Baseline SBP (mmHg)\", y = \"Week 12 SBP (mmHg)\")\n\n\n\n\n\n\n\n\nFor shapes 21–25, fill controls the interior and colour controls the border. For most other point shapes, use colour. For bars, fill colours the interior."
+  },
+  {
+    "objectID": "course/session08/slides.html#questions-that-need-different-displays",
+    "href": "course/session08/slides.html#questions-that-need-different-displays",
+    "title": "Visualization",
+    "section": "Questions that need different displays",
+    "text": "Questions that need different displays\n\nDistribution: What baseline values occur?\nComparison: How do week-12 values differ between arms?\nCounts: How many participants belong to each category?\n\nWe will keep the study data, but change the variables and marks."
+  },
+  {
+    "objectID": "course/session08/slides.html#choosing-a-geom",
+    "href": "course/session08/slides.html#choosing-a-geom",
+    "title": "Visualization",
+    "section": "Choosing a geom",
+    "text": "Choosing a geom\nA geom is a layer’s drawing method: points, lines, bars, text, or another mark. Some geoms also compute a default summary before drawing.\n\n\n\n\n\n\n\nYour data/question\nStart with\n\n\n\n\nTwo numeric measurements per person\ngeom_point()\n\n\nOne numeric variable’s distribution\ngeom_histogram()\n\n\nA numeric outcome across groups\ngeom_boxplot() plus points\n\n\nCounts of records by category\ngeom_bar()\n\n\nHeights already calculated in a table\ngeom_col()\n\n\nRepeated measurements within a person\ngeom_line() with group = id"
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-catalogue",
+    "href": "course/session08/slides.html#geom-catalogue",
+    "title": "Visualization",
+    "section": "Optional: complete ggplot2 geom catalogue",
+    "text": "Optional: complete ggplot2 geom catalogue\nThe next slides list the exported geom_*() functions in the ggplot2 version used to render this deck, including aliases and older interfaces.\n\nThey are a lookup reference, not a memorization requirement.\nExtension-package geoms, such as ggrepel::geom_text_repel(), are separate.\nstat_*(), scales, and themes are different function families.\n\nSkip the catalogue and continue to distributions\nOfficial ggplot2 function reference"
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-reference-points-and-labels",
+    "href": "course/session08/slides.html#geom-reference-points-and-labels",
+    "title": "Visualization",
+    "section": "Geom reference: points and labels",
+    "text": "Geom reference: points and labels\n\n\n\n\n\nFunction\nPurpose\n\n\n\n\ngeom_point()\nOne mark at each x/y location\n\n\ngeom_jitter()\nPoints with position offsets to reveal overlap\n\n\ngeom_count()\nPoint area represents the number at an x/y location\n\n\ngeom_rug()\nSmall marks along the plot margins\n\n\ngeom_text()\nText from a label variable\n\n\ngeom_label()\nText with a background box"
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-examples-points-and-jitter",
+    "href": "course/session08/slides.html#geom-examples-points-and-jitter",
+    "title": "Visualization",
+    "section": "Geom examples: points and jitter",
+    "text": "Geom examples: points and jitter\n\n\n\n\n\n\n\n\n\nPoints show a relationship between two measurements. Jitter separates overlapping observations within categories. Both show individual participants."
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-reference-connected-observations",
+    "href": "course/session08/slides.html#geom-reference-connected-observations",
+    "title": "Visualization",
+    "section": "Geom reference: connected observations",
+    "text": "Geom reference: connected observations\n\n\n\n\n\nFunction\nPurpose\n\n\n\n\ngeom_line()\nConnect observations in x order within each group\n\n\ngeom_path()\nConnect observations in their row order\n\n\ngeom_step()\nConnect observations using steps\n\n\ngeom_segment()\nSeparate segments, with start and end coordinates\n\n\ngeom_curve()\nCurved connections between endpoints\n\n\ngeom_spoke()\nSegments specified by angle and length\n\n\n\n\n\nConnecting observations implies a relationship or order. It is usually inappropriate to connect unrelated participants just because their rows are adjacent."
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-examples-line-and-step",
+    "href": "course/session08/slides.html#geom-examples-line-and-step",
+    "title": "Visualization",
+    "section": "Geom examples: line and step",
+    "text": "Geom examples: line and step\n\n\n\n\n\n\n\n\n\nA line connects measured summaries. A step can represent a dose held constant until the next change. The right-hand schedule is a separate synthetic example."
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-reference-distributions",
+    "href": "course/session08/slides.html#geom-reference-distributions",
+    "title": "Visualization",
+    "section": "Geom reference: distributions",
+    "text": "Geom reference: distributions\n\n\n\n\n\nFunction\nPurpose\n\n\n\n\ngeom_histogram()\nCounts or densities in numeric bins\n\n\ngeom_freqpoly()\nA line through binned frequencies\n\n\ngeom_density()\nA smooth estimate of a one-variable density\n\n\ngeom_dotplot()\nStacked dots in bins\n\n\ngeom_boxplot()\nMedian, quartiles, whiskers, and extreme points\n\n\ngeom_violin()\nA mirrored density for each group\n\n\ngeom_qq()\nSample quantiles against reference quantiles\n\n\ngeom_qq_line()\nA reference line for a Q-Q display"
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-examples-distribution-summaries",
+    "href": "course/session08/slides.html#geom-examples-distribution-summaries",
+    "title": "Visualization",
+    "section": "Geom examples: distribution summaries",
+    "text": "Geom examples: distribution summaries\n\n\n\n\n\n\n\n\n\nThe histogram groups observations into numeric bins. A violin describes a smoothed distribution, while the overlaid box marks its quartiles and median."
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-reference-bars-and-filled-regions",
+    "href": "course/session08/slides.html#geom-reference-bars-and-filled-regions",
+    "title": "Visualization",
+    "section": "Geom reference: bars and filled regions",
+    "text": "Geom reference: bars and filled regions\n\n\n\n\n\nFunction\nPurpose\n\n\n\n\ngeom_bar()\nCount records by category by default\n\n\ngeom_col()\nDraw supplied y values as bar heights\n\n\ngeom_area()\nFilled region to a baseline, stacked by default\n\n\ngeom_ribbon()\nRegion between supplied ymin and ymax\n\n\ngeom_rect()\nRectangles defined by boundary coordinates\n\n\ngeom_tile()\nRectangles defined by centres and dimensions\n\n\ngeom_raster()\nEfficient equal-sized rectangular cells"
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-examples-bars-and-a-ribbon",
+    "href": "course/session08/slides.html#geom-examples-bars-and-a-ribbon",
+    "title": "Visualization",
+    "section": "Geom examples: bars and a ribbon",
+    "text": "Geom examples: bars and a ribbon\n\n\n\n\n\n\n\n\n\nBars show counts. The ribbon fills a supplied lower-to-upper range, here approximate 95% intervals for the treatment-arm mean at each visit."
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-reference-intervals",
+    "href": "course/session08/slides.html#geom-reference-intervals",
+    "title": "Visualization",
+    "section": "Geom reference: intervals",
+    "text": "Geom reference: intervals\n\n\n\n\n\n\n\n\n\nFunction\nPurpose\n\n\n\n\ngeom_pointrange()\nPoint estimate and interval\n\n\ngeom_linerange()\nInterval alone\n\n\ngeom_errorbar()\nInterval with end caps\n\n\ngeom_crossbar()\nCentral value across an interval box\n\n\ngeom_errorbarh()\nOlder horizontal error-bar interface (deprecated)\n\n\n\n\n\nFor new horizontal error bars, use geom_errorbar(orientation = \"y\") with xmin and xmax. The plotting function does not determine whether your interval means SD, SE, or a confidence interval."
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-examples-two-ways-to-draw-an-interval",
+    "href": "course/session08/slides.html#geom-examples-two-ways-to-draw-an-interval",
+    "title": "Visualization",
+    "section": "Geom examples: two ways to draw an interval",
+    "text": "Geom examples: two ways to draw an interval\n\n\n\n\n\n\n\n\n\nThese show the same means and approximate 95% confidence intervals. Pointrange draws both marks; errorbar supplies the interval with end caps."
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-reference-fits-and-reference-lines",
+    "href": "course/session08/slides.html#geom-reference-fits-and-reference-lines",
+    "title": "Visualization",
+    "section": "Geom reference: fits and reference lines",
+    "text": "Geom reference: fits and reference lines\n\n\n\n\n\n\n\n\n\nFunction\nPurpose\n\n\n\n\ngeom_smooth()\nFitted trend with an optional uncertainty band\n\n\ngeom_quantile()\nConditional quantile regression lines\n\n\ngeom_function()\nEvaluate and draw a supplied function\n\n\ngeom_abline()\nLines specified by intercept and slope\n\n\ngeom_hline()\nHorizontal reference lines\n\n\ngeom_vline()\nVertical reference lines\n\n\ngeom_blank()\nInvisible layer, useful for establishing scale ranges"
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-examples-fitted-and-reference-lines",
+    "href": "course/session08/slides.html#geom-examples-fitted-and-reference-lines",
+    "title": "Visualization",
+    "section": "Geom examples: fitted and reference lines",
+    "text": "Geom examples: fitted and reference lines\n\n\n\n\n\n\n\n\n\nThe fitted line summarizes a relationship in the data. The identity line marks equality between visits and needs no fitted model."
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-reference-two-dimensional-patterns",
+    "href": "course/session08/slides.html#geom-reference-two-dimensional-patterns",
+    "title": "Visualization",
+    "section": "Geom reference: two-dimensional patterns",
+    "text": "Geom reference: two-dimensional patterns\n\n\n\n\n\n\n\n\n\nFunction\nPurpose\n\n\n\n\ngeom_bin_2d()\nCounts in rectangular x/y bins\n\n\ngeom_hex()\nCounts in hexagonal x/y bins\n\n\ngeom_density_2d()\nContours of an estimated x/y density\n\n\ngeom_density_2d_filled()\nFilled regions of an estimated x/y density\n\n\ngeom_contour()\nContour lines for supplied grid values z\n\n\ngeom_contour_filled()\nFilled contour regions for supplied grid values z\n\n\n\n\n\ngeom_hex() needs the hexbin package. Counts, estimated densities, and supplied surface values answer different questions."
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-examples-binned-counts-and-contours",
+    "href": "course/session08/slides.html#geom-examples-binned-counts-and-contours",
+    "title": "Visualization",
+    "section": "Geom examples: binned counts and contours",
+    "text": "Geom examples: binned counts and contours\n\n\n\n\n\n\n\n\n\nLeft: counts of participants in x/y bins. Right: equal-value lines from R’s built-in volcano elevation grid. Contours require surface values, not just x/y pairs."
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-reference-maps-and-shapes",
+    "href": "course/session08/slides.html#geom-reference-maps-and-shapes",
+    "title": "Visualization",
+    "section": "Geom reference: maps and shapes",
+    "text": "Geom reference: maps and shapes\n\n\n\n\n\nFunction\nPurpose\n\n\n\n\ngeom_polygon()\nClosed shapes from ordered vertices\n\n\ngeom_map()\nValues joined to a separate map polygon table\n\n\ngeom_sf()\nGeometry from an sf spatial object\n\n\ngeom_sf_text()\nText located using sf geometry\n\n\ngeom_sf_label()\nBoxed text located using sf geometry\n\n\n\n\n\nThe geom_sf*() functions use the sf package and spatial data structures. Spatial analysis is outside this session’s core material."
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-example-regions-defined-by-vertices",
+    "href": "course/session08/slides.html#geom-example-regions-defined-by-vertices",
+    "title": "Visualization",
+    "section": "Geom example: regions defined by vertices",
+    "text": "Geom example: regions defined by vertices\n\n\n\n\n\n\n\n\n\nEach group supplies one shape’s vertices in boundary order. Real geographic work commonly uses geom_sf() with spatial geometry instead of hand-entered vertices."
+  },
+  {
+    "objectID": "course/session08/slides.html#geom-reference-aliases-and-package-version",
+    "href": "course/session08/slides.html#geom-reference-aliases-and-package-version",
+    "title": "Visualization",
+    "section": "Geom reference: aliases and package version",
+    "text": "Geom reference: aliases and package version\n\n\n\n\n\nFunction\nPurpose\n\n\n\n\ngeom_bin2d()\nAlias of geom_bin_2d\n\n\ngeom_density2d()\nAlias of geom_density_2d\n\n\ngeom_density2d_filled()\nAlias of geom_density_2d_filled\n\n\n\n\n\nThis deck lists 53 exported names, including aliases, for ggplot2 4.0.0.\nUse ?geom_point or the official reference for arguments. Newer releases may add functions. There is no need to install an extension package just to complete the core examples."
+  },
+  {
+    "objectID": "course/session08/slides.html#core-distributions",
+    "href": "course/session08/slides.html#core-distributions",
+    "title": "Visualization",
+    "section": "Back to the study: distributions",
+    "text": "Back to the study: distributions\nThe catalogue shows the range of available marks. Now we use a small set to answer the study questions.\nFirst question: What is the distribution of baseline SBP?\nCompare a histogram’s bins with a density curve’s smoothing."
+  },
+  {
+    "objectID": "course/session08/slides.html#overlap-can-hide-observations",
+    "href": "course/session08/slides.html#overlap-can-hide-observations",
+    "title": "Visualization",
+    "section": "Overlap can hide observations",
+    "text": "Overlap can hide observations\n\nggplot(trial, aes(arm, sbp_12)) +\n  geom_point(position = position_jitter(width = 0.12,\n                                        height = 0, seed = 6301),\n             alpha = 0.6) +\n  labs(x = NULL, y = \"Week 12 SBP (mmHg)\")\n\n\n\n\n\n\n\n\nHorizontal jitter separates tied marks. height = 0 preserves the measured outcome, and seed makes the offsets repeatable. Alpha reduces visual overlap."
+  },
+  {
+    "objectID": "course/session08/slides.html#counts-versus-a-precomputed-table",
+    "href": "course/session08/slides.html#counts-versus-a-precomputed-table",
+    "title": "Visualization",
+    "section": "Counts versus a precomputed table",
+    "text": "Counts versus a precomputed table\n\n\n\n\n\narm\nn\n\n\n\n\nPlacebo\n30\n\n\nTreatment\n30\n\n\n\n\n\n# One row per participant: let the geom count\nggplot(trial, aes(arm)) + geom_bar()\n\n# One row per arm: heights are already calculated\nggplot(counts, aes(arm, n)) + geom_col()\nBoth give the same counts here. A mean or percentage already stored in y usually calls for geom_col(), not the default geom_bar() statistic."
+  },
+  {
+    "objectID": "course/session08/slides.html#participant-values-and-group-summaries",
+    "href": "course/session08/slides.html#participant-values-and-group-summaries",
+    "title": "Visualization",
+    "section": "Participant values and group summaries",
+    "text": "Participant values and group summaries\nQuestion: What is the average week-12 SBP in each arm, and how uncertain is it?\n\nKeep the participant-level data visible.\nCalculate an arm-level summary table.\nDraw a summary layer from that table.\nState what its interval means.\n\nThe raw data and summary layers have different observation units."
+  },
+  {
+    "objectID": "course/session08/slides.html#what-do-the-intervals-mean",
+    "href": "course/session08/slides.html#what-do-the-intervals-mean",
+    "title": "Visualization",
+    "section": "What do the intervals mean?",
+    "text": "What do the intervals mean?\n\n\n\n\n\n\n\nInterval\nDescribes\n\n\n\n\nMean ± SD\nSpread of individual measurements around their mean\n\n\nMean ± SE\nEstimated sampling variability of the mean\n\n\nConfidence interval\nUncertainty about a population parameter under a model\n\n\nPrediction interval\nUncertainty about a new individual observation\n\n\n\nThe same geom_errorbar() can draw any of these. Its inputs do not tell the reader which one you intended. State the meaning and method in the caption.\nThe earlier mean ± 1.96 * SE examples use an approximate 95% confidence interval. The longitudinal ribbon gives intervals at each visit, not a model of change."
+  },
+  {
+    "objectID": "course/session08/slides.html#a-layer-can-use-its-own-data",
+    "href": "course/session08/slides.html#a-layer-can-use-its-own-data",
+    "title": "Visualization",
+    "section": "A layer can use its own data",
+    "text": "A layer can use its own data\n\nggplot(trial, aes(arm, sbp_12)) +\n  geom_point(position = position_jitter(width = 0.1, height = 0,\n                                        seed = 6301), alpha = 0.3) +\n  geom_point(data = by_arm, aes(x = arm, y = mean_sbp),\n             inherit.aes = FALSE, shape = 18, size = 5,\n             colour = \"#0072B2\")\n\n\n\n\n\n\n\n\nGrey points use participant data. Blue diamonds use the summary table. inherit.aes = FALSE makes the summary layer use only its own mappings."
+  },
+  {
+    "objectID": "course/session08/slides.html#layer-specific-mappings",
+    "href": "course/session08/slides.html#layer-specific-mappings",
+    "title": "Visualization",
+    "section": "Layer-specific mappings",
+    "text": "Layer-specific mappings\n\nggplot(trial, aes(sbp_0, sbp_12)) +\n  geom_point(aes(colour = arm)) +\n  geom_smooth(method = \"lm\", se = FALSE, colour = \"black\") +\n  scale_colour_manual(values = arm_col)\n\n\n\n\n\n\n\n\nColour belongs only to the points here. The smooth uses all participants together. Putting colour = arm in the global aes() would fit one line per arm."
+  },
+  {
+    "objectID": "course/session08/slides.html#a-new-question-needs-a-different-data-shape",
+    "href": "course/session08/slides.html#a-new-question-needs-a-different-data-shape",
+    "title": "Visualization",
+    "section": "A new question needs a different data shape",
+    "text": "A new question needs a different data shape\nQuestion: How does blood pressure change over the three visits?\n\nOne row in trial: one participant, with visits in separate columns.\nOne row in trial_long: one participant at one visit.\nIndividual lines need id, week, and sbp.\nGroup-average lines need an arm-by-week summary.\n\nSession 7’s wide-to-long reshape makes these plots easier to specify."
+  },
+  {
+    "objectID": "course/session08/slides.html#plotting-repeated-visits-uses-the-long-table",
+    "href": "course/session08/slides.html#plotting-repeated-visits-uses-the-long-table",
+    "title": "Visualization",
+    "section": "Plotting repeated visits uses the long table",
+    "text": "Plotting repeated visits uses the long table\ntrial_long &lt;- trial |&gt;\n  select(id, arm, sbp_0, sbp_6, sbp_12) |&gt;\n  tidyr::pivot_longer(starts_with(\"sbp_\"),\n                     names_to = \"week\", names_prefix = \"sbp_\",\n                     values_to = \"sbp\") |&gt;\n  mutate(week = as.numeric(week))\n\n\n\n\n\nid\narm\nweek\nsbp\n\n\n\n\nP001\nPlacebo\n0\n160\n\n\nP001\nPlacebo\n6\n146\n\n\nP001\nPlacebo\n12\n144\n\n\n\n\n\nThe first participant contributes three rows. Their shared id tells the plot which measurements belong together."
+  },
+  {
+    "objectID": "course/session08/slides.html#one-line-per-participant",
+    "href": "course/session08/slides.html#one-line-per-participant",
+    "title": "Visualization",
+    "section": "One line per participant",
+    "text": "One line per participant\n\nggplot(trial_long, aes(week, sbp, group = id, colour = arm)) +\n  geom_line(alpha = 0.35) +\n  facet_wrap(~ arm) +\n  scale_x_continuous(breaks = c(0, 6, 12)) +\n  scale_colour_manual(values = arm_col, guide = \"none\")\n\n\n\n\n\n\n\n\ncolour = arm alone would define only two colour groups. group = id tells the line layer to connect each person’s own measurements."
+  },
+  {
+    "objectID": "course/session08/slides.html#line-path-reference",
+    "href": "course/session08/slides.html#line-path-reference",
+    "title": "Visualization",
+    "section": "Optional: line versus path",
+    "text": "Optional: line versus path\n\nroute &lt;- data.frame(x = c(1, 3, 2), y = c(1, 2, 3))\nroutes &lt;- rbind(transform(route, display = \"geom_line\"),\n                transform(route, display = \"geom_path\"))\nggplot(routes, aes(x, y)) +\n  geom_point(size = 3) +\n  geom_line(data = subset(routes, display == \"geom_line\")) +\n  geom_path(data = subset(routes, display == \"geom_path\")) +\n  facet_wrap(~ display)\n\n\n\n\n\n\n\n\ngeom_line() sorts by x within each group. geom_path() follows row order, which is useful for an ordered route through space."
+  },
+  {
+    "objectID": "course/session08/slides.html#display-choices-after-the-plot-works",
+    "href": "course/session08/slides.html#display-choices-after-the-plot-works",
+    "title": "Visualization",
+    "section": "Display choices after the plot works",
+    "text": "Display choices after the plot works\nOur plot already answers a question. Now consider how readers will interpret it.\n\nWould a transformation make a skewed variable easier to see?\nDo we want to zoom, or intentionally exclude data?\nCan the reader identify groups and understand the labels?\nWill the exported figure remain readable at its final size?"
+  },
+  {
+    "objectID": "course/session08/slides.html#zooming-versus-removing-observations",
+    "href": "course/session08/slides.html#zooming-versus-removing-observations",
+    "title": "Visualization",
+    "section": "Zooming versus removing observations",
+    "text": "Zooming versus removing observations\np &lt;- ggplot(trial, aes(arm, sbp_12)) + geom_boxplot()\n\np + coord_cartesian(ylim = c(120, 160))  # zoom after calculation\np + scale_y_continuous(limits = c(120, 160))\n# Out-of-range values become NA before the boxplot calculation\n\nZooming retains the full data in the statistical calculation.\nScale limits can change quartiles, smooths, and other calculated summaries.\nIf exclusion is intentional, filter the data explicitly and explain why."
+  },
+  {
+    "objectID": "course/session08/slides.html#heatmap-reference",
+    "href": "course/session08/slides.html#heatmap-reference",
+    "title": "Visualization",
+    "section": "Optional: a small heatmap",
+    "text": "Optional: a small heatmap\n\nsite_summary &lt;- trial |&gt;\n  group_by(site_f, arm) |&gt;\n  summarise(mean_sbp = mean(sbp_12), .groups = \"drop\")\nggplot(site_summary, aes(arm, site_f, fill = mean_sbp)) +\n  geom_tile(colour = \"white\") +\n  scale_fill_viridis_c() +\n  labs(x = NULL, y = NULL, fill = \"Mean SBP\\n(mmHg)\")\n\n\n\n\n\n\n\n\nEach cell represents a site/arm summary. Heatmaps show patterns across many combinations; a dot plot is easier for precise comparisons of a few estimates."
+  },
+  {
+    "objectID": "course/session08/slides.html#a-debugging-checklist-for-plots",
+    "href": "course/session08/slides.html#a-debugging-checklist-for-plots",
+    "title": "Visualization",
+    "section": "A debugging checklist for plots",
+    "text": "A debugging checklist for plots\n\n\n\n\n\n\n\nSymptom\nFirst check\n\n\n\n\nUnexpected colour legend\nDid a constant go inside aes()?\n\n\nOne line connects different people\nIs group = id specified?\n\n\nBar heights are unexpected\nDoes the geom count rows or use supplied y?\n\n\n“Removed rows” warning\nMissing values or scale limits?\n\n\nLabels or layers disappear\nAxis limits, layer data, and inherited mappings\n\n\nPlot does not appear after assignment\nPrint the saved plot object: p\n\n\n\nRead the warning and inspect the relevant data before using na.rm = TRUE to suppress a message."
+  },
+  {
+    "objectID": "course/session08/slides.html#pie-charts-and-dual-axes-need-care",
+    "href": "course/session08/slides.html#pie-charts-and-dual-axes-need-care",
+    "title": "Visualization",
+    "section": "Pie charts and dual axes need care",
+    "text": "Pie charts and dual axes need care\n\n\n\n\n\n\n\n\n\n\n\n\n\nPie charts ask the reader to compare angles and areas — ranks 3 and 4. Rank the four sites from that. Now imagine a bar chart.\nDual axes are worse, because the reader cannot check them:\n# do not\np + scale_y_continuous(\n  sec.axis = sec_axis(~ . * 3.2, name = \"CRP\")\n)\nThe crossing point is set by your choice of scaling. Two facets, or two panels, say the same thing without the implied claim."
+  },
+  {
+    "objectID": "course/session08/slides.html#function-references",
+    "href": "course/session08/slides.html#function-references",
+    "title": "Visualization",
+    "section": "Function references",
+    "text": "Function references\n\nBase R graphics and graphical parameters\nBase R plot()\nggplot2 functions and geoms\nggplot2 smoothing methods\nggplot2 interval geoms\nggplot2 export with ggsave()\n\nThe geom catalogue records the local package version and checks that every exported geom_*() name has an entry when the deck renders."
+  },
+  {
+    "objectID": "course/session08/index.html#lesson-sequence",
+    "href": "course/session08/index.html#lesson-sequence",
+    "title": "Session 8 · Visualization",
+    "section": "Lesson sequence",
+    "text": "Lesson sequence\nAfter the base R examples, we build a first ggplot, choose displays for distributions and comparisons, add summaries and uncertainty, and show repeated visits. The final blocks refine scales, critique the figure, and export it. The optional geom catalogue includes representative figures alongside its lists."
   }
 ]

@@ -100,6 +100,7 @@
   </style>
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-0427d8d92a431aa6a6430e53ec02a470.css">
   <link rel="stylesheet" href="../../slides.css">
+  <link rel="stylesheet" href="slides-session08.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -250,7 +251,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </table>
 <p>Today’s deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.</p>
 </section>
-<section id="what-you-will-be-able-to-do" class="slide level2 smaller">
+<section id="what-you-will-be-able-to-do" class="slide level2">
 <h2>What you will be able to do</h2>
 <div class="smaller">
 <p><span class="objective-num">1</span> <strong>Read</strong> base-R plotting code and produce a fast diagnostic panel with it.</p>
@@ -280,53 +281,401 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <tbody>
 <tr class="odd">
 <td>1</td>
-<td>Base graphics, and why we then move on</td>
-<td>10</td>
+<td>Base R plots and annotations</td>
+<td>25</td>
 </tr>
 <tr class="even">
 <td>2</td>
-<td>The grammar of graphics</td>
-<td>15</td>
+<td>Build a first ggplot</td>
+<td>12</td>
 </tr>
 <tr class="odd">
 <td>3</td>
-<td>Layers: geoms, facets, scales, positions</td>
-<td>30</td>
+<td>Choose displays for distributions and groups</td>
+<td>12</td>
 </tr>
 <tr class="even">
 <td>4</td>
-<td><strong>Design principles</strong></td>
-<td>25</td>
+<td>Add summaries and uncertainty</td>
+<td>10</td>
 </tr>
 <tr class="odd">
 <td>5</td>
-<td>Publication output</td>
-<td>8</td>
+<td>Show repeated visits</td>
+<td>10</td>
 </tr>
 <tr class="even">
 <td>6</td>
-<td>Practice and summary</td>
-<td>2</td>
+<td>Refine scales and display choices</td>
+<td>6</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Critique and improve a figure</td>
+<td>8</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Export and summary</td>
+<td>7</td>
 </tr>
 </tbody>
 </table>
 <div class="fragment">
-<p>Every figure in this deck was <strong>rendered when the deck was built</strong>. None of them is a screenshot.</p>
+<p>Figures are generated from R code when this deck renders. Optional reference slides provide extra examples for review.</p>
 </div>
 </section>
 <section>
-<section id="base-graphics-briefly" class="title-slide slide level1 section-divider center">
-<h1>1 · Base graphics, briefly</h1>
+<section id="base-r-graphics" class="title-slide slide level1 section-divider center">
+<h1>1 · Base R graphics</h1>
 
+</section>
+<section id="the-teaching-data" class="slide level2">
+<h2>The teaching data</h2>
+<p>All observations in this session are <strong>synthetic</strong>.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">id</th>
+<th style="text-align: left;">arm</th>
+<th style="text-align: right;">age</th>
+<th style="text-align: right;">sbp_0</th>
+<th style="text-align: right;">sbp_12</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">P001</td>
+<td style="text-align: left;">Placebo</td>
+<td style="text-align: right;">47</td>
+<td style="text-align: right;">160</td>
+<td style="text-align: right;">144</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">P002</td>
+<td style="text-align: left;">Placebo</td>
+<td style="text-align: right;">59</td>
+<td style="text-align: right;">162</td>
+<td style="text-align: right;">156</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">P003</td>
+<td style="text-align: left;">Placebo</td>
+<td style="text-align: right;">61</td>
+<td style="text-align: right;">157</td>
+<td style="text-align: right;">156</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">P004</td>
+<td style="text-align: left;">Placebo</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">157</td>
+<td style="text-align: right;">163</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<ul>
+<li>One row represents one participant.</li>
+<li><code>sbp_0</code> and <code>sbp_12</code> are systolic blood pressure at baseline and week 12, in mmHg.</li>
+<li><code>trial_long</code> has one row per participant per visit, as in Session 7.</li>
+</ul>
+</section>
+<section id="a-plot-starts-with-a-question" class="slide level2">
+<h2>A plot starts with a question</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Question</th>
+<th>Useful starting plot</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>What values and unusual observations occur?</td>
+<td>Histogram or dot plot</td>
+</tr>
+<tr class="even">
+<td>How do participant values differ by arm?</td>
+<td>Boxplot with individual points</td>
+</tr>
+<tr class="odd">
+<td>How does baseline relate to follow-up?</td>
+<td>Scatterplot</td>
+</tr>
+<tr class="even">
+<td>How does one participant change over time?</td>
+<td>Connected points, grouped by ID</td>
+</tr>
+<tr class="odd">
+<td>How many participants come from each site?</td>
+<td>Bar chart of counts</td>
+</tr>
+</tbody>
+</table>
+<p>The same plotting function may answer different questions. Labels and the observation unit tell the reader which question you mean.</p>
+</section>
+<section id="a-labelled-scatterplot-in-base-r" class="slide level2">
+<h2>A labelled scatterplot in base R</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(trial<span class="sc">$</span>sbp_0, trial<span class="sc">$</span>sbp_12,</span>
+<span id="cb1-2"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Baseline SBP (mmHg)"</span>,</span>
+<span id="cb1-3"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">"Week 12 SBP (mmHg)"</span>,</span>
+<span id="cb1-4"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"Baseline and follow-up"</span>,</span>
+<span id="cb1-5"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">"steelblue"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/base-scatter-labelled-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>plot(x, y)</code> puts the first numeric vector on x and the second on y.</p>
+</section>
+<section id="common-base-r-plotting-arguments" class="slide level2">
+<h2>Common base R plotting arguments</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Meaning</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>pch</code></td>
+<td>Point symbol</td>
+<td><code>pch = 19</code> for a filled circle</td>
+</tr>
+<tr class="even">
+<td><code>col</code></td>
+<td>Colour</td>
+<td><code>col = "steelblue"</code></td>
+</tr>
+<tr class="odd">
+<td><code>cex</code></td>
+<td>Symbol/text size multiplier</td>
+<td><code>cex = 1.3</code></td>
+</tr>
+<tr class="even">
+<td><code>lty</code>, <code>lwd</code></td>
+<td>Line pattern and width</td>
+<td><code>lty = 2, lwd = 2</code></td>
+</tr>
+<tr class="odd">
+<td><code>xlab</code>, <code>ylab</code>, <code>main</code></td>
+<td>Axis labels and title</td>
+<td><code>ylab = "SBP (mmHg)"</code></td>
+</tr>
+<tr class="even">
+<td><code>xlim</code>, <code>ylim</code></td>
+<td>Display limits</td>
+<td><code>ylim = c(90, 190)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Use <code>?plot.default</code> and <code>?par</code> to look up options as needed.</p>
+</section>
+<section id="adding-a-reference-line" class="slide level2">
+<h2>Adding a reference line</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(trial<span class="sc">$</span>sbp_0, trial<span class="sc">$</span>sbp_12,</span>
+<span id="cb2-2"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Baseline SBP (mmHg)"</span>, <span class="at">ylab =</span> <span class="st">"Week 12 SBP (mmHg)"</span>,</span>
+<span id="cb2-3"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">90</span>, <span class="dv">190</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">90</span>, <span class="dv">190</span>), <span class="at">pch =</span> <span class="dv">19</span>)</span>
+<span id="cb2-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> <span class="dv">0</span>, <span class="at">b =</span> <span class="dv">1</span>, <span class="at">lty =</span> <span class="dv">2</span>, <span class="at">col =</span> <span class="st">"grey40"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/base-identity-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>a</code> is the intercept and <code>b</code> is the slope. Below the line, follow-up is lower than baseline. This line represents equality, not a fitted regression.</p>
+</section>
+<section id="colours-and-a-legend-by-treatment-arm" class="slide level2">
+<h2>Colours and a legend by treatment arm</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(trial<span class="sc">$</span>sbp_0, trial<span class="sc">$</span>sbp_12, <span class="at">pch =</span> <span class="dv">19</span>,</span>
+<span id="cb3-2"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">col =</span> arm_col[trial<span class="sc">$</span>arm],</span>
+<span id="cb3-3"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Baseline SBP (mmHg)"</span>, <span class="at">ylab =</span> <span class="st">"Week 12 SBP (mmHg)"</span>)</span>
+<span id="cb3-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="at">legend =</span> <span class="fu">names</span>(arm_col),</span>
+<span id="cb3-5"><a aria-hidden="true" tabindex="-1"></a>       <span class="at">col =</span> arm_col, <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">bty =</span> <span class="st">"n"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/base-arm-legend-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>arm_col</code> is a named vector: <code>c(Placebo = "#D55E00", Treatment = "#0072B2")</code>. Indexing it by arm assigns the same colour consistently.</p>
+</section>
+<section id="new-plot-or-added-marks" class="slide level2">
+<h2>New plot or added marks?</h2>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Creates a new plot</th>
+<th>Adds to the current plot</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>plot()</code></td>
+<td><code>points()</code></td>
+</tr>
+<tr class="even">
+<td><code>hist()</code></td>
+<td><code>lines()</code></td>
+</tr>
+<tr class="odd">
+<td><code>boxplot()</code></td>
+<td><code>abline()</code></td>
+</tr>
+<tr class="even">
+<td><code>barplot()</code></td>
+<td><code>text()</code>, <code>legend()</code></td>
+</tr>
+</tbody>
+</table>
+<p>For example, <code>points(x, y, col = "red")</code> adds observations to existing axes. Calling <code>plot(x, y)</code> again normally starts a new plot.</p>
+</section>
+<section id="connected-measurements-from-one-participant" class="slide level2">
+<h2>Connected measurements from one participant</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a aria-hidden="true" tabindex="-1"></a>weeks <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">6</span>, <span class="dv">12</span>)</span>
+<span id="cb4-2"><a aria-hidden="true" tabindex="-1"></a>values <span class="ot">&lt;-</span> <span class="fu">c</span>(trial<span class="sc">$</span>sbp_0[<span class="dv">1</span>], trial<span class="sc">$</span>sbp_6[<span class="dv">1</span>], trial<span class="sc">$</span>sbp_12[<span class="dv">1</span>])</span>
+<span id="cb4-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(weeks, values, <span class="at">type =</span> <span class="st">"b"</span>, <span class="at">pch =</span> <span class="dv">19</span>,</span>
+<span id="cb4-4"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Week"</span>, <span class="at">ylab =</span> <span class="st">"SBP (mmHg)"</span>, <span class="at">xaxt =</span> <span class="st">"n"</span>)</span>
+<span id="cb4-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">axis</span>(<span class="dv">1</span>, <span class="at">at =</span> weeks)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/base-trajectory-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>type = "p"</code> draws points, <code>"l"</code> draws lines, and <code>"b"</code> draws both. Base R connects points in supplied order, so arrange time first.</p>
+</section>
+<section id="histogram-bins-change-the-picture" class="slide level2">
+<h2>Histogram bins change the picture</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a aria-hidden="true" tabindex="-1"></a>saved_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>))</span>
+<span id="cb5-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(trial<span class="sc">$</span>sbp_0, <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">80</span>, <span class="dv">210</span>, <span class="dv">5</span>),</span>
+<span id="cb5-3"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"5-mmHg bins"</span>, <span class="at">xlab =</span> <span class="st">"Baseline SBP (mmHg)"</span>)</span>
+<span id="cb5-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(trial<span class="sc">$</span>sbp_0, <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">80</span>, <span class="dv">220</span>, <span class="dv">20</span>),</span>
+<span id="cb5-5"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">"20-mmHg bins"</span>, <span class="at">xlab =</span> <span class="st">"Baseline SBP (mmHg)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/base-breaks-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(saved_par)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>A vector in <code>breaks</code> specifies bin boundaries. A single number requests an approximate number of bins. A pattern should not depend on one convenient choice.</p>
+</section>
+<section id="boxplots-with-participant-level-values" class="slide level2">
+<h2>Boxplots with participant-level values</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(sbp_12 <span class="sc">~</span> arm, <span class="at">data =</span> trial, <span class="at">outline =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb7-2"><a aria-hidden="true" tabindex="-1"></a>        <span class="at">ylab =</span> <span class="st">"Week 12 SBP (mmHg)"</span>, <span class="at">xlab =</span> <span class="st">""</span>)</span>
+<span id="cb7-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stripchart</span>(sbp_12 <span class="sc">~</span> arm, <span class="at">data =</span> trial,</span>
+<span id="cb7-4"><a aria-hidden="true" tabindex="-1"></a>           <span class="at">vertical =</span> <span class="cn">TRUE</span>, <span class="at">method =</span> <span class="st">"jitter"</span>,</span>
+<span id="cb7-5"><a aria-hidden="true" tabindex="-1"></a>           <span class="at">pch =</span> <span class="dv">19</span>, <span class="at">col =</span> <span class="st">"steelblue"</span>, <span class="at">add =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/base-stripchart-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The formula <code>outcome ~ group</code> splits the outcome by group. The added dots expose individual variation. <code>outline = FALSE</code> avoids drawing extreme observations twice.</p>
+</section>
+<section id="bar-charts-use-counts-or-summaries" class="slide level2">
+<h2>Bar charts use counts or summaries</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a aria-hidden="true" tabindex="-1"></a>site_counts <span class="ot">&lt;-</span> <span class="fu">table</span>(trial<span class="sc">$</span>site_f)</span>
+<span id="cb8-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">barplot</span>(site_counts, <span class="at">col =</span> <span class="st">"steelblue"</span>,</span>
+<span id="cb8-3"><a aria-hidden="true" tabindex="-1"></a>        <span class="at">xlab =</span> <span class="st">"Recruiting site"</span>, <span class="at">ylab =</span> <span class="st">"Number of participants"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/base-bar-counts-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>table()</code> calculates the counts. <code>barplot()</code> draws their heights. A histogram instead bins a numeric variable such as blood pressure.</p>
+</section>
+<section id="base-diagnostics" class="slide level2">
+<h2>Optional: distribution diagnostics</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a>saved_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>))</span>
+<span id="cb9-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">ecdf</span>(trial<span class="sc">$</span>sbp_0), <span class="at">main =</span> <span class="st">"Cumulative proportion"</span>,</span>
+<span id="cb9-3"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Baseline SBP (mmHg)"</span>, <span class="at">ylab =</span> <span class="st">"Proportion at or below x"</span>)</span>
+<span id="cb9-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">qqnorm</span>(trial<span class="sc">$</span>sbp_0, <span class="at">main =</span> <span class="st">"Normal Q-Q plot"</span>)</span>
+<span id="cb9-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">qqline</span>(trial<span class="sc">$</span>sbp_0, <span class="at">col =</span> <span class="st">"steelblue"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/base-ecdf-qq-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(saved_par)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>An empirical CDF needs no bins. A Q-Q plot compares sample quantiles with a reference distribution. A roughly straight pattern is not proof of normality.</p>
+</section>
+<section id="multiple-panels-and-graphics-state" class="slide level2">
+<h2>Multiple panels and graphics state</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a aria-hidden="true" tabindex="-1"></a>saved_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))  <span class="co"># one row, two columns</span></span>
+<span id="cb11-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(trial<span class="sc">$</span>sbp_0)</span>
+<span id="cb11-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(trial<span class="sc">$</span>sbp_12)</span>
+<span id="cb11-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(saved_par)                    <span class="co"># restore changed settings</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>par()</code> affects the current graphics device.</li>
+<li>Restore settings after the multi-panel display.</li>
+<li>If separate panels need direct comparison, choose common axis limits.</li>
+<li><code>par(mfrow = c(1, 1))</code> resets the layout, but does not reset every other option.</li>
+</ul>
+</section>
+<section id="saving-a-base-r-figure" class="slide level2">
+<h2>Saving a base R figure</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"output"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb12-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">png</span>(<span class="st">"output/base-sbp.png"</span>, <span class="at">width =</span> <span class="dv">6</span>, <span class="at">height =</span> <span class="dv">4</span>,</span>
+<span id="cb12-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">units =</span> <span class="st">"in"</span>, <span class="at">res =</span> <span class="dv">300</span>)</span>
+<span id="cb12-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(trial<span class="sc">$</span>sbp_0, trial<span class="sc">$</span>sbp_12,</span>
+<span id="cb12-5"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Baseline SBP (mmHg)"</span>, <span class="at">ylab =</span> <span class="st">"Week 12 SBP (mmHg)"</span>)</span>
+<span id="cb12-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dev.off</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The file device receives drawing commands until <code>dev.off()</code> closes it. Use <code>pdf("output/base-sbp.pdf", width = 6, height = 4)</code> for vector output.</p>
 </section>
 <section id="base-graphics-in-four-functions" class="slide level2 smaller">
 <h2>Base graphics in four functions</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>))</span>
-<span id="cb1-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(trial<span class="sc">$</span>sbp_0, <span class="at">main =</span> <span class="st">"hist"</span>, <span class="at">xlab =</span> <span class="st">"SBP baseline"</span>)</span>
-<span id="cb1-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(sbp_12 <span class="sc">~</span> arm, <span class="at">data =</span> trial, <span class="at">main =</span> <span class="st">"boxplot"</span>, <span class="at">xlab =</span> <span class="st">""</span>)</span>
-<span id="cb1-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(trial<span class="sc">$</span>sbp_0, trial<span class="sc">$</span>sbp_12, <span class="at">main =</span> <span class="st">"plot"</span>, <span class="at">xlab =</span> <span class="st">"Session 0"</span>,</span>
-<span id="cb1-5"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">"Session 12"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>))</span>
+<span id="cb13-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(trial<span class="sc">$</span>sbp_0, <span class="at">main =</span> <span class="st">"hist"</span>, <span class="at">xlab =</span> <span class="st">"SBP baseline"</span>)</span>
+<span id="cb13-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(sbp_12 <span class="sc">~</span> arm, <span class="at">data =</span> trial, <span class="at">main =</span> <span class="st">"boxplot"</span>, <span class="at">xlab =</span> <span class="st">""</span>)</span>
+<span id="cb13-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(trial<span class="sc">$</span>sbp_0, trial<span class="sc">$</span>sbp_12, <span class="at">main =</span> <span class="st">"plot"</span>, <span class="at">xlab =</span> <span class="st">"Week 0"</span>,</span>
+<span id="cb13-5"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">"Week 12"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -334,19 +683,20 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </figure>
 </div>
 </div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="smaller">
 <p><code>par(mfrow = c(1, 3))</code> splits the device into a 1 × 3 grid. It is <strong>device state</strong>: it stays set until you change it back.</p>
 </div>
 </section>
-<section id="the-one-base-graphics-habit-worth-keeping" class="slide level2 smaller">
-<h2>The one base-graphics habit worth keeping</h2>
+<section id="a-quick-panel-of-distributions" class="slide level2 smaller">
+<h2>A quick panel of distributions</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>))</span>
-<span id="cb2-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(trial<span class="sc">$</span>age,       <span class="at">main =</span> <span class="st">"age"</span>)</span>
-<span id="cb2-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(trial<span class="sc">$</span>weight_kg, <span class="at">main =</span> <span class="st">"weight_kg"</span>)</span>
-<span id="cb2-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(trial<span class="sc">$</span>sbp_0,     <span class="at">main =</span> <span class="st">"sbp_0"</span>)</span>
-<span id="cb2-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(trial<span class="sc">$</span>crp,       <span class="at">main =</span> <span class="st">"crp"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>), <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">2</span>, <span class="dv">1</span>))</span>
+<span id="cb15-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(trial<span class="sc">$</span>age,       <span class="at">main =</span> <span class="st">"age"</span>)</span>
+<span id="cb15-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(trial<span class="sc">$</span>weight_kg, <span class="at">main =</span> <span class="st">"weight_kg"</span>)</span>
+<span id="cb15-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(trial<span class="sc">$</span>sbp_0,     <span class="at">main =</span> <span class="st">"sbp_0"</span>)</span>
+<span id="cb15-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(trial<span class="sc">$</span>crp,       <span class="at">main =</span> <span class="st">"crp"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -354,6 +704,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </figure>
 </div>
 </div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="fragment">
 <div class="smaller">
@@ -361,102 +712,77 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 </section>
-<section id="why-we-then-move-on" class="slide level2 smaller">
-<h2>Why we then move on</h2>
-<div style="font-size:0.88em">
-<table class="caption-top">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Base graphics</th>
-<th>Consequence</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Each function has its own arguments</td>
-<td><code>hist(breaks=)</code>, <code>boxplot(names=)</code>, <code>plot(pch=)</code> — nothing transfers</td>
-</tr>
-<tr class="even">
-<td>A plot is a <strong>sequence of side effects</strong> on a device</td>
-<td>You cannot store it, modify it, or return it from anything</td>
-</tr>
-<tr class="odd">
-<td>Grouping means splitting the data yourself</td>
-<td>Colour by arm is your job, and so is the legend</td>
-</tr>
-<tr class="even">
-<td>Faceting has no equivalent</td>
-<td>You manage <code>mfrow</code> and the axis limits by hand</td>
-</tr>
-<tr class="odd">
-<td>Styling is argument soup</td>
-<td>Twenty arguments and a <code>par()</code> call to get one journal figure</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="fragment">
-<p><strong>None of this is a bug.</strong> Base graphics is thirty years old, it draws anything, and it is in every R installation. It simply has no <em>grammar</em> — no shared vocabulary that composes.</p>
-</div>
+<section id="two-plotting-workflows" class="slide level2">
+<h2>Two plotting workflows</h2>
+<ul>
+<li><strong>Base graphics:</strong> draw to a graphics device, then add points, lines, or labels. Many functions share options such as <code>col</code>, <code>xlab</code>, and <code>ylim</code>.</li>
+<li><strong>ggplot2:</strong> build a plot object, then add or change layers and scales. Grouping, legends, and facets follow shared rules.</li>
+<li>Both can produce reproducible, publication-quality figures. Choose the workflow that makes your analysis easy to understand and maintain.</li>
+</ul>
 </section></section>
 <section>
-<section id="the-grammar-of-graphics" class="title-slide slide level1 section-divider center">
-<h1>2 · The grammar of graphics</h1>
+<section id="building-a-first-ggplot" class="title-slide slide level1 section-divider center">
+<h1>2 · Building a first ggplot</h1>
 
 </section>
-<section id="a-plot-is-a-specification" class="slide level2 smaller">
+<section id="our-ggplot2-route" class="slide level2 concept">
+<h2>Our ggplot2 route</h2>
+<p>We will keep returning to the same synthetic blood-pressure study.</p>
+<ol type="1">
+<li><strong>Build a plot:</strong> baseline versus follow-up.</li>
+<li><strong>Choose displays:</strong> distributions and arm comparisons.</li>
+<li><strong>Add summaries:</strong> means, intervals, and fitted trends.</li>
+<li><strong>Show repeated visits:</strong> one line per participant.</li>
+<li><strong>Refine and export:</strong> scales, labels, accessibility, and file size.</li>
+</ol>
+</section>
+<section id="a-plot-is-a-specification" class="slide level2 concept">
 <h2>A plot is a specification</h2>
-<p>Wilkinson’s idea, by way of Wickham: stop naming chart <em>types</em>. Describe the <strong>mapping from data to visual channels</strong>, and the chart type falls out.</p>
-<div class="fragment">
-<div style="font-size:0.9em">
+<p><strong>Question:</strong> How does baseline blood pressure relate to week 12?</p>
+<ul>
+<li><strong>Data:</strong> one row per participant.</li>
+<li><strong>x:</strong> baseline SBP.</li>
+<li><strong>y:</strong> week 12 SBP.</li>
+<li><strong>Marks:</strong> one point per participant.</li>
+</ul>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(<span class="at">x =</span> sbp_0, <span class="at">y =</span> sbp_12)) <span class="sc">+</span></span>
+<span id="cb17-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>We describe the data and its visual mappings, then choose how to draw it.</p>
+</section>
+<section id="seven-components-plus-a-theme" class="slide level2 concept">
+<h2>Seven components, plus a theme</h2>
+<p>The first four determine the data shown in a layer.</p>
 <table class="caption-top">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
 <thead>
 <tr class="header">
-<th>Instead of</th>
-<th>Say</th>
+<th>Component</th>
+<th>In our study</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>“a grouped bar chart”</td>
-<td>x = arm, y = mean, fill = sex, bars, dodged</td>
+<td><strong>Data</strong></td>
+<td>Participant records in <code>trial</code></td>
 </tr>
 <tr class="even">
-<td>“a scatter plot with a trend line”</td>
-<td>x = Session 0, y = Session 12, points <strong>and</strong> a smooth</td>
+<td><strong>Aesthetics</strong></td>
+<td><code>aes(x = sbp_0, y = sbp_12)</code></td>
 </tr>
 <tr class="odd">
-<td>“a boxplot”</td>
-<td>x = arm, y = SBP, boxplot statistic</td>
+<td><strong>Geom</strong></td>
+<td><code>geom_point()</code> draws each participant</td>
+</tr>
+<tr class="even">
+<td><strong>Stat</strong></td>
+<td>Points use raw values; a histogram counts bins</td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-<div class="fragment">
-<div class="callout callout-important callout-style-simple">
-<div class="callout-body">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-content">
-<p>There is no list of chart types to memorise. There is a small set of components that combine, which is why the learning curve is worth it: the fifth plot type costs you nothing new.</p>
-</div>
-</div>
-</div>
-</div>
+<p>Most early examples need only data, mappings, and a geom.</p>
 </section>
-<section id="seven-components-plus-a-theme" class="slide level2 smaller">
-<h2>Seven components, plus a theme</h2>
-<div style="font-size:0.84em">
+<section id="scales-coordinates-facets-and-theme" class="slide level2 concept">
+<h2>Scales, coordinates, facets, and theme</h2>
+<p>The remaining components control how the plot appears.</p>
 <table class="caption-top">
 <colgroup>
 <col style="width: 33%">
@@ -466,67 +792,41 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <thead>
 <tr class="header">
 <th>Component</th>
-<th>Question it answers</th>
-<th>Code</th>
+<th>Role</th>
+<th>Example</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>data</strong></td>
-<td>What is being plotted?</td>
-<td><code>ggplot(trial, ...)</code></td>
+<td><strong>Scales</strong></td>
+<td>Translate values to positions or colours</td>
+<td>Logarithmic y axis</td>
 </tr>
 <tr class="even">
-<td><strong>aesthetics</strong></td>
-<td>Which variable drives which channel?</td>
-<td><code>aes(x = arm, y = sbp_12)</code></td>
+<td><strong>Coordinates</strong></td>
+<td>Define the plotting space and view</td>
+<td>Zoom into a region</td>
 </tr>
 <tr class="odd">
-<td><strong>geoms</strong></td>
-<td>What marks appear?</td>
-<td><code>geom_point()</code>, <code>geom_col()</code></td>
+<td><strong>Facets</strong></td>
+<td>Repeat a plot for subsets</td>
+<td>One panel per site</td>
 </tr>
 <tr class="even">
-<td><strong>stats</strong></td>
-<td>What is computed before drawing?</td>
-<td><code>stat_smooth()</code>, the count in a histogram</td>
-</tr>
-<tr class="odd">
-<td><strong>scales</strong></td>
-<td>How do data values become positions, colours, sizes?</td>
-<td><code>scale_y_log10()</code></td>
-</tr>
-<tr class="even">
-<td><strong>coords</strong></td>
-<td>What is the coordinate system?</td>
-<td><code>coord_flip()</code>, <code>coord_cartesian()</code></td>
-</tr>
-<tr class="odd">
-<td><strong>facets</strong></td>
-<td>How is the plot split into panels?</td>
-<td><code>facet_wrap(~ site_f)</code></td>
-</tr>
-<tr class="even">
-<td><strong>themes</strong></td>
-<td>What does everything <em>not</em> data-driven look like?</td>
-<td><code>theme_minimal()</code></td>
+<td><strong>Theme</strong></td>
+<td>Style non-data elements</td>
+<td>Fonts and grid lines</td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="fragment">
-<div class="smaller">
-<p>Only <strong>data</strong>, <strong>aesthetics</strong> and one <strong>geom</strong> are required. Everything else has a default that is usually right.</p>
-</div>
-</div>
+<p>We will add these after the basic plot answers the scientific question.</p>
 </section>
-<section id="minimum-viable-ggplot-then-a-layer" class="slide level2 smaller">
-<h2>Minimum viable ggplot, then a layer</h2>
+<section id="a-first-ggplot-axes-then-points" class="slide level2 concept">
+<h2>A first ggplot: axes, then points</h2>
 <div class="columns">
 <div class="column" style="width:49%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0, sbp_12)) <span class="sc">+</span></span>
-<span id="cb3-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0, sbp_12))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -537,9 +837,8 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div><div class="column" style="width:49%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0, sbp_12)) <span class="sc">+</span></span>
-<span id="cb4-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
-<span id="cb4-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0, sbp_12)) <span class="sc">+</span></span>
+<span id="cb19-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -549,18 +848,48 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 </div></div>
-<div class="smaller">
-<p>Same data, same aesthetics, <strong>one more layer</strong>. The second geom inherits both.</p>
+<p>Data and mappings establish the axes. The geom adds visible marks.</p>
+</section>
+<section id="the-pipe-and-the-plus-sign-have-different-jobs" class="slide level2">
+<h2>The pipe and the plus sign have different jobs</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a aria-hidden="true" tabindex="-1"></a>trial <span class="sc">|&gt;</span></span>
+<span id="cb20-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(site <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb20-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(sbp_0, sbp_12)) <span class="sc">+</span></span>
+<span id="cb20-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb20-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Baseline SBP (mmHg)"</span>,</span>
+<span id="cb20-6"><a aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Week 12 SBP (mmHg)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li><code>|&gt;</code> passes the filtered data into <code>ggplot()</code>.</li>
+<li><code>+</code> adds plotting components to the ggplot object.</li>
+<li>Put <code>+</code> at the end of a line when continuing the expression.</li>
+<li><code>ggplot(...) |&gt; geom_point()</code> does not mean “add a point layer.”</li>
+</ul>
+</section>
+<section id="a-ggplot-object-can-be-revised" class="slide level2">
+<h2>A ggplot object can be revised</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a aria-hidden="true" tabindex="-1"></a>p_scatter <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0, sbp_12)) <span class="sc">+</span></span>
+<span id="cb21-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span>
+<span id="cb21-3"><a aria-hidden="true" tabindex="-1"></a>p_scatter <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Baseline SBP (mmHg)"</span>,</span>
+<span id="cb21-4"><a aria-hidden="true" tabindex="-1"></a>                 <span class="at">y =</span> <span class="st">"Week 12 SBP (mmHg)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/gg-object-1.png" style="width:100.0%"></p>
+</figure>
 </div>
+</div>
+</div>
+<p><code>p_scatter + ...</code> displays a revised plot. To keep that version, assign it: <code>p_scatter &lt;- p_scatter + labs(...)</code>.</p>
 </section>
 <section id="aes-means-map.-outside-means-set" class="slide level2 smaller">
 <h2><code>aes()</code> means <em>map</em>. Outside means <em>set</em></h2>
 <div class="columns">
 <div class="column" style="width:49%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0, sbp_12,</span>
-<span id="cb5-2"><a aria-hidden="true" tabindex="-1"></a>                  <span class="at">colour =</span> arm)) <span class="sc">+</span></span>
-<span id="cb5-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0, sbp_12,</span>
+<span id="cb22-2"><a aria-hidden="true" tabindex="-1"></a>                  <span class="at">colour =</span> arm)) <span class="sc">+</span></span>
+<span id="cb22-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -571,8 +900,8 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div><div class="column" style="width:49%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0, sbp_12)) <span class="sc">+</span></span>
-<span id="cb6-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> <span class="st">"steelblue"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0, sbp_12)) <span class="sc">+</span></span>
+<span id="cb23-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> <span class="st">"steelblue"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -583,22 +912,594 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div></div>
 <div class="smaller">
-<p>Inside <code>aes()</code>: colour <strong>carries information</strong>, and you get a legend. Outside: colour is decoration, and no legend is possible.</p>
+<p>Inside <code>aes()</code>: colour <strong>carries information</strong>, and you get a legend. Outside: colour is fixed, and this setting does not create a mapped legend.</p>
 </div>
+</section>
+<section id="colour-fill-and-shape" class="slide level2">
+<h2>Colour, fill, and shape</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0, sbp_12, <span class="at">fill =</span> arm)) <span class="sc">+</span></span>
+<span id="cb24-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">21</span>, <span class="at">colour =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb24-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> arm_col) <span class="sc">+</span></span>
+<span id="cb24-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Baseline SBP (mmHg)"</span>, <span class="at">y =</span> <span class="st">"Week 12 SBP (mmHg)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/gg-fill-colour-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>For shapes 21–25, <code>fill</code> controls the interior and <code>colour</code> controls the border. For most other point shapes, use <code>colour</code>. For bars, <code>fill</code> colours the interior.</p>
 </section></section>
 <section>
-<section id="layers-in-practice" class="title-slide slide level1 section-divider center">
-<h1>3 · Layers in practice</h1>
+<section id="choosing-a-display" class="title-slide slide level1 section-divider center">
+<h1>3 · Choosing a display</h1>
 
+</section>
+<section id="questions-that-need-different-displays" class="slide level2 concept">
+<h2>Questions that need different displays</h2>
+<ul>
+<li><strong>Distribution:</strong> What baseline values occur?</li>
+<li><strong>Comparison:</strong> How do week-12 values differ between arms?</li>
+<li><strong>Counts:</strong> How many participants belong to each category?</li>
+</ul>
+<p>We will keep the study data, but change the variables and marks.</p>
+</section>
+<section id="choosing-a-geom" class="slide level2">
+<h2>Choosing a geom</h2>
+<p>A <strong>geom</strong> is a layer’s drawing method: points, lines, bars, text, or another mark. Some geoms also compute a default summary before drawing.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Your data/question</th>
+<th>Start with</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Two numeric measurements per person</td>
+<td><code>geom_point()</code></td>
+</tr>
+<tr class="even">
+<td>One numeric variable’s distribution</td>
+<td><code>geom_histogram()</code></td>
+</tr>
+<tr class="odd">
+<td>A numeric outcome across groups</td>
+<td><code>geom_boxplot()</code> plus points</td>
+</tr>
+<tr class="even">
+<td>Counts of records by category</td>
+<td><code>geom_bar()</code></td>
+</tr>
+<tr class="odd">
+<td>Heights already calculated in a table</td>
+<td><code>geom_col()</code></td>
+</tr>
+<tr class="even">
+<td>Repeated measurements within a person</td>
+<td><code>geom_line()</code> with <code>group = id</code></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="geom-catalogue" class="slide level2">
+<h2>Optional: complete ggplot2 geom catalogue</h2>
+<p>The next slides list the exported <code>geom_*()</code> functions in the ggplot2 version used to render this deck, including aliases and older interfaces.</p>
+<ul>
+<li>They are a <strong>lookup reference</strong>, not a memorization requirement.</li>
+<li>Extension-package geoms, such as <code>ggrepel::geom_text_repel()</code>, are separate.</li>
+<li><code>stat_*()</code>, scales, and themes are different function families.</li>
+</ul>
+<p><a href="#/core-distributions">Skip the catalogue and continue to distributions</a></p>
+<p><a href="https://ggplot2.tidyverse.org/reference/index.html">Official ggplot2 function reference</a></p>
+</section>
+<section id="geom-reference-points-and-labels" class="slide level2 geom-reference">
+<h2>Geom reference: points and labels</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_point()</code></td>
+<td style="text-align: left;">One mark at each x/y location</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_jitter()</code></td>
+<td style="text-align: left;">Points with position offsets to reveal overlap</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_count()</code></td>
+<td style="text-align: left;">Point area represents the number at an x/y location</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_rug()</code></td>
+<td style="text-align: left;">Small marks along the plot margins</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_text()</code></td>
+<td style="text-align: left;">Text from a label variable</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_label()</code></td>
+<td style="text-align: left;">Text with a background box</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="geom-examples-points-and-jitter" class="slide level2 gallery">
+<h2>Geom examples: points and jitter</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/gallery-points-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Points show a relationship between two measurements. Jitter separates overlapping observations within categories. Both show individual participants.</p>
+</section>
+<section id="geom-reference-connected-observations" class="slide level2 geom-reference">
+<h2>Geom reference: connected observations</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_line()</code></td>
+<td style="text-align: left;">Connect observations in x order within each group</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_path()</code></td>
+<td style="text-align: left;">Connect observations in their row order</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_step()</code></td>
+<td style="text-align: left;">Connect observations using steps</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_segment()</code></td>
+<td style="text-align: left;">Separate segments, with start and end coordinates</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_curve()</code></td>
+<td style="text-align: left;">Curved connections between endpoints</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_spoke()</code></td>
+<td style="text-align: left;">Segments specified by angle and length</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Connecting observations implies a relationship or order. It is usually inappropriate to connect unrelated participants just because their rows are adjacent.</p>
+</section>
+<section id="geom-examples-line-and-step" class="slide level2 gallery">
+<h2>Geom examples: line and step</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/gallery-lines-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>A line connects measured summaries. A step can represent a dose held constant until the next change. The right-hand schedule is a separate synthetic example.</p>
+</section>
+<section id="geom-reference-distributions" class="slide level2 geom-reference">
+<h2>Geom reference: distributions</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_histogram()</code></td>
+<td style="text-align: left;">Counts or densities in numeric bins</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_freqpoly()</code></td>
+<td style="text-align: left;">A line through binned frequencies</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_density()</code></td>
+<td style="text-align: left;">A smooth estimate of a one-variable density</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_dotplot()</code></td>
+<td style="text-align: left;">Stacked dots in bins</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_boxplot()</code></td>
+<td style="text-align: left;">Median, quartiles, whiskers, and extreme points</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_violin()</code></td>
+<td style="text-align: left;">A mirrored density for each group</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_qq()</code></td>
+<td style="text-align: left;">Sample quantiles against reference quantiles</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_qq_line()</code></td>
+<td style="text-align: left;">A reference line for a Q-Q display</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="geom-examples-distribution-summaries" class="slide level2 gallery">
+<h2>Geom examples: distribution summaries</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/gallery-distributions-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The histogram groups observations into numeric bins. A violin describes a smoothed distribution, while the overlaid box marks its quartiles and median.</p>
+</section>
+<section id="geom-reference-bars-and-filled-regions" class="slide level2 geom-reference">
+<h2>Geom reference: bars and filled regions</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_bar()</code></td>
+<td style="text-align: left;">Count records by category by default</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_col()</code></td>
+<td style="text-align: left;">Draw supplied y values as bar heights</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_area()</code></td>
+<td style="text-align: left;">Filled region to a baseline, stacked by default</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_ribbon()</code></td>
+<td style="text-align: left;">Region between supplied ymin and ymax</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_rect()</code></td>
+<td style="text-align: left;">Rectangles defined by boundary coordinates</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_tile()</code></td>
+<td style="text-align: left;">Rectangles defined by centres and dimensions</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_raster()</code></td>
+<td style="text-align: left;">Efficient equal-sized rectangular cells</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="geom-examples-bars-and-a-ribbon" class="slide level2 gallery">
+<h2>Geom examples: bars and a ribbon</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/gallery-bars-ribbon-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Bars show counts. The ribbon fills a supplied lower-to-upper range, here approximate 95% intervals for the treatment-arm mean at each visit.</p>
+</section>
+<section id="geom-reference-intervals" class="slide level2 geom-reference">
+<h2>Geom reference: intervals</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<colgroup>
+<col style="width: 28%">
+<col style="width: 71%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_pointrange()</code></td>
+<td style="text-align: left;">Point estimate and interval</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_linerange()</code></td>
+<td style="text-align: left;">Interval alone</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_errorbar()</code></td>
+<td style="text-align: left;">Interval with end caps</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_crossbar()</code></td>
+<td style="text-align: left;">Central value across an interval box</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_errorbarh()</code></td>
+<td style="text-align: left;">Older horizontal error-bar interface (deprecated)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>For new horizontal error bars, use <code>geom_errorbar(orientation = "y")</code> with <code>xmin</code> and <code>xmax</code>. The plotting function does not determine whether your interval means SD, SE, or a confidence interval.</p>
+</section>
+<section id="geom-examples-two-ways-to-draw-an-interval" class="slide level2 gallery">
+<h2>Geom examples: two ways to draw an interval</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/gallery-intervals-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>These show the same means and approximate 95% confidence intervals. Pointrange draws both marks; errorbar supplies the interval with end caps.</p>
+</section>
+<section id="geom-reference-fits-and-reference-lines" class="slide level2 geom-reference">
+<h2>Geom reference: fits and reference lines</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 75%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_smooth()</code></td>
+<td style="text-align: left;">Fitted trend with an optional uncertainty band</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_quantile()</code></td>
+<td style="text-align: left;">Conditional quantile regression lines</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_function()</code></td>
+<td style="text-align: left;">Evaluate and draw a supplied function</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_abline()</code></td>
+<td style="text-align: left;">Lines specified by intercept and slope</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_hline()</code></td>
+<td style="text-align: left;">Horizontal reference lines</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_vline()</code></td>
+<td style="text-align: left;">Vertical reference lines</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_blank()</code></td>
+<td style="text-align: left;">Invisible layer, useful for establishing scale ranges</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="geom-examples-fitted-and-reference-lines" class="slide level2 gallery">
+<h2>Geom examples: fitted and reference lines</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/gallery-fits-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The fitted line summarizes a relationship in the data. The identity line marks equality between visits and needs no fitted model.</p>
+</section>
+<section id="geom-reference-two-dimensional-patterns" class="slide level2 geom-reference">
+<h2>Geom reference: two-dimensional patterns</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<colgroup>
+<col style="width: 35%">
+<col style="width: 64%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_bin_2d()</code></td>
+<td style="text-align: left;">Counts in rectangular x/y bins</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_hex()</code></td>
+<td style="text-align: left;">Counts in hexagonal x/y bins</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_density_2d()</code></td>
+<td style="text-align: left;">Contours of an estimated x/y density</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_density_2d_filled()</code></td>
+<td style="text-align: left;">Filled regions of an estimated x/y density</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_contour()</code></td>
+<td style="text-align: left;">Contour lines for supplied grid values z</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_contour_filled()</code></td>
+<td style="text-align: left;">Filled contour regions for supplied grid values z</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><code>geom_hex()</code> needs the <strong>hexbin</strong> package. Counts, estimated densities, and supplied surface values answer different questions.</p>
+</section>
+<section id="geom-examples-binned-counts-and-contours" class="slide level2 gallery">
+<h2>Geom examples: binned counts and contours</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/gallery-surfaces-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Left: counts of participants in x/y bins. Right: equal-value lines from R’s built-in <code>volcano</code> elevation grid. Contours require surface values, not just x/y pairs.</p>
+</section>
+<section id="geom-reference-maps-and-shapes" class="slide level2 geom-reference">
+<h2>Geom reference: maps and shapes</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_polygon()</code></td>
+<td style="text-align: left;">Closed shapes from ordered vertices</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_map()</code></td>
+<td style="text-align: left;">Values joined to a separate map polygon table</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_sf()</code></td>
+<td style="text-align: left;">Geometry from an sf spatial object</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_sf_text()</code></td>
+<td style="text-align: left;">Text located using sf geometry</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_sf_label()</code></td>
+<td style="text-align: left;">Boxed text located using sf geometry</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The <code>geom_sf*()</code> functions use the <strong>sf</strong> package and spatial data structures. Spatial analysis is outside this session’s core material.</p>
+</section>
+<section id="geom-example-regions-defined-by-vertices" class="slide level2 gallery">
+<h2>Geom example: regions defined by vertices</h2>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/gallery-polygons-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Each group supplies one shape’s vertices in boundary order. Real geographic work commonly uses <code>geom_sf()</code> with spatial geometry instead of hand-entered vertices.</p>
+</section>
+<section id="geom-reference-aliases-and-package-version" class="slide level2 geom-reference">
+<h2>Geom reference: aliases and package version</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_bin2d()</code></td>
+<td style="text-align: left;">Alias of geom_bin_2d</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>geom_density2d()</code></td>
+<td style="text-align: left;">Alias of geom_density_2d</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>geom_density2d_filled()</code></td>
+<td style="text-align: left;">Alias of geom_density_2d_filled</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>This deck lists <strong>53 exported names</strong>, including aliases, for <strong>ggplot2 4.0.0</strong>.</p>
+<p>Use <code>?geom_point</code> or the <a href="https://ggplot2.tidyverse.org/reference/index.html">official reference</a> for arguments. Newer releases may add functions. There is no need to install an extension package just to complete the core examples.</p>
+</section>
+<section id="core-distributions" class="slide level2 concept">
+<h2>Back to the study: distributions</h2>
+<p>The catalogue shows the range of available marks. Now we use a small set to answer the study questions.</p>
+<p><strong>First question:</strong> What is the distribution of baseline SBP?</p>
+<p>Compare a histogram’s bins with a density curve’s smoothing.</p>
 </section>
 <section id="distributions-histogram-and-density" class="slide level2 smaller">
 <h2>Distributions: histogram and density</h2>
 <div class="columns">
 <div class="column" style="width:49%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0)) <span class="sc">+</span></span>
-<span id="cb7-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">8</span>,</span>
-<span id="cb7-3"><a aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill =</span> <span class="st">"grey35"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0)) <span class="sc">+</span></span>
+<span id="cb25-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">binwidth =</span> <span class="dv">8</span>,</span>
+<span id="cb25-3"><a aria-hidden="true" tabindex="-1"></a>                 <span class="at">fill =</span> <span class="st">"grey35"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -609,8 +1510,8 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div><div class="column" style="width:49%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0)) <span class="sc">+</span></span>
-<span id="cb8-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">fill =</span> <span class="st">"grey80"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0)) <span class="sc">+</span></span>
+<span id="cb26-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">fill =</span> <span class="st">"grey80"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -621,7 +1522,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div></div>
 <div class="smaller">
-<p>Set <code>binwidth</code> in the units of the variable — “8 mmHg” is a decision you can defend. <code>bins = 30</code> is a default you cannot.</p>
+<p><code>binwidth = 8</code> uses 8-mmHg bins. <code>bins = 30</code> asks for a number of bins. Either choice needs checking: try alternatives and see whether the pattern persists.</p>
 <p><strong>The base R way:</strong> <code>hist(trial$sbp_0)</code> · <code>plot(density(trial$sbp_0))</code></p>
 </div>
 </section>
@@ -630,8 +1531,8 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <div class="columns">
 <div class="column" style="width:49%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, sbp_12)) <span class="sc">+</span></span>
-<span id="cb9-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">width =</span> <span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, sbp_12)) <span class="sc">+</span></span>
+<span id="cb27-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">width =</span> <span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -642,8 +1543,8 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div><div class="column" style="width:49%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, sbp_12)) <span class="sc">+</span></span>
-<span id="cb10-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>(<span class="at">fill =</span> <span class="st">"grey85"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, sbp_12)) <span class="sc">+</span></span>
+<span id="cb28-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_violin</span>(<span class="at">fill =</span> <span class="st">"grey85"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -654,16 +1555,16 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div></div>
 <div class="smaller">
-<p>A boxplot shows five numbers. A violin shows a density. <strong>Neither shows n</strong>, and neither would look different if half the data were missing.</p>
+<p>A boxplot shows the median, quartiles, whiskers, and possible outlying points. A violin shows an estimated density. Neither displays the sample size by default.</p>
 <p><strong>The base R way:</strong> <code>boxplot(sbp_12 ~ arm, data = trial)</code></p>
 </div>
 </section>
 <section id="show-the-data-not-only-the-summary" class="slide level2 smaller">
 <h2>Show the data, not only the summary</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, sbp_12)) <span class="sc">+</span></span>
-<span id="cb11-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">width =</span> <span class="fl">0.45</span>, <span class="at">outlier.shape =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
-<span id="cb11-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.12</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">size =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, sbp_12)) <span class="sc">+</span></span>
+<span id="cb29-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">width =</span> <span class="fl">0.45</span>, <span class="at">outlier.shape =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb29-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.12</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>, <span class="at">size =</span> <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -676,11 +1577,60 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <p><code>outlier.shape = NA</code> stops the boxplot drawing outliers that <code>geom_jitter()</code> already drew. Two marks for one observation is a real error, not a style choice.</p>
 </div>
 </section>
+<section id="overlap-can-hide-observations" class="slide level2">
+<h2>Overlap can hide observations</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, sbp_12)) <span class="sc">+</span></span>
+<span id="cb30-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">position =</span> <span class="fu">position_jitter</span>(<span class="at">width =</span> <span class="fl">0.12</span>,</span>
+<span id="cb30-3"><a aria-hidden="true" tabindex="-1"></a>                                        <span class="at">height =</span> <span class="dv">0</span>, <span class="at">seed =</span> <span class="dv">6301</span>),</span>
+<span id="cb30-4"><a aria-hidden="true" tabindex="-1"></a>             <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb30-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Week 12 SBP (mmHg)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/gg-reproducible-jitter-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Horizontal jitter separates tied marks. <code>height = 0</code> preserves the measured outcome, and <code>seed</code> makes the offsets repeatable. Alpha reduces visual overlap.</p>
+</section>
+<section id="counts-versus-a-precomputed-table" class="slide level2">
+<h2>Counts versus a precomputed table</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">arm</th>
+<th style="text-align: right;">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Placebo</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Treatment</td>
+<td style="text-align: right;">30</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># One row per participant: let the geom count</span></span>
+<span id="cb31-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm)) <span class="sc">+</span> <span class="fu">geom_bar</span>()</span>
+<span id="cb31-3"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a aria-hidden="true" tabindex="-1"></a><span class="co"># One row per arm: heights are already calculated</span></span>
+<span id="cb31-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(counts, <span class="fu">aes</span>(arm, n)) <span class="sc">+</span> <span class="fu">geom_col</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Both give the same counts here. A mean or percentage already stored in <code>y</code> usually calls for <code>geom_col()</code>, not the default <code>geom_bar()</code> statistic.</p>
+</section>
 <section id="comparisons-bars-and-position-adjustments" class="slide level2 smaller">
 <h2>Comparisons: bars, and position adjustments</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(site_f, <span class="at">fill =</span> sex)) <span class="sc">+</span></span>
-<span id="cb12-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position =</span> <span class="st">"dodge"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(site_f, <span class="at">fill =</span> sex)) <span class="sc">+</span></span>
+<span id="cb32-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position =</span> <span class="st">"dodge"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -717,36 +1667,69 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </tbody>
 </table>
 </div>
+</section></section>
+<section>
+<section id="adding-summaries-and-uncertainty" class="title-slide slide level1 section-divider center">
+<h1>4 · Adding summaries and uncertainty</h1>
+
 </section>
-<section id="relationships-points-and-a-smooth" class="slide level2 smaller">
-<h2>Relationships: points and a smooth</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(age, sbp_12, <span class="at">colour =</span> arm)) <span class="sc">+</span></span>
-<span id="cb13-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
-<span id="cb13-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">TRUE</span>, <span class="at">alpha =</span> <span class="fl">0.15</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure>
-<p><img data-src="slides_files/figure-revealjs/geom-smooth-1.png" style="width:100.0%"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="smaller">
-<p><code>method = "lm"</code> is a model you have chosen. The default, <code>"loess"</code>, is a model you have not — and the band is a confidence band for the <em>fit</em>, not a prediction interval.</p>
-</div>
+<section id="participant-values-and-group-summaries" class="slide level2 concept">
+<h2>Participant values and group summaries</h2>
+<p><strong>Question:</strong> What is the average week-12 SBP in each arm, and how uncertain is it?</p>
+<ol type="1">
+<li>Keep the participant-level data visible.</li>
+<li>Calculate an arm-level summary table.</li>
+<li>Draw a summary layer from that table.</li>
+<li>State what its interval means.</li>
+</ol>
+<p>The raw data and summary layers have different observation units.</p>
+</section>
+<section id="what-do-the-intervals-mean" class="slide level2">
+<h2>What do the intervals mean?</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Interval</th>
+<th>Describes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Mean ± SD</td>
+<td>Spread of individual measurements around their mean</td>
+</tr>
+<tr class="even">
+<td>Mean ± SE</td>
+<td>Estimated sampling variability of the mean</td>
+</tr>
+<tr class="odd">
+<td>Confidence interval</td>
+<td>Uncertainty about a population parameter under a model</td>
+</tr>
+<tr class="even">
+<td>Prediction interval</td>
+<td>Uncertainty about a new individual observation</td>
+</tr>
+</tbody>
+</table>
+<p>The same <code>geom_errorbar()</code> can draw any of these. Its inputs do not tell the reader which one you intended. State the meaning and method in the caption.</p>
+<p>The earlier <code>mean ± 1.96 * SE</code> examples use an approximate 95% confidence interval. The longitudinal ribbon gives intervals at each visit, not a model of change.</p>
 </section>
 <section id="uncertainty-an-estimate-needs-an-interval" class="slide level2 smaller">
 <h2>Uncertainty: an estimate needs an interval</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a aria-hidden="true" tabindex="-1"></a>by_arm <span class="ot">&lt;-</span> trial <span class="sc">|&gt;</span></span>
-<span id="cb14-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(arm) <span class="sc">|&gt;</span></span>
-<span id="cb14-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_sbp =</span> <span class="fu">mean</span>(sbp_12),</span>
-<span id="cb14-4"><a aria-hidden="true" tabindex="-1"></a>            <span class="at">se =</span> <span class="fu">sd</span>(sbp_12) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="fu">n</span>()))</span>
-<span id="cb14-5"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(by_arm, <span class="fu">aes</span>(arm, mean_sbp)) <span class="sc">+</span></span>
-<span id="cb14-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> mean_sbp <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se,</span>
-<span id="cb14-8"><a aria-hidden="true" tabindex="-1"></a>                      <span class="at">ymax =</span> mean_sbp <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a aria-hidden="true" tabindex="-1"></a>by_arm <span class="ot">&lt;-</span> trial <span class="sc">|&gt;</span></span>
+<span id="cb33-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(arm) <span class="sc">|&gt;</span></span>
+<span id="cb33-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_sbp =</span> <span class="fu">mean</span>(sbp_12),</span>
+<span id="cb33-4"><a aria-hidden="true" tabindex="-1"></a>            <span class="at">se =</span> <span class="fu">sd</span>(sbp_12) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="fu">n</span>()))</span>
+<span id="cb33-5"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(by_arm, <span class="fu">aes</span>(arm, mean_sbp)) <span class="sc">+</span></span>
+<span id="cb33-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> mean_sbp <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se,</span>
+<span id="cb33-8"><a aria-hidden="true" tabindex="-1"></a>                      <span class="at">ymax =</span> mean_sbp <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -756,19 +1739,172 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 </section>
+<section id="a-layer-can-use-its-own-data" class="slide level2">
+<h2>A layer can use its own data</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, sbp_12)) <span class="sc">+</span></span>
+<span id="cb34-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">position =</span> <span class="fu">position_jitter</span>(<span class="at">width =</span> <span class="fl">0.1</span>, <span class="at">height =</span> <span class="dv">0</span>,</span>
+<span id="cb34-3"><a aria-hidden="true" tabindex="-1"></a>                                        <span class="at">seed =</span> <span class="dv">6301</span>), <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb34-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> by_arm, <span class="fu">aes</span>(<span class="at">x =</span> arm, <span class="at">y =</span> mean_sbp),</span>
+<span id="cb34-5"><a aria-hidden="true" tabindex="-1"></a>             <span class="at">inherit.aes =</span> <span class="cn">FALSE</span>, <span class="at">shape =</span> <span class="dv">18</span>, <span class="at">size =</span> <span class="dv">5</span>,</span>
+<span id="cb34-6"><a aria-hidden="true" tabindex="-1"></a>             <span class="at">colour =</span> <span class="st">"#0072B2"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/gg-separate-data-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Grey points use participant data. Blue diamonds use the summary table. <code>inherit.aes = FALSE</code> makes the summary layer use only its own mappings.</p>
+</section>
+<section id="relationships-points-and-a-smooth" class="slide level2 smaller">
+<h2>Relationships: points and a smooth</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(age, sbp_12, <span class="at">colour =</span> arm)) <span class="sc">+</span></span>
+<span id="cb35-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb35-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">TRUE</span>, <span class="at">alpha =</span> <span class="fl">0.15</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/geom-smooth-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="smaller">
+<p><code>method = "lm"</code> specifies a linear fit. With <code>method = NULL</code>, ggplot2 chooses loess or GAM according to the largest group’s size. The band describes uncertainty in the fitted mean, not a prediction interval for an individual.</p>
+</div>
+</section>
+<section id="layer-specific-mappings" class="slide level2">
+<h2>Layer-specific mappings</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0, sbp_12)) <span class="sc">+</span></span>
+<span id="cb36-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">colour =</span> arm)) <span class="sc">+</span></span>
+<span id="cb36-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">colour =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb36-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> arm_col)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/gg-layer-mapping-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Colour belongs only to the points here. The smooth uses all participants together. Putting <code>colour = arm</code> in the global <code>aes()</code> would fit one line per arm.</p>
+</section></section>
+<section>
+<section id="showing-repeated-visits" class="title-slide slide level1 section-divider center">
+<h1>5 · Showing repeated visits</h1>
+
+</section>
+<section id="a-new-question-needs-a-different-data-shape" class="slide level2 concept">
+<h2>A new question needs a different data shape</h2>
+<p><strong>Question:</strong> How does blood pressure change over the three visits?</p>
+<ul>
+<li>One row in <code>trial</code>: one participant, with visits in separate columns.</li>
+<li>One row in <code>trial_long</code>: one participant at one visit.</li>
+<li>Individual lines need <code>id</code>, <code>week</code>, and <code>sbp</code>.</li>
+<li>Group-average lines need an arm-by-week summary.</li>
+</ul>
+<p>Session 7’s wide-to-long reshape makes these plots easier to specify.</p>
+</section>
+<section id="plotting-repeated-visits-uses-the-long-table" class="slide level2">
+<h2>Plotting repeated visits uses the long table</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a aria-hidden="true" tabindex="-1"></a>trial_long <span class="ot">&lt;-</span> trial <span class="sc">|&gt;</span></span>
+<span id="cb37-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, arm, sbp_0, sbp_6, sbp_12) <span class="sc">|&gt;</span></span>
+<span id="cb37-3"><a aria-hidden="true" tabindex="-1"></a>  tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(<span class="fu">starts_with</span>(<span class="st">"sbp_"</span>),</span>
+<span id="cb37-4"><a aria-hidden="true" tabindex="-1"></a>                     <span class="at">names_to =</span> <span class="st">"week"</span>, <span class="at">names_prefix =</span> <span class="st">"sbp_"</span>,</span>
+<span id="cb37-5"><a aria-hidden="true" tabindex="-1"></a>                     <span class="at">values_to =</span> <span class="st">"sbp"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb37-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">week =</span> <span class="fu">as.numeric</span>(week))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">id</th>
+<th style="text-align: left;">arm</th>
+<th style="text-align: right;">week</th>
+<th style="text-align: right;">sbp</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">P001</td>
+<td style="text-align: left;">Placebo</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">160</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">P001</td>
+<td style="text-align: left;">Placebo</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">146</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">P001</td>
+<td style="text-align: left;">Placebo</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">144</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>The first participant contributes three rows. Their shared <code>id</code> tells the plot which measurements belong together.</p>
+</section>
+<section id="one-line-per-participant" class="slide level2">
+<h2>One line per participant</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial_long, <span class="fu">aes</span>(week, sbp, <span class="at">group =</span> id, <span class="at">colour =</span> arm)) <span class="sc">+</span></span>
+<span id="cb38-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">alpha =</span> <span class="fl">0.35</span>) <span class="sc">+</span></span>
+<span id="cb38-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> arm) <span class="sc">+</span></span>
+<span id="cb38-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">6</span>, <span class="dv">12</span>)) <span class="sc">+</span></span>
+<span id="cb38-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> arm_col, <span class="at">guide =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/gg-trajectories-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>colour = arm</code> alone would define only two colour groups. <code>group = id</code> tells the line layer to connect each person’s own measurements.</p>
+</section>
+<section id="line-path-reference" class="slide level2">
+<h2>Optional: line versus path</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a>route <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">2</span>), <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>))</span>
+<span id="cb39-2"><a aria-hidden="true" tabindex="-1"></a>routes <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">transform</span>(route, <span class="at">display =</span> <span class="st">"geom_line"</span>),</span>
+<span id="cb39-3"><a aria-hidden="true" tabindex="-1"></a>                <span class="fu">transform</span>(route, <span class="at">display =</span> <span class="st">"geom_path"</span>))</span>
+<span id="cb39-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(routes, <span class="fu">aes</span>(x, y)) <span class="sc">+</span></span>
+<span id="cb39-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb39-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> <span class="fu">subset</span>(routes, display <span class="sc">==</span> <span class="st">"geom_line"</span>)) <span class="sc">+</span></span>
+<span id="cb39-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_path</span>(<span class="at">data =</span> <span class="fu">subset</span>(routes, display <span class="sc">==</span> <span class="st">"geom_path"</span>)) <span class="sc">+</span></span>
+<span id="cb39-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> display)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/gg-line-path-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><code>geom_line()</code> sorts by x within each group. <code>geom_path()</code> follows row order, which is useful for an ordered route through space.</p>
+</section>
 <section id="uncertainty-over-time-the-ribbon" class="slide level2 smaller">
 <h2>Uncertainty over time: the ribbon</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a>by_week <span class="ot">&lt;-</span> trial_long <span class="sc">|&gt;</span></span>
-<span id="cb15-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(arm, week) <span class="sc">|&gt;</span></span>
-<span id="cb15-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">m =</span> <span class="fu">mean</span>(sbp), <span class="at">se =</span> <span class="fu">sd</span>(sbp) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="fu">n</span>()),</span>
-<span id="cb15-4"><a aria-hidden="true" tabindex="-1"></a>            <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
-<span id="cb15-5"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(by_week, <span class="fu">aes</span>(week, m, <span class="at">colour =</span> arm, <span class="at">fill =</span> arm)) <span class="sc">+</span></span>
-<span id="cb15-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> m <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se, <span class="at">ymax =</span> m <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se),</span>
-<span id="cb15-8"><a aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">colour =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
-<span id="cb15-9"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb15-10"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">6</span>, <span class="dv">12</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a aria-hidden="true" tabindex="-1"></a>by_week <span class="ot">&lt;-</span> trial_long <span class="sc">|&gt;</span></span>
+<span id="cb40-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(arm, week) <span class="sc">|&gt;</span></span>
+<span id="cb40-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">m =</span> <span class="fu">mean</span>(sbp), <span class="at">se =</span> <span class="fu">sd</span>(sbp) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="fu">n</span>()),</span>
+<span id="cb40-4"><a aria-hidden="true" tabindex="-1"></a>            <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb40-5"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(by_week, <span class="fu">aes</span>(week, m, <span class="at">colour =</span> arm, <span class="at">fill =</span> arm)) <span class="sc">+</span></span>
+<span id="cb40-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> m <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se, <span class="at">ymax =</span> m <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se),</span>
+<span id="cb40-8"><a aria-hidden="true" tabindex="-1"></a>              <span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">colour =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
+<span id="cb40-9"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb40-10"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">6</span>, <span class="dv">12</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -781,9 +1917,9 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="facets-the-same-plot-split" class="slide level2 smaller">
 <h2>Facets: the same plot, split</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0, sbp_12, <span class="at">colour =</span> arm)) <span class="sc">+</span></span>
-<span id="cb16-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
-<span id="cb16-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> site_f, <span class="at">nrow =</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0, sbp_12, <span class="at">colour =</span> arm)) <span class="sc">+</span></span>
+<span id="cb41-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb41-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> site_f, <span class="at">nrow =</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -795,14 +1931,29 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <div class="smaller">
 <p><code>facet_wrap(~ x)</code> wraps one variable into panels · <code>facet_grid(a ~ b)</code> makes a matrix of two · <code>scales = "free_y"</code> lets each panel set its own axis, <strong>which breaks comparability</strong>.</p>
 </div>
+</section></section>
+<section>
+<section id="refining-the-display" class="title-slide slide level1 section-divider center">
+<h1>6 · Refining the display</h1>
+
+</section>
+<section id="display-choices-after-the-plot-works" class="slide level2 concept">
+<h2>Display choices after the plot works</h2>
+<p>Our plot already answers a question. Now consider how readers will interpret it.</p>
+<ul>
+<li>Would a transformation make a skewed variable easier to see?</li>
+<li>Do we want to zoom, or intentionally exclude data?</li>
+<li>Can the reader identify groups and understand the labels?</li>
+<li>Will the exported figure remain readable at its final size?</li>
+</ul>
 </section>
 <section id="scales-where-the-transformation-belongs" class="slide level2 smaller">
 <h2>Scales: where the transformation belongs</h2>
 <div class="columns">
 <div class="column" style="width:49%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, crp)) <span class="sc">+</span></span>
-<span id="cb17-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, crp)) <span class="sc">+</span></span>
+<span id="cb42-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -813,9 +1964,9 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div><div class="column" style="width:49%;">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, crp)) <span class="sc">+</span></span>
-<span id="cb18-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
-<span id="cb18-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, crp)) <span class="sc">+</span></span>
+<span id="cb43-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb43-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -828,16 +1979,90 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <div class="smaller">
 <p><code>scale_y_log10()</code> transforms the <strong>scale</strong> and keeps the axis in original units. <code>aes(y = log10(crp))</code> transforms the <strong>data</strong> and labels the axis <code>log10(crp)</code>. Prefer the scale.</p>
 </div>
+</section>
+<section id="zooming-versus-removing-observations" class="slide level2">
+<h2>Zooming versus removing observations</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, sbp_12)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>()</span>
+<span id="cb44-2"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-3"><a aria-hidden="true" tabindex="-1"></a>p <span class="sc">+</span> <span class="fu">coord_cartesian</span>(<span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">120</span>, <span class="dv">160</span>))  <span class="co"># zoom after calculation</span></span>
+<span id="cb44-4"><a aria-hidden="true" tabindex="-1"></a>p <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">120</span>, <span class="dv">160</span>))</span>
+<span id="cb44-5"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Out-of-range values become NA before the boxplot calculation</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>Zooming retains the full data in the statistical calculation.</li>
+<li>Scale limits can change quartiles, smooths, and other calculated summaries.</li>
+<li>If exclusion is intentional, filter the data explicitly and explain why.</li>
+</ul>
+</section>
+<section id="heatmap-reference" class="slide level2">
+<h2>Optional: a small heatmap</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a>site_summary <span class="ot">&lt;-</span> trial <span class="sc">|&gt;</span></span>
+<span id="cb45-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(site_f, arm) <span class="sc">|&gt;</span></span>
+<span id="cb45-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_sbp =</span> <span class="fu">mean</span>(sbp_12), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb45-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(site_summary, <span class="fu">aes</span>(arm, site_f, <span class="at">fill =</span> mean_sbp)) <span class="sc">+</span></span>
+<span id="cb45-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">colour =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb45-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>() <span class="sc">+</span></span>
+<span id="cb45-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>, <span class="at">fill =</span> <span class="st">"Mean SBP</span><span class="sc">\n</span><span class="st">(mmHg)"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="slides_files/figure-revealjs/gg-heatmap-1.png" style="width:100.0%"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Each cell represents a site/arm summary. Heatmaps show patterns across many combinations; a dot plot is easier for precise comparisons of a few estimates.</p>
+</section>
+<section id="a-debugging-checklist-for-plots" class="slide level2">
+<h2>A debugging checklist for plots</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Symptom</th>
+<th>First check</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Unexpected colour legend</td>
+<td>Did a constant go inside <code>aes()</code>?</td>
+</tr>
+<tr class="even">
+<td>One line connects different people</td>
+<td>Is <code>group = id</code> specified?</td>
+</tr>
+<tr class="odd">
+<td>Bar heights are unexpected</td>
+<td>Does the geom count rows or use supplied y?</td>
+</tr>
+<tr class="even">
+<td>“Removed rows” warning</td>
+<td>Missing values or scale limits?</td>
+</tr>
+<tr class="odd">
+<td>Labels or layers disappear</td>
+<td>Axis limits, layer data, and inherited mappings</td>
+</tr>
+<tr class="even">
+<td>Plot does not appear after assignment</td>
+<td>Print the saved plot object: <code>p</code></td>
+</tr>
+</tbody>
+</table>
+<p>Read the warning and inspect the relevant data before using <code>na.rm = TRUE</code> to suppress a message.</p>
 </section></section>
 <section>
-<section id="design-principles" class="title-slide slide level1 section-divider center">
-<h1>4 · Design principles</h1>
+<section id="critiquing-and-improving-a-figure" class="title-slide slide level1 section-divider center">
+<h1>7 · Critiquing and improving a figure</h1>
 
 </section>
-<section id="the-perceptual-hierarchy" class="slide level2 smaller">
+<section id="the-perceptual-hierarchy" class="slide level2 concept">
 <h2>The perceptual hierarchy</h2>
 <p>How accurately a reader can decode a quantity, best first:</p>
-<div style="font-size:0.9em">
 <table class="caption-top">
 <colgroup>
 <col style="width: 33%">
@@ -875,11 +2100,10 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <tr class="odd">
 <td>5</td>
 <td>Colour intensity, saturation</td>
-<td>A third variable, not the main one</td>
+<td>Broad patterns or a third variable</td>
 </tr>
 </tbody>
 </table>
-</div>
 <div class="fragment">
 <div class="callout callout-important callout-style-simple">
 <div class="callout-body">
@@ -887,7 +2111,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <i class="callout-icon"></i>
 </div>
 <div class="callout-content">
-<p><strong>Position beats length beats area beats colour.</strong> Put your primary comparison on a shared axis, and never encode the effect you care about in colour.</p>
+<p>For precise comparisons, prefer positions on a shared axis. Colour remains useful for group identity and for patterns across large matrices.</p>
 </div>
 </div>
 </div>
@@ -920,8 +2144,8 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 </section>
-<section id="two-chart-types-to-refuse" class="slide level2 smaller">
-<h2>Two chart types to refuse</h2>
+<section id="pie-charts-and-dual-axes-need-care" class="slide level2 smaller">
+<h2>Pie charts and dual axes need care</h2>
 <div class="columns">
 <div class="column" style="width:46%;">
 <div class="cell">
@@ -937,10 +2161,10 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <div class="smaller">
 <p><strong>Pie charts</strong> ask the reader to compare <strong>angles and areas</strong> — ranks 3 and 4. Rank the four sites from that. Now imagine a bar chart.</p>
 <p><strong>Dual axes</strong> are worse, because the reader cannot check them:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># do not</span></span>
-<span id="cb19-2"><a aria-hidden="true" tabindex="-1"></a>p <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(</span>
-<span id="cb19-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">sec.axis =</span> <span class="fu">sec_axis</span>(<span class="sc">~</span> . <span class="sc">*</span> <span class="fl">3.2</span>, <span class="at">name =</span> <span class="st">"CRP"</span>)</span>
-<span id="cb19-4"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># do not</span></span>
+<span id="cb46-2"><a aria-hidden="true" tabindex="-1"></a>p <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(</span>
+<span id="cb46-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">sec.axis =</span> <span class="fu">sec_axis</span>(<span class="sc">~</span> . <span class="sc">*</span> <span class="fl">3.2</span>, <span class="at">name =</span> <span class="st">"CRP"</span>)</span>
+<span id="cb46-4"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The crossing point is set by <em>your</em> choice of scaling. Two facets, or two panels, say the same thing without the implied claim.</p>
 </div>
 </div></div>
@@ -970,14 +2194,14 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div></div>
 <div class="smaller">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># categorical - built in to R since 4.0</span></span>
-<span id="cb20-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">palette.colors</span>(<span class="dv">8</span>, <span class="st">"Okabe-Ito"</span>)</span>
-<span id="cb20-3"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #000000 #E69F00 #56B4E9 #009E73 #F0E442 #0072B2 #D55E00 #CC79A7</span></span>
-<span id="cb20-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">palette.colors</span>(<span class="dv">3</span>, <span class="st">"Okabe-Ito"</span>))</span>
-<span id="cb20-5"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-6"><a aria-hidden="true" tabindex="-1"></a><span class="co"># ordered or continuous - built in to ggplot2</span></span>
-<span id="cb20-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">scale_colour_viridis_d</span>()   <span class="co"># discrete</span></span>
-<span id="cb20-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">scale_fill_viridis_c</span>()     <span class="co"># continuous</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># categorical - built in to R since 4.0</span></span>
+<span id="cb47-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">palette.colors</span>(<span class="dv">8</span>, <span class="st">"Okabe-Ito"</span>)</span>
+<span id="cb47-3"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; #000000 #E69F00 #56B4E9 #009E73 #F0E442 #0072B2 #D55E00 #CC79A7</span></span>
+<span id="cb47-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">palette.colors</span>(<span class="dv">3</span>, <span class="st">"Okabe-Ito"</span>))</span>
+<span id="cb47-5"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-6"><a aria-hidden="true" tabindex="-1"></a><span class="co"># ordered or continuous - built in to ggplot2</span></span>
+<span id="cb47-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">scale_colour_viridis_d</span>()   <span class="co"># discrete</span></span>
+<span id="cb47-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">scale_fill_viridis_c</span>()     <span class="co"># continuous</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Then print it in greyscale. If the groups stop being distinguishable, colour was doing work that shape or a direct label should have been doing.</p>
 </div>
 </section>
@@ -1049,24 +2273,24 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </section></section>
 <section>
-<section id="publication-output" class="title-slide slide level1 section-divider center">
-<h1>5 · Publication output</h1>
+<section id="exporting-the-final-figure" class="title-slide slide level1 section-divider center">
+<h1>8 · Exporting the final figure</h1>
 
 </section>
 <section id="finish-it-labs-and-a-theme" class="slide level2 smaller">
 <h2>Finish it: <code>labs()</code> and a theme</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a aria-hidden="true" tabindex="-1"></a>p_final <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, sbp_12)) <span class="sc">+</span></span>
-<span id="cb21-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.12</span>, <span class="at">alpha =</span> <span class="fl">0.45</span>, <span class="at">colour =</span> <span class="st">"grey40"</span>) <span class="sc">+</span></span>
-<span id="cb21-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="at">data =</span> by_arm,</span>
-<span id="cb21-4"><a aria-hidden="true" tabindex="-1"></a>                  <span class="fu">aes</span>(<span class="at">y =</span> mean_sbp,</span>
-<span id="cb21-5"><a aria-hidden="true" tabindex="-1"></a>                      <span class="at">ymin =</span> mean_sbp <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se,</span>
-<span id="cb21-6"><a aria-hidden="true" tabindex="-1"></a>                      <span class="at">ymax =</span> mean_sbp <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se),</span>
-<span id="cb21-7"><a aria-hidden="true" tabindex="-1"></a>                  <span class="at">colour =</span> <span class="st">"#0072B2"</span>) <span class="sc">+</span></span>
-<span id="cb21-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"SBP at 12 weeks (mmHg)"</span>,</span>
-<span id="cb21-9"><a aria-hidden="true" tabindex="-1"></a>       <span class="at">caption =</span> <span class="st">"Mean and 95% CI. n = 30 per arm."</span>) <span class="sc">+</span></span>
-<span id="cb21-10"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
-<span id="cb21-11"><a aria-hidden="true" tabindex="-1"></a>p_final</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a aria-hidden="true" tabindex="-1"></a>p_final <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, sbp_12)) <span class="sc">+</span></span>
+<span id="cb48-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">width =</span> <span class="fl">0.12</span>, <span class="at">alpha =</span> <span class="fl">0.45</span>, <span class="at">colour =</span> <span class="st">"grey40"</span>) <span class="sc">+</span></span>
+<span id="cb48-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="at">data =</span> by_arm,</span>
+<span id="cb48-4"><a aria-hidden="true" tabindex="-1"></a>                  <span class="fu">aes</span>(<span class="at">y =</span> mean_sbp,</span>
+<span id="cb48-5"><a aria-hidden="true" tabindex="-1"></a>                      <span class="at">ymin =</span> mean_sbp <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> se,</span>
+<span id="cb48-6"><a aria-hidden="true" tabindex="-1"></a>                      <span class="at">ymax =</span> mean_sbp <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> se),</span>
+<span id="cb48-7"><a aria-hidden="true" tabindex="-1"></a>                  <span class="at">colour =</span> <span class="st">"#0072B2"</span>) <span class="sc">+</span></span>
+<span id="cb48-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"SBP at 12 weeks (mmHg)"</span>,</span>
+<span id="cb48-9"><a aria-hidden="true" tabindex="-1"></a>       <span class="at">caption =</span> <span class="st">"Mean and 95% CI. n = 30 per arm."</span>) <span class="sc">+</span></span>
+<span id="cb48-10"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
+<span id="cb48-11"><a aria-hidden="true" tabindex="-1"></a>p_final</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure>
@@ -1078,14 +2302,15 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="ggsave-with-the-arguments-filled-in" class="slide level2 smaller">
 <h2><code>ggsave()</code>, with the arguments filled in</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
-<span id="cb22-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"output"</span>, <span class="st">"fig-sbp-arm.png"</span>),</span>
-<span id="cb22-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">plot     =</span> p_final,</span>
-<span id="cb22-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">width    =</span> <span class="fl">6.5</span>,     <span class="co"># inches - the column width of your journal</span></span>
-<span id="cb22-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">height   =</span> <span class="dv">4</span>,</span>
-<span id="cb22-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">dpi      =</span> <span class="dv">300</span>,     <span class="co"># 300 for raster; journals ask for 300-600</span></span>
-<span id="cb22-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">bg       =</span> <span class="st">"white"</span></span>
-<span id="cb22-8"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"output"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb49-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ggsave</span>(</span>
+<span id="cb49-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">filename =</span> <span class="st">"output/fig-sbp-arm.png"</span>,</span>
+<span id="cb49-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">plot     =</span> p_final,</span>
+<span id="cb49-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">width    =</span> <span class="fl">6.5</span>,     <span class="co"># inches - the column width of your journal</span></span>
+<span id="cb49-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">height   =</span> <span class="dv">4</span>, <span class="at">units =</span> <span class="st">"in"</span>,</span>
+<span id="cb49-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">dpi      =</span> <span class="dv">300</span>,     <span class="co"># 300 for raster; journals ask for 300-600</span></span>
+<span id="cb49-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">bg       =</span> <span class="st">"white"</span></span>
+<span id="cb49-9"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="smaller">
 <table class="caption-top">
 <colgroup>
@@ -1109,11 +2334,11 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </tr>
 <tr class="odd">
 <td><code>bg</code></td>
-<td>A transparent background that prints as grey in Word</td>
+<td>Background comes from the plot theme and may be transparent</td>
 </tr>
 <tr class="even">
 <td><code>.pdf</code> / <code>.svg</code> extension</td>
-<td>Vector output: infinitely scalable, and what a typesetter wants</td>
+<td>Vector marks scale without pixelation; embedded raster layers still have finite resolution</td>
 </tr>
 </tbody>
 </table>
@@ -1128,8 +2353,8 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <p><strong>Nothing records what produced it.</strong> The data changes, the figure does not, and no warning appears anywhere.</p>
 </div><div class="column" style="width:48%;">
 <h3 id="ggsave-in-the-document"><code>ggsave()</code> in the document</h3>
-<p>The figure is regenerated from the data on every render.</p>
-<p><strong>It cannot disagree with the analysis</strong>, because there is only one copy of the truth.</p>
+<p>The figure is regenerated when its code executes during rendering.</p>
+<p>The script records the data and plotting steps. Check data versions and caching settings so the figure stays aligned with the analysis.</p>
 </div></div>
 <div class="fragment">
 <div class="callout callout-warning callout-style-simple">
@@ -1146,23 +2371,24 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="patchwork-several-panels-one-figure" class="slide level2 smaller">
 <h2><code>patchwork</code>: several panels, one figure</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
-<span id="cb23-2"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-3"><a aria-hidden="true" tabindex="-1"></a>p_box  <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, sbp_12)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>()</span>
-<span id="cb23-4"><a aria-hidden="true" tabindex="-1"></a>p_scat <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0, sbp_12)) <span class="sc">+</span> <span class="fu">geom_point</span>()</span>
-<span id="cb23-5"><a aria-hidden="true" tabindex="-1"></a>p_time <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(by_week, <span class="fu">aes</span>(week, m, <span class="at">colour =</span> arm)) <span class="sc">+</span> <span class="fu">geom_line</span>()</span>
-<span id="cb23-6"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-7"><a aria-hidden="true" tabindex="-1"></a>(p_box <span class="sc">|</span> p_scat) <span class="sc">/</span> p_time <span class="sc">+</span></span>
-<span id="cb23-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_annotation</span>(<span class="at">tag_levels =</span> <span class="st">"A"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb50-2"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-3"><a aria-hidden="true" tabindex="-1"></a>p_box  <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(arm, sbp_12)) <span class="sc">+</span> <span class="fu">geom_boxplot</span>()</span>
+<span id="cb50-4"><a aria-hidden="true" tabindex="-1"></a>p_scat <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(trial, <span class="fu">aes</span>(sbp_0, sbp_12)) <span class="sc">+</span> <span class="fu">geom_point</span>()</span>
+<span id="cb50-5"><a aria-hidden="true" tabindex="-1"></a>p_time <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(by_week, <span class="fu">aes</span>(week, m, <span class="at">colour =</span> arm)) <span class="sc">+</span> <span class="fu">geom_line</span>()</span>
+<span id="cb50-6"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-7"><a aria-hidden="true" tabindex="-1"></a>(p_box <span class="sc">|</span> p_scat) <span class="sc">/</span> p_time <span class="sc">+</span></span>
+<span id="cb50-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_annotation</span>(<span class="at">tag_levels =</span> <span class="st">"A"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="smaller">
 <p><code>|</code> side by side · <code>/</code> stacked · <code>plot_annotation(tag_levels = "A")</code> labels the panels <strong>A</strong>, <strong>B</strong>, <strong>C</strong> the way a journal wants them.</p>
-<p>Not installed on this machine — <code>install.packages("patchwork")</code>.</p>
+<p>Optional extension package: <code>install.packages("patchwork")</code> if needed.</p>
 </div>
 </section>
 <section id="summary" class="slide level2 smaller">
 <h2>Summary</h2>
 <ul>
 <li>Choose a figure from the statistical question and observation unit.</li>
+<li>Base R supports complete figures with drawing commands, annotations, and file devices.</li>
 <li>A ggplot is a specification of mappings, layers, scales, coordinates, facets, and theme.</li>
 <li>Mapping a variable differs from setting a display property.</li>
 <li>Show distributions and uncertainty rather than only summary bars.</li>
@@ -1170,9 +2396,21 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </ul>
 <div class="fragment">
 <p><strong>Next connection:</strong> Session 9 introduces Positron and GitHub Copilot; course-approved AI use begins only under that session’s policy.</p>
-
-
 </div>
+</section>
+<section id="function-references" class="slide level2">
+<h2>Function references</h2>
+<ul>
+<li><a href="https://stat.ethz.ch/R-manual/R-devel/library/graphics/html/par.html">Base R graphics and graphical parameters</a></li>
+<li><a href="https://stat.ethz.ch/R-manual/R-devel/library/graphics/html/plot.default.html">Base R plot()</a></li>
+<li><a href="https://ggplot2.tidyverse.org/reference/index.html">ggplot2 functions and geoms</a></li>
+<li><a href="https://ggplot2.tidyverse.org/reference/geom_smooth.html">ggplot2 smoothing methods</a></li>
+<li><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html">ggplot2 interval geoms</a></li>
+<li><a href="https://ggplot2.tidyverse.org/reference/ggsave.html">ggplot2 export with ggsave()</a></li>
+</ul>
+<p>The geom catalogue records the local package version and checks that every exported <code>geom_*()</code> name has an entry when the deck renders.</p>
+
+
 </section></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
