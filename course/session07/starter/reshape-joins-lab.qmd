@@ -17,6 +17,16 @@ your name. All data are supplied and synthetic.
 Tasks 1–8 follow the main lecture. The additional exercises are optional.
 Only the last two practice exercises depend on optional lecture slides.
 
+## How to use the code suggestions
+
+Predict the result before opening each **Code suggestion**. These are short
+syntax reminders or partial examples, not complete solutions. Adapt them in
+the executable R chunk below, finish the task, and explain your result.
+Lines starting with `#` are comments; replace any CAPITALIZED placeholders
+before removing the `#` to run a template. The suggestions themselves do not run
+when you render. Complete tasks in order because later objects depend on
+earlier tasks. Optional exercises are not needed for the core report.
+
 ```{r setup}
 library(dplyr)
 library(tidyr)
@@ -43,15 +53,25 @@ raw_patients <- data.frame(
 ```
 
 The lookup is a clean export of the participant IDs and treatment labels.
-The raw export below lets you practice recreating that cleaning and adding
-dates. P05 has measurements without metadata; P04 has metadata without
-measurements.
+The raw export above lets you practice recreating that cleaning and adding
+dates. Inspect the IDs in both exports before deciding which rows to retain.
 
 ## 1. Row units and keys
 
 State what one row represents in `patient_lookup` and `marker_wide`.
 Use `count(id) |> filter(n > 1)` to check both tables.
 Identify the participant appearing only in each table by inspecting the data.
+
+<details>
+<summary>Code suggestion</summary>
+
+~~~r
+# Check one table, then repeat for the other.
+patient_lookup |> count(id) |> filter(n > 1)
+# Use nrow() for row counts; print each table to inspect IDs.
+~~~
+
+</details>
 
 ```{r task-1}
 # Your code here.
@@ -65,7 +85,27 @@ Save `joined_wide` with a `left_join()` of `marker_wide` and `patient_lookup`
 by `id`. Compare row counts before and after. Use `anti_join()` in both
 directions. Explain the missing arm value. How many rows would an `inner_join()` keep?
 If the report instead needs every enrolled participant, which table belongs
-on the left?
+on the left? Run that reversed join as `enrollment_report` and inspect it.
+
+> **Pause and predict: first join.** Measurements contain P01, P02, P03, P05.
+> Metadata contain P01, P02, P03, P04. With measurements on the left, how many
+> rows will remain? Who will have a missing treatment label?
+
+> **Pause again before reversing the join.** A report must include every
+> enrolled participant. Which table belongs on the left? Who will now have
+> missing measurements? Run the reversed join and check your prediction.
+
+<details>
+<summary>Code suggestion</summary>
+
+~~~r
+# Start with this join; write the checks and other joins yourself.
+joined_wide <- left_join(marker_wide, patient_lookup, by = "id")
+# anti_join(x, y, by = "id") finds rows of x without a match in y.
+# Reverse x and y when the population you must retain changes.
+~~~
+
+</details>
 
 ```{r task-2}
 # Your code here.
@@ -82,6 +122,23 @@ Then use `mutate(week = as.integer(week))`.
 Predict the row count and explain what one row represents now.
 Name one analysis or display that benefits from this long format.
 
+> **Pause and sketch.** Four participants, two measurement columns: how many
+> rows will `pivot_longer()` produce? What will one row represent? Sketch P01's
+> two rows before running the code.
+
+<details>
+<summary>Code suggestion</summary>
+
+~~~r
+# Template: use the argument values in the task above.
+# marker_long <- marker_wide |>
+#   pivot_longer(cols = COLUMNS, names_to = "NAME_COLUMN",
+#                names_prefix = "PREFIX", values_to = "VALUE_COLUMN")
+# Then add the week conversion with mutate(); check nrow().
+~~~
+
+</details>
+
 ```{r task-3}
 # Your code here.
 ```
@@ -94,6 +151,19 @@ Save `marker_back` using `pivot_wider()` with `id_cols = id`,
 `names_from = week`, `values_from = marker`, and `names_prefix = "marker_w"`.
 Compare IDs, column names, and values with `marker_wide` after sorting by ID.
 Explain why this wide form is convenient for calculating week-4 minus baseline.
+
+<details>
+<summary>Code suggestion</summary>
+
+~~~r
+# Template: decide which columns identify rows, names, and values.
+# marker_back <- marker_long |>
+#   pivot_wider(id_cols = ID, names_from = NAMES,
+#               values_from = VALUES, names_prefix = "PREFIX")
+# Sort both tables with arrange(id) before comparing them.
+~~~
+
+</details>
 
 ```{r task-4}
 # Your code here.
@@ -109,6 +179,21 @@ from `raw_patients` using `mutate()`: clean `id` with `str_trim()` and
 `str_to_lower()`. Keep the raw table unchanged.
 Show the IDs and notes where `str_detect(note, fixed("repeat"))` is true.
 
+> **Pause and compare.** Will `str_trim("  repeat   visit  ")` remove the
+> spaces between the two words? Which function would you choose for those spaces?
+
+<details>
+<summary>Code suggestion</summary>
+
+~~~r
+# Nest the cleaning functions; this example handles just one value.
+str_to_upper(str_trim(" p09 "))
+# Inside mutate(), apply the same idea to the id column.
+# Add the arm/note rules, then use filter() and select() to search.
+~~~
+
+</details>
+
 ```{r task-5}
 # Your code here.
 ```
@@ -121,6 +206,23 @@ Save `patients_factor` from `patients_text`. Use `fct_recode()` to map
 `control` to `Control` and `treated` to `Treatment`. Then use
 `fct_relevel()` to put `Control` first. Print the levels and counts.
 Explain which step changes labels and which step changes only their order.
+
+> **Pause and predict.** If Treatment is the first level and you move Control
+> first with `fct_relevel()`, does any participant switch treatment groups?
+> How is that different from renaming a label with `fct_recode()`?
+
+<details>
+<summary>Code suggestion</summary>
+
+~~~r
+# Different example: fct_recode() uses NEW label = "old label".
+example_group <- factor(c("low", "high"))
+fct_recode(example_group, Low = "low", High = "high")
+# For your arm column, recode inside mutate(), then relevel.
+# Use levels() for order and count() for group sizes.
+~~~
+
+</details>
 
 ```{r task-6}
 # Your code here.
@@ -136,6 +238,23 @@ using `year()` and `month()`. Inspect the result and check for missing parsed
 dates with `filter(is.na(enrolled_date))`.
 Explain why `"03/04/2026"` needs a stated month/day or day/month convention.
 
+> **Pause and question the result.** R successfully parses `"03/04/2026"`.
+> Does that prove the date is correct? What information do you need from the
+> source before choosing a parser?
+
+<details>
+<summary>Code suggestion</summary>
+
+~~~r
+# Small example; adapt it to columns inside mutate().
+example_date <- ymd("2026-11-20")
+month(example_date)
+# Use year() similarly. Compare the original and parsed columns.
+# Try mdy() and dmy() on the ambiguous date in the question.
+~~~
+
+</details>
+
 ```{r task-7}
 # Your code here.
 ```
@@ -148,6 +267,22 @@ Save `analysis` by left-joining `marker_long` to the `id`, `arm`, and
 `enrolled_date` columns of `patients_clean`. Check the row count.
 Keep week 4 and summarize mean marker by arm using Session 6's verbs.
 Explain the group with missing arm instead of silently removing it.
+
+> **Pause before summarizing.** If the result contains an `NA` arm group,
+> does that mean the study has a third treatment? What should you inspect?
+
+<details>
+<summary>Code suggestion</summary>
+
+~~~r
+# First prepare the right-hand table; complete the join yourself.
+# metadata <- patients_clean |> select(id, arm, enrolled_date)
+# Summary order: filter() -> group_by() -> summarise().
+# Inside summarise(), use mean_marker = mean(marker).
+# Inspect is.na(arm) rows before interpreting that group.
+~~~
+
+</details>
 
 ```{r task-8}
 # Your code here.
@@ -166,6 +301,16 @@ slides. Only practice 5 permits an intentional error.
 On `marker_long` and `patient_lookup`, compare left and inner joins by ID.
 Explain why their row counts differ by two rather than one.
 
+<details>
+<summary>Code suggestion</summary>
+
+~~~r
+# Reuse task 2's join syntax, now starting with marker_long.
+# Count rows with nrow(); inspect unmatched IDs with anti_join().
+~~~
+
+</details>
+
 ```{r practice-1}
 # Your code here.
 ```
@@ -176,6 +321,16 @@ Your explanation: **YOUR ANSWER**
 
 Compare `str_trim("  repeat   visit  ")` and
 `str_squish("  repeat   visit  ")`. Explain which preserves the extra internal spaces.
+
+<details>
+<summary>Code suggestion</summary>
+
+~~~r
+# Run each function on the SAME string; compare the printed results.
+example_note <- "  repeat   visit  "
+~~~
+
+</details>
 
 ```{r practice-2}
 # Your code here.
@@ -189,6 +344,17 @@ For `factor(c("a", "b", "c", "a"))`, use `fct_relevel()` to set the order
 to `c, b, a`. Show the levels and the character values to confirm that
 reordering did not relabel observations.
 
+<details>
+<summary>Code suggestion</summary>
+
+~~~r
+x <- factor(c("a", "b", "c", "a"))
+# fct_relevel(x, "FIRST", "SECOND", "THIRD")
+# Compare levels() and as.character() before and after.
+~~~
+
+</details>
+
 ```{r practice-3}
 # Your code here.
 ```
@@ -199,6 +365,16 @@ Your explanation: **YOUR ANSWER**
 
 Use `ymd()`, `mdy()`, and `dmy()` to read `"2026-10-18"`,
 `"10/18/2026"`, and `"18/10/2026"`. Show that they represent the same day.
+
+<details>
+<summary>Code suggestion</summary>
+
+~~~r
+# The parser name describes the INPUT order, not the output display.
+# Start with ymd() for the first string; choose the other two parsers.
+~~~
+
+</details>
 
 ```{r practice-4}
 # Your code here.
@@ -213,6 +389,22 @@ different arm records for P01. Join `marker_long` to it without a relationship
 assertion and inspect the row count. Then request `relationship = "many-to-one"`
 and explain the expected error. Use the supplied error-display chunk only for
 this deliberate failure.
+
+> **Optional pause: count matches, not just IDs.** One P01 measurement matches
+> two different P01 treatment records. How many rows come from that one input
+> row? In this lab P01 has two visits: how many P01 rows and total rows will the
+> long-table join produce? Is keeping the first metadata row a justified fix?
+
+<details>
+<summary>Code suggestion</summary>
+
+~~~r
+# Use count(id) to inspect the first join, without an assertion.
+# Then add relationship = "many-to-one" to the same left_join().
+# Only that second call should fail, in the error=TRUE chunk below.
+~~~
+
+</details>
 
 ```{r practice-5, error=TRUE}
 conflicting_lookup <- data.frame(
@@ -229,6 +421,20 @@ Your explanation: **YOUR ANSWER**
 Only after the optional window slides: arrange `marker_long` by ID/week,
 group by ID, and compute `change = marker - lag(marker)`. Ungroup afterward.
 Explain the missing first change for each participant.
+
+> **Optional pause.** Why must observations be ordered by week and grouped by
+> participant before using `lag()`? What should happen at the first visit?
+
+<details>
+<summary>Code suggestion</summary>
+
+~~~r
+# Build the pipe in this order:
+# arrange() -> group_by() -> mutate() -> ungroup()
+# lag(marker) means the previous marker within the current group.
+~~~
+
+</details>
 
 ```{r practice-6}
 # Your code here.
