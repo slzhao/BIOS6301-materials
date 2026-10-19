@@ -1,0 +1,126 @@
+---
+pagetitle: "Session 08: Visualization lab"
+format:
+  revealjs:
+    theme: simple
+    css: [../../slides.css, slides-lab-interactive.css]
+    width: 1280
+    height: 720
+    margin: 0.07
+    center: false
+    slide-number: c/t
+    show-slide-number: all
+    navigation-mode: linear
+    transition: none
+    incremental: false
+    controls: true
+    progress: true
+    code-copy: true
+    code-line-numbers: false
+    highlight-style: github
+    embed-resources: true
+    auto-stretch: false
+    footer: "BIOS 6301 · Session 08 · Visualization lab"
+execute:
+  enabled: true
+  echo: false
+  warning: true
+  message: false
+  freeze: false
+---
+
+## Session 8 visualization lab {.cover}
+
+**The same boxplot in base R and ggplot2**
+
+Three questions · 35–40 minutes
+
+- Q1: Draw a base R boxplot.
+- Q2: Recreate it with ggplot2.
+- Q3: Save and inspect PNG and PDF files.
+
+Work in pairs. Switch who types at Q2; write your own answers.
+
+
+## Setup and data
+
+Copy either the [Quarto starter](starter/visualization-lab.qmd) or
+[R Markdown starter](starter/visualization-lab.Rmd) to `work/session08/`.
+Open **BIOS6301-mywork.Rproj** and run the setup chunk.
+
+| Variable | Meaning |
+|---|---|
+| `id` | One participant per row |
+| `arm` | Control or treated; 20 participants each |
+| `baseline`, `followup` | Synthetic marker measurements |
+| `change` | `followup - baseline` |
+
+**Discuss:** If follow-up is 4 and baseline is 5, what is `change`?
+
+
+## Q1. Base R boxplot
+
+Create a **boxplot of `change` by `arm`** using `participant`.
+
+1. Label the x-axis "Randomized arm" and the y-axis "Change in marker (follow-up minus baseline)".
+2. Overlay all 40 participant values with horizontal jitter. Keep their vertical values unchanged.
+3. Add a dashed horizontal line at zero.
+
+**Answer:** Which arm has the lower median change? What does a negative change mean?
+
+
+## Q1 discussion: read your boxplot
+
+Show your plot to your partner. Point to the **median**, one **participant**,
+and the **no-change line**.
+
+**Which arm has the lower median? What does a negative change mean?**
+
+::: {.fragment .answer}
+In these data, the treated arm has the lower median change.
+A negative change means follow-up is lower than baseline.
+:::
+
+
+## Q2. The same boxplot with ggplot2
+
+Create the **same `change`-by-`arm` boxplot** with ggplot2 and assign it to `p`.
+
+1. Add `geom_boxplot()` and horizontally jittered participant points. Display each observation once.
+2. Use the same axis labels and dashed zero line as Q1. Add the title "Marker change by randomized arm".
+3. Add a caption: "Synthetic data; one point per participant; 20 participants per arm."
+
+**Answer:** Do the two plots tell the same story? What do the points show that the boxes alone do not?
+
+
+## Q2 discussion: compare the two plots
+
+**Do the two plots tell the same story? What do the points add?**
+
+::: {.fragment .answer}
+Both show lower change values in the treated arm, with variation within arms.
+The points show individual values, clustering, and overlap that boxes summarize.
+:::
+
+**Check:** horizontal jitter separates points; `height = 0` preserves their values.
+
+
+## Q3. Save and check your figure
+
+Save `p` as **`change-by-arm.png` and `change-by-arm.pdf`** in an `output/` folder.
+
+1. Use 6 × 4 inches for both files and 300 DPI for the PNG.
+2. Open both files. Check the labels, caption, and participant points. Make one improvement if needed and save again.
+
+**Answer:** What are the PNG's pixel dimensions? Why is a DPI setting unnecessary for the PDF's vector lines and text?
+
+
+## Finish: show your work
+
+- Render or knit a report containing your **base R plot and ggplot2 plot**.
+- Answer Q1–Q3 in a few sentences and include your export code.
+- Keep `change-by-arm.png` and `change-by-arm.pdf` in `output/`.
+- Record one improvement after checking the files, or explain what you checked.
+
+**Before you leave:** show your partner both plots in the rendered report.
+

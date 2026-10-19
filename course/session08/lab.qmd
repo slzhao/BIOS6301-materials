@@ -1,58 +1,57 @@
 ---
 title: "Session 8 guided lab"
-subtitle: "Design, critique, and export a statistical figure"
+subtitle: "The same boxplot in base R and ggplot2"
 ---
 
-::: {.callout-note}
-**Suggested use:** tasks 1–7 are the core figure-design route. Additional
-practice asks for a second scientific question, alternative encodings, and
-publication checks. The instructor may select a subset during lab.
-:::
+Three questions, about **35–40 minutes**. Work with a partner, switch who types
+at Q2, and write your own short answers.
 
-Choose one format and copy either `starter/visualization-lab.Rmd` or
-`starter/visualization-lab.qmd` to `work/session08/`. Knit the `.Rmd` file or
-Render the `.qmd` file.
+## Setup
 
-Work in **BIOS6301-mywork.Rproj**. Paths under `work/` below belong to your
-personal repository. Copy starters from the separate `BIOS6301-materials` clone,
-leaving the course originals unchanged.
+Use the supplied **synthetic marker data**: 40 participants, 20 in each arm.
+One row is one participant. `baseline` and `followup` are marker measurements;
+`change = followup - baseline`. The marker has no specified clinical units or
+definition of improvement.
 
-## Tasks
+Work in **BIOS6301-mywork.Rproj**. Copy either the
+[Quarto starter](starter/visualization-lab.qmd) or
+[R Markdown starter](starter/visualization-lab.Rmd) from the course materials
+to your personal `work/session08/` folder. Choose one format.
+Run the supplied setup chunk before Q1.
 
-1. State one comparison question and the observation unit.
-2. Create a rapid base R diagnostic that shows participant-level values.
-3. Create a layered ggplot2 figure answering the same question.
-4. Add labels, an accessible palette, and an uncertainty layer whose meaning is
-   stated in the caption.
-5. Create one intentionally misleading variant, then diagnose exactly why it
-   misleads and remove it from the final result.
-6. Export the final figure with explicit width, height, units, and DPI.
-7. Inspect the exported artifact and record one revision made after inspection.
+## Q1. Base R boxplot
 
-## Additional practice: build a small figure set
+Create a **boxplot of `change` by `arm`** using `participant`.
 
-1. Ask a second question about how baseline values relate to follow-up values.
-   Create a participant-level scatterplot with an identity line and distinguish
-   randomized arms without relying on color alone.
-2. Reshape or construct a long two-visit table and create a paired trajectory
-   plot. Explain when connecting observations is justified and when it is not.
-3. Create a compact summary panel showing arm-specific mean change and 95%
-   confidence intervals next to, not instead of, the participant-level evidence.
-4. Add group sample sizes to a caption or annotation using values calculated from
-   the data.
-5. Inspect the figure in grayscale and at approximately half its original width.
-   Record any encoding, font, or label that becomes ambiguous.
-6. Export one screen-oriented PNG and one vector PDF with intentional dimensions.
-   Explain why DPI matters for one but not the other.
-7. Write alternative text describing the comparison, visual encodings, and main
-   pattern without claiming more than the figure supports.
+1. Label the x-axis "Randomized arm" and the y-axis "Change in marker (follow-up minus baseline)".
+2. Overlay all 40 participant values with horizontal jitter. Keep their vertical values unchanged.
+3. Add a dashed horizontal line at zero.
 
-### Independent-practice check
+**Answer:** Which arm has the lower median change? What does a negative change mean?
 
-Every panel must expose participant-level variation or clearly state that it is a
-summary. Arm identity must remain interpretable if color is unavailable.
+## Q2. The same boxplot with ggplot2
 
-## Exit evidence
+Create the **same `change`-by-`arm` boxplot** with ggplot2 and assign it to `p`.
 
-Render both valid figures, the critique (not necessarily the misleading image),
-the final caption, export code, and revision note.
+1. Add `geom_boxplot()` and horizontally jittered participant points. Display each observation once.
+2. Use the same axis labels and dashed zero line as Q1. Add the title "Marker change by randomized arm".
+3. Add a caption: "Synthetic data; one point per participant; 20 participants per arm."
+
+**Answer:** Do the two plots tell the same story? What do the points show that the boxes alone do not?
+
+## Q3. Save and check your figure
+
+Save `p` as **`change-by-arm.png` and `change-by-arm.pdf`** in an `output/` folder.
+
+1. Use 6 × 4 inches for both files and 300 DPI for the PNG.
+2. Open both files. Check the labels, caption, and participant points. Make one improvement if needed and save again.
+
+**Answer:** What are the PNG's pixel dimensions? Why is a DPI setting unnecessary for the PDF's vector lines and text?
+
+## Finish
+
+Render or knit your completed report. It should contain **two plots** (Q1 and
+Q2), your short answers to Q1–Q3, and the export code. Keep the PNG and PDF in
+`output/` beside your report. Check that both plots appear in the rendered HTML.
+Record one change made after opening the exported files, or state what you
+checked if no change was needed.
