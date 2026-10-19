@@ -1,10 +1,22 @@
 ---
 title: "Session 8 lab: visualization"
-date: "`r format(Sys.time(), '%Y-%m-%d %H:%M:%S %Z')`"
-output: html_document
+output:
+  html_document:
+    self_contained: true
 ---
 
+## Setup
+
+Work in your personal `work/session08/` folder. Complete the code chunks below;
+they currently contain hints only. Run them in order, then render/knit the file.
+If ggplot2 is missing, install it once in the Console with `install.packages("ggplot2")`.
+
+Synthetic data: 40 participants, 20 per arm; one row is one participant.
+`change` is `followup - baseline`. This marker has no specified clinical units
+or definition of improvement.
+
 ```{r}
+library(ggplot2)
 set.seed(6301)
 participant <- data.frame(
   id = sprintf("P%02d", 1:40),
@@ -14,28 +26,71 @@ participant <- data.frame(
 participant$followup <- participant$baseline +
   ifelse(participant$arm == "treated", -0.8, -0.1) + rnorm(40, 0, 0.7)
 participant$change <- participant$followup - participant$baseline
+table(participant$arm)
 ```
 
-## Question and observation unit
+## Q1. Base R boxplot
 
-Write them here.
+Create a **boxplot of `change` by `arm`** using `participant`.
 
-## Base R diagnostic
+1. Label the x-axis "Randomized arm" and the y-axis "Change in marker (follow-up minus baseline)".
+2. Overlay all 40 participant values with horizontal jitter. Keep their vertical values unchanged.
+3. Add a dashed horizontal line at zero.
+
+**Answer:** Which arm has the lower median change? What does a negative change mean?
 
 ```{r}
-# Show participant-level change by arm.
+# Use boxplot(change ~ arm, data = participant, ...).
+# Use outline = FALSE to hide boxplot outlier symbols before adding all points.
+# Add stripchart(..., vertical = TRUE, method = "jitter", add = TRUE).
+# Add abline(h = 0, lty = 2).
 ```
 
-## ggplot2 figure
+**Your answer:**
 
-```{r, eval=FALSE}
-# Build a layered figure and assign it to p.
+## Q2. The same boxplot with ggplot2
+
+Create the **same `change`-by-`arm` boxplot** with ggplot2 and assign it to `p`.
+
+1. Add `geom_boxplot()` and horizontally jittered participant points. Display each observation once.
+2. Use the same axis labels and dashed zero line as Q1. Add the title "Marker change by randomized arm".
+3. Add a caption: "Synthetic data; one point per participant; 20 participants per arm."
+
+**Answer:** Do the two plots tell the same story? What do the points show that the boxes alone do not?
+
+```{r}
+# Start with p <- ggplot(participant, aes(x = arm, y = change)) + ...
+# Use geom_boxplot(outlier.shape = NA) before adding all participant points.
+# Use geom_jitter(width = 0.1, height = 0).
+# Add geom_hline(), labs(), and a theme, then print p.
 ```
 
-## Export, caption, and revision
+**Your answer:**
 
-```{r, eval=FALSE}
-# ggsave(..., width = , height = , units = "in", dpi = 300)
+## Q3. Save and check your figure
+
+Save `p` as **`change-by-arm.png` and `change-by-arm.pdf`** in an `output/` folder.
+
+1. Use 6 × 4 inches for both files and 300 DPI for the PNG.
+2. Open both files. Check the labels, caption, and participant points. Make one improvement if needed and save again.
+
+**Answer:** What are the PNG's pixel dimensions? Why is a DPI setting unnecessary for the PDF's vector lines and text?
+
+```{r}
+# Create the folder with dir.create("output", showWarnings = FALSE).
+# Use ggsave() twice with plot = p, width = 6, height = 4, units = "in".
+# PNG: "output/change-by-arm.png", dpi = 300.
+# PDF: "output/change-by-arm.pdf"; omit dpi.
 ```
 
-Write the caption, misleading choice diagnosis, and revision note here.
+**Your answer:**
+
+## Finish
+
+Render or knit your completed report. It should contain **two plots** (Q1 and
+Q2), your short answers to Q1–Q3, and the export code. Keep the PNG and PDF in
+`output/` beside your report. Check that both plots appear in the rendered HTML.
+Record one change made after opening the exported files, or state what you
+checked if no change was needed.
+
+**Export check / revision:**
