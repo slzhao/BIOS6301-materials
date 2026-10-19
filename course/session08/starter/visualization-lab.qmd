@@ -87,11 +87,62 @@ Save `p` as **`change-by-arm.png` and `change-by-arm.pdf`** in an `output/` fold
 
 **Your answer:**
 
+## Q4. Base R histogram
+
+Use `hist()` to draw a **histogram of `baseline`** for all 40 participants.
+Label the axes "Baseline marker" and "Number of participants", and add a dashed
+vertical line at the sample mean.
+
+**Answer:** Is the distribution roughly symmetric or noticeably skewed? What
+does the height of a bar represent?
+
+```{r}
+# Use hist(participant$baseline, ...) with freq = TRUE.
+# Add abline(v = mean(participant$baseline), lty = 2).
+```
+
+**Your answer:**
+
+## Q5. Baseline versus follow-up
+
+Use ggplot2 to make a **scatterplot of `followup` (y) versus `baseline` (x)**.
+Identify `arm` with both color and shape, label both axes, and add a dashed
+identity line (`y = x`). Save this plot as `p_scatter`.
+
+**Answer:** What does a point below the line mean? Do all participants in the
+treated arm have lower follow-up values than baseline?
+
+```{r}
+# Map x = baseline, y = followup, color = arm, and shape = arm.
+# Add geom_point() and geom_abline(intercept = 0, slope = 1, linetype = 2).
+# Add labs(), assign the plot to p_scatter, and print it. Keep p from Q2.
+```
+
+**Your answer:**
+
+## Q6. Compare distributions in separate panels
+
+Use ggplot2 to make **histograms of `followup`, with one panel per `arm`**.
+Use `binwidth = 0.5`, `boundary = 0`, and `facet_wrap(~ arm)`. Keep the same
+x- and y-axis scales in both panels and label the axes.
+
+**Answer:** Which arm's follow-up distribution appears centered lower? Do the
+distributions overlap? Why keep the same bins and axis scales?
+
+```{r}
+# Start with ggplot(participant, aes(x = followup)).
+# Add geom_histogram(binwidth = 0.5, boundary = 0), facet_wrap(~ arm),
+# and labs(x = "Follow-up marker", y = "Number of participants").
+# Keep the default fixed facet scales. Print this plot without overwriting p.
+```
+
+**Your answer:**
+
 ## Finish
 
-Render or knit your completed report. It should contain **two plots** (Q1 and
-Q2), your short answers to Q1–Q3, and the export code. Keep the PNG and PDF in
-`output/` beside your report. Check that both plots appear in the rendered HTML.
+Render or knit your completed report. Include the plots for **Q1, Q2, Q4,
+Q5, and Q6**, short answers to **Q1–Q6**, and the Q3 export code. Keep the PNG
+and PDF in `output/` beside your report. Check that all plots appear in the HTML.
 Record one change made after opening the exported files, or state what you
 checked if no change was needed.
 
