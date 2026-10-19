@@ -5842,7 +5842,7 @@
     "href": "course/session08/lab.html",
     "title": "Session 8 guided lab",
     "section": "",
-    "text": "Three questions, about 35–40 minutes. Work with a partner, switch who types at Q2, and write your own short answers."
+    "text": "Six questions, about 50–60 minutes. Work with a partner, take turns typing, and write your own short answers."
   },
   {
     "objectID": "course/session08/lab.html#tasks",
@@ -5884,7 +5884,7 @@
     "href": "course/session08/index.html#materials",
     "title": "Session 8 · Visualization",
     "section": "Materials",
-    "text": "Materials\n\nLecture with questions\nOriginal lecture slides\nComplete ggplot2 geom catalogue in the slides\nGuided lab\nLab slides: three plotting questions\nLab starter—choose one: starter/visualization-lab.Rmd or starter/visualization-lab.qmd\n\nEither base graphics or ggplot2 may be used where both support the communication goal. The lab asks for one figure in each style so that you can read both."
+    "text": "Materials\n\nLecture with questions\nOriginal lecture slides\nComplete ggplot2 geom catalogue in the slides\nGuided lab\nLab starter—choose one: starter/visualization-lab.Rmd or starter/visualization-lab.qmd\n\nThe guided lab has six questions covering boxplots in both plotting systems, histograms, a scatterplot, faceting, and PNG/PDF export."
   },
   {
     "objectID": "course/session08/slides.html#where-we-are",
@@ -7224,62 +7224,6 @@
     "text": "Function references\n\nBase R graphics and graphical parameters\nBase R plot()\nggplot2 functions and geoms\nggplot2 smoothing methods\nggplot2 interval geoms\nggplot2 export with ggsave()\n\nThe geom catalogue records the local package version and checks that every exported geom_*() name has an entry when the deck renders."
   },
   {
-    "objectID": "course/session08/slides-lab-interactive.html#session-8-visualization-lab",
-    "href": "course/session08/slides-lab-interactive.html#session-8-visualization-lab",
-    "title": "BIOS6301 · Student Materials",
-    "section": "Session 8 visualization lab",
-    "text": "Session 8 visualization lab\nThe same boxplot in base R and ggplot2\nThree questions · 35–40 minutes\n\nQ1: Draw a base R boxplot.\nQ2: Recreate it with ggplot2.\nQ3: Save and inspect PNG and PDF files.\n\nWork in pairs. Switch who types at Q2; write your own answers."
-  },
-  {
-    "objectID": "course/session08/slides-lab-interactive.html#setup-and-data",
-    "href": "course/session08/slides-lab-interactive.html#setup-and-data",
-    "title": "BIOS6301 · Student Materials",
-    "section": "Setup and data",
-    "text": "Setup and data\nCopy either the Quarto starter or R Markdown starter to work/session08/. Open BIOS6301-mywork.Rproj and run the setup chunk.\n\n\n\nVariable\nMeaning\n\n\n\n\nid\nOne participant per row\n\n\narm\nControl or treated; 20 participants each\n\n\nbaseline, followup\nSynthetic marker measurements\n\n\nchange\nfollowup - baseline\n\n\n\nDiscuss: If follow-up is 4 and baseline is 5, what is change?"
-  },
-  {
-    "objectID": "course/session08/slides-lab-interactive.html#q1.-base-r-boxplot",
-    "href": "course/session08/slides-lab-interactive.html#q1.-base-r-boxplot",
-    "title": "BIOS6301 · Student Materials",
-    "section": "Q1. Base R boxplot",
-    "text": "Q1. Base R boxplot\nCreate a boxplot of change by arm using participant.\n\nLabel the x-axis “Randomized arm” and the y-axis “Change in marker (follow-up minus baseline)”.\nOverlay all 40 participant values with horizontal jitter. Keep their vertical values unchanged.\nAdd a dashed horizontal line at zero.\n\nAnswer: Which arm has the lower median change? What does a negative change mean?"
-  },
-  {
-    "objectID": "course/session08/slides-lab-interactive.html#q1-discussion-read-your-boxplot",
-    "href": "course/session08/slides-lab-interactive.html#q1-discussion-read-your-boxplot",
-    "title": "BIOS6301 · Student Materials",
-    "section": "Q1 discussion: read your boxplot",
-    "text": "Q1 discussion: read your boxplot\nShow your plot to your partner. Point to the median, one participant, and the no-change line.\nWhich arm has the lower median? What does a negative change mean?\n\nIn these data, the treated arm has the lower median change. A negative change means follow-up is lower than baseline."
-  },
-  {
-    "objectID": "course/session08/slides-lab-interactive.html#q2.-the-same-boxplot-with-ggplot2",
-    "href": "course/session08/slides-lab-interactive.html#q2.-the-same-boxplot-with-ggplot2",
-    "title": "BIOS6301 · Student Materials",
-    "section": "Q2. The same boxplot with ggplot2",
-    "text": "Q2. The same boxplot with ggplot2\nCreate the same change-by-arm boxplot with ggplot2 and assign it to p.\n\nAdd geom_boxplot() and horizontally jittered participant points. Display each observation once.\nUse the same axis labels and dashed zero line as Q1. Add the title “Marker change by randomized arm”.\nAdd a caption: “Synthetic data; one point per participant; 20 participants per arm.”\n\nAnswer: Do the two plots tell the same story? What do the points show that the boxes alone do not?"
-  },
-  {
-    "objectID": "course/session08/slides-lab-interactive.html#q2-discussion-compare-the-two-plots",
-    "href": "course/session08/slides-lab-interactive.html#q2-discussion-compare-the-two-plots",
-    "title": "BIOS6301 · Student Materials",
-    "section": "Q2 discussion: compare the two plots",
-    "text": "Q2 discussion: compare the two plots\nDo the two plots tell the same story? What do the points add?\n\nBoth show lower change values in the treated arm, with variation within arms. The points show individual values, clustering, and overlap that boxes summarize.\n\nCheck: horizontal jitter separates points; height = 0 preserves their values."
-  },
-  {
-    "objectID": "course/session08/slides-lab-interactive.html#q3.-save-and-check-your-figure",
-    "href": "course/session08/slides-lab-interactive.html#q3.-save-and-check-your-figure",
-    "title": "BIOS6301 · Student Materials",
-    "section": "Q3. Save and check your figure",
-    "text": "Q3. Save and check your figure\nSave p as change-by-arm.png and change-by-arm.pdf in an output/ folder.\n\nUse 6 × 4 inches for both files and 300 DPI for the PNG.\nOpen both files. Check the labels, caption, and participant points. Make one improvement if needed and save again.\n\nAnswer: What are the PNG’s pixel dimensions? Why is a DPI setting unnecessary for the PDF’s vector lines and text?"
-  },
-  {
-    "objectID": "course/session08/slides-lab-interactive.html#finish-show-your-work",
-    "href": "course/session08/slides-lab-interactive.html#finish-show-your-work",
-    "title": "BIOS6301 · Student Materials",
-    "section": "Finish: show your work",
-    "text": "Finish: show your work\n\nRender or knit a report containing your base R plot and ggplot2 plot.\nAnswer Q1–Q3 in a few sentences and include your export code.\nKeep change-by-arm.png and change-by-arm.pdf in output/.\nRecord one improvement after checking the files, or explain what you checked.\n\nBefore you leave: show your partner both plots in the rendered report."
-  },
-  {
     "objectID": "course/session08/lab.html#setup",
     "href": "course/session08/lab.html#setup",
     "title": "Session 8 guided lab",
@@ -7312,6 +7256,27 @@
     "href": "course/session08/lab.html#finish",
     "title": "Session 8 guided lab",
     "section": "Finish",
-    "text": "Finish\nRender or knit your completed report. It should contain two plots (Q1 and Q2), your short answers to Q1–Q3, and the export code. Keep the PNG and PDF in output/ beside your report. Check that both plots appear in the rendered HTML. Record one change made after opening the exported files, or state what you checked if no change was needed."
+    "text": "Finish\nRender or knit your completed report. Include the plots for Q1, Q2, Q4, Q5, and Q6, short answers to Q1–Q6, and the Q3 export code. Keep the PNG and PDF in output/ beside your report. Check that all plots appear in the HTML. Record one change made after opening the exported files, or state what you checked if no change was needed."
+  },
+  {
+    "objectID": "course/session08/lab.html#q4.-base-r-histogram",
+    "href": "course/session08/lab.html#q4.-base-r-histogram",
+    "title": "Session 8 guided lab",
+    "section": "Q4. Base R histogram",
+    "text": "Q4. Base R histogram\nUse hist() to draw a histogram of baseline for all 40 participants. Label the axes “Baseline marker” and “Number of participants”, and add a dashed vertical line at the sample mean.\nAnswer: Is the distribution roughly symmetric or noticeably skewed? What does the height of a bar represent?"
+  },
+  {
+    "objectID": "course/session08/lab.html#q5.-baseline-versus-follow-up",
+    "href": "course/session08/lab.html#q5.-baseline-versus-follow-up",
+    "title": "Session 8 guided lab",
+    "section": "Q5. Baseline versus follow-up",
+    "text": "Q5. Baseline versus follow-up\nUse ggplot2 to make a scatterplot of followup (y) versus baseline (x). Identify arm with both color and shape, label both axes, and add a dashed identity line (y = x). Save this plot as p_scatter.\nAnswer: What does a point below the line mean? Do all participants in the treated arm have lower follow-up values than baseline?"
+  },
+  {
+    "objectID": "course/session08/lab.html#q6.-compare-distributions-in-separate-panels",
+    "href": "course/session08/lab.html#q6.-compare-distributions-in-separate-panels",
+    "title": "Session 8 guided lab",
+    "section": "Q6. Compare distributions in separate panels",
+    "text": "Q6. Compare distributions in separate panels\nUse ggplot2 to make histograms of followup, with one panel per arm. Use binwidth = 0.5, boundary = 0, and facet_wrap(~ arm). Keep the same x- and y-axis scales in both panels and label the axes.\nAnswer: Which arm’s follow-up distribution appears centered lower? Do the distributions overlap? Why keep the same bins and axis scales?"
   }
 ]

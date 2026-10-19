@@ -245,6 +245,9 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#q1.-base-r-boxplot" id="toc-q1.-base-r-boxplot" class="nav-link" data-scroll-target="#q1.-base-r-boxplot">Q1. Base R boxplot</a></li>
   <li><a href="#q2.-the-same-boxplot-with-ggplot2" id="toc-q2.-the-same-boxplot-with-ggplot2" class="nav-link" data-scroll-target="#q2.-the-same-boxplot-with-ggplot2">Q2. The same boxplot with ggplot2</a></li>
   <li><a href="#q3.-save-and-check-your-figure" id="toc-q3.-save-and-check-your-figure" class="nav-link" data-scroll-target="#q3.-save-and-check-your-figure">Q3. Save and check your figure</a></li>
+  <li><a href="#q4.-base-r-histogram" id="toc-q4.-base-r-histogram" class="nav-link" data-scroll-target="#q4.-base-r-histogram">Q4. Base R histogram</a></li>
+  <li><a href="#q5.-baseline-versus-follow-up" id="toc-q5.-baseline-versus-follow-up" class="nav-link" data-scroll-target="#q5.-baseline-versus-follow-up">Q5. Baseline versus follow-up</a></li>
+  <li><a href="#q6.-compare-distributions-in-separate-panels" id="toc-q6.-compare-distributions-in-separate-panels" class="nav-link" data-scroll-target="#q6.-compare-distributions-in-separate-panels">Q6. Compare distributions in separate panels</a></li>
   <li><a href="#finish" id="toc-finish" class="nav-link" data-scroll-target="#finish">Finish</a></li>
   </ul>
 </nav>
@@ -255,7 +258,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Session 8 guided lab</h1>
-<p class="subtitle lead">The same boxplot in base R and ggplot2</p>
+<p class="subtitle lead">Boxplots, histograms, scatterplots, and export</p>
 </div>
 
 
@@ -272,7 +275,7 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Three questions, about <strong>35–40 minutes</strong>. Work with a partner, switch who types at Q2, and write your own short answers.</p>
+<p>Six questions, about <strong>50–60 minutes</strong>. Work with a partner, take turns typing, and write your own short answers.</p>
 <section id="setup" class="level2">
 <h2 class="anchored" data-anchor-id="setup">Setup</h2>
 <p>Use the supplied <strong>synthetic marker data</strong>: 40 participants, 20 in each arm. One row is one participant. <code>baseline</code> and <code>followup</code> are marker measurements; <code>change = followup - baseline</code>. The marker has no specified clinical units or definition of improvement.</p>
@@ -307,9 +310,24 @@ ul.task-list li input[type="checkbox"] {
 </ol>
 <p><strong>Answer:</strong> What are the PNG’s pixel dimensions? Why is a DPI setting unnecessary for the PDF’s vector lines and text?</p>
 </section>
+<section id="q4.-base-r-histogram" class="level2">
+<h2 class="anchored" data-anchor-id="q4.-base-r-histogram">Q4. Base R histogram</h2>
+<p>Use <code>hist()</code> to draw a <strong>histogram of <code>baseline</code></strong> for all 40 participants. Label the axes “Baseline marker” and “Number of participants”, and add a dashed vertical line at the sample mean.</p>
+<p><strong>Answer:</strong> Is the distribution roughly symmetric or noticeably skewed? What does the height of a bar represent?</p>
+</section>
+<section id="q5.-baseline-versus-follow-up" class="level2">
+<h2 class="anchored" data-anchor-id="q5.-baseline-versus-follow-up">Q5. Baseline versus follow-up</h2>
+<p>Use ggplot2 to make a <strong>scatterplot of <code>followup</code> (y) versus <code>baseline</code> (x)</strong>. Identify <code>arm</code> with both color and shape, label both axes, and add a dashed identity line (<code>y = x</code>). Save this plot as <code>p_scatter</code>.</p>
+<p><strong>Answer:</strong> What does a point below the line mean? Do all participants in the treated arm have lower follow-up values than baseline?</p>
+</section>
+<section id="q6.-compare-distributions-in-separate-panels" class="level2">
+<h2 class="anchored" data-anchor-id="q6.-compare-distributions-in-separate-panels">Q6. Compare distributions in separate panels</h2>
+<p>Use ggplot2 to make <strong>histograms of <code>followup</code>, with one panel per <code>arm</code></strong>. Use <code>binwidth = 0.5</code>, <code>boundary = 0</code>, and <code>facet_wrap(~ arm)</code>. Keep the same x- and y-axis scales in both panels and label the axes.</p>
+<p><strong>Answer:</strong> Which arm’s follow-up distribution appears centered lower? Do the distributions overlap? Why keep the same bins and axis scales?</p>
+</section>
 <section id="finish" class="level2">
 <h2 class="anchored" data-anchor-id="finish">Finish</h2>
-<p>Render or knit your completed report. It should contain <strong>two plots</strong> (Q1 and Q2), your short answers to Q1–Q3, and the export code. Keep the PNG and PDF in <code>output/</code> beside your report. Check that both plots appear in the rendered HTML. Record one change made after opening the exported files, or state what you checked if no change was needed.</p>
+<p>Render or knit your completed report. Include the plots for <strong>Q1, Q2, Q4, Q5, and Q6</strong>, short answers to <strong>Q1–Q6</strong>, and the Q3 export code. Keep the PNG and PDF in <code>output/</code> beside your report. Check that all plots appear in the HTML. Record one change made after opening the exported files, or state what you checked if no change was needed.</p>
 
 
 </section>
