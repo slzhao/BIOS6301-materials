@@ -1,0 +1,295 @@
+---
+title: "BIOS6301 take-home midterm"
+author: "YOUR NAME"
+output:
+  html_document:
+    self_contained: true
+    toc: true
+---
+
+Use the full questions, including their Data reference section. Keep this report beside `data/`.
+Replace comments and answer prompts. Do not print entire data tables.
+The commented templates supply routine comparison and formatting code; they
+are not separately graded. Complete the requested calculations, then uncomment
+and adapt the relevant templates. Keep all completed analysis code visible.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = TRUE)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(readr)
+target_week <- 12L
+dir.create("results", showWarnings = FALSE)
+```
+
+## Question 1. Import
+
+```{r import}
+# Read data/cohort.rds with readRDS() and data/visits.csv.gz with a CSV reader.
+# Read data/visits.txt with data.table::fread(sep="\t", data.table=FALSE).
+# Name the objects cohort, visits_raw (CSV), and visits_txt (TXT).
+# Specify text-file types and missing codes in your reader calls.
+
+# Supplied comparison template: uncomment after writing the imports.
+# dim(cohort)
+# str(cohort)
+# dim(visits_raw)
+# str(visits_raw)
+# dim(visits_txt)
+# str(visits_txt)
+# import_agreement <- data.frame(
+#   check = c("Dimensions", "Column names", "Column types", "Values and missingness"),
+#   agrees = c(
+#     identical(dim(visits_raw), dim(visits_txt)),
+#     identical(names(visits_raw), names(visits_txt)),
+#     identical(lapply(visits_raw, class), lapply(visits_txt, class)),
+#     isTRUE(all.equal(as.data.frame(visits_raw), as.data.frame(visits_txt),
+#                      check.attributes = FALSE))
+#   )
+# )
+# knitr::kable(import_agreement)
+# Inspect any FALSE results before continuing. Analyze only visits_raw.
+```
+
+Type-preservation explanation: **YOUR ANSWER**
+
+### B. Parquet import — required
+
+Use the introduction and reader documentation in Question 1.
+
+```{r parquet-import}
+# Read only id, week, and sbp from data/visits.parquet with arrow::read_parquet().
+# Name the result visits_parquet.
+# Supplied comparison template:
+# str(visits_parquet)
+# parquet_agrees <- isTRUE(all.equal(
+#   as.data.frame(visits_raw[c("id", "week", "sbp")]),
+#   as.data.frame(visits_parquet), check.attributes = FALSE))
+# data.frame(check = "Parquet values and missingness agree", agrees = parquet_agrees)
+```
+
+Why Parquet does not need text missing-value codes: **YOUR ANSWER**
+
+## Question 2. Audit
+
+```{r audit}
+# Use tools::md5sum() on cohort.rds, visits.csv.gz, visits.txt, visits.parquet.
+# Show filenames, expected MD5, calculated MD5, and match status.
+# Compare each file with its own reference in data/checksums.csv.
+
+# Supplied table template; first calculate input_md5 for the listed files.
+# checksum_manifest <- read.csv("data/checksums.csv", stringsAsFactors = FALSE)
+# Write the input_md5 calculation here, using checksum_manifest$file.
+# input_checks <- data.frame(
+#   file = checksum_manifest$file,
+#   expected_md5 = checksum_manifest$md5,
+#   calculated_md5 = unname(input_md5)
+# )
+# input_checks$matches <- with(input_checks, expected_md5 == calculated_md5)
+# knitr::kable(input_checks)
+
+# Check IDs, arms, visit weeks, missing SBP by week, and date parsing.
+```
+
+## Question 3. Duplicate records
+
+```{r duplicates}
+# Inspect duplicate examples; remove exact copies; check the composite key.
+```
+
+Measurement key: **YOUR ANSWER**
+
+## Question 4. Link to enrollment
+
+```{r link}
+# Count and exclude unenrolled IDs/rows after deduplication.
+# Attach enrollment data; check row count and date/week agreement.
+```
+
+## Question 5. Match baseline and endpoint
+
+```{r endpoint}
+# Keep baseline and target_week, adding record_present = TRUE before pivoting.
+# Reshape and join to the full cohort; check one row per enrolled person.
+# Distinguish an absent visit record from recorded-but-missing SBP.
+```
+
+Missing-record versus missing-value findings: **YOUR ANSWER**
+
+## Question 6. Change and observed pairs
+
+```{r change}
+# Calculate endpoint minus baseline and observed_pair; keep incomplete rows.
+```
+
+Why matching by row position is unsafe: **YOUR ANSWER**
+
+## Question 7. Summary
+
+```{r summary}
+# Enrolled N, observed N, observed percentage, mean change, and SD by arm.
+# Treatment minus Control; show summary_table in the report.
+```
+
+Denominator explanation: **YOUR ANSWER**
+
+## Question 8. QC evidence
+
+Complete this single QC table using your work from Questions 1–7. Refer to a
+clearly identified earlier table or output instead of repeating its numbers.
+Explain what each check verifies; do not rerun calculations for this table.
+
+| Check | Observed result OR earlier output reference | What it verifies |
+|:--|:--|:--|
+| Input fingerprints (Q2) | YOUR RESULT OR REFERENCE | YOUR EXPLANATION |
+| Agreement between imports (Q1) | YOUR RESULT OR REFERENCE | YOUR EXPLANATION |
+| Visit keys and duplicates (Q3) | YOUR RESULT OR REFERENCE | YOUR EXPLANATION |
+| Enrollment join (Q4) | YOUR RESULT OR REFERENCE | YOUR EXPLANATION |
+| Endpoint pairing (Q5–Q7) | YOUR RESULT OR REFERENCE | YOUR EXPLANATION |
+
+Why these checks do not establish overall data quality, including two examples
+of problems they could miss: **YOUR ANSWER — two or three sentences**
+
+## Question 9. Two complementary figures
+
+The following labels and theme are supplied to save formatting time. You
+still choose the plotted data and write the mappings, geoms, scales, facets,
+and coordinate settings. You may adapt the supplied wording and styling.
+
+```{r figure-formatting}
+# Uncomment after creating summary_table with n_observed and n_enrolled.
+# summary_for_caption <- summary_table[
+#   match(c("Control", "Treatment"), as.character(summary_table$arm)), ]
+# caption_text <- paste0(
+#   "Synthetic data; participants missing either measurement are excluded.\n",
+#   "Observed / enrolled: Control ", summary_for_caption$n_observed[1], " / ",
+#   summary_for_caption$n_enrolled[1], "; Treatment ",
+#   summary_for_caption$n_observed[2], " / ", summary_for_caption$n_enrolled[2], "."
+# )
+# common_plot_theme <- theme_minimal(base_size = 11) +
+#   theme(plot.caption = element_text(hjust = 0, size = 8),
+#         plot.title = element_text(face = "bold"),
+#         panel.grid.minor = element_blank(), legend.position = "bottom")
+# change_labels <- labs(
+#   title = paste("Blood-pressure change at week", target_week),
+#   x = "Endpoint minus baseline SBP (mmHg)", y = "Participants",
+#   caption = caption_text)
+# paired_labels <- labs(
+#   title = paste("Baseline and week", target_week, "blood pressure"),
+#   x = "Baseline SBP (mmHg)", y = paste("Week", target_week, "SBP (mmHg)"),
+#   color = "Age (years)", caption = caption_text)
+# Add change_labels or paired_labels and common_plot_theme to your plots.
+# If using a distribution other than counts, adapt the supplied y-axis label.
+```
+
+### A. Distribution of change
+
+```{r figure, fig.width=7, fig.height=5}
+# Display change distributions, common scales, zero reference, and caption.
+# Save your ggplot object as change_plot for the chunk-options question.
+```
+
+Choice of display: **YOUR ANSWER**
+
+### B. Paired measurements
+
+```{r paired-figure, fig.width=7, fig.height=5}
+# Use observed pairs; baseline on x, endpoint on y, age mapped to color.
+# Facet by arm; add a y=x reference and transparency.
+# Use a continuous color scale and explicit x/y scales with common ranges.
+# Use equal physical units on x and y; label units, legend, and exclusions.
+# Save the plot as paired_plot.
+```
+
+Meaning of a point below the identity line: **YOUR ANSWER**
+
+## Question 10. Interpretation
+
+**YOUR ANSWER — four sentences or fewer: each mean's direction, Treatment
+minus Control and its direction, variability, and one missing-pair limitation.**
+
+## Question 11. Evaluate the calculation and missingness
+
+**A. YOUR ANSWER — what the valid code actually calculates, and why it differs
+from mean week-12 change. (3 points)**
+
+**B. YOUR ANSWER — two or three sentences. (2 points)** Suppose, within each
+arm, participants whose blood pressure worsens are more likely to miss the
+week-12 measurement. How could this affect the observed mean change in each
+arm? Does that information alone determine the direction of bias in the
+Treatment-minus-Control difference? Explain. This is a hypothetical scenario,
+not a claim about the supplied data. No extra calculation or corrected code
+is required.
+
+## Question 12. R Markdown chunk options
+
+Give a chunk header and body as literal code text (a fenced example is fine)
+that shows `change_plot` at 7 by 5 inches but hides the code.
+Explain how to show the code and why `include=FALSE` would
+not show the figure. You do not need to render a second copy of the figure.
+
+**YOUR CHUNK AND EXPLANATION**
+
+## Question 13. Compare figure exports
+
+Use PNG or JPG for both exports, holding format and other settings constant.
+Use 7 by 5 inches, at 72 and 300 DPI. The table template below uses PNG;
+adapt both filenames if using JPG.
+
+```{r export}
+# Write two ggsave() calls to export paired_plot at the requested settings.
+# Calculate width_pixels and height_pixels for the two files, in that order.
+
+# Supplied metadata display template; uncomment after creating the files
+# and defining the two pixel-dimension vectors.
+# exports <- data.frame(
+#   file = c("results/paired-72dpi.png", "results/paired-300dpi.png"),
+#   dpi = c(72, 300), width_pixels = width_pixels, height_pixels = height_pixels
+# )
+# exports$size_KiB <- file.info(exports$file)$size / 1024
+# knitr::kable(exports, digits = 1)
+```
+
+Compare sharpness/pixelation at the same displayed size; state what changes
+and what stays the same: **YOUR ANSWER**
+
+```{r display-exports, echo=FALSE, out.width='100%'}
+# After creating the files, include both at the same displayed width, e.g.:
+# knitr::include_graphics(c("results/paired-72dpi.png", "results/paired-300dpi.png"))
+```
+
+## Question 14. Reproduce the report and fingerprint the figures
+
+Check that input/output paths are relative and your code recreates the exports
+even when no output files exist. The setup chunk creates `results/` if needed.
+Keep the supplied data unchanged; reuse earlier code rather than duplicating it.
+
+```{r figure-checksums}
+# After exporting, use tools::md5sum() on both figure files.
+# Calculate figure_md5 for exports$file.
+# Supplied display template:
+# figure_checksums <- data.frame(file = exports$file, md5 = unname(figure_md5))
+# knitr::kable(figure_checksums)
+```
+
+What the checksums record, and why different fingerprints do not imply
+different data or conclusions: **YOUR ANSWER — one or two sentences**
+
+Restart R and render the entire source. Confirm that the HTML embeds both
+figures and does not depend on separate image files. Submit only this
+completed source and its self-contained HTML.
+No separate README, images, data files, or Git information is required.
+
+```{r render-timestamp, cache=FALSE}
+# Use Sys.time() to display the generation date, time, and time zone.
+# Calculate it during rendering; do not type a fixed timestamp.
+# You may instead display a dynamic timestamp in the subtitle.
+# First calculate generated_at using the requested system-time function.
+# Supplied display format (uncomment after your calculation):
+# format(generated_at, format = "%Y-%m-%d %H:%M:%S %Z", tz = "UTC")
+```
+
+```{r session-info}
+sessionInfo()
+```
