@@ -10,6 +10,7 @@ format:
     css:
       - ../../slides.css
       - slides-session08.css
+    embed-resources: true
     slide-number: c/t
     show-slide-number: all
     incremental: false
@@ -106,8 +107,8 @@ relationships, and **uncertainty**.
 [4]{.objective-num} **Control** facets, scales, transformations, and position
 adjustments.
 
-[5]{.objective-num} **Apply** the perceptual hierarchy and a colour-blind-safe
-palette on purpose.
+[5]{.objective-num} **Choose** color mappings and palettes that match the data,
+and preserve group information with shapes, labels, or panels.
 
 [6]{.objective-num} **Critique** a figure against explicit criteria — including
 your own.
@@ -119,29 +120,315 @@ and resolution.
 
 ## Roadmap for today
 
-| | Block | Minutes |
-|---|---|---|
-| 1 | Base R plots and annotations | 25 |
-| 2 | Build a first ggplot | 12 |
-| 3 | Choose displays for distributions and groups | 12 |
-| 4 | Add summaries and uncertainty | 10 |
-| 5 | Show repeated visits | 10 |
-| 6 | Refine scales and display choices | 6 |
-| 7 | Critique and improve a figure | 8 |
-| 8 | Export and summary | 7 |
+| Block | Main question |
+|---|---|
+| 1 · Base R | How do plotting commands build a figure? |
+| 2–4 · ggplot2 layers | Which marks answer our statistical question? |
+| 5 · Repeated visits and facets | How do we show people over time and compare subsets? |
+| 6 · Scales and color | How should values, groups, and axes be represented? |
+| 7 · Figure critique | What could a reader misunderstand, and how can we repair it? |
+| 8 · Export | How do we save a readable, reproducible figure? |
 
-: {tbl-colwidths="[6,64,30]"}
-
-. . .
-
-Figures are generated from R code when this deck renders.
-Optional reference slides provide extra examples for review.
+**Question pauses:** predict, discuss, then reveal the answer.
+The optional geom catalogue is a reference within this deck.
 
 
 # 1 · Base R graphics {.section-divider}
 
 
-{{< include _base-examples.qmd >}}
+## The teaching data
+
+All observations in this session are **synthetic**.
+
+```{r}
+#| label: base-data-preview
+#| echo: false
+knitr::kable(head(trial[c("id", "arm", "age", "sbp_0", "sbp_12")], 4))
+```
+
+- One row represents one participant.
+- `sbp_0` and `sbp_12` are systolic blood pressure at baseline and week 12, in mmHg.
+- `trial_long` has one row per participant per visit, as in Session 7.
+
+
+## A plot starts with a question
+
+| Question | Useful starting plot |
+|---|---|
+| What values and unusual observations occur? | Histogram or dot plot |
+| How do participant values differ by arm? | Boxplot with individual points |
+| How does baseline relate to follow-up? | Scatterplot |
+| How does one participant change over time? | Connected points, grouped by ID |
+| How many participants come from each site? | Bar chart of counts |
+
+The same plotting function may answer different questions. Labels and the
+observation unit tell the reader which question you mean.
+
+## A labelled scatterplot in base R
+
+```{r}
+#| label: base-scatter-labelled
+#| fig-width: 8
+#| fig-height: 3
+plot(trial$sbp_0, trial$sbp_12,
+     xlab = "Baseline SBP (mmHg)",
+     ylab = "Week 12 SBP (mmHg)",
+     main = "Baseline and follow-up",
+     pch = 19, col = "steelblue")
+```
+
+`plot(x, y)` puts the first numeric vector on x and the second on y.
+
+
+## Common base R plotting arguments
+
+| Argument | Meaning | Example |
+|---|---|---|
+| `pch` | Point symbol | `pch = 19` for a filled circle |
+| `col` | Colour | `col = "steelblue"` |
+| `cex` | Symbol/text size multiplier | `cex = 1.3` |
+| `lty`, `lwd` | Line pattern and width | `lty = 2, lwd = 2` |
+| `xlab`, `ylab`, `main` | Axis labels and title | `ylab = "SBP (mmHg)"` |
+| `xlim`, `ylim` | Display limits | `ylim = c(90, 190)` |
+
+Use `?plot.default` and `?par` to look up options as needed.
+
+## Which participant has lower follow-up SBP? {#question-identity .lecture-question}
+
+[60 SECONDS · THINK, THEN VOTE]{.question-time}
+
+The scatterplot has **baseline SBP on x** and **week-12 SBP on y**.
+
+Imagine a line where **y = x**.
+
+**A.** A point above the line
+
+**B.** A point below the line
+
+**C.** A point on the line
+
+::: {.fragment .question-answer}
+**B.** Below the line, week-12 SBP is lower than baseline.
+
+On the line, the two measurements are equal.
+:::
+
+
+## Adding a reference line
+
+```{r}
+#| label: base-identity
+#| fig-width: 8
+#| fig-height: 3
+plot(trial$sbp_0, trial$sbp_12,
+     xlab = "Baseline SBP (mmHg)", ylab = "Week 12 SBP (mmHg)",
+     xlim = c(90, 190), ylim = c(90, 190), pch = 19)
+abline(a = 0, b = 1, lty = 2, col = "grey40")
+```
+
+`a` is the intercept and `b` is the slope. Below the line, follow-up is lower
+than baseline. This line represents equality, not a fitted regression.
+
+## Colours and a legend by treatment arm
+
+```{r}
+#| label: base-arm-legend
+#| fig-width: 8
+#| fig-height: 3
+plot(trial$sbp_0, trial$sbp_12, pch = 19,
+     col = arm_col[trial$arm],
+     xlab = "Baseline SBP (mmHg)", ylab = "Week 12 SBP (mmHg)")
+legend("topleft", legend = names(arm_col),
+       col = arm_col, pch = 19, bty = "n")
+```
+
+`arm_col` is a named vector: `c(Placebo = "#D55E00", Treatment = "#0072B2")`.
+Indexing it by arm assigns the same colour consistently.
+
+
+## New plot or added marks?
+
+| Creates a new plot | Adds to the current plot |
+|---|---|
+| `plot()` | `points()` |
+| `hist()` | `lines()` |
+| `boxplot()` | `abline()` |
+| `barplot()` | `text()`, `legend()` |
+
+For example, `points(x, y, col = "red")` adds observations to existing axes.
+Calling `plot(x, y)` again normally starts a new plot.
+
+
+## Connected measurements from one participant
+
+```{r}
+#| label: base-trajectory
+#| fig-width: 8
+#| fig-height: 3
+weeks <- c(0, 6, 12)
+values <- c(trial$sbp_0[1], trial$sbp_6[1], trial$sbp_12[1])
+plot(weeks, values, type = "b", pch = 19,
+     xlab = "Week", ylab = "SBP (mmHg)", xaxt = "n")
+axis(1, at = weeks)
+```
+
+`type = "p"` draws points, `"l"` draws lines, and `"b"` draws both.
+Base R connects points in supplied order, so arrange time first.
+
+## Histogram bins change the picture
+
+```{r}
+#| label: base-breaks
+#| fig-width: 9
+#| fig-height: 3
+saved_par <- par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
+hist(trial$sbp_0, breaks = seq(80, 210, 5),
+     main = "5-mmHg bins", xlab = "Baseline SBP (mmHg)")
+hist(trial$sbp_0, breaks = seq(80, 220, 20),
+     main = "20-mmHg bins", xlab = "Baseline SBP (mmHg)")
+par(saved_par)
+```
+
+A vector in `breaks` specifies bin boundaries. A single number requests an
+approximate number of bins. A pattern should not depend on one convenient choice.
+
+## Different bins, different participants? {#question-bins .lecture-question}
+
+[60 SECONDS · THINK, THEN COMPARE]{.question-time}
+
+The previous slide showed the same baseline SBP values in **5-mmHg** and **20-mmHg** bins.
+
+**Did the participants change, or did the grouping of values change?**
+
+Tell your neighbor one pattern that could look different.
+
+::: {.fragment .question-answer}
+The observations stayed the same. Only the bin boundaries changed.
+
+Apparent peaks and gaps can change. Check more than one reasonable bin width.
+:::
+
+
+## Boxplots with participant-level values
+
+```{r}
+#| label: base-stripchart
+#| fig-width: 8
+#| fig-height: 3
+boxplot(sbp_12 ~ arm, data = trial, outline = FALSE,
+        ylab = "Week 12 SBP (mmHg)", xlab = "")
+stripchart(sbp_12 ~ arm, data = trial,
+           vertical = TRUE, method = "jitter",
+           pch = 19, col = "steelblue", add = TRUE)
+```
+
+- `outline = FALSE` hides the boxplot's **outlier symbols**. Box borders and whiskers remain.
+- `stripchart()` then draws **all observations**, including values beyond the whiskers.
+- Together, these calls show each observation once, without duplicate outlier symbols.
+
+
+## Bar charts use counts or summaries
+
+```{r}
+#| label: base-bar-counts
+#| fig-width: 8
+#| fig-height: 3
+site_counts <- table(trial$site_f)
+barplot(site_counts, col = "steelblue",
+        xlab = "Recruiting site", ylab = "Number of participants")
+```
+
+`table()` calculates the counts. `barplot()` draws their heights.
+A histogram instead bins a numeric variable such as blood pressure.
+
+## Optional: two distribution diagnostics {#base-diagnostics}
+
+| Plot | What it shows | How to read it |
+|---|---|---|
+| **Empirical CDF (ECDF)** | The observed cumulative distribution | At a given SBP, read the proportion of participants at or below it |
+| **Normal Q–Q plot** | Sample quantiles against theoretical normal quantiles | Points near a straight line suggest an approximately normal distribution |
+
+- The ECDF uses **every observation**, with no histogram bins.
+- In a normal Q–Q plot, systematic curvature or tail departures suggest departures from normality.
+
+
+## Optional: ECDF and normal Q–Q examples {#base-diagnostics-example}
+
+```{r}
+#| label: base-ecdf-qq
+#| fig-width: 9
+#| fig-height: 3
+saved_par <- par(mfrow = c(1, 2), mar = c(4, 4, 2, 1))
+plot(ecdf(trial$sbp_0), main = "Cumulative proportion",
+     xlab = "Baseline SBP (mmHg)", ylab = "Proportion at or below x")
+qqnorm(trial$sbp_0, main = "Normal Q-Q plot")
+qqline(trial$sbp_0, col = "steelblue")
+par(saved_par)
+```
+
+**Left:** proportion at or below each SBP value. **Right:** sample versus normal quantiles.
+
+A roughly straight Q–Q pattern **supports approximate normality**. This is a visual assessment, without a p-value.
+
+
+## Multiple panels and graphics state
+
+```r
+saved_par <- par(mfrow = c(1, 2))  # one row, two columns
+hist(trial$sbp_0)
+hist(trial$sbp_12)
+par(saved_par)                    # restore changed settings
+```
+
+- `par()` affects the current graphics device.
+- Restore settings after the multi-panel display.
+- If separate panels need direct comparison, choose common axis limits.
+- `par(mfrow = c(1, 1))` resets the layout, but does not reset every other option.
+
+## Raster and vector figures {#raster-vector}
+
+| | PNG: raster image | PDF: vector graphics |
+|---|---|---|
+| Stores | A grid of coloured pixels | Drawing instructions for lines, shapes, and text |
+| When enlarged | Individual pixels can become visible | Vector elements remain sharp as they scale |
+| Size settings | Width, height, and pixel density | Physical page width and height |
+
+**A PDF has no single overall DPI for its vector elements.**
+
+A PDF can also contain raster images. Those images retain their pixel-resolution limits.
+
+
+## Resolution: pixels and physical size {#resolution-dpi}
+
+**DPI** means dots per inch. For raster export, R uses this setting as **pixels per inch (PPI)**.
+
+**Pixel width = width in inches × DPI**
+
+| A 6 × 4 inch PNG | Pixel dimensions |
+|---|---|
+| 150 DPI | 900 × 600 pixels |
+| 300 DPI | 1800 × 1200 pixels |
+| 600 DPI | 3600 × 2400 pixels |
+
+At fixed physical size, higher DPI creates more pixels. At fixed pixel dimensions, changing DPI changes the physical size, without adding detail.
+
+
+## Saving a base R figure
+
+```r
+dir.create("output", showWarnings = FALSE)
+png("output/base-sbp.png", width = 6, height = 4,
+    units = "in", res = 300)
+plot(trial$sbp_0, trial$sbp_12,
+     xlab = "Baseline SBP (mmHg)", ylab = "Week 12 SBP (mmHg)")
+dev.off()
+```
+
+The file device receives drawing commands until `dev.off()` closes it.
+This PNG has **1800 × 1200 pixels**: 6 × 4 inches at `res = 300`.
+
+For a 6 × 4 inch vector PDF, open `pdf("output/base-sbp.pdf", width = 6, height = 4)` instead. **No `res` or `dpi` argument.**
+
 
 ## Base graphics in four functions {.smaller}
 
@@ -196,211 +483,1651 @@ you now know it before you fit anything.
   workflow that makes your analysis easy to understand and maintain.
 
 
-{{< include _ggplot-examples.qmd >}}
+# 2 · Building a first ggplot {.section-divider}
 
-# 7 · Critiquing and improving a figure {.section-divider}
+## Our ggplot2 route {.concept}
 
+We will keep returning to the same synthetic blood-pressure study.
 
-## The perceptual hierarchy {.concept}
-
-How accurately a reader can decode a quantity, best first:
-
-| Rank | Channel | Use it for |
-|---|---|---|
-| 1 | **Position** on a common scale | The number that carries your argument |
-| 2 | **Length** | Second choice; needs a zero baseline |
-| 3 | Angle, slope | Trends, reluctantly |
-| 4 | **Area** | Rough magnitude only |
-| 5 | Colour intensity, saturation | Broad patterns or a third variable |
-
-. . .
-
-::: {.callout-important appearance="simple"}
-For precise comparisons, prefer positions on a shared axis. Colour remains
-useful for group identity and for patterns across large matrices.
-:::
+1. **Build a plot:** baseline versus follow-up.
+2. **Choose displays:** distributions and arm comparisons.
+3. **Add summaries:** means, intervals, and fitted trends.
+4. **Show repeated visits:** one line per participant.
+5. **Refine and export:** scales, labels, accessibility, and file size.
 
 
-## Critique: what is wrong here? {.smaller}
-
-```{r}
-#| label: bad-figure
-#| echo: false
-#| fig-width: 8.4
-#| fig-height: 3.3
-ggplot(by_arm, aes(arm, mean_sbp, fill = arm)) +
-  geom_col(width = 0.7) +
-  coord_cartesian(ylim = c(128, 146)) +
-  labs(title = "SBP results", x = "Group", y = "SBP") +
-  theme_grey(base_size = 14)
-```
-
-::: {.smaller}
-Take thirty seconds. Name three things.
-:::
 
 
-## The same data, honestly {.smaller}
+## A plot is a specification {.concept}
 
-```{r}
-#| label: good-figure
-#| echo: false
-#| fig-width: 8.4
-#| fig-height: 3.4
-ggplot(trial, aes(arm, sbp_12)) +
-  geom_jitter(width = 0.12, alpha = 0.45, size = 1.8,
-              colour = "grey40") +
-  geom_pointrange(
-    data = by_arm,
-    aes(y = mean_sbp,
-        ymin = mean_sbp - 1.96 * se,
-        ymax = mean_sbp + 1.96 * se),
-    colour = "#0072B2", linewidth = 0.9, size = 0.7
-  ) +
-  labs(x = NULL, y = "Systolic BP at 12 weeks (mmHg)",
-       title = "SBP at 12 weeks by arm, with mean and 95% CI",
-       subtitle = "n = 30 per arm; grey points are individual patients") +
-  theme_minimal(base_size = 14)
-```
+**Question:** How does baseline blood pressure relate to week 12?
 
-
-## Pie charts and dual axes need care {.smaller}
-
-::: columns
-::: {.column width="46%"}
-```{r}
-#| label: bad-pie
-#| echo: false
-#| fig-width: 3.6
-#| fig-height: 2.7
-ggplot(trial, aes(x = "", fill = site_f)) +
-  geom_bar(width = 1) +
-  coord_polar(theta = "y") +
-  labs(fill = NULL) +
-  theme_void(base_size = 12)
-```
-:::
-
-::: {.column width="52%"}
-::: {.smaller}
-**Pie charts** ask the reader to compare **angles and areas** — ranks 3 and 4.
-Rank the four sites from that. Now imagine a bar chart.
-
-**Dual axes** are worse, because the reader cannot check them:
+- **Data:** one row per participant.
+- **x:** baseline SBP.
+- **y:** week 12 SBP.
+- **Marks:** one point per participant.
 
 ```r
-# do not
-p + scale_y_continuous(
-  sec.axis = sec_axis(~ . * 3.2, name = "CRP")
+ggplot(trial, aes(x = sbp_0, y = sbp_12)) +
+  geom_point()
+```
+
+We describe the data and its visual mappings, then choose how to draw it.
+
+
+## Seven components, plus a theme {.concept}
+
+The first four determine the data shown in a layer.
+
+| Component | In our study |
+|---|---|
+| **Data** | Participant records in `trial` |
+| **Aesthetics** | `aes(x = sbp_0, y = sbp_12)` |
+| **Geom** | `geom_point()` draws each participant |
+| **Stat** | Points use raw values; a histogram counts bins |
+
+Most early examples need only data, mappings, and a geom.
+
+## Scales, coordinates, facets, and theme {.concept}
+
+The remaining components control how the plot appears.
+
+| Component | Role | Example |
+|---|---|---|
+| **Scales** | Translate values to positions or colours | Logarithmic y axis |
+| **Coordinates** | Define the plotting space and view | Zoom into a region |
+| **Facets** | Repeat a plot for subsets | One panel per site |
+| **Theme** | Style non-data elements | Fonts and grid lines |
+
+We will add these after the basic plot answers the scientific question.
+
+## What will this code draw? {#question-empty .lecture-question}
+
+[60 SECONDS · THINK, THEN VOTE]{.question-time}
+
+```r
+ggplot(trial, aes(sbp_0, sbp_12))
+```
+
+**A.** A scatterplot with participant points
+
+**B.** Axes without participant points
+
+**C.** An error
+
+::: {.fragment .question-answer}
+**B.** Data and mappings establish the axes.
+
+Adding `geom_point()` draws the participant marks.
+:::
+
+
+## A first ggplot: axes, then points {.concept}
+
+::: columns
+::: {.column width="49%"}
+```{r}
+#| label: mvp
+#| fig-width: 4.6
+#| fig-height: 2.9
+ggplot(trial, aes(sbp_0, sbp_12))
+```
+:::
+::: {.column width="49%"}
+```{r}
+#| label: mvp-plus
+#| fig-width: 4.6
+#| fig-height: 2.9
+ggplot(trial, aes(sbp_0, sbp_12)) +
+  geom_point()
+```
+:::
+:::
+
+Data and mappings establish the axes. The geom adds visible marks.
+
+
+
+## The pipe and the plus sign have different jobs
+
+```r
+trial |>
+  filter(site == 1) |>
+  ggplot(aes(sbp_0, sbp_12)) +
+  geom_point() +
+  labs(x = "Baseline SBP (mmHg)",
+       y = "Week 12 SBP (mmHg)")
+```
+
+- `|>` passes the filtered data into `ggplot()`.
+- `+` adds plotting components to the ggplot object.
+- Put `+` at the end of a line when continuing the expression.
+- `ggplot(...) |> geom_point()` does not mean “add a point layer.”
+
+## A ggplot object can be revised
+
+```{r}
+#| label: gg-object
+#| fig-width: 8
+#| fig-height: 3
+p_scatter <- ggplot(trial, aes(sbp_0, sbp_12)) +
+  geom_point()
+p_scatter + labs(x = "Baseline SBP (mmHg)",
+                 y = "Week 12 SBP (mmHg)")
+```
+
+`p_scatter + ...` displays a revised plot. To keep that version, assign it:
+`p_scatter <- p_scatter + labs(...)`.
+
+## Will these points be blue? {#question-color .lecture-question}
+
+[60 SECONDS · THINK, THEN VOTE]{.question-time}
+
+```r
+ggplot(trial, aes(sbp_0, sbp_12)) +
+  geom_point(aes(colour = "blue"))
+```
+
+**A.** Yes, because the code says “blue”
+
+**B.** It maps a category named “blue”
+
+**C.** It cannot run
+
+::: {.fragment .question-answer}
+**B.** Inside `aes()`, “blue” becomes a category mapped through a colour scale.
+
+For fixed blue points: `geom_point(colour = "blue")`.
+:::
+
+
+## `aes()` means *map*. Outside means *set* {.smaller}
+
+::: columns
+::: {.column width="49%"}
+```{r}
+#| label: aes-inside
+#| fig-width: 4.6
+#| fig-height: 2.6
+ggplot(trial, aes(sbp_0, sbp_12,
+                  colour = arm)) +
+  geom_point()
+```
+:::
+
+::: {.column width="49%"}
+```{r}
+#| label: aes-outside
+#| fig-width: 4.6
+#| fig-height: 2.6
+ggplot(trial, aes(sbp_0, sbp_12)) +
+  geom_point(colour = "steelblue")
+```
+:::
+:::
+
+::: {.smaller}
+Inside `aes()`: colour **carries information**, and you get a legend.
+Outside: colour is fixed, and this setting does not create a mapped legend.
+:::
+
+
+## Colour, fill, and shape
+
+```{r}
+#| label: gg-fill-colour
+#| fig-width: 8
+#| fig-height: 3
+ggplot(trial, aes(sbp_0, sbp_12, fill = arm)) +
+  geom_point(shape = 21, colour = "black", size = 3) +
+  scale_fill_manual(values = arm_col) +
+  labs(x = "Baseline SBP (mmHg)", y = "Week 12 SBP (mmHg)")
+```
+
+For shapes 21–25, `fill` controls the interior and `colour` controls the border.
+For most other point shapes, use `colour`. For bars, `fill` colours the interior.
+
+# 3 · Choosing a display {.section-divider}
+
+## Questions that need different displays {.concept}
+
+- **Distribution:** What baseline values occur?
+- **Comparison:** How do week-12 values differ between arms?
+- **Counts:** How many participants belong to each category?
+
+We will keep the study data, but change the variables and marks.
+
+## Choosing a geom
+
+A **geom** is a layer's drawing method: points, lines, bars, text, or another mark.
+Some geoms also compute a default summary before drawing.
+
+| Your data/question | Start with |
+|---|---|
+| Two numeric measurements per person | `geom_point()` |
+| One numeric variable's distribution | `geom_histogram()` |
+| A numeric outcome across groups | `geom_boxplot()` plus points |
+| Counts of records by category | `geom_bar()` |
+| Heights already calculated in a table | `geom_col()` |
+| Repeated measurements within a person | `geom_line()` with `group = id` |
+
+## Optional: complete ggplot2 geom catalogue {#geom-catalogue}
+
+The next slides list the exported `geom_*()` functions in the ggplot2 version
+used to render this deck, including aliases and older interfaces.
+
+- They are a **lookup reference**, not a memorization requirement.
+- Extension-package geoms, such as `ggrepel::geom_text_repel()`, are separate.
+- `stat_*()`, scales, and themes are different function families.
+
+[Skip the catalogue and continue to distributions](#core-distributions)
+
+[Official ggplot2 function reference](https://ggplot2.tidyverse.org/reference/index.html)
+
+```{r}
+#| label: geom-catalogue-data
+#| include: false
+geom_catalogue <- list(
+  points = c(
+    geom_point = "One mark at each x/y location",
+    geom_jitter = "Points with position offsets to reveal overlap",
+    geom_count = "Point area represents the number at an x/y location",
+    geom_rug = "Small marks along the plot margins",
+    geom_text = "Text from a label variable",
+    geom_label = "Text with a background box"),
+  paths = c(
+    geom_line = "Connect observations in x order within each group",
+    geom_path = "Connect observations in their row order",
+    geom_step = "Connect observations using steps",
+    geom_segment = "Separate segments, with start and end coordinates",
+    geom_curve = "Curved connections between endpoints",
+    geom_spoke = "Segments specified by angle and length"),
+  distributions = c(
+    geom_histogram = "Counts or densities in numeric bins",
+    geom_freqpoly = "A line through binned frequencies",
+    geom_density = "A smooth estimate of a one-variable density",
+    geom_dotplot = "Stacked dots in bins",
+    geom_boxplot = "Median, quartiles, whiskers, and extreme points",
+    geom_violin = "A mirrored density for each group",
+    geom_qq = "Sample quantiles against reference quantiles",
+    geom_qq_line = "A reference line for a Q-Q display"),
+  bars = c(
+    geom_bar = "Count records by category by default",
+    geom_col = "Draw supplied y values as bar heights",
+    geom_area = "Filled region to a baseline, stacked by default",
+    geom_ribbon = "Region between supplied ymin and ymax",
+    geom_rect = "Rectangles defined by boundary coordinates",
+    geom_tile = "Rectangles defined by centres and dimensions",
+    geom_raster = "Efficient equal-sized rectangular cells"),
+  intervals = c(
+    geom_pointrange = "Point estimate and interval",
+    geom_linerange = "Interval alone",
+    geom_errorbar = "Interval with end caps",
+    geom_crossbar = "Central value across an interval box",
+    geom_errorbarh = "Older horizontal error-bar interface (deprecated)"),
+  fits = c(
+    geom_smooth = "Fitted trend with an optional uncertainty band",
+    geom_quantile = "Conditional quantile regression lines",
+    geom_function = "Evaluate and draw a supplied function",
+    geom_abline = "Lines specified by intercept and slope",
+    geom_hline = "Horizontal reference lines",
+    geom_vline = "Vertical reference lines",
+    geom_blank = "Invisible layer, useful for establishing scale ranges"),
+  surfaces = c(
+    geom_bin_2d = "Counts in rectangular x/y bins",
+    geom_hex = "Counts in hexagonal x/y bins",
+    geom_density_2d = "Contours of an estimated x/y density",
+    geom_density_2d_filled = "Filled regions of an estimated x/y density",
+    geom_contour = "Contour lines for supplied grid values z",
+    geom_contour_filled = "Filled contour regions for supplied grid values z"),
+  maps = c(
+    geom_polygon = "Closed shapes from ordered vertices",
+    geom_map = "Values joined to a separate map polygon table",
+    geom_sf = "Geometry from an sf spatial object",
+    geom_sf_text = "Text located using sf geometry",
+    geom_sf_label = "Boxed text located using sf geometry"),
+  aliases = c(
+    geom_bin2d = "Alias of geom_bin_2d",
+    geom_density2d = "Alias of geom_density_2d",
+    geom_density2d_filled = "Alias of geom_density_2d_filled")
+)
+exported_geoms <- sort(getNamespaceExports("ggplot2"))
+exported_geoms <- exported_geoms[startsWith(exported_geoms, "geom_")]
+listed_geoms <- unlist(lapply(geom_catalogue, names), use.names = FALSE)
+stopifnot(!anyDuplicated(listed_geoms), setequal(exported_geoms, listed_geoms))
+show_geoms <- function(group) {
+  entries <- geom_catalogue[[group]]
+  knitr::kable(data.frame(
+    Function = paste0("`", names(entries), "()`"),
+    Purpose = unname(entries)
+  ), row.names = FALSE)
+}
+gallery_pair <- function(left, right) {
+  grid::grid.newpage()
+  print(left + theme_minimal(base_size = 15),
+        vp = grid::viewport(x = 0.25, width = 0.48))
+  print(right + theme_minimal(base_size = 15),
+        vp = grid::viewport(x = 0.75, width = 0.48))
+}
+gallery_summary <- trial |>
+  group_by(arm) |>
+  summarise(m = mean(sbp_12), se = sd(sbp_12) / sqrt(n()),
+            .groups = "drop")
+gallery_time <- trial_long |>
+  group_by(arm, week) |>
+  summarise(m = mean(sbp), se = sd(sbp) / sqrt(n()), .groups = "drop")
+```
+
+## Geom reference: points and labels {.geom-reference}
+
+```{r}
+#| echo: false
+show_geoms("points")
+```
+
+## Geom examples: points and jitter {.gallery}
+
+```{r}
+#| label: gallery-points
+#| echo: false
+#| fig-width: 10
+#| fig-height: 3.8
+gallery_pair(
+  ggplot(trial, aes(sbp_0, sbp_12, colour = arm)) +
+    geom_point() + scale_colour_manual(values = arm_col, guide = "none") +
+    labs(title = "geom_point()", x = "Baseline SBP", y = "Week 12 SBP"),
+  ggplot(trial, aes(arm, sbp_12, colour = arm)) +
+    geom_jitter(width = 0.1, height = 0) +
+    scale_colour_manual(values = arm_col, guide = "none") +
+    labs(title = "geom_jitter()", x = NULL, y = "Week 12 SBP")
 )
 ```
 
-The crossing point is set by *your* choice of scaling. Two facets, or two
-panels, say the same thing without the implied claim.
-:::
-:::
-:::
+Points show a relationship between two measurements. Jitter separates
+overlapping observations within categories. Both show individual participants.
+
+## Geom reference: connected observations {.geom-reference}
+
+```{r}
+#| echo: false
+show_geoms("paths")
+```
+
+Connecting observations implies a relationship or order. It is usually
+inappropriate to connect unrelated participants just because their rows are adjacent.
+
+## Geom examples: line and step {.gallery}
+
+```{r}
+#| label: gallery-lines
+#| echo: false
+#| fig-width: 10
+#| fig-height: 3.8
+gallery_pair(
+  ggplot(gallery_time, aes(week, m, colour = arm)) +
+    geom_line(linewidth = 1) + geom_point(size = 2) +
+    scale_colour_manual(values = arm_col, guide = "none") +
+    scale_x_continuous(breaks = c(0, 6, 12)) +
+    labs(title = "geom_line()", x = "Week", y = "Mean SBP"),
+  ggplot(data.frame(day = c(0, 2, 5, 8), dose = c(0, 10, 20, 10)),
+         aes(day, dose)) +
+    geom_step(linewidth = 1, colour = "#0072B2") +
+    labs(title = "geom_step()", x = "Day", y = "Dose (mg)")
+)
+```
+
+A line connects measured summaries. A step can represent a dose held constant
+until the next change. The right-hand schedule is a separate synthetic example.
+
+## Geom reference: distributions {.geom-reference}
+
+```{r}
+#| echo: false
+show_geoms("distributions")
+```
+
+## Geom examples: distribution summaries {.gallery}
+
+```{r}
+#| label: gallery-distributions
+#| echo: false
+#| fig-width: 10
+#| fig-height: 3.8
+gallery_pair(
+  ggplot(trial, aes(sbp_0)) +
+    geom_histogram(binwidth = 8, fill = "#0072B2", colour = "white") +
+    labs(title = "geom_histogram()", x = "Baseline SBP", y = "Count"),
+  ggplot(trial, aes(arm, sbp_12, fill = arm)) +
+    geom_violin(alpha = 0.4) + geom_boxplot(width = 0.15) +
+    scale_fill_manual(values = arm_col, guide = "none") +
+    labs(title = "geom_violin() + geom_boxplot()", x = NULL, y = "Week 12 SBP")
+)
+```
+
+The histogram groups observations into numeric bins. A violin describes a
+smoothed distribution, while the overlaid box marks its quartiles and median.
+
+## Geom reference: bars and filled regions {.geom-reference}
+
+```{r}
+#| echo: false
+show_geoms("bars")
+```
+
+## Geom examples: bars and a ribbon {.gallery}
+
+```{r}
+#| label: gallery-bars-ribbon
+#| echo: false
+#| fig-width: 10
+#| fig-height: 3.8
+gallery_pair(
+  ggplot(trial, aes(site_f)) + geom_bar(fill = "#0072B2") +
+    labs(title = "geom_bar()", x = NULL, y = "Participants"),
+  ggplot(subset(gallery_time, arm == "Treatment"), aes(week, m)) +
+    geom_ribbon(aes(ymin = m - 1.96 * se, ymax = m + 1.96 * se),
+                fill = "#0072B2", alpha = 0.25) +
+    geom_line(colour = "#0072B2", linewidth = 1) +
+    scale_x_continuous(breaks = c(0, 6, 12)) +
+    labs(title = "geom_ribbon() + geom_line()", x = "Week", y = "Mean SBP")
+)
+```
+
+Bars show counts. The ribbon fills a supplied lower-to-upper range, here
+approximate 95% intervals for the treatment-arm mean at each visit.
+
+## Geom reference: intervals {.geom-reference}
+
+```{r}
+#| echo: false
+show_geoms("intervals")
+```
+
+For new horizontal error bars, use `geom_errorbar(orientation = "y")`
+with `xmin` and `xmax`. The plotting function does not determine whether your
+interval means SD, SE, or a confidence interval.
+
+## Geom examples: two ways to draw an interval {.gallery}
+
+```{r}
+#| label: gallery-intervals
+#| echo: false
+#| fig-width: 10
+#| fig-height: 3.8
+interval_plot <- ggplot(gallery_summary,
+  aes(arm, m, ymin = m - 1.96 * se, ymax = m + 1.96 * se)) +
+  labs(x = NULL, y = "Mean week 12 SBP")
+gallery_pair(
+  interval_plot + geom_pointrange(colour = "#0072B2") +
+    labs(title = "geom_pointrange()"),
+  interval_plot + geom_errorbar(width = 0.15, colour = "#0072B2") +
+    geom_point(size = 2, colour = "#0072B2") +
+    labs(title = "geom_errorbar() + geom_point()")
+)
+```
+
+These show the same means and approximate 95% confidence intervals.
+Pointrange draws both marks; errorbar supplies the interval with end caps.
+
+## Geom reference: fits and reference lines {.geom-reference}
+
+```{r}
+#| echo: false
+show_geoms("fits")
+```
+
+## Geom examples: fitted and reference lines {.gallery}
+
+```{r}
+#| label: gallery-fits
+#| echo: false
+#| fig-width: 10
+#| fig-height: 3.8
+relationship <- ggplot(trial, aes(sbp_0, sbp_12)) +
+  geom_point(alpha = 0.55) + labs(x = "Baseline SBP", y = "Week 12 SBP")
+gallery_pair(
+  relationship + geom_smooth(method = "lm", colour = "#0072B2") +
+    labs(title = 'geom_smooth(method = "lm")'),
+  relationship + geom_abline(intercept = 0, slope = 1,
+                              linetype = 2, colour = "#D55E00") +
+    labs(title = "geom_abline()")
+)
+```
+
+The fitted line summarizes a relationship in the data. The identity line
+marks equality between visits and needs no fitted model.
+
+## Geom reference: two-dimensional patterns {.geom-reference}
+
+```{r}
+#| echo: false
+show_geoms("surfaces")
+```
+
+`geom_hex()` needs the **hexbin** package. Counts, estimated densities, and
+supplied surface values answer different questions.
+
+## Geom examples: binned counts and contours {.gallery}
+
+```{r}
+#| label: gallery-surfaces
+#| echo: false
+#| fig-width: 10
+#| fig-height: 3.8
+surface_grid <- expand.grid(x = seq_len(nrow(volcano)),
+                            y = seq_len(ncol(volcano)))
+surface_grid$z <- as.vector(volcano)
+gallery_pair(
+  ggplot(trial, aes(sbp_0, sbp_12)) +
+    geom_bin_2d(bins = 8) + scale_fill_viridis_c() +
+    labs(title = "geom_bin_2d()", x = "Baseline SBP", y = "Week 12 SBP",
+         fill = "Count"),
+  ggplot(surface_grid, aes(x, y, z = z)) +
+    geom_contour(colour = "#0072B2") + coord_equal() +
+    labs(title = "geom_contour()", x = "Grid column", y = "Grid row")
+)
+```
+
+Left: counts of participants in x/y bins. Right: equal-value lines from R's
+built-in `volcano` elevation grid. Contours require surface values, not just x/y pairs.
+
+## Geom reference: maps and shapes {.geom-reference}
+
+```{r}
+#| echo: false
+show_geoms("maps")
+```
+
+The `geom_sf*()` functions use the **sf** package and spatial data structures.
+Spatial analysis is outside this session's core material.
+
+## Geom example: regions defined by vertices {.gallery}
+
+```{r}
+#| label: gallery-polygons
+#| echo: false
+#| fig-width: 9
+#| fig-height: 3.4
+regions <- data.frame(
+  region = rep(c("A", "B"), each = 4),
+  x = c(0, 2, 2, 0, 2, 4, 4, 2), y = c(0, 0, 2, 3, 0, 1, 3, 2)
+)
+ggplot(regions, aes(x, y, group = region, fill = region)) +
+  geom_polygon(colour = "white", linewidth = 1) +
+  coord_equal() + scale_fill_manual(values = c(A = "#0072B2", B = "#E69F00")) +
+  labs(title = "geom_polygon(): two synthetic regions", x = NULL, y = NULL) +
+  theme_void(base_size = 17)
+```
+
+Each group supplies one shape's vertices in boundary order. Real geographic
+work commonly uses `geom_sf()` with spatial geometry instead of hand-entered vertices.
+
+## Geom reference: aliases and package version {.geom-reference}
+
+```{r}
+#| echo: false
+show_geoms("aliases")
+```
+
+This deck lists **`r length(exported_geoms)` exported names**, including aliases,
+for **ggplot2 `r as.character(packageVersion("ggplot2"))`**.
+
+Use `?geom_point` or the
+[official reference](https://ggplot2.tidyverse.org/reference/index.html) for arguments.
+Newer releases may add functions. There is no need to install an extension
+package just to complete the core examples.
+
+## Back to the study: distributions {#core-distributions .concept}
+
+The catalogue shows the range of available marks. Now we use a small set to
+answer the study questions.
+
+**First question:** What is the distribution of baseline SBP?
+
+Compare a histogram's bins with a density curve's smoothing.
 
 
-## Colour-blind-safe, on purpose {.smaller}
+## Distributions: histogram and density {.smaller}
 
 ::: columns
 ::: {.column width="49%"}
 ```{r}
-#| label: pal-okabe
-#| echo: false
-#| fig-width: 4.4
-#| fig-height: 1.15
-ok <- data.frame(x = 1:8,
-                 hex = unname(palette.colors(8, "Okabe-Ito")))
-ggplot(ok, aes(x, 1, fill = hex)) +
-  geom_tile(colour = "white", linewidth = 1) +
-  scale_fill_identity() +
-  labs(title = "Okabe-Ito (categorical)") +
-  theme_void(base_size = 11)
+#| label: geom-hist
+#| fig-width: 4.6
+#| fig-height: 2.6
+ggplot(trial, aes(sbp_0)) +
+  geom_histogram(binwidth = 8,
+                 fill = "grey35")
 ```
 :::
 
 ::: {.column width="49%"}
 ```{r}
-#| label: pal-viridis
-#| echo: false
-#| fig-width: 4.4
-#| fig-height: 1.15
-ggplot(data.frame(x = 1:8), aes(x, 1, fill = factor(x))) +
-  geom_tile(colour = "white", linewidth = 1) +
-  scale_fill_viridis_d(guide = "none") +
-  labs(title = "viridis (ordered / continuous)") +
-  theme_void(base_size = 11)
+#| label: geom-density
+#| fig-width: 4.6
+#| fig-height: 2.6
+ggplot(trial, aes(sbp_0)) +
+  geom_density(fill = "grey80")
 ```
 :::
 :::
 
 ::: {.smaller}
-```r
-# categorical - built in to R since 4.0
-palette.colors(8, "Okabe-Ito")
-#> #000000 #E69F00 #56B4E9 #009E73 #F0E442 #0072B2 #D55E00 #CC79A7
-scale_colour_manual(values = palette.colors(3, "Okabe-Ito"))
+`binwidth = 8` uses 8-mmHg bins. `bins = 30` asks for a number of bins.
+Either choice needs checking: try alternatives and see whether the pattern persists.
 
-# ordered or continuous - built in to ggplot2
-scale_colour_viridis_d()   # discrete
-scale_fill_viridis_c()     # continuous
-```
-
-Then print it in greyscale. If the groups stop being distinguishable, colour
-was doing work that shape or a direct label should have been doing.
+**The base R way:** `hist(trial$sbp_0)` · `plot(density(trial$sbp_0))`
 :::
 
 
-## Label the thing, not the legend {.smaller}
+## Distributions compared: boxplot and violin {.smaller}
+
+::: columns
+::: {.column width="49%"}
+```{r}
+#| label: geom-box
+#| fig-width: 4.6
+#| fig-height: 2.6
+ggplot(trial, aes(arm, sbp_12)) +
+  geom_boxplot(width = 0.5)
+```
+:::
+
+::: {.column width="49%"}
+```{r}
+#| label: geom-violin
+#| fig-width: 4.6
+#| fig-height: 2.6
+ggplot(trial, aes(arm, sbp_12)) +
+  geom_violin(fill = "grey85")
+```
+:::
+:::
+
+::: {.smaller}
+A boxplot shows the median, quartiles, whiskers, and possible outlying points.
+A violin shows an estimated density. Neither displays the sample size by default.
+
+**The base R way:** `boxplot(sbp_12 ~ arm, data = trial)`
+:::
+
+
+## Show the data, not only the summary {.smaller}
 
 ```{r}
-#| label: direct-label
-#| echo: false
-#| fig-width: 8.6
-#| fig-height: 3.1
-ggplot(by_week, aes(week, m, colour = arm)) +
-  geom_line(linewidth = 1.1) +
-  geom_point(size = 2) +
-  geom_text(data = filter(by_week, week == 12),
-            aes(x = 12.4, label = arm),
-            hjust = 0, fontface = "bold") +
-  scale_colour_manual(values = arm_col) +
-  scale_x_continuous(breaks = c(0, 6, 12),
-                     limits = c(0, 16)) +
-  labs(x = "Week", y = "Mean SBP (mmHg)") +
-  theme(legend.position = "none")
+#| label: geom-jitter
+#| fig-width: 9
+#| fig-height: 2.9
+ggplot(trial, aes(arm, sbp_12)) +
+  geom_boxplot(width = 0.45, outlier.shape = NA) +
+  geom_jitter(width = 0.12, alpha = 0.7, size = 2)
 ```
 
 ::: {.smaller}
-A legend makes the reader look away, decode, and look back — for every series.
-A label next to the line costs them nothing.
+`outlier.shape = NA` stops the boxplot drawing outliers that `geom_jitter()`
+already drew. Two marks for one observation is a real error, not a style choice.
 :::
 
 
-## Ink that is not information {.smaller}
+## Sixty participants, fewer visible dots? {#question-overlap .lecture-question}
 
-Every mark on a figure is either **carrying information** or **competing with
-it**.
+[60 SECONDS · THINK, THEN VOTE]{.question-time}
 
-::: {style="font-size:0.88em"}
-| Remove | Because |
+Our scatterplot contains **60 participants**.
+
+Could it show fewer than 60 separately visible dots?
+
+**A.** Yes, observations can overlap
+
+**B.** No, R always separates the points
+
+**C.** Only if some participants were removed
+
+::: {.fragment .question-answer}
+**A.** Multiple observations can occupy the same or nearby plotting positions.
+
+Transparency or suitable jitter can help reveal overlap.
+:::
+
+
+## Overlap can hide observations
+
+```{r}
+#| label: gg-reproducible-jitter
+#| fig-width: 8
+#| fig-height: 3
+ggplot(trial, aes(arm, sbp_12)) +
+  geom_point(position = position_jitter(width = 0.12,
+                                        height = 0, seed = 6301),
+             alpha = 0.6) +
+  labs(x = NULL, y = "Week 12 SBP (mmHg)")
+```
+
+Horizontal jitter separates tied marks. `height = 0` preserves the measured
+outcome, and `seed` makes the offsets repeatable. Alpha reduces visual overlap.
+
+## Counts versus a precomputed table
+
+```{r}
+#| label: gg-count-table
+#| echo: false
+counts <- trial |> count(arm)
+knitr::kable(counts)
+```
+
+```r
+# One row per participant: let the geom count
+ggplot(trial, aes(arm)) + geom_bar()
+
+# One row per arm: heights are already calculated
+ggplot(counts, aes(arm, n)) + geom_col()
+```
+
+Both give the same counts here. A mean or percentage already stored in `y`
+usually calls for `geom_col()`, not the default `geom_bar()` statistic.
+
+## Comparisons: bars, and position adjustments {.smaller}
+
+```{r}
+#| label: geom-bar
+#| fig-width: 9
+#| fig-height: 2.7
+ggplot(trial, aes(site_f, fill = sex)) +
+  geom_bar(position = "dodge")
+```
+
+::: {.smaller}
+| `position =` | Shows | Good for |
+|---|---|---|
+| `"stack"` *(default)* | Counts, one bar per group | Totals |
+| `"dodge"` | Counts, side by side | Comparing subgroups |
+| `"fill"` | Proportions, all bars to 1 | Composition — but hides n |
+:::
+
+
+# 4 · Adding summaries and uncertainty {.section-divider}
+
+## Participant values and group summaries {.concept}
+
+**Question:** What is the average week-12 SBP in each arm, and how uncertain is it?
+
+1. Keep the participant-level data visible.
+2. Calculate an arm-level summary table.
+3. Draw a summary layer from that table.
+4. State what its interval means.
+
+The raw data and summary layers have different observation units.
+
+
+## What do these error bars tell us? {#question-intervals .lecture-question}
+
+[60 SECONDS · THINK, THEN VOTE]{.question-time}
+
+A caption says: **“Mean week-12 SBP with a 95% confidence interval for each arm mean.”**
+
+**A.** The interval contains 95% of participant SBP values
+
+**B.** It describes uncertainty about each arm’s population mean
+
+**C.** It shows the minimum and maximum SBP
+
+::: {.fragment .question-answer}
+**B.** A confidence interval for a mean concerns that population mean.
+
+The individual points show participant-level variation.
+:::
+
+
+## What do the intervals mean?
+
+| Interval | Describes |
 |---|---|
-| Heavy grid lines, panel background | They are as visually loud as the data |
-| A legend that repeats the x axis | Zero information |
-| A third dimension on a 2-D quantity | Distorts area and hides marks |
-| Decorative colour | Spends the strongest labelling channel on nothing |
-| Gridlines on a categorical axis | There is nothing to read off |
+| Mean ± SD | Spread of individual measurements around their mean |
+| Mean ± SE | Estimated sampling variability of the mean |
+| Confidence interval | Uncertainty about a population parameter under a model |
+| Prediction interval | Uncertainty about a new individual observation |
 
+The same `geom_errorbar()` can draw any of these. Its inputs do not tell the
+reader which one you intended. State the meaning and method in the caption.
+
+The earlier `mean ± 1.96 * SE` examples use an approximate 95% confidence interval.
+The longitudinal ribbon gives intervals at each visit, not a model of change.
+
+## Uncertainty: an estimate needs an interval {.smaller}
+
+```{r}
+#| label: geom-pointrange
+#| fig-width: 9
+#| fig-height: 2.6
+by_arm <- trial |>
+  group_by(arm) |>
+  summarise(mean_sbp = mean(sbp_12),
+            se = sd(sbp_12) / sqrt(n()))
+
+ggplot(by_arm, aes(arm, mean_sbp)) +
+  geom_pointrange(aes(ymin = mean_sbp - 1.96 * se,
+                      ymax = mean_sbp + 1.96 * se))
+```
+
+
+## A layer can use its own data
+
+```{r}
+#| label: gg-separate-data
+#| fig-width: 8
+#| fig-height: 3
+ggplot(trial, aes(arm, sbp_12)) +
+  geom_point(position = position_jitter(width = 0.1, height = 0,
+                                        seed = 6301), alpha = 0.3) +
+  geom_point(data = by_arm, aes(x = arm, y = mean_sbp),
+             inherit.aes = FALSE, shape = 18, size = 5,
+             colour = "#0072B2")
+```
+
+Grey points use participant data. Blue diamonds use the summary table.
+`inherit.aes = FALSE` makes the summary layer use only its own mappings.
+
+## Relationships: points and a smooth {.smaller}
+
+```{r}
+#| label: geom-smooth
+#| fig-width: 9
+#| fig-height: 2.8
+ggplot(trial, aes(age, sbp_12, colour = arm)) +
+  geom_point(alpha = 0.7) +
+  geom_smooth(method = "lm", se = TRUE, alpha = 0.15)
+```
+
+::: {.smaller}
+`method = "lm"` specifies a linear fit. With `method = NULL`, ggplot2 chooses
+loess or GAM according to the largest group's size. The band describes
+uncertainty in the fitted mean, not a prediction interval for an individual.
 :::
 
-. . .
 
-::: {.callout-tip appearance="simple"}
-`theme_minimal()` gets you most of the way for free. The rest is deletion, and
-the test is: **remove it. Did the figure lose anything?**
+## Layer-specific mappings
+
+```{r}
+#| label: gg-layer-mapping
+#| fig-width: 8
+#| fig-height: 3
+ggplot(trial, aes(sbp_0, sbp_12)) +
+  geom_point(aes(colour = arm)) +
+  geom_smooth(method = "lm", se = FALSE, colour = "black") +
+  scale_colour_manual(values = arm_col)
+```
+
+Colour belongs only to the points here. The smooth uses all participants
+together. Putting `colour = arm` in the global `aes()` would fit one line per arm.
+
+
+# 5 · Repeated visits and facets {.section-divider}
+
+## A new question needs a different data shape {.concept}
+
+**Question:** How does blood pressure change over the three visits?
+
+- One row in `trial`: one participant, with visits in separate columns.
+- One row in `trial_long`: one participant at one visit.
+- Individual lines need `id`, `week`, and `sbp`.
+- Group-average lines need an arm-by-week summary.
+
+Session 7's wide-to-long reshape makes these plots easier to specify.
+
+
+## Did reshaping triple our study? {#question-visits .lecture-question}
+
+[75 SECONDS · THINK, THEN COMPARE]{.question-time}
+
+There are **60 participants** and **three visits per participant**: weeks 0, 6, and 12.
+
+After reshaping to long form:
+
+1. How many rows do we have?
+2. How many participants do we have?
+3. Which variable keeps each person’s line together?
+
+::: {.fragment .question-answer}
+**180 rows, 60 participants, and `group = id` for individual trajectories.**
+
+One long-table row represents one participant at one visit.
 :::
+
+
+## Plotting repeated visits uses the long table
+
+```r
+trial_long <- trial |>
+  select(id, arm, sbp_0, sbp_6, sbp_12) |>
+  tidyr::pivot_longer(starts_with("sbp_"),
+                     names_to = "week", names_prefix = "sbp_",
+                     values_to = "sbp") |>
+  mutate(week = as.numeric(week))
+```
+
+```{r}
+#| label: gg-long-preview
+#| echo: false
+knitr::kable(head(trial_long, 3))
+```
+
+The first participant contributes three rows. Their shared `id` tells the
+plot which measurements belong together.
+
+## One line per participant
+
+```{r}
+#| label: participant-lines
+#| fig-width: 7
+#| fig-height: 4
+p_lines <- ggplot(trial_long,
+                  aes(week, sbp, group = id)) +
+  geom_line(alpha = 0.3) +
+  scale_x_continuous(breaks = c(0, 6, 12)) +
+  labs(x = "Week", y = "SBP (mmHg)")
+p_lines
+```
+
+`group = id` connects each participant's own measurements. The lines overlap:
+how could we compare the two arms without hiding individual trajectories?
+
+
+## Faceting: when and why {#faceting-purpose .concept}
+
+**Faceting repeats the same plot for subsets of the data in labelled panels.**
+
+| Use facets when you want to… | Why panels help |
+|---|---|
+| Compare arms, sites, or other groups | Each subset has its own space |
+| See patterns hidden by overlapping marks | Groups no longer cover one another |
+| Apply the same display to several groups | One specification controls every panel |
+
+Keep a shared scale when comparing levels or spread. Use a single panel when
+direct overlap is the main question and only a few groups need distinguishing.
+
+
+## `facet_wrap()`: one panel per group {#facet-wrap}
+
+```{r}
+#| label: facets-arm
+#| fig-width: 7
+#| fig-height: 4
+p_lines + facet_wrap(~ arm, nrow = 1)
+```
+
+- `~ arm` assigns each observation to its arm's panel.
+- `nrow = 1` places the two panels in a row.
+- The default `scales = "fixed"` keeps the axes comparable.
+
+
+## `facet_grid()`: rows and columns {#facet-grid}
+
+```{r}
+#| label: facets-grid
+#| fig-width: 8
+#| fig-height: 4.6
+ggplot(trial, aes(sbp_0, sbp_12)) +
+  geom_point() +
+  facet_grid(arm ~ site_f) +
+  labs(x = "Baseline SBP (mmHg)",
+       y = "Week 12 SBP (mmHg)")
+```
+
+`arm ~ site_f` means **rows = arm, columns = site**. Read across a row to compare
+sites; down a column to compare arms within a site.
+
+
+## Fixed and free facet scales {#facet-scales .paired-plots}
+
+:::: {.columns}
+::: {.column width="49%"}
+```{r}
+#| label: facets-fixed
+#| echo: false
+#| fig-width: 5.5
+#| fig-height: 3.7
+p_lines + facet_wrap(~ arm) + labs(title = "Fixed: compare SBP levels")
+```
+:::
+::: {.column width="49%"}
+```{r}
+#| label: facets-free
+#| echo: false
+#| fig-width: 5.5
+#| fig-height: 3.7
+p_lines + facet_wrap(~ arm, scales = "free_y") +
+  labs(title = "Free y: inspect each arm")
+```
+:::
+::::
+
+`scales = "free_y"` lets each panel choose its y range. This can reveal detail
+within a panel, but **the same vertical position can represent different values**.
+
+
+## Which facet scale fits the question? {#question-facets .lecture-question}
+
+[60 SECONDS · CHOOSE AND EXPLAIN]{.question-time}
+
+“Is week 12 SBP generally higher at one site than another?”
+
+Would you choose **fixed** y scales or **free** y scales across the site panels?
+
+::: {.fragment .question-answer}
+**Fixed scales.** The question compares levels across sites; equal heights
+should represent equal SBP values.
+:::
+
+
+## Mean trajectories and their uncertainty
+
+```{r}
+#| label: mean-trajectories
+#| fig-width: 7
+#| fig-height: 4
+by_week <- trial_long |>
+  group_by(arm, week) |>
+  summarise(m = mean(sbp),
+            se = sd(sbp) / sqrt(n()),
+            .groups = "drop")
+ggplot(by_week, aes(week, m)) +
+  geom_ribbon(aes(ymin = m - 1.96 * se,
+                  ymax = m + 1.96 * se),
+              fill = "grey75") +
+  geom_line() + facet_wrap(~ arm) +
+  scale_x_continuous(breaks = c(0, 6, 12)) +
+  labs(x = "Week", y = "Mean SBP (mmHg)")
+```
+
+The ribbon shows **approximate pointwise 95% confidence intervals for each arm
+mean**, not the range containing 95% of participants.
+
+
+# 6 · Refining the display {.section-divider}
+
+## What does a scale control? {#scale-grammar .concept}
+
+`aes()` maps a variable to an aesthetic. A **scale** controls how that variable
+is represented and labelled.
+
+| Function | Controls |
+|---|---|
+| `scale_x_continuous()` | Numeric x-axis ticks and labels |
+| `scale_x_discrete()` | Category order and labels |
+| `scale_y_log10()` | A logarithmic y-axis |
+| `scale_color_manual()` | Colors assigned to categories |
+| `scale_fill_viridis_c()` | A continuous fill-color gradient |
+
+Read the name as **scale → aesthetic → type**. `color` and `colour` are aliases.
+
+
+## `scale_x_continuous()`: meaningful tick marks {#scale-x-continuous}
+
+```{r}
+#| label: scale-visit-ticks
+#| fig-width: 7
+#| fig-height: 4
+p_visit <- ggplot(filter(by_week, arm == "Placebo"),
+                  aes(week, m)) +
+  geom_line() + geom_point() +
+  labs(y = "Mean SBP (mmHg)", title = "Placebo arm")
+p_visit +
+  scale_x_continuous(
+    name = "Study visit",
+    breaks = c(0, 6, 12),
+    labels = c("Baseline", "Week 6", "Week 12"))
+```
+
+`breaks` chooses tick locations; `labels` supplies the text at those ticks.
+These settings **do not add, remove, or move observations**.
+
+
+## Axis settings do different jobs {#scale-arguments}
+
+| Argument | Job | Example |
+|---|---|---|
+| `name` | Axis title | `"Week 12 SBP (mmHg)"` |
+| `breaks` | Tick positions | `seq(100, 180, 20)` |
+| `labels` | Tick text or formatting | `scales::label_number(accuracy = 1)` |
+| `limits` | Permitted values on the scale | `c(120, 160)` |
+
+```r
+scale_y_continuous(
+  name = "Week 12 SBP (mmHg)",
+  breaks = seq(100, 180, 20),
+  labels = scales::label_number(accuracy = 1))
+```
+
+**Limits are not just tick settings:** they can exclude values before a
+statistical layer is calculated. We will compare this with coordinate zoom.
+
+
+## `scale_x_discrete()`: category order and labels {#scale-x-discrete}
+
+```{r}
+#| label: scale-category-order
+#| fig-width: 7
+#| fig-height: 4
+ggplot(trial, aes(arm, sbp_12)) +
+  geom_boxplot() +
+  scale_x_discrete(
+    limits = c("Treatment", "Placebo"),
+    labels = c(Treatment = "Active treatment",
+               Placebo = "Placebo")) +
+  labs(x = NULL, y = "Week 12 SBP (mmHg)")
+```
+
+Use a discrete scale for categories. Named labels match the actual data values.
+Include **all intended categories** in `limits`; omitted categories are excluded.
+
+
+## Log scales: equal ratios, equal distances {#log-scale-meaning .concept}
+
+Use a log scale for **positive values spanning a wide range**, especially when
+ratios are more informative than absolute differences.
+
+| Values | Linear axis | Log10 axis |
+|---|---|---|
+| 1 → 10 | Increase of 9 | One tenfold step |
+| 10 → 100 | Increase of 90 | One tenfold step |
+
+`scale_y_log10()` spaces values by their logarithms and labels ticks in the
+original units. There is no general `scale_log10()` call: choose x or y.
+
+**Check first:** zero and negative values have no finite real log10 value.
+Do not add an arbitrary constant just to make the plot run.
+
+
+## `scale_y_log10()`: see the same positive data {#scale-y-log10 .paired-plots}
+
+```{r}
+#| label: crp-plot-object
+#| include: false
+p_crp <- ggplot(trial, aes(arm, crp)) +
+  geom_point(position = position_jitter(width = 0.12, height = 0, seed = 8)) +
+  labs(x = NULL, y = "CRP (synthetic marker)")
+```
+
+:::: {.columns}
+::: {.column width="49%"}
+```{r}
+#| label: crp-linear
+#| echo: false
+#| fig-width: 5
+#| fig-height: 3.3
+p_crp + labs(title = "Linear axis")
+```
+:::
+::: {.column width="49%"}
+```{r}
+#| label: crp-logarithmic
+#| echo: false
+#| fig-width: 5
+#| fig-height: 3.3
+p_crp + scale_y_log10(breaks = c(0.3, 1, 3, 10, 30)) +
+  labs(title = "Log10 axis")
+```
+:::
+::::
+
+```r
+p_crp + scale_y_log10(breaks = c(0.3, 1, 3, 10, 30))
+```
+
+The same values are shown. Low values are easier to distinguish; large values
+occupy less space. Tick labels still show CRP, not `log10(CRP)`.
+
+
+## Will these give the same boxplot? {#question-zoom .lecture-question}
+
+[60 SECONDS · PREDICT, THEN DISCUSS]{.question-time}
+
+```r
+p_box <- ggplot(trial, aes(arm, sbp_12)) + geom_boxplot()
+# A
+p_box + coord_cartesian(ylim = c(120, 160))
+# B
+p_box + scale_y_continuous(limits = c(120, 160))
+```
+
+**Which keeps all observations in the boxplot calculation?**
+
+::: {.fragment .question-answer}
+**A.** Coordinate zoom changes the visible window after calculation.
+In B, out-of-range values become missing first, so the boxplot can change.
+:::
+
+
+## Zoom and scale limits give different summaries {#zoom-comparison .paired-plots}
+
+:::: {.columns}
+::: {.column width="49%"}
+```{r}
+#| label: zoom-coordinates
+#| echo: false
+#| fig-width: 5
+#| fig-height: 3.6
+p_box <- ggplot(trial, aes(arm, sbp_12)) + geom_boxplot() +
+  labs(x = NULL, y = "Week 12 SBP (mmHg)")
+p_box + coord_cartesian(ylim = c(120, 160)) +
+  labs(title = "A: coordinate zoom")
+```
+:::
+::: {.column width="49%"}
+```{r}
+#| label: zoom-scale-limits
+#| echo: false
+#| fig-width: 5
+#| fig-height: 3.6
+p_box + scale_y_continuous(limits = c(120, 160)) +
+  labs(title = "B: scale limits")
+```
+:::
+::::
+
+Compare the **median and box edges**, not just the frame. Use
+`coord_cartesian()` for a closer view; filter explicitly when exclusion is part
+of the analysis and explain the criterion.
+
+
+## Color: what information should it carry? {#color-purpose .concept}
+
+Color can identify a **group**, show an **ordered magnitude**, or emphasize a
+selected feature. Decide its job before choosing a palette.
+
+| Data meaning | Palette idea | Example |
+|---|---|---|
+| Unordered categories | Distinct hues | Placebo and treatment |
+| Low to high | Sequential gradient | Age or mean SBP |
+| Below/above a reference | Diverging gradient | Negative/positive change |
+
+**Hue** distinguishes colors; **lightness** runs from dark to light.
+Use axes for the primary numerical comparison when precise reading matters.
+
+
+## `color` and `fill` control different parts {#color-versus-fill}
+
+```{r}
+#| label: color-fill-demonstration
+#| fig-width: 7
+#| fig-height: 4
+ggplot(trial, aes(arm, sbp_12, fill = arm)) +
+  geom_boxplot(color = "grey25") +
+  labs(x = NULL, y = "Week 12 SBP (mmHg)",
+       fill = "Randomized arm")
+```
+
+- `fill = arm` inside `aes()` maps arm to the box interiors.
+- `color = "grey25"` outside `aes()` gives every box the same border color.
+- For ordinary points and lines, use `color`; filled point shapes 21–25 also use `fill`.
+
+
+## `scale_color_manual()`: name the category colors {#scale-color-manual}
+
+```{r}
+#| label: color-manual-example
+#| fig-width: 7
+#| fig-height: 4
+arm_colors <- c(Placebo = "#D55E00",
+                Treatment = "#0072B2")
+ggplot(trial, aes(sbp_0, sbp_12,
+                  color = arm)) +
+  geom_point(size = 2) +
+  scale_color_manual(
+    values = arm_colors,
+    name = "Randomized arm") +
+  labs(x = "Baseline SBP (mmHg)",
+       y = "Week 12 SBP (mmHg)")
+```
+
+The names in `values` match data values. Reuse the same mapping across figures
+so “Treatment” does not change color between slides.
+
+
+## `scale_fill_manual()`: the same groups, filled marks {#scale-fill-manual}
+
+```{r}
+#| label: fill-manual-example
+#| fig-width: 7
+#| fig-height: 4
+ggplot(trial, aes(arm, sbp_12, fill = arm)) +
+  geom_boxplot(color = "grey25") +
+  scale_fill_manual(
+    values = arm_colors,
+    guide = "none") +
+  labs(x = NULL, y = "Week 12 SBP (mmHg)")
+```
+
+Choose the scale that matches the mapped aesthetic: **`fill` → `scale_fill_*()`**.
+Here the x-axis already identifies each arm, so the fill legend is redundant.
+
+
+## Continuous color: `scale_color_viridis_c()` {#scale-color-continuous}
+
+```{r}
+#| label: continuous-color-example
+#| fig-width: 7
+#| fig-height: 4
+ggplot(trial, aes(sbp_0, sbp_12,
+                  color = age)) +
+  geom_point(size = 2.5) +
+  scale_color_viridis_c(name = "Age (years)") +
+  labs(x = "Baseline SBP (mmHg)",
+       y = "Week 12 SBP (mmHg)")
+```
+
+The color bar represents a numeric range. **`_c` means continuous; `_d` means
+discrete.** Use a continuous gradient for age, not a separate color per year.
+
+
+## Continuous fill: a site-by-arm heatmap {#heatmap-reference}
+
+```{r}
+#| label: fill-continuous-example
+#| fig-width: 7
+#| fig-height: 4
+site_summary <- trial |>
+  group_by(site_f, arm) |>
+  summarise(mean_sbp = mean(sbp_12),
+            .groups = "drop")
+ggplot(site_summary,
+       aes(arm, site_f, fill = mean_sbp)) +
+  geom_tile(color = "white") +
+  scale_fill_viridis_c(
+    name = "Mean SBP\n(mmHg)") +
+  labs(x = NULL, y = NULL)
+```
+
+`scale_fill_viridis_c()` controls the tile interiors. A heatmap shows patterns
+across combinations; use a dot plot or numeric labels for precise comparisons.
+
+
+## Diverging color: a meaningful midpoint {#scale-color-diverging}
+
+```{r}
+#| label: diverging-color-example
+#| fig-width: 7
+#| fig-height: 4
+ggplot(trial, aes(sbp_0, sbp_12,
+                  color = sbp_12 - sbp_0)) +
+  geom_point(size = 2.8) +
+  scale_color_gradient2(
+    low = "#2166AC", mid = "grey90",
+    high = "#B35806", midpoint = 0,
+    name = "Change\n(mmHg)") +
+  labs(x = "Baseline SBP (mmHg)",
+       y = "Week 12 SBP (mmHg)")
+```
+
+Zero means **no change**. Two color directions distinguish decreases from
+increases. A midpoint needs a scientific meaning, not just visual symmetry.
+
+
+## What survives a grayscale printout? {#question-accessibility .lecture-question}
+
+[60 SECONDS · CHOOSE A REPAIR]{.question-time}
+
+A scatterplot uses **color alone** to identify treatment arms. Some readers
+cannot distinguish those hues, and a grayscale printout loses the distinction.
+
+What would preserve the arm information?
+
+::: {.fragment .question-answer}
+Add **point shape**, direct labels, or separate labelled panels.
+A suitable palette helps; an additional encoding preserves group identity.
+:::
+
+
+## Accessible color: palette plus shape {#accessible-color}
+
+```{r}
+#| label: accessible-color-example
+#| fig-width: 7
+#| fig-height: 4
+ggplot(trial,
+       aes(sbp_0, sbp_12,
+           color = arm, shape = arm)) +
+  geom_point(size = 2.5) +
+  scale_color_manual(
+    values = arm_colors,
+    name = "Randomized arm") +
+  labs(shape = "Randomized arm",
+       x = "Baseline SBP (mmHg)",
+       y = "Week 12 SBP (mmHg)")
+```
+
+The blue/orange pair comes from the Okabe–Ito palette. Shape supplies a second
+cue. Check the plot at its final size and without color.
+
+
+# 7 · Critiquing and improving a figure {.section-divider}
+
+## A figure review starts with the question {.concept}
+
+**Question: how does week 12 SBP differ between the randomized arms?**
+
+| Check | Ask the reader |
+|---|---|
+| Comparison | What quantity, groups, and time point are shown? |
+| Evidence | Are marks participants, summaries, or both? |
+| Scale | Does the axis support the intended comparison? |
+| Uncertainty | What do the intervals represent? |
+| Readability | Can you identify groups, units, and sample size? |
+
+Give feedback as: **“This choice could suggest …; I would change ….”**
+
+
+## Critique: what could a reader misunderstand? {#critique-before}
+
+```{r}
+#| label: critique-before
+#| echo: false
+#| fig-width: 9
+#| fig-height: 3.8
+p_bad <- ggplot(by_arm, aes(arm, mean_sbp, fill = arm)) +
+  geom_col(width = 0.65) +
+  coord_cartesian(ylim = c(128, 146)) +
+  labs(title = "SBP results", x = "Group", y = "SBP")
+p_bad
+```
+
+**Think for 20 seconds, then compare with a neighbor.** Name two specific
+problems and explain the impression each could create.
+
+
+## Diagnose the choice, then choose a repair {#critique-repairs}
+
+| Choice in the figure | What it hides or suggests | Repair |
+|---|---|---|
+| Bars clipped above zero | Exaggerated length comparison | Start bars at zero, or use points |
+| Only two arm means | Within-arm variation is invisible | Show participant values |
+| No defined intervals | Precision cannot be assessed | Add and define mean confidence intervals |
+| “SBP results” / “SBP” | Summary, visit, and units unclear | Name all three |
+| Duplicate fill legend | Extra lookup without new information | Use the labelled x positions |
+
+**The repair follows the reading task—not a rule that every plot needs every layer.**
+
+
+## Revised figure: individuals and defined summaries {#critique-after}
+
+```{r}
+#| label: critique-after
+#| echo: false
+#| fig-width: 9
+#| fig-height: 4
+p_revised <- ggplot(trial, aes(arm, sbp_12)) +
+  geom_point(position = position_jitter(width = 0.12, height = 0, seed = 8),
+             alpha = 0.55, color = "grey45") +
+  geom_pointrange(data = by_arm,
+                 aes(y = mean_sbp, ymin = mean_sbp - 1.96 * se,
+                     ymax = mean_sbp + 1.96 * se),
+                 color = "#0072B2", linewidth = 0.8) +
+  labs(x = NULL, y = "Week 12 SBP (mmHg)",
+       title = "Week 12 SBP by randomized arm",
+       subtitle = "Synthetic data; 30 participants per arm",
+       caption = "Grey points: participants. Blue: mean and approximate 95% CI for each arm mean.") +
+  theme_minimal(base_size = 13)
+p_revised
+```
+
+**Read it:** compare the arm means, then the spread and overlap of participants.
+The intervals describe each mean; they are not intervals for individual SBP.
+
+
+## Build the revision in two layers {#critique-code}
+
+```r
+ggplot(trial, aes(arm, sbp_12)) +
+  geom_point(
+    position = position_jitter(width = 0.12, height = 0, seed = 8),
+    alpha = 0.55, color = "grey45") +
+  geom_pointrange(
+    data = by_arm,
+    aes(y = mean_sbp, ymin = mean_sbp - 1.96 * se,
+        ymax = mean_sbp + 1.96 * se),
+    color = "#0072B2")
+```
+
+- First layer: **60 participant rows**, with horizontal jitter only.
+- Second layer: **two summary rows**, one mean and interval per arm.
+- Labels and caption explain what each layer represents.
+
+
+## Does every y-axis need to start at zero? {#question-zero .lecture-question}
+
+[60 SECONDS · COMPARE ENCODINGS]{.question-time}
+
+The revised SBP plot has a y-axis above zero. Is that necessarily misleading?
+
+::: {.fragment .question-answer}
+**No.** Points encode position on a labelled axis, so a focused range can help.
+Bars encode length from a baseline; cutting off zero distorts that length.
+:::
+
+Choose a range that preserves relevant variation and reference values.
+For **change**, zero is often an important no-change reference.
+
+
+## Labels explain the measurement {#labels-and-caption}
+
+```r
+labs(
+  title = "Week 12 SBP by randomized arm",
+  subtitle = "Synthetic data; 30 participants per arm",
+  x = NULL,
+  y = "Week 12 SBP (mmHg)",
+  caption = "Grey points: participants. Blue: mean and approximate 95% CI.")
+```
+
+**Title:** comparison and time point. **Axes:** variable and units.
+**Caption:** marks, summaries, and interval meaning.
+
+A descriptive title reports what is displayed. Avoid a causal or clinical claim
+that the plotted analysis does not establish.
+
+
+## Direct labels for a few lines {#label-the-thing-not-the-legend}
+
+```{r}
+#| label: direct-label-revised
+#| fig-width: 7
+#| fig-height: 4
+ggplot(by_week, aes(week, m, color = arm)) +
+  geom_line() +
+  geom_text(data = filter(by_week, week == 12),
+            aes(x = 12.5, label = arm),
+            hjust = 0, show.legend = FALSE) +
+  scale_color_manual(values = arm_colors,
+                     guide = "none") +
+  scale_x_continuous(breaks = c(0, 6, 12)) +
+  coord_cartesian(xlim = c(0, 18)) +
+  labs(x = "Week", y = "Mean SBP (mmHg)")
+```
+
+Labels at the line ends remove repeated legend lookup. They work well for a
+few separated lines; a legend or facets may be clearer when labels collide.
+
+
+## Themes: make the data easy to see {#theme-choices .paired-plots}
+
+:::: {.columns}
+::: {.column width="49%"}
+```{r}
+#| label: theme-grey-example
+#| echo: false
+#| fig-width: 5.5
+#| fig-height: 3.3
+p_theme <- ggplot(trial, aes(arm, sbp_12)) + geom_boxplot() +
+  labs(x = NULL, y = "Week 12 SBP (mmHg)")
+p_theme + theme_grey(base_size = 13) + labs(title = "A complete theme")
+```
+:::
+::: {.column width="49%"}
+```{r}
+#| label: theme-focused-example
+#| echo: false
+#| fig-width: 5.5
+#| fig-height: 3.3
+p_theme + theme_minimal(base_size = 13) +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank()) +
+  labs(title = "Fewer grid lines")
+```
+:::
+::::
+
+```r
+theme_minimal(base_size = 13) +
+  theme(panel.grid.major.x = element_blank(),
+        panel.grid.minor = element_blank())
+```
+
+Both themes are valid. Keep guides that help readers estimate values;
+remove clutter without removing units, labels, or useful reference lines.
+
+
+## Choosing an alternative display {#alternative-displays .concept}
+
+| Reading task | A useful choice | Why |
+|---|---|---|
+| Rank category counts precisely | Sorted bars or dots | Positions/lengths share an axis |
+| Show a few parts of a whole | Bars, or a clearly labelled pie | State the denominator |
+| Compare trends in different outcomes | Separate panels with a shared time axis | Each outcome keeps its units |
+
+A second y-axis is appropriate for a **defined one-to-one conversion of the
+same quantity**. Arbitrarily rescaling two outcomes can change their apparent
+alignment.
+
+
+## Can your revision answer these questions? {#question-review .lecture-question}
+
+[60 SECONDS · READ AS A NEW VIEWER]{.question-time}
+
+1. What does one mark represent?
+2. Which groups and measurement are being compared?
+3. What does the interval or reference line mean?
+4. What conclusion is supported—and what is still uncertain?
+
+::: {.fragment .question-answer}
+If the figure cannot answer one of these, revise the relevant layer, label,
+scale, or caption before changing decorative details.
+:::
+
+
+## Plot debugging: connect the symptom to the cause {#plot-debugging}
+
+| Symptom | Check |
+|---|---|
+| Legend says “blue” | Was a constant placed inside `aes()`? |
+| A fill scale changes nothing | Is the geom using `color` instead of `fill`? |
+| Group colors change between figures | Are manual colors named consistently? |
+| Panel patterns look identical | Are facet axes fixed or free? Read the ticks |
+| A summary changes after axis limits | Did scale limits remove observations? |
+| “Removed rows” warning | Inspect missing, nonfinite, and out-of-range values |
+
+Run the plot one layer at a time. Read warnings before hiding them with
+`na.rm = TRUE`.
+
 
 
 # 8 · Exporting the final figure {.section-divider}
@@ -410,20 +2137,41 @@ the test is: **remove it. Did the figure lose anything?**
 
 ```{r}
 #| label: publication
-#| fig-width: 8.6
-#| fig-height: 2.5
+#| fig-width: 7
+#| fig-height: 4
 p_final <- ggplot(trial, aes(arm, sbp_12)) +
-  geom_jitter(width = 0.12, alpha = 0.45, colour = "grey40") +
+  geom_jitter(width = 0.12, height = 0, alpha = 0.45, colour = "grey40") +
   geom_pointrange(data = by_arm,
                   aes(y = mean_sbp,
                       ymin = mean_sbp - 1.96 * se,
                       ymax = mean_sbp + 1.96 * se),
                   colour = "#0072B2") +
   labs(x = NULL, y = "SBP at 12 weeks (mmHg)",
-       caption = "Mean and 95% CI. n = 30 per arm.") +
+       caption = "Points: participants; mean and approximate 95% CI.\nn = 30 per arm.") +
   theme_minimal(base_size = 13)
 p_final
 ```
+
+
+## Same code, different-sized figures? {#question-export .lecture-question}
+
+[60 SECONDS · THINK, THEN VOTE]{.question-time}
+
+Two collaborators run:
+
+```r
+ggsave("figure.png", plot = p_final)
+```
+
+Their RStudio plot panes have different dimensions.
+
+**Could the saved figures have different dimensions too?**
+
+::: {.fragment .question-answer}
+**Yes.** Without explicit width and height, the export can use the current graphics device’s size.
+
+Specify `width`, `height`, and `units`; choose DPI for a raster export.
+:::
 
 
 ## `ggsave()`, with the arguments filled in {.smaller}
@@ -435,7 +2183,7 @@ ggsave(
   plot     = p_final,
   width    = 6.5,     # inches - the column width of your journal
   height   = 4, units = "in",
-  dpi      = 300,     # 300 for raster; journals ask for 300-600
+  dpi      = 300,     # pixels per inch for this raster PNG
   bg       = "white"
 )
 ```
@@ -444,10 +2192,27 @@ ggsave(
 | Argument | Leave it out and you get |
 |---|---|
 | `width`, `height` | The last size of your **plot pane**. Irreproducible by construction |
-| `dpi` | 300 by default, but state it — reviewers ask |
+| `dpi` | PNG pixel density defaults to 300; it does not set vector PDF sharpness |
 | `bg` | Background comes from the plot theme and may be transparent |
 | `.pdf` / `.svg` extension | Vector marks scale without pixelation; embedded raster layers still have finite resolution |
 :::
+
+
+## PNG versus PDF with `ggsave()` {#ggsave-png-pdf}
+
+```r
+# Raster: 6 x 4 inches at 300 DPI = 1800 x 1200 pixels
+ggsave("output/figure.png", plot = p_final,
+       width = 6, height = 4, units = "in", dpi = 300)
+
+# Vector: 6 x 4 inch page; no raster DPI is needed
+ggsave("output/figure.pdf", plot = p_final,
+       width = 6, height = 4, units = "in")
+```
+
+For PDF at a fixed size in inches, changing `dpi` does **not** sharpen vector lines or text.
+
+With `units = "px"`, `ggsave()` uses `dpi` to convert pixel dimensions to physical size, even for PDF. Prefer inches or cm for vector exports.
 
 
 ## Why the plot pane is not a workflow {.smaller}
