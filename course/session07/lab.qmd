@@ -41,161 +41,73 @@ check `packageVersion("dplyr")` and update if necessary, then restart R.
 
 Replace **Your name** in the starter's author field. Either report format is fine.
 
-## How to work through the lab
+## Tasks
 
-At each **Pause and predict**, discuss your answer with a neighbour before
-running code. Then run the example and compare the result with your prediction.
-The Rmd and Qmd starters contain expandable **Code suggestion** sections with
-short syntax reminders and partial examples, not full solutions. Adapt and
-complete them in the executable chunks; the suggestions do not run on rendering.
+1. State what one row represents in `patient_lookup` and `marker_wide`.
+   Check both tables with `count(id) |> filter(n > 1)`. Identify the IDs
+   appearing only in one table.
+2. Save `joined_wide` by left-joining `marker_wide` to `patient_lookup`
+   by `id`. Predict and check the row count and missing arm values. Use
+   `anti_join()` in both directions and compare with an `inner_join()`.
+   Then create `enrollment_report` with the lookup on the left. Explain
+   which participants lack treatment information or measurements.
+3. Save `marker_long` with `pivot_longer()`: select the `marker_w` columns,
+   put their week suffixes in `week`, and their values in `marker`.
+   Use `names_prefix = "marker_w"`, then convert week with
+   `mutate(week = as.integer(week))`. Predict and check the row count.
+   State the new row unit and one reason to use this long format.
+4. Save `marker_back` with `pivot_wider()`: `id_cols = id`,
+   `names_from = week`, `values_from = marker`, and
+   `names_prefix = "marker_w"`. Compare IDs, column names, and values with
+   `marker_wide` after sorting by ID. Explain why wide form is convenient
+   for calculating week-4 minus baseline.
+5. Save `patients_text` from `raw_patients` with `mutate()`. The documented
+   ID rule is uppercase with no outer spaces: use `str_trim()` and
+   `str_to_upper()`. Clean `arm` and `note` with `str_squish()` and
+   `str_to_lower()`. Keep the raw table unchanged. Show IDs and notes
+   containing the literal substring `"repeat"` with `str_detect()` and
+   `fixed()`. Explain how trimming and squishing differ.
+6. Save `patients_factor` from `patients_text`. Use `fct_recode()` to map
+   `control` to `Control` and `treated` to `Treatment`, then
+   `fct_relevel()` to put `Control` first. Show levels and counts.
+   Explain which step changes labels and which changes their order.
+7. Save `patients_clean` from `patients_factor`. Parse `enrolled` with
+   `ymd()` into `enrolled_date`, and add `enrolled_year` and
+   `enrolled_month` with `year()` and `month()`. Inspect failed dates with
+   `filter(is.na(enrolled_date))`. Compare `mdy("03/04/2026")` and
+   `dmy("03/04/2026")`; explain why the source convention matters.
+8. Save `analysis` by left-joining `marker_long` to the `id`, `arm`, and
+   `enrolled_date` columns of `patients_clean`. Check the row count.
+   Keep week 4 and summarize mean marker by arm using Session 6's verbs.
+   Inspect and explain the missing-arm group.
 
-The instructor may select a few pause questions during lab. You do not need to
-write a separate essay for each question.
+## Additional practice (optional)
 
-## Core tasks
+Practices 1–4 use the main lecture. Practices 5–6 require optional slides.
 
-### 1. Row units and keys
+1. Compare left and inner joins of `marker_long` and `patient_lookup`.
+   Explain the difference in row counts.
+2. Compare `str_trim("  repeat   visit  ")` and
+   `str_squish("  repeat   visit  ")`. Which preserves extra internal spaces?
+3. For `factor(c("a", "b", "c", "a"))`, set the level order to `c, b, a`
+   using `fct_relevel()`. Show levels and character values to check that
+   reordering does not relabel observations.
+4. Use `ymd()`, `mdy()`, and `dmy()` to parse `"2026-10-18"`,
+   `"10/18/2026"`, and `"18/10/2026"`. Check that they represent the same day.
+5. **Optional join slides:** join `marker_long` to the supplied
+   `conflicting_lookup`, which has two different arm records for P01.
+   Inspect counts by ID and the total row count. Repeat with
+   `relationship = "many-to-one"` and explain the expected error.
+   Why is keeping the first treatment record not automatically justified?
+6. **Optional window slides:** arrange `marker_long` by ID/week, group by ID,
+   and calculate `change = marker - lag(marker)`. Ungroup afterward.
+   Explain the missing first change for each participant.
 
-State what one row represents in `patient_lookup` and `marker_wide`.
-Use `count(id) |> filter(n > 1)` to check both tables.
-Identify the participant appearing only in each table by inspecting the data.
-
-### 2. Join and inspect unmatched participants
-
-> **Pause and predict: first join.** Measurements contain P01, P02, P03, P05.
-> Metadata contain P01, P02, P03, P04. With measurements on the left, how many
-> rows will remain? Who will have a missing treatment label?
-
-> **Pause again before reversing the join.** A report must include every
-> enrolled participant. Which table belongs on the left? Who will now have
-> missing measurements? Run the reversed join and check your prediction.
-
-Save `joined_wide` with a `left_join()` of `marker_wide` and `patient_lookup`
-by `id`. Compare row counts before and after. Use `anti_join()` in both
-directions. Explain the missing arm value. How many rows would an `inner_join()` keep?
-If the report instead needs every enrolled participant, which table belongs
-on the left? Run that reversed join as `enrollment_report` and inspect it.
-
-### 3. Wide to long
-
-> **Pause and sketch.** Four participants, two measurement columns: how many
-> rows will `pivot_longer()` produce? What will one row represent? Sketch P01's
-> two rows before running the code.
-
-Reshape `marker_wide` and save `marker_long`. Use
-`cols = starts_with("marker_w")`, `names_to = "week"`,
-`names_prefix = "marker_w"`, and `values_to = "marker"`.
-Then use `mutate(week = as.integer(week))`.
-Predict the row count and explain what one row represents now.
-Name one analysis or display that benefits from this long format.
-
-### 4. Return to wide
-
-Save `marker_back` using `pivot_wider()` with `id_cols = id`,
-`names_from = week`, `values_from = marker`, and `names_prefix = "marker_w"`.
-Compare IDs, column names, and values with `marker_wide` after sorting by ID.
-Explain why this wide form is convenient for calculating week-4 minus baseline.
-
-### 5. Clean and search text with stringr
-
-> **Pause and compare.** Will `str_trim("  repeat   visit  ")` remove the
-> spaces between the two words? Which function would you choose for those spaces?
-
-The documented ID rule is uppercase with no outer spaces. Save `patients_text`
-from `raw_patients` using `mutate()`: clean `id` with `str_trim()` and
-`str_to_upper()`; clean `arm` and `note` with `str_squish()` and
-`str_to_lower()`. Keep the raw table unchanged.
-Show the IDs and notes where `str_detect(note, fixed("repeat"))` is true.
-
-### 6. Factor labels and order with forcats
-
-> **Pause and predict.** If Treatment is the first level and you move Control
-> first with `fct_relevel()`, does any participant switch treatment groups?
-> How is that different from renaming a label with `fct_recode()`?
-
-Save `patients_factor` from `patients_text`. Use `fct_recode()` to map
-`control` to `Control` and `treated` to `Treatment`. Then use
-`fct_relevel()` to put `Control` first. Print the levels and counts.
-Explain which step changes labels and which step changes only their order.
-
-### 7. Parse dates with lubridate
-
-> **Pause and question the result.** R successfully parses `"03/04/2026"`.
-> Does that prove the date is correct? What information do you need from the
-> source before choosing a parser?
-
-Save `patients_clean` from `patients_factor`. Convert `enrolled` with
-`ymd()` into `enrolled_date`. Add `enrolled_year` and `enrolled_month`
-using `year()` and `month()`. Inspect the result and check for missing parsed
-dates with `filter(is.na(enrolled_date))`.
-Explain why `"03/04/2026"` needs a stated month/day or day/month convention.
-
-### 8. Combine the cleaned data
-
-> **Pause before summarizing.** If the result contains an `NA` arm group,
-> does that mean the study has a third treatment? What should you inspect?
-
-Save `analysis` by left-joining `marker_long` to the `id`, `arm`, and
-`enrolled_date` columns of `patients_clean`. Check the row count.
-Keep week 4 and summarize mean marker by arm using Session 6's verbs.
-Explain the group with missing arm instead of silently removing it.
-
-## Additional practice
-
-Practices 1–4 reinforce the main lecture. Practices 5–6 correspond to optional
-slides and are not prerequisites for completing the core lab.
-
-### Practice 1. Left versus inner
-
-On `marker_long` and `patient_lookup`, compare left and inner joins by ID.
-Explain why their row counts differ by two rather than one.
-
-### Practice 2. Spaces inside a note
-
-Compare `str_trim("  repeat   visit  ")` and
-`str_squish("  repeat   visit  ")`. Explain which preserves the extra internal spaces.
-
-### Practice 3. A complete factor order
-
-For `factor(c("a", "b", "c", "a"))`, use `fct_relevel()` to set the order
-to `c, b, a`. Show the levels and the character values to confirm that
-reordering did not relabel observations.
-
-### Practice 4. Three date formats
-
-Use `ymd()`, `mdy()`, and `dmy()` to read `"2026-10-18"`,
-`"10/18/2026"`, and `"18/10/2026"`. Show that they represent the same day.
-
-### Practice 5. Optional join detail: relationship check
-
-> **Optional pause: count matches, not just IDs.** One P01 measurement matches
-> two different P01 treatment records. How many rows come from that one input
-> row? In this lab P01 has two visits: how many P01 rows and total rows will the
-> long-table join produce? Is keeping the first metadata row a justified fix?
-
-Only after the optional join slides: the supplied `conflicting_lookup` has two
-different arm records for P01. Join `marker_long` to it without a relationship
-assertion and inspect the row count. Then request `relationship = "many-to-one"`
-and explain the expected error. Use the supplied error-display chunk only for
-this deliberate failure.
-
-### Practice 6. Optional window example: previous visit
-
-> **Optional pause.** Why must observations be ordered by week and grouped by
-> participant before using `lag()`? What should happen at the first visit?
-
-Only after the optional window slides: arrange `marker_long` by ID/week,
-group by ID, and compute `change = marker - lag(marker)`. Ungroup afterward.
-Explain the missing first change for each participant.
-
-## Intentional error in optional practice 5
-
-Only the relationship-check chunk uses `error=TRUE` so a deliberately failing
-join can appear in the report. The Quarto equivalent is `#| error: true`.
-Other analysis errors should stop rendering so you can fix them.
+Only practice 5 uses `error=TRUE` so its intentional error can appear in the
+report. Other errors should stop rendering so you can fix them.
 
 ## Exit evidence
 
-Knit/Render your report. Show the join checks, a wide/long round trip, cleaned
-text, factor levels, and parsed dates. Explain any missing metadata and verify
-that your final row count matches your prediction.
+Knit/Render the code, join checks, wide/long comparison, cleaned text, factor
+levels, dates, and short explanations. Verify that the final row count matches
+your prediction.

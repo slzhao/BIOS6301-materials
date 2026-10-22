@@ -1040,6 +1040,65 @@ marker_back <- marker_long |>
 `names_from` supplies column names. `values_from` supplies cell contents.
 
 
+## The two pivots: main arguments {.smaller .pivot-summary #pivot-argument-summary}
+
+| Role | `pivot_longer()` | `pivot_wider()` |
+|---|---|---|
+| Input | Wide table | Long table |
+| Columns / row identity | `cols = starts_with("marker_w")` selects columns to gather | `id_cols = id` identifies each output row |
+| Column names | `names_to = "week"` creates a column holding the old names | `names_from = week` uses values to build new column names |
+| Measurements | `values_to = "marker"` names the new value column | `values_from = marker` supplies the output cell values |
+| Prefix | `names_prefix = "marker_w"` removes this prefix | `names_prefix = "marker_w"` adds this prefix |
+
+In this example, longer repeats the unselected `id` column for each week.
+Wider uses **`id_cols` (plural)** to group those weeks into one row per ID.
+
+
+## Where the pivot arguments act {.pivot-map #pivot-parameter-map}
+
+```{=html}
+<div class="pivot-tables">
+  <div>
+    <p class="pivot-table-title">Wide: one row per participant</p>
+    <table aria-label="Wide measurements for P01 and P02">
+      <thead>
+        <tr class="pivot-annotations"><th></th><th colspan="2"><code>cols = starts_with("marker_w")</code><br>↓</th></tr>
+        <tr><th class="pivot-id">id</th><th class="pivot-name">marker_w0</th><th class="pivot-name">marker_w4</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="pivot-id">P01</td><td class="pivot-value">4.1</td><td class="pivot-value">4.4</td></tr>
+        <tr><td class="pivot-id">P02</td><td class="pivot-value">5.2</td><td class="pivot-value">4.7</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="pivot-directions">
+    <div><code>pivot_longer()</code><span aria-label="to the right">→</span></div>
+    <div><span aria-label="to the left">←</span><code>pivot_wider()</code></div>
+  </div>
+  <div>
+    <p class="pivot-table-title">Long: one row per participant-week</p>
+    <table aria-label="Long measurements with pivot_wider arguments pointing to their input columns">
+      <thead>
+        <tr class="pivot-annotations"><th class="pivot-id"><code>id_cols<br>= id</code><br>↓</th><th class="pivot-name"><code>names_from<br>= week</code><br>↓</th><th class="pivot-value"><code>values_from<br>= marker</code><br>↓</th></tr>
+        <tr><th class="pivot-id">id</th><th class="pivot-name">week</th><th class="pivot-value">marker</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="pivot-id">P01</td><td class="pivot-name">0</td><td class="pivot-value">4.1</td></tr>
+        <tr><td class="pivot-id">P01</td><td class="pivot-name">4</td><td class="pivot-value">4.4</td></tr>
+        <tr><td class="pivot-id">P02</td><td class="pivot-name">0</td><td class="pivot-value">5.2</td></tr>
+        <tr><td class="pivot-id">P02</td><td class="pivot-name">4</td><td class="pivot-value">4.7</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+<div class="pivot-map-explanation">
+  <p><strong>Longer:</strong> <code>names_to = "week"</code> names the gold column.<br><code>values_to = "marker"</code> names the green column. IDs repeat.</p>
+  <p><strong>Wider:</strong> blue identifies the row, gold supplies the column name,<br>and green supplies the cell value. For P01, week 4 gives <strong>marker_w4 = 4.4</strong>.</p>
+  <p class="pivot-map-footnote"><code>names_prefix = "marker_w"</code>: remove when lengthening, add when widening. Only P01/P02 shown.</p>
+</div>
+```
+
+
 ## A check after reshaping {.smaller}
 
 ```{r}

@@ -13,20 +13,85 @@ Choose one format and copy either `starter/copilot-review-lab.Rmd` or
 `starter/copilot-review-lab.qmd` to `work/session09/`. Knit the `.Rmd` file or
 Render the `.qmd` file.
 
-Work in **BIOS6301-mywork.Rproj**. Paths under `work/` below belong to your
-personal repository. Copy starters from the separate `BIOS6301-materials` clone,
-leaving the course originals unchanged.
+In Positron, use **Open Folder** to open **BIOS6301-mywork** as your workspace.
+Keep `BIOS6301-mywork.Rproj` for opening the same folder in RStudio. Paths under
+`work/` below belong to your personal repository. Copy starters from the separate
+`BIOS6301-materials` clone, leaving the course originals unchanged.
 
 ## Goal
 
-Use Copilot once on a familiar R task, identify whether the suggestion answers the
-question, correct it, and document the verification.
+Review an AI suggestion for a familiar R task, identify whether it answers the
+question, correct it, and document the verification. The class demonstration
+uses GitHub Copilot. You may use another AI coding tool under the same course
+rules, or complete the exercise without AI using the supplied candidate.
 
-## Tasks
+## Warm-up: three forms of AI assistance
 
-1. Open the copied project file in Positron and confirm the R interpreter/project.
+Copy [ai-forms-demo.R](starter/ai-forms-demo.R) to `work/session09/` in your
+personal repository. The synthetic vector is `c(4, 6, 8, NA)`. Before using AI,
+calculate its total length (4), observed count (3), and observed mean (6).
+
+First choose the kind of help you need: an explanation calls for chat, a short
+completion you understand fits inline assistance, and a requested file change
+fits an agent workflow. We will practice them in that order.
+
+### Modes before actions
+
+In current Posit Assistant, **Ask** (`/ask`) permits reading and discussion but
+blocks file changes and R/Python execution. **Plan** (`/plan`) develops an approach
+and can write a plan file; it is instructed to defer implementation, but it is
+not technically restricted to read-only actions. **Regular agent work** can edit
+and execute, subject to permissions. Use `/normal` to leave Ask mode, and review
+a plan before choosing **Exit and implement**.
+
+Approval settings answer a separate question: when should a tool action need
+confirmation? **Normal** prompts for riskier actions, **Restricted** prompts for
+each tool action, **Auto** uses an automated reviewer, and **YOLO** broadly
+approves actions automatically. For this walkthrough, use Normal and review
+the proposed changes. Existing permissions affect which prompts appear.
+
+### Three passes through the same example
+
+1. **Chat, to understand:** in Posit Assistant, enter `/ask`. Paste `x <- c(4, 6, 8, NA)`
+   and `mean(x)`, then ask why the result is NA and how `na.rm = TRUE` changes
+   the calculation. Check the answer against `?mean` and your own R execution.
+2. **Inline, to finish code:** once you understand the calculation, replace the
+   `mean_x` assignment with `mean_x <- `. Inspect the suggested completion,
+   accept or revise it, and run the script. Check for `na.rm = TRUE` and output 6.
+3. **Agent, to change a file:** leave Ask mode with `/normal`, then enter `/plan`. Ask it to keep
+   x unchanged and add base-R assertions for total length 4, observed count 3,
+   and mean 6, changing only `work/session09/ai-forms-demo.R`. Review its plan
+   before choosing **Exit and implement**, inspect proposed edits, and run the saved script.
+   If it cannot run R, execute the script yourself.
+
+Planning is optional for this small change; we use it here to learn the workflow.
+Distinguish the assistant's plan file from changes to the analysis script.
+
+The slides show the current controls and official screenshots. Other tools may
+use different mode names. If AI is unavailable, enter the reference code below
+manually and explain what you would review in each interaction.
+
+```r
+x <- c(4, 6, 8, NA)
+mean_x <- mean(x, na.rm = TRUE)
+stopifnot(length(x) == 4L)
+stopifnot(sum(!is.na(x)) == 3L)
+stopifnot(isTRUE(all.equal(mean_x, 6)))
+print(mean_x)
+```
+
+Use Source Control to confirm the intended analysis changes. A successful run prints
+6 and produces no assertion error. The checks use values you established
+independently before asking the agent.
+
+## Main task: review a group summary
+
+1. Open the personal repository folder in Positron, select your R interpreter,
+   and open the copied starter. Confirm `getwd()` in the R Console. Locate
+   Explorer, Editor, Console, Variables, and Plots before continuing.
 2. Use the supplied comment to request an inline completion for the week-4 group
-   summary. If Copilot is unavailable, evaluate the supplied candidate instead.
+   summary in Copilot, request the same code with your chosen AI tool, or evaluate
+   the supplied candidate without AI.
 3. Preserve the first candidate as a non-executed code block for review.
 4. State what `n`, `n_observed`, and one output row should mean.
 5. Correct the candidate and verify group counts using independent base-R code.
@@ -39,7 +104,7 @@ question, correct it, and document the verification.
 1. Before prompting, write a contract for `summarize_week(data, week)` specifying
    required columns, one-row-per-arm output, total versus observed `n`, missing-
    value behavior, and what happens when the requested week is absent.
-2. Ask Copilot for the function using only synthetic column names and the written
+2. Ask your AI tool for the function using only synthetic column names and the written
    contract. Preserve its first response as non-executed code.
 3. Predict at least two ways the candidate could violate the contract before
    running it.
@@ -49,7 +114,7 @@ question, correct it, and document the verification.
    fails with an informative error. Do not weaken a test to make the code pass.
 6. Implement an independent base-R check and compare keys, counts, and numerical
    summaries after sorting.
-7. Give Copilot a deliberately vague request, then a precise testable request for
+7. Give your AI tool a deliberately vague request, then a precise testable request for
    the same task. Compare the usefulness and risks of the two responses.
 8. Extend the disclosure to distinguish generated code, human decisions,
    corrections, and independent verification.

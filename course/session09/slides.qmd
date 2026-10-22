@@ -7,7 +7,7 @@ date-format: "[Session 9]"
 format:
   revealjs:
     theme: simple
-    css: ../../slides.css
+    css: [../../slides.css, slides-session09.css]
     slide-number: c/t
     show-slide-number: all
     incremental: false
@@ -35,9 +35,8 @@ whether it answers the statistical question?
 
 ## Learning goals
 
-1. Locate familiar project, editor, console, variables, plots, and Git tools in
-   Positron.
-2. Use a GitHub Copilot inline completion deliberately.
+1. Explain how Positron uses R and locate familiar RStudio tools in its panels.
+2. Choose chat, inline completion, or an agent workflow for a small R task.
 3. Inspect and test a suggestion before relying on it.
 4. Apply the privacy and disclosure rules.
 
@@ -46,59 +45,378 @@ whether it answers the statistical question?
 
 | Block | Purpose | Minutes |
 |---|---|---:|
-| Positron orientation | Find familiar R workflow components | 20 |
-| Copilot mechanics | Generate one small inline suggestion | 15 |
-| Statistical failure case | Diagnose and repair a wrong denominator | 25 |
-| Verification and policy | Build a repeatable review habit | 20 |
+| Positron orientation | Tour the panels and find familiar R tools | 25 |
+| Three forms of AI assistance | Understand, complete, and edit a small R example | 25 |
+| Statistical failure case | Diagnose and repair a wrong denominator | 20 |
+| Verification and policy | Build a repeatable review habit | 10 |
 | Demonstration and exit check | Apply the complete workflow | 10 |
 
 
-## Positron is another R and Python IDE
+## R, RStudio, and Positron
 
-Positron provides first-class R and Python support in one data-science
-environment. The underlying R language and project files do not change.
+| Name | Role in your analysis |
+|---|---|
+| **R** | The language and interpreter that execute your code |
+| **RStudio** | An integrated development environment (IDE) for writing and running code |
+| **Positron** | Another IDE, with built-in support for R and Python |
+| **Posit** | The company that develops both RStudio and Positron |
 
-| Familiar need | RStudio | Positron |
-|---|---|---|
-| edit source | Source pane | Editor |
-| run R | Console | R Console |
-| inspect objects | Environment | Variables |
-| view figures | Plots | Plots |
-| version files | Git pane/Terminal | Source Control/Terminal |
+Positron uses an installed copy of R. Keep the R installation you already use.
 
 
-## The project is the continuity {.smaller}
+## The same R code in either IDE
 
-The same folder can contain:
-
-```text
-BIOS6301-project/
-├── BIOS6301-project.Rproj
-├── analysis.qmd
-├── R/
-├── data/
-└── output/
+```r
+x <- c(4, 6, 8, NA)
+mean(x, na.rm = TRUE)
+# [1] 6
 ```
 
-Changing IDEs should not require changing the analysis structure, paths, or statistical decisions.
+- R syntax, functions, and packages carry over.
+- Existing `.R` scripts and `.qmd` documents remain ordinary source files.
+- Match the R version, package versions, data, and working directory when
+  comparing results.
+
+Opening the same file in two IDEs starts separate sessions with separate objects.
 
 
-## Open the project, not a loose file
+## RStudio and Positron side by side
 
-1. Open the BIOS6301 project folder.
-2. Select the intended R interpreter.
-3. Start an R console.
-4. Open a `.qmd` or `.R` source file.
-5. Confirm relative paths still begin at the project root.
+::: {style="text-align: center;"}
+![](images/rstudio-positron-comparison.jpeg){height=510 fig-alt="Official comparison screenshot: RStudio on the left and Positron on the right, with corresponding editor, console, and output regions labeled Write, Run, and Understand."}
+:::
 
-RStudio and Positron should render the same complete source to the same result.
+::: {.small}
+The same workflow: write code, run it, then inspect the result.
+Screenshot: [Posit RStudio migration guide](https://positron.posit.co/migrate-rstudio.html).
+:::
+
+
+## A tour of the Positron window
+
+::: {style="text-align: center;"}
+![](images/positron-layout.jpeg){height=510 fig-alt="Official annotated Positron screenshot identifying the Activity Bar on the far left, Primary Side Bar, central Editor, lower Panel with Console and Terminal tabs, and right Secondary Side Bar with Variables and Plots."}
+:::
+
+::: {.small}
+Screenshot: [Posit layout guide](https://positron.posit.co/layout.html).
+Panels can move. Your version, theme, and layout may look different.
+:::
+
+
+## Primary sidebar: files and open editors {.panel-tour}
+
+:::: {.columns}
+::: {.column width="32%"}
+<div class="tour-crop crop-explorer" role="img" aria-label="Enlarged crop of the official screenshot showing Explorer, Open Editors, and the project file tree."></div>
+:::
+::: {.column width="68%"}
+
+With **Explorer** selected in the Activity Bar:
+
+- **Open Editors** lists files currently open in tabs.
+- **Project tree** lists folders and files in the workspace, including files
+  that are not open.
+- Expand a folder, then select a file to open it in the Editor.
+- Create or rename files through the Explorer controls or context menu.
+
+**Try it:** find your copied lab under `work/session09/` and open it.
+
+The file lives on disk. Opening its tab does not execute its R code.
+
+:::
+::::
+
+::: {.tour-credit}
+Detail from the [Posit layout screenshot](https://positron.posit.co/layout.html).
+:::
+
+
+## Primary sidebar: outline, history, and Git {.panel-tour}
+
+<div class="tour-crop crop-outline" role="img" aria-label="Enlarged screenshot detail showing the collapsed Outline and Timeline sections at the bottom of Explorer."></div>
+
+| Tool | What it shows | Example use |
+|---|---|---|
+| **Outline** | Structure of the active file, such as headings or functions | Jump to a report section |
+| **Timeline** | History of the selected file, including Git commits and local saves when available | Compare an earlier version |
+| **Source Control** | Changed and staged files in a Git repository | Review a diff and commit |
+| **Search** | Matches across workspace files | Find every use of `n_observed` |
+
+**Outline and Timeline are collapsed in this screenshot.** Expand their headings.
+Choose Source Control or Search in the Activity Bar to switch sidebar views.
+
+::: {.tour-credit}
+Detail from [Posit](https://positron.posit.co/layout.html).
+[Outline and Timeline reference](https://code.visualstudio.com/docs/editing/getting-started/userinterface).
+:::
+
+
+## Editor: source files and document controls {.panel-tour}
+
+:::: {.columns}
+::: {.column width="52%"}
+<div class="tour-crop crop-editor" role="img" aria-label="Enlarged central Editor showing document tabs, Quarto Preview and Render on Save controls, Source and Visual modes, prose, and an R code chunk."></div>
+:::
+::: {.column width="48%"}
+
+- **Tabs** switch between open files.
+- A **`.R` script** contains R code and comments.
+- A **`.qmd` document** combines prose, headings, and code chunks.
+- **Source / Visual** changes how you edit a Quarto document.
+- **Run controls** execute code. **Preview** builds a report preview.
+
+The toolbar depends on the file type. A plain R script has no Quarto Visual mode.
+
+:::
+::::
+
+**Also in this area:** Data Explorer tabs and Git comparisons can open beside
+your source files.
+
+::: {.tour-credit}
+Detail from [Posit](https://positron.posit.co/layout.html).
+[Quarto in Positron](https://positron.posit.co/quarto.html).
+:::
+
+
+## Lower panel: Console, Terminal, and messages {.panel-tour}
+
+:::: {.columns}
+::: {.column width="52%"}
+<div class="tour-crop crop-console" role="img" aria-label="Enlarged lower Panel showing Console, Terminal, Problems, Output, and Ports tabs, with an R Console active."></div>
+:::
+::: {.column width="48%"}
+
+- **Console:** run R expressions and read results, warnings, or errors.
+- **Terminal:** run shell commands such as `git status`.
+- **Problems:** inspect diagnostics reported by language tools.
+- **Output:** inspect logs from extensions and other tools.
+- **Ports:** manage access to services in supported remote workflows.
+
+**Try it:** run `1 + 1` in the R Console. The result should be `2`.
+
+:::
+::::
+
+::: {.tour-credit}
+Detail from the [Posit layout screenshot](https://positron.posit.co/layout.html).
+:::
+
+
+## Secondary sidebar: Variables and Plots {.panel-tour}
+
+:::: {.columns}
+::: {.column width="40%"}
+<div class="tour-crop crop-variables" role="img" aria-label="Enlarged Variables area showing data frames, their dimensions, and an expanded object."></div>
+<div class="tour-crop crop-plot" role="img" aria-label="Detail of the Plots area showing its toolbar and a scatterplot from the same R session."></div>
+:::
+::: {.column width="60%"}
+
+The **Session** view groups the active interpreter's results.
+
+- **Variables:** objects currently in memory, including vectors, lists, and
+  data frames. Expand an object to inspect it.
+- **Data frame entries:** show dimensions. Open one in **Data Explorer** to
+  inspect its rows and columns.
+- **Plots:** figures created by your code, with controls to browse and save them.
+
+**Try it:** after running `demo <- data.frame(x = 1:3)`, find `demo` in Variables.
+
+Explorer shows files on disk. Variables shows objects in the current session.
+
+:::
+::::
+
+::: {.tour-credit}
+Details from [Posit](https://positron.posit.co/layout.html).
+[Variables](https://positron.posit.co/variables-pane.html) and [Data Explorer](https://positron.posit.co/data-explorer.html).
+:::
+
+
+## Secondary sidebar: Help, Viewer, and more {.panel-tour}
+
+<div class="tour-crop crop-secondary-tabs" role="img" aria-label="Enlarged secondary sidebar tab strip showing Session, Connections, Help, and Viewer."></div>
+
+| View | What it is for | Example |
+|---|---|---|
+| **Help** | Function and package documentation | Run `?mean` in R |
+| **Viewer** | Web content such as a Shiny app or HTML widget | Inspect an interactive display |
+| **Connections** | Supported database connections and their tables | Browse a connected database |
+| **History** | Previously executed commands | Find an earlier command |
+
+**History is not visible in this screenshot's tab strip.** Available tabs and
+their locations vary with the version and layout.
+
+Command history records what you ran. Git history records committed file changes.
+
+::: {.tour-credit}
+Detail and view descriptions: [Posit layout guide](https://positron.posit.co/layout.html).
+:::
+
+
+## The main regions and their jobs
+
+| Region | What you do there |
+|---|---|
+| **Activity Bar** | Switch to Explorer, Search, Source Control, or Extensions |
+| **Primary Side Bar** | Browse project files or use the selected tool |
+| **Editor** | Write and save your script or Quarto document |
+| **Panel** | Run R in the Console or shell commands in the Terminal |
+| **Secondary Side Bar** | Inspect Variables and Plots, or open Help and Viewer |
+
+**Console:** `mean(x)` runs in R. **Terminal:** `git status` runs in the shell.
+
+
+## Familiar RStudio tools in Positron
+
+| In RStudio | In Positron | Use it to... |
+|---|---|---|
+| Source | Editor | Save the analysis as code |
+| Console | Console with an R session | Execute R and read messages |
+| Environment | Variables | Inspect objects in the active session |
+| Data Viewer | Data Explorer, e.g. `View(df)` | Inspect a data frame |
+| Plots / Help / Viewer | Plots / Help / Viewer | Inspect figures, documentation, HTML |
+| Files / Git | Explorer / Source Control | Browse files and review changes |
+
+
+## What feels different from RStudio
+
+- **Editor foundation:** Positron uses Code OSS, the foundation of VS Code,
+  with extensions and flexible layouts.
+- **Language sessions:** select and manage R or Python interpreters within
+  the workspace. RStudio's workflow centers on R, with Python integration.
+- **Commands:** the Command Palette is a frequent starting point for actions
+  that you may know as RStudio buttons.
+- **Projects:** open a folder as a Positron workspace. Keep the `.Rproj` file
+  for RStudio, but do not expect its settings to transfer automatically.
+
+
+## Positron's VS Code foundation
+
+**Positron builds on Code OSS, the open-source core of Visual Studio Code.**
+Posit adds the R/Python Console, Variables, Plots, and Data Explorer.
+
+- VS Code serves a much broader developer community across many languages.
+- Its extension ecosystem offers a wide choice of AI assistants and advanced
+  tools for debugging, Git, databases, testing, and remote development.
+- Positron can reuse many compatible extensions while providing a ready-made
+  environment for data science.
+
+**Why this matters:** a larger ecosystem means more options for extending your
+workflow. Availability and compatibility still depend on the specific tool.
+
+
+## The VS Code extension marketplace
+
+::: {style="text-align: center;"}
+![](images/vscode-marketplace.png){height=500 fig-alt="Microsoft Visual Studio Marketplace with the Visual Studio Code tab selected, extension search box, Featured extensions including an AI tool, and Most Popular extensions."}
+:::
+
+::: {.small}
+[Browse Microsoft's VS Code Marketplace](https://marketplace.visualstudio.com/vscode).
+This is the catalog used by Microsoft's VS Code.
+:::
+
+
+## The Open VSX extension catalog
+
+::: {style="text-align: center;"}
+![](images/open-vsx-marketplace.png){height=500 fig-alt="Open VSX Registry with its extension search box and listings for VS Code-compatible editors."}
+:::
+
+::: {.small}
+[Browse Open VSX](https://open-vsx.org/). Positron's default gallery uses this
+catalog, served through Posit Public Package Manager.
+:::
+
+
+## Can Positron use VS Code extensions? {.smaller}
+
+**Many extensions work. Direct access to Microsoft's Marketplace does not.**
+
+| Route | What to expect |
+|---|---|
+| **Extensions view in Positron** | Search its Open VSX-based catalog and install there |
+| **Microsoft Marketplace** | Reserved for Microsoft's products under its terms |
+| **A publisher's `.vsix` file** | Install manually if its license permits Positron and it is compatible |
+
+1. Open **Extensions** in the Activity Bar and search by name or publisher.
+2. Check the publisher, requirements, and support for your Positron version.
+3. For an allowed local file, use **Extensions: Install from VSIX** in the Command Palette.
+
+Use Positron's built-in R support; some VS Code language extensions conflict with it.
+
+
+## Commands and familiar shortcuts
+
+Open the **Command Palette**:
+
+- Windows/Linux: **Ctrl+Shift+P**
+- macOS: **Cmd+Shift+P**
+
+Type a task keyword such as **R**, **Quarto**, or **settings**, then choose a command.
+
+To use more RStudio shortcuts, search Settings for **RStudio Keybindings**,
+enable the setting, and restart Positron.
+
+
+## The same project folder in both IDEs {.smaller}
+
+```text
+BIOS6301-mywork/
+├── BIOS6301-mywork.Rproj
+└── work/
+    └── session09/
+        ├── orientation.R
+        └── copilot-review-lab.qmd
+```
+
+1. In Positron, choose **Open Folder** and select `BIOS6301-mywork`.
+2. Select your installed **R** interpreter and start its Console.
+3. Open your copied lab starter under `work/session09/`.
+4. Run `getwd()` and `R.version.string` in the Console to check the session.
+
+The interactive Console starts at the workspace root. Document rendering can
+use a different working directory, so check the starter's relative paths.
+
+
+## A short R exercise across the panels
+
+Save this as `work/session09/orientation.R` and run it in your R session:
+
+```r
+demo <- data.frame(id = 1:4, marker = c(4, 6, 8, NA))
+mean(demo$marker, na.rm = TRUE)
+View(demo)
+plot(demo$id, demo$marker,
+     xlab = "ID", ylab = "Marker")
+```
+
+1. Find **6** in the Console and **demo** in Variables.
+2. Find the four rows in Data Explorer and the three plotted points in Plots.
+3. Find `orientation.R` in Explorer and its change in Source Control.
+
+Data Explorer filters change the view. Save analytical filtering decisions in code.
+
+
+## Orientation checkpoint
+
+1. Which program computes `mean(demo$marker, na.rm = TRUE)`?
+2. Where would you look for a saved script? For an object in memory?
+3. If you restart R, will the script still exist? Will `demo` still exist
+   before you rerun the code?
+4. Can you perform this exercise before connecting Copilot?
 
 
 ## Scripts can use code cells
 
 ```r
-# %% Import and inspect
-visit <- read.csv("data/visits.csv")
+# %% Create and inspect (synthetic data)
+visit <- data.frame(
+  arm = c("control", "control", "treated", "treated"),
+  marker = c(4, 6, 5, 7)
+)
 str(visit)
 
 # %% Summarize
@@ -109,53 +427,410 @@ Positron recognizes `# %%` cells in both R and Python scripts. Cells organize
 interactive execution but do not replace a reproducible top-to-bottom run.
 
 
-## Configure only the course-supported provider
+## AI-assisted coding {.section-divider}
 
-In the Command Palette, run:
+**From a familiar conversation to help inside your R project**
+
+1. Choose the kind of help you need.
+2. Meet the tools and connect an example provider.
+3. Practice **chat**, **inline completion**, and **agent work**.
+4. Check the code and its statistical meaning.
+
+
+## Start with a familiar chat conversation
+
+If you have used ChatGPT to ask a question, start with that pattern:
+
+> Here is my R code. Why does it return NA? Explain how to fix it.
+
+You supply context, read the answer, ask follow-up questions, and check it.
+
+**Inside a coding environment, two things can change:**
+
+- **Context:** an assistant may read selected files or session information.
+- **Actions:** some workflows can insert code, edit files, or run commands.
+
+Before using a tool, identify both **what it can see** and **what it can do**.
+
+
+## One R problem, three different needs
+
+```r
+x <- c(4, 6, 8, NA)
+mean(x)  # NA
+```
+
+| What you need now | A suitable starting point |
+|---|---|
+| “I do not understand why this is NA.” | **Chat:** ask for an explanation |
+| “I understand missing values. Help me finish the line.” | **Inline:** complete code at the cursor |
+| “Update my saved script and add checks.” | **Agent:** delegate a bounded change |
+
+The task is similar. **Your immediate goal determines the form of help.**
+
+
+## Three forms of AI assistance
+
+| Form | How you interact | What changes? |
+|---|---|---|
+| **1. Chat** | Ask a question and discuss the answer | In read-only Ask mode, your files stay unchanged |
+| **2. Inline completion** | Type code and inspect suggested text | Accepted text enters your source file |
+| **3. Agent / edit workflow** | Request a change and review the work | The tool may edit files and run code |
+
+An agent often uses a **chat box too**. Check its mode and permissions to know
+whether it can act on your project.
+
+
+## The names you will see
+
+| Name | Role in today's demonstration |
+|---|---|
+| **Positron** | The workspace containing your editor, Console, and panels |
+| **R** | Runs the R code and calculates the result |
+| **GitHub Copilot** | Our example AI service, including inline suggestions |
+| **Posit Assistant** | The panel where we discuss code and request agent work |
+
+A **provider** supplies access to AI models. Posit Assistant can connect to
+different providers, including GitHub Copilot.
+
+
+## GitHub Copilot: our worked example
+
+**GitHub Copilot is GitHub's AI coding assistant.**
+
+- It can suggest code, answer questions, and help revise existing code.
+- It works in supported editors and other GitHub workflows.
+- In Positron, we will use its **inline code suggestions**.
+- Access requires a GitHub account with Copilot enabled.
+
+**Copilot is one example.** Other AI tools may be used under the same course
+rules. No AI tool is required for the lab.
+
+
+## An AI chat interface inside Positron {.ai-intro}
+
+::: {style="text-align: center;"}
+![](images/posit-assistant.png){height=440 fig-alt="Official Positron screenshot with Posit Assistant open in the left sidebar, a Python Console in the center, and Variables and Plots on the right."}
+:::
+
+**Posit Assistant** is Posit's chat interface. It connects to a provider you select.
+**GitHub Copilot** is one available provider, with its own coding features.
+
+::: {.source-credit}
+[Posit tutorial screenshot](https://positron.posit.co/tutorial-ai-notebooks.html).
+This Python example shows the interface; our exercise uses R.
+:::
+
+
+## Connect GitHub Copilot in Positron
+
+1. Open the Command Palette: **Ctrl+Shift+P** on Windows/Linux,
+   **Cmd+Shift+P** on macOS.
+2. Run this command:
 
 ```text
 Authentication: Configure Language Model Providers
 ```
 
-Choose GitHub Copilot and complete OAuth authentication. For this course, we use
-Copilot inline completion; we do not survey multiple providers or agent tools.
+3. Choose **GitHub Copilot**, then sign in through the browser.
+4. Return to Positron. We will begin with a question in Posit Assistant.
 
-If authentication is unavailable, use the supplied candidate code and complete
-the same verification exercise.
-
-
-## If Copilot is unavailable {.smaller}
-
-1. Confirm you are signed into the intended GitHub account.
-2. Re-run the language-model provider configuration command.
-3. Reload the Positron window.
-4. Continue with the supplied candidate code if authentication remains blocked.
-
-The learning goal is **reviewing a suggestion**, not solving account setup during lecture.
+Use an account with Copilot access. If setup is unavailable, the supplied
+candidate code supports the same review exercise.
 
 
-## A completion is a proposed edit
+## The provider configuration window {.ai-intro}
 
-Copilot may show faint inline code based on surrounding source and comments. You
-can accept it, dismiss it, or keep typing.
+:::: {.columns}
+::: {.column width="57%"}
+![](images/ai-provider-configuration.png){width=640 fig-alt="Official Configure Language Model Providers screenshot with multiple provider choices. Posit AI is selected; the GitHub Copilot tile is partially visible at the far right."}
+:::
+::: {.column width="43%"}
 
-::: {.workflow}
-describe a small task → inspect suggestion → accept selectively → run → verify
+- The row offers several providers.
+- Select **GitHub Copilot** for today's example. Scroll the row if needed.
+- Complete the browser sign-in for your GitHub account.
+
+This screenshot has **Posit AI selected**, so its sign-out button is not your
+Copilot setup state.
+
+:::
+::::
+
+::: {.source-credit}
+[Posit tutorial screenshot](https://positron.posit.co/tutorial-ai-notebooks.html).
+Provider names and layout can change between versions.
 :::
 
-Acceptance means only “put this text in my file.” It does not mean the code is
-correct.
+
+## Practice: one script, three passes
+
+Copy `starter/ai-forms-demo.R` to `work/session09/` in your personal repository.
+
+```r
+x <- c(4, 6, 8, NA)
+```
+
+Establish the answers yourself: **4 entries**, **3 observed values**, **mean 6**.
+
+1. **Chat:** understand why `mean(x)` returns NA.
+2. **Inline:** complete the observed-mean calculation.
+3. **Agent:** add checks to the saved script and run it.
+
+The screenshots show interface controls. The R prompts and reference answers
+are prepared course examples. You can follow them without an AI account.
 
 
-## Three legitimate responses to a suggestion
+## Assistant modes: discuss, plan, or act
 
-| Response | Use it when |
+In **Posit Assistant**, choose the kind of work before sending the request.
+
+| Workflow | Purpose | What it may do |
+|---|---|---|
+| **Ask** (`/ask`) | Explain or inspect | Read context; cannot edit files or execute R/Python |
+| **Plan** (`/plan`) | Develop an approach for review | Read context and write a plan; instructed to defer implementation |
+| **Regular agent work** | Implement a requested change | Edit and execute, subject to permissions |
+
+Use `/normal` to leave Ask mode. After reviewing a plan, **Exit and implement**
+starts the work. A small, clear change can go directly to regular agent work.
+
+
+## 1. Chat: when you need an explanation
+
+**Your question:** “I do not understand this result.” Paste this code into chat:
+
+```r
+x <- c(4, 6, 8, NA)
+mean(x)
+```
+
+> Why does this return NA? Explain `na.rm = TRUE`. How many values
+> contribute to the mean? Suggest one line of base R. Do not edit files.
+
+Ask a follow-up question if an explanation is unclear.
+Then check the proposed line in R and compare it with `?mean`.
+
+
+## Chat: where to ask and attach context {.ai-intro}
+
+:::: {.columns}
+::: {.column width="50%"}
+![](images/assistant-chat-context.webp){width=570 fig-alt="Official Posit Assistant screenshot: typing @ in the chat input opens a menu of workspace files, including an R script."}
+:::
+::: {.column width="50%"}
+
+1. Open **Posit Assistant**.
+2. Enter **`/ask`** for a read-only discussion.
+3. Type **`@`** and select `work/session09/ai-forms-demo.R`, or paste the small code example.
+4. Ask a focused question and read the explanation.
+
+The screenshot's file names and selected model are documentation examples.
+
+:::
+::::
+
+::: {.source-credit}
+[Context screenshot](https://assistant.posit.co/docs/features/chat-features/) and
+[Ask mode](https://assistant.posit.co/docs/features/ask-mode/), Posit.
+:::
+
+
+## Chat: what a useful answer should explain
+
+For `x <- c(4, 6, 8, NA)`, check these claims:
+
+- `mean(x)` returns NA because a value is missing.
+- `mean(x, na.rm = TRUE)` uses the three observed values and returns **6**.
+- `na.rm = TRUE` changes this calculation. It does not remove an entry from x.
+
+**Follow-up question:** “Does this change x? How can I check?”
+
+Run `length(x)`, `sum(!is.na(x))`, and `?mean` yourself.
+
+
+## 2. Inline: when you know what to write
+
+::: {style="text-align: center;"}
+![](images/copilot-ghost-text.png){width=1100 fig-alt="Official VS Code screenshot of GitHub Copilot: a typed JavaScript function signature followed by dimmed suggested lines at the cursor."}
+:::
+
+- **Gray text** is a proposal based on the nearby code and comments.
+- **Tab** accepts it. **Esc** dismisses it.
+- Accepting inserts source text. Run the code yourself and check its result.
+
+::: {.source-credit}
+[Microsoft screenshot](https://code.visualstudio.com/docs/editing/ai-powered-suggestions).
+JavaScript in VS Code illustrates ghost text. Our next example uses R in Positron.
+:::
+
+
+## Inline example: complete a mean calculation
+
+**Now you understand the calculation.** In your copied script, replace the
+`mean_x` assignment with this prefix:
+
+```r
+x <- c(4, 6, 8, NA)
+# Calculate the mean of the observed values using base R.
+mean_x <-
+```
+
+**Inspect before accepting:** does the suggestion handle `NA`?
+
+One suitable completion is:
+
+```r
+mean_x <- mean(x, na.rm = TRUE)
+print(mean_x)  # Expected: 6
+```
+
+Check by hand: `(4 + 6 + 8) / 3 = 6`. Suggestions may differ.
+
+
+## Chat or inline? Choose by your next step
+
+| Situation | Choose | Why |
+|---|---|---|
+| “What does `na.rm` mean?” | **Chat** | You need an explanation and follow-up questions |
+| “Use `na.rm = TRUE`; finish this assignment.” | **Inline** | You know the intended code and can judge a short completion |
+| “The suggested line uses a function I do not know.” | **Chat or R help** | Understand the proposal before accepting it |
+
+You can switch forms during the same task. Accepting a line does not verify it.
+
+
+## 3. Agent: when you want a file changed
+
+An **agent** combines a language model with tools that can read files,
+edit code, and run commands, depending on its permissions.
+
+| In our example | What the agent may do | What you inspect |
+|---|---|---|
+| Understand | Read `ai-forms-demo.R` | Did it find the intended file? |
+| Change | Add checks to the script | Does the diff match the request? |
+| Execute | Run the script in R | Do the results support its claim? |
+| Revise | Respond to a failed check | Did it fix the code or weaken the check? |
+
+An **edit workflow** may stop at proposed changes. An agent can continue through
+execution and revision. Features vary by tool.
+
+
+## Agent approvals: when will it ask you?
+
+**Ask / Plan describes the workflow. Approval settings control tool actions.**
+
+| Approval setting | What happens |
 |---|---|
-| **Dismiss** | the suggestion answers a different question |
-| **Accept partly** | the structure helps but a detail is wrong or unnecessary |
-| **Accept, then verify** | the code matches the intended operation and still needs evidence |
+| **Normal** | Routine actions may run; riskier actions prompt |
+| **Restricted** | Each tool action requires confirmation |
+| **Auto** | An automated reviewer allows or blocks actions |
+| **YOLO** | Broad automatic approval, with some safeguards remaining |
 
-Fast rejection is a successful use of an assistant.
+For our demonstration, use **Normal** and inspect each proposed change.
+**Allow once** approves one action; session/project approval covers future actions too.
+
+
+## Agent example: request one small change
+
+**Your goal is now a saved file change.** Leave Ask mode with **`/normal`**.
+Enter **`/plan`** to practice reviewing an approach, then send:
+
+> In `work/session09/ai-forms-demo.R`, keep x unchanged and calculate its
+> observed mean. Add base-R checks that x has four entries, three observed
+> values, and a mean of 6. Change only this file. Show the plan first.
+
+Review the plan, then choose **Exit and implement** and request a run.
+Planning is optional for a change this small.
+
+- The expected mean comes from **our hand calculation**.
+- No new package or data file is needed.
+- If the tool cannot run R, run the saved script in the R Console yourself.
+
+
+## Agent screenshot: review the plan {.ai-intro}
+
+:::: {.columns}
+::: {.column width="54%"}
+![](images/assistant-agent-plan.webp){width=630 fig-alt="Official Posit Assistant screenshot showing a penguin-analysis plan and buttons to Keep planning, Exit Plan mode, or Exit and implement."}
+:::
+::: {.column width="46%"}
+
+- Read the proposed steps and expected output.
+- **Keep planning** lets you revise the approach.
+- **Exit and implement** starts work on the plan.
+
+For our R task, the plan should name **one file**, the mean calculation,
+and the three checks.
+
+:::
+::::
+
+::: {.source-credit}
+[Posit Plan mode screenshot](https://assistant.posit.co/docs/features/plan-mode/).
+The pictured plan uses penguin data. Our exercise uses the four-value vector.
+:::
+
+
+## Agent screenshot: inspect a proposed edit {.ai-intro}
+
+:::: {.columns}
+::: {.column width="52%"}
+![](images/assistant-tool-confirmation.webp){width=620 fig-alt="Official Posit Assistant edit-confirmation screenshot showing a red and green diff in spin.R and options to allow once, allow session edits, or allow project edits."}
+:::
+::: {.column width="48%"}
+
+- Check the **file name** and the red/green changes.
+- **Allow once** approves the displayed action.
+- Broader options allow more future edits without asking again.
+- Decline an unrelated change and explain what to revise.
+
+Prompts depend on the tool's permission settings. Review the final diff too.
+
+:::
+::::
+
+::: {.source-credit}
+[Posit tool-confirmation screenshot](https://assistant.posit.co/docs/features/permissions/).
+The pictured `spin.R` edit is a documentation example.
+:::
+
+
+## Agent example: verify the saved result
+
+A suitable final script is:
+
+```r
+x <- c(4, 6, 8, NA)
+mean_x <- mean(x, na.rm = TRUE)
+stopifnot(length(x) == 4L)
+stopifnot(sum(!is.na(x)) == 3L)
+stopifnot(isTRUE(all.equal(mean_x, 6)))
+print(mean_x)
+```
+
+Review Source Control: **only the intended analysis file changed**, and x still includes NA.
+Run from a fresh R session. Expect **6** and no failed assertions.
+
+The expected values came from our calculation before the agent wrote the checks.
+
+
+## Checkpoint: choose the form and mode
+
+1. You want to understand an unfamiliar function without changing files.
+2. You know the plot you want and need help completing its labels.
+3. You want a script revised, checked, and run.
+4. You want to discuss the approach before that revision begins.
+
+For each, name the form or mode and **one thing you will verify**.
+
+
+## From code assistance to statistical verification {.section-divider}
+
+We can now choose **chat**, **inline completion**, or **agent work**.
+
+Next: can we tell when plausible code answers the **wrong statistical question**?
+
+Our next example summarizes a measurement by treatment arm.
+The key issue is the denominator when values are missing.
 
 
 ## Give statistical context in the source
@@ -309,11 +984,12 @@ Would you place each item in an AI-visible editor?
 
 ## Course policy after today
 
-- GitHub Copilot is allowed for homework and labs unless designated unaided.
+- AI coding assistance is allowed for homework and labs unless designated unaided.
+- Copilot is our example; the same rules apply to other AI tools.
 - Students remain responsible for every submitted line.
 - Important results and data decisions must be verified.
 - Substantive assistance must be disclosed.
-- Permission for homework does not automatically apply to exams.
+- AI assistance is not permitted on any examination.
 
 
 ## Keep disclosure short and useful
@@ -355,4 +1031,15 @@ AI use: None.
 - [Positron: configure AI features](https://positron.posit.co/ai-configuration.html)
 - [Positron: R guide](https://positron.posit.co/guide-r.html)
 - [GitHub: responsible use of inline suggestions](https://docs.github.com/en/copilot/responsible-use/inline-suggestions)
+
+
+
+## Setup troubleshooting (reference) {.smaller}
+
+1. Confirm you are signed into the intended GitHub account.
+2. Re-run the language-model provider configuration command.
+3. Reload the Positron window.
+4. Continue with the supplied candidate code if authentication remains blocked.
+
+The learning goal is **reviewing a suggestion**, not solving account setup during lecture.
 
