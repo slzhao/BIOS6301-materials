@@ -100,6 +100,7 @@
   </style>
   <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-8f256d708726d40fbff7d707db68e007.css">
   <link rel="stylesheet" href="../../slides.css">
+  <link rel="stylesheet" href="slides-session09.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -219,8 +220,8 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="learning-goals" class="slide level2">
 <h2>Learning goals</h2>
 <ol type="1">
-<li>Locate familiar project, editor, console, variables, plots, and Git tools in Positron.</li>
-<li>Use a GitHub Copilot inline completion deliberately.</li>
+<li>Explain how Positron uses R and locate familiar RStudio tools in its panels.</li>
+<li>Choose chat, inline completion, or an agent workflow for a small R task.</li>
 <li>Inspect and test a suggestion before relying on it.</li>
 <li>Apply the privacy and disclosure rules.</li>
 </ol>
@@ -243,23 +244,23 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <tbody>
 <tr class="odd">
 <td>Positron orientation</td>
-<td>Find familiar R workflow components</td>
-<td style="text-align: right;">20</td>
+<td>Tour the panels and find familiar R tools</td>
+<td style="text-align: right;">25</td>
 </tr>
 <tr class="even">
-<td>Copilot mechanics</td>
-<td>Generate one small inline suggestion</td>
-<td style="text-align: right;">15</td>
+<td>Three forms of AI assistance</td>
+<td>Understand, complete, and edit a small R example</td>
+<td style="text-align: right;">25</td>
 </tr>
 <tr class="odd">
 <td>Statistical failure case</td>
 <td>Diagnose and repair a wrong denominator</td>
-<td style="text-align: right;">25</td>
+<td style="text-align: right;">20</td>
 </tr>
 <tr class="even">
 <td>Verification and policy</td>
 <td>Build a repeatable review habit</td>
-<td style="text-align: right;">20</td>
+<td style="text-align: right;">10</td>
 </tr>
 <tr class="odd">
 <td>Demonstration and exit check</td>
@@ -269,105 +270,8 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </tbody>
 </table>
 </section>
-<section id="positron-is-another-r-and-python-ide" class="slide level2">
-<h2>Positron is another R and Python IDE</h2>
-<p>Positron provides first-class R and Python support in one data-science environment. The underlying R language and project files do not change.</p>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Familiar need</th>
-<th>RStudio</th>
-<th>Positron</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>edit source</td>
-<td>Source pane</td>
-<td>Editor</td>
-</tr>
-<tr class="even">
-<td>run R</td>
-<td>Console</td>
-<td>R Console</td>
-</tr>
-<tr class="odd">
-<td>inspect objects</td>
-<td>Environment</td>
-<td>Variables</td>
-</tr>
-<tr class="even">
-<td>view figures</td>
-<td>Plots</td>
-<td>Plots</td>
-</tr>
-<tr class="odd">
-<td>version files</td>
-<td>Git pane/Terminal</td>
-<td>Source Control/Terminal</td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="the-project-is-the-continuity" class="slide level2 smaller">
-<h2>The project is the continuity</h2>
-<p>The same folder can contain:</p>
-<pre class="text"><code>BIOS6301-project/
-├── BIOS6301-project.Rproj
-├── analysis.qmd
-├── R/
-├── data/
-└── output/</code></pre>
-<p>Changing IDEs should not require changing the analysis structure, paths, or statistical decisions.</p>
-</section>
-<section id="open-the-project-not-a-loose-file" class="slide level2">
-<h2>Open the project, not a loose file</h2>
-<ol type="1">
-<li>Open the BIOS6301 project folder.</li>
-<li>Select the intended R interpreter.</li>
-<li>Start an R console.</li>
-<li>Open a <code>.qmd</code> or <code>.R</code> source file.</li>
-<li>Confirm relative paths still begin at the project root.</li>
-</ol>
-<p>RStudio and Positron should render the same complete source to the same result.</p>
-</section>
-<section id="scripts-can-use-code-cells" class="slide level2">
-<h2>Scripts can use code cells</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># %% Import and inspect</span></span>
-<span id="cb2-2"><a aria-hidden="true" tabindex="-1"></a>visit <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/visits.csv"</span>)</span>
-<span id="cb2-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(visit)</span>
-<span id="cb2-4"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a aria-hidden="true" tabindex="-1"></a><span class="co"># %% Summarize</span></span>
-<span id="cb2-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(marker <span class="sc">~</span> arm, <span class="at">data =</span> visit, <span class="at">FUN =</span> mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>Positron recognizes <code># %%</code> cells in both R and Python scripts. Cells organize interactive execution but do not replace a reproducible top-to-bottom run.</p>
-</section>
-<section id="configure-only-the-course-supported-provider" class="slide level2">
-<h2>Configure only the course-supported provider</h2>
-<p>In the Command Palette, run:</p>
-<pre class="text"><code>Authentication: Configure Language Model Providers</code></pre>
-<p>Choose GitHub Copilot and complete OAuth authentication. For this course, we use Copilot inline completion; we do not survey multiple providers or agent tools.</p>
-<p>If authentication is unavailable, use the supplied candidate code and complete the same verification exercise.</p>
-</section>
-<section id="if-copilot-is-unavailable" class="slide level2 smaller">
-<h2>If Copilot is unavailable</h2>
-<ol type="1">
-<li>Confirm you are signed into the intended GitHub account.</li>
-<li>Re-run the language-model provider configuration command.</li>
-<li>Reload the Positron window.</li>
-<li>Continue with the supplied candidate code if authentication remains blocked.</li>
-</ol>
-<p>The learning goal is <strong>reviewing a suggestion</strong>, not solving account setup during lecture.</p>
-</section>
-<section id="a-completion-is-a-proposed-edit" class="slide level2">
-<h2>A completion is a proposed edit</h2>
-<p>Copilot may show faint inline code based on surrounding source and comments. You can accept it, dismiss it, or keep typing.</p>
-<div class="workflow">
-<p>describe a small task → inspect suggestion → accept selectively → run → verify</p>
-</div>
-<p>Acceptance means only “put this text in my file.” It does not mean the code is correct.</p>
-</section>
-<section id="three-legitimate-responses-to-a-suggestion" class="slide level2">
-<h2>Three legitimate responses to a suggestion</h2>
+<section id="r-rstudio-and-positron" class="slide level2">
+<h2>R, RStudio, and Positron</h2>
 <table class="caption-top">
 <colgroup>
 <col style="width: 50%">
@@ -375,52 +279,963 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </colgroup>
 <thead>
 <tr class="header">
-<th>Response</th>
-<th>Use it when</th>
+<th>Name</th>
+<th>Role in your analysis</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>Dismiss</strong></td>
-<td>the suggestion answers a different question</td>
+<td><strong>R</strong></td>
+<td>The language and interpreter that execute your code</td>
 </tr>
 <tr class="even">
-<td><strong>Accept partly</strong></td>
-<td>the structure helps but a detail is wrong or unnecessary</td>
+<td><strong>RStudio</strong></td>
+<td>An integrated development environment (IDE) for writing and running code</td>
 </tr>
 <tr class="odd">
-<td><strong>Accept, then verify</strong></td>
-<td>the code matches the intended operation and still needs evidence</td>
+<td><strong>Positron</strong></td>
+<td>Another IDE, with built-in support for R and Python</td>
+</tr>
+<tr class="even">
+<td><strong>Posit</strong></td>
+<td>The company that develops both RStudio and Positron</td>
 </tr>
 </tbody>
 </table>
-<p>Fast rejection is a successful use of an assistant.</p>
+<p>Positron uses an installed copy of R. Keep the R installation you already use.</p>
+</section>
+<section id="the-same-r-code-in-either-ide" class="slide level2">
+<h2>The same R code in either IDE</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="cn">NA</span>)</span>
+<span id="cb1-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-3"><a aria-hidden="true" tabindex="-1"></a><span class="co"># [1] 6</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>R syntax, functions, and packages carry over.</li>
+<li>Existing <code>.R</code> scripts and <code>.qmd</code> documents remain ordinary source files.</li>
+<li>Match the R version, package versions, data, and working directory when comparing results.</li>
+</ul>
+<p>Opening the same file in two IDEs starts separate sessions with separate objects.</p>
+</section>
+<section id="rstudio-and-positron-side-by-side" class="slide level2">
+<h2>RStudio and Positron side by side</h2>
+<div style="text-align: center;">
+<p><img data-src="images/rstudio-positron-comparison.jpeg" alt="Official comparison screenshot: RStudio on the left and Positron on the right, with corresponding editor, console, and output regions labeled Write, Run, and Understand." height="510"></p>
+</div>
+<div class="small">
+<p>The same workflow: write code, run it, then inspect the result. Screenshot: <a href="https://positron.posit.co/migrate-rstudio.html">Posit RStudio migration guide</a>.</p>
+</div>
+</section>
+<section id="a-tour-of-the-positron-window" class="slide level2">
+<h2>A tour of the Positron window</h2>
+<div style="text-align: center;">
+<p><img data-src="images/positron-layout.jpeg" alt="Official annotated Positron screenshot identifying the Activity Bar on the far left, Primary Side Bar, central Editor, lower Panel with Console and Terminal tabs, and right Secondary Side Bar with Variables and Plots." height="510"></p>
+</div>
+<div class="small">
+<p>Screenshot: <a href="https://positron.posit.co/layout.html">Posit layout guide</a>. Panels can move. Your version, theme, and layout may look different.</p>
+</div>
+</section>
+<section id="primary-sidebar-files-and-open-editors" class="slide level2 panel-tour">
+<h2>Primary sidebar: files and open editors</h2>
+<div class="columns">
+<div class="column" style="width:32%;">
+<div class="tour-crop crop-explorer" role="img" aria-label="Enlarged crop of the official screenshot showing Explorer, Open Editors, and the project file tree.">
+
+</div>
+</div><div class="column" style="width:68%;">
+<p>With <strong>Explorer</strong> selected in the Activity Bar:</p>
+<ul>
+<li><strong>Open Editors</strong> lists files currently open in tabs.</li>
+<li><strong>Project tree</strong> lists folders and files in the workspace, including files that are not open.</li>
+<li>Expand a folder, then select a file to open it in the Editor.</li>
+<li>Create or rename files through the Explorer controls or context menu.</li>
+</ul>
+<p><strong>Try it:</strong> find your copied lab under <code>work/session09/</code> and open it.</p>
+<p>The file lives on disk. Opening its tab does not execute its R code.</p>
+</div></div>
+<div class="tour-credit">
+<p>Detail from the <a href="https://positron.posit.co/layout.html">Posit layout screenshot</a>.</p>
+</div>
+</section>
+<section id="primary-sidebar-outline-history-and-git" class="slide level2 panel-tour">
+<h2>Primary sidebar: outline, history, and Git</h2>
+<div class="tour-crop crop-outline" role="img" aria-label="Enlarged screenshot detail showing the collapsed Outline and Timeline sections at the bottom of Explorer.">
+
+</div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Tool</th>
+<th>What it shows</th>
+<th>Example use</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Outline</strong></td>
+<td>Structure of the active file, such as headings or functions</td>
+<td>Jump to a report section</td>
+</tr>
+<tr class="even">
+<td><strong>Timeline</strong></td>
+<td>History of the selected file, including Git commits and local saves when available</td>
+<td>Compare an earlier version</td>
+</tr>
+<tr class="odd">
+<td><strong>Source Control</strong></td>
+<td>Changed and staged files in a Git repository</td>
+<td>Review a diff and commit</td>
+</tr>
+<tr class="even">
+<td><strong>Search</strong></td>
+<td>Matches across workspace files</td>
+<td>Find every use of <code>n_observed</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Outline and Timeline are collapsed in this screenshot.</strong> Expand their headings. Choose Source Control or Search in the Activity Bar to switch sidebar views.</p>
+<div class="tour-credit">
+<p>Detail from <a href="https://positron.posit.co/layout.html">Posit</a>. <a href="https://code.visualstudio.com/docs/editing/getting-started/userinterface">Outline and Timeline reference</a>.</p>
+</div>
+</section>
+<section id="editor-source-files-and-document-controls" class="slide level2 panel-tour">
+<h2>Editor: source files and document controls</h2>
+<div class="columns">
+<div class="column" style="width:52%;">
+<div class="tour-crop crop-editor" role="img" aria-label="Enlarged central Editor showing document tabs, Quarto Preview and Render on Save controls, Source and Visual modes, prose, and an R code chunk.">
+
+</div>
+</div><div class="column" style="width:48%;">
+<ul>
+<li><strong>Tabs</strong> switch between open files.</li>
+<li>A <strong><code>.R</code> script</strong> contains R code and comments.</li>
+<li>A <strong><code>.qmd</code> document</strong> combines prose, headings, and code chunks.</li>
+<li><strong>Source / Visual</strong> changes how you edit a Quarto document.</li>
+<li><strong>Run controls</strong> execute code. <strong>Preview</strong> builds a report preview.</li>
+</ul>
+<p>The toolbar depends on the file type. A plain R script has no Quarto Visual mode.</p>
+</div></div>
+<p><strong>Also in this area:</strong> Data Explorer tabs and Git comparisons can open beside your source files.</p>
+<div class="tour-credit">
+<p>Detail from <a href="https://positron.posit.co/layout.html">Posit</a>. <a href="https://positron.posit.co/quarto.html">Quarto in Positron</a>.</p>
+</div>
+</section>
+<section id="lower-panel-console-terminal-and-messages" class="slide level2 panel-tour">
+<h2>Lower panel: Console, Terminal, and messages</h2>
+<div class="columns">
+<div class="column" style="width:52%;">
+<div class="tour-crop crop-console" role="img" aria-label="Enlarged lower Panel showing Console, Terminal, Problems, Output, and Ports tabs, with an R Console active.">
+
+</div>
+</div><div class="column" style="width:48%;">
+<ul>
+<li><strong>Console:</strong> run R expressions and read results, warnings, or errors.</li>
+<li><strong>Terminal:</strong> run shell commands such as <code>git status</code>.</li>
+<li><strong>Problems:</strong> inspect diagnostics reported by language tools.</li>
+<li><strong>Output:</strong> inspect logs from extensions and other tools.</li>
+<li><strong>Ports:</strong> manage access to services in supported remote workflows.</li>
+</ul>
+<p><strong>Try it:</strong> run <code>1 + 1</code> in the R Console. The result should be <code>2</code>.</p>
+</div></div>
+<div class="tour-credit">
+<p>Detail from the <a href="https://positron.posit.co/layout.html">Posit layout screenshot</a>.</p>
+</div>
+</section>
+<section id="secondary-sidebar-variables-and-plots" class="slide level2 panel-tour">
+<h2>Secondary sidebar: Variables and Plots</h2>
+<div class="columns">
+<div class="column" style="width:40%;">
+<div class="tour-crop crop-variables" role="img" aria-label="Enlarged Variables area showing data frames, their dimensions, and an expanded object.">
+
+</div>
+<div class="tour-crop crop-plot" role="img" aria-label="Detail of the Plots area showing its toolbar and a scatterplot from the same R session.">
+
+</div>
+</div><div class="column" style="width:60%;">
+<p>The <strong>Session</strong> view groups the active interpreter’s results.</p>
+<ul>
+<li><strong>Variables:</strong> objects currently in memory, including vectors, lists, and data frames. Expand an object to inspect it.</li>
+<li><strong>Data frame entries:</strong> show dimensions. Open one in <strong>Data Explorer</strong> to inspect its rows and columns.</li>
+<li><strong>Plots:</strong> figures created by your code, with controls to browse and save them.</li>
+</ul>
+<p><strong>Try it:</strong> after running <code>demo &lt;- data.frame(x = 1:3)</code>, find <code>demo</code> in Variables.</p>
+<p>Explorer shows files on disk. Variables shows objects in the current session.</p>
+</div></div>
+<div class="tour-credit">
+<p>Details from <a href="https://positron.posit.co/layout.html">Posit</a>. <a href="https://positron.posit.co/variables-pane.html">Variables</a> and <a href="https://positron.posit.co/data-explorer.html">Data Explorer</a>.</p>
+</div>
+</section>
+<section id="secondary-sidebar-help-viewer-and-more" class="slide level2 panel-tour">
+<h2>Secondary sidebar: Help, Viewer, and more</h2>
+<div class="tour-crop crop-secondary-tabs" role="img" aria-label="Enlarged secondary sidebar tab strip showing Session, Connections, Help, and Viewer.">
+
+</div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>View</th>
+<th>What it is for</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Help</strong></td>
+<td>Function and package documentation</td>
+<td>Run <code>?mean</code> in R</td>
+</tr>
+<tr class="even">
+<td><strong>Viewer</strong></td>
+<td>Web content such as a Shiny app or HTML widget</td>
+<td>Inspect an interactive display</td>
+</tr>
+<tr class="odd">
+<td><strong>Connections</strong></td>
+<td>Supported database connections and their tables</td>
+<td>Browse a connected database</td>
+</tr>
+<tr class="even">
+<td><strong>History</strong></td>
+<td>Previously executed commands</td>
+<td>Find an earlier command</td>
+</tr>
+</tbody>
+</table>
+<p><strong>History is not visible in this screenshot’s tab strip.</strong> Available tabs and their locations vary with the version and layout.</p>
+<p>Command history records what you ran. Git history records committed file changes.</p>
+<div class="tour-credit">
+<p>Detail and view descriptions: <a href="https://positron.posit.co/layout.html">Posit layout guide</a>.</p>
+</div>
+</section>
+<section id="the-main-regions-and-their-jobs" class="slide level2">
+<h2>The main regions and their jobs</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Region</th>
+<th>What you do there</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Activity Bar</strong></td>
+<td>Switch to Explorer, Search, Source Control, or Extensions</td>
+</tr>
+<tr class="even">
+<td><strong>Primary Side Bar</strong></td>
+<td>Browse project files or use the selected tool</td>
+</tr>
+<tr class="odd">
+<td><strong>Editor</strong></td>
+<td>Write and save your script or Quarto document</td>
+</tr>
+<tr class="even">
+<td><strong>Panel</strong></td>
+<td>Run R in the Console or shell commands in the Terminal</td>
+</tr>
+<tr class="odd">
+<td><strong>Secondary Side Bar</strong></td>
+<td>Inspect Variables and Plots, or open Help and Viewer</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Console:</strong> <code>mean(x)</code> runs in R. <strong>Terminal:</strong> <code>git status</code> runs in the shell.</p>
+</section>
+<section id="familiar-rstudio-tools-in-positron" class="slide level2">
+<h2>Familiar RStudio tools in Positron</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>In RStudio</th>
+<th>In Positron</th>
+<th>Use it to…</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Source</td>
+<td>Editor</td>
+<td>Save the analysis as code</td>
+</tr>
+<tr class="even">
+<td>Console</td>
+<td>Console with an R session</td>
+<td>Execute R and read messages</td>
+</tr>
+<tr class="odd">
+<td>Environment</td>
+<td>Variables</td>
+<td>Inspect objects in the active session</td>
+</tr>
+<tr class="even">
+<td>Data Viewer</td>
+<td>Data Explorer, e.g.&nbsp;<code>View(df)</code></td>
+<td>Inspect a data frame</td>
+</tr>
+<tr class="odd">
+<td>Plots / Help / Viewer</td>
+<td>Plots / Help / Viewer</td>
+<td>Inspect figures, documentation, HTML</td>
+</tr>
+<tr class="even">
+<td>Files / Git</td>
+<td>Explorer / Source Control</td>
+<td>Browse files and review changes</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="what-feels-different-from-rstudio" class="slide level2">
+<h2>What feels different from RStudio</h2>
+<ul>
+<li><strong>Editor foundation:</strong> Positron uses Code OSS, the foundation of VS Code, with extensions and flexible layouts.</li>
+<li><strong>Language sessions:</strong> select and manage R or Python interpreters within the workspace. RStudio’s workflow centers on R, with Python integration.</li>
+<li><strong>Commands:</strong> the Command Palette is a frequent starting point for actions that you may know as RStudio buttons.</li>
+<li><strong>Projects:</strong> open a folder as a Positron workspace. Keep the <code>.Rproj</code> file for RStudio, but do not expect its settings to transfer automatically.</li>
+</ul>
+</section>
+<section id="positrons-vs-code-foundation" class="slide level2">
+<h2>Positron’s VS Code foundation</h2>
+<p><strong>Positron builds on Code OSS, the open-source core of Visual Studio Code.</strong> Posit adds the R/Python Console, Variables, Plots, and Data Explorer.</p>
+<ul>
+<li>VS Code serves a much broader developer community across many languages.</li>
+<li>Its extension ecosystem offers a wide choice of AI assistants and advanced tools for debugging, Git, databases, testing, and remote development.</li>
+<li>Positron can reuse many compatible extensions while providing a ready-made environment for data science.</li>
+</ul>
+<p><strong>Why this matters:</strong> a larger ecosystem means more options for extending your workflow. Availability and compatibility still depend on the specific tool.</p>
+</section>
+<section id="the-vs-code-extension-marketplace" class="slide level2">
+<h2>The VS Code extension marketplace</h2>
+<div style="text-align: center;">
+<p><img data-src="images/vscode-marketplace.png" alt="Microsoft Visual Studio Marketplace with the Visual Studio Code tab selected, extension search box, Featured extensions including an AI tool, and Most Popular extensions." height="500"></p>
+</div>
+<div class="small">
+<p><a href="https://marketplace.visualstudio.com/vscode">Browse Microsoft’s VS Code Marketplace</a>. This is the catalog used by Microsoft’s VS Code.</p>
+</div>
+</section>
+<section id="the-open-vsx-extension-catalog" class="slide level2">
+<h2>The Open VSX extension catalog</h2>
+<div style="text-align: center;">
+<p><img data-src="images/open-vsx-marketplace.png" alt="Open VSX Registry with its extension search box and listings for VS Code-compatible editors." height="500"></p>
+</div>
+<div class="small">
+<p><a href="https://open-vsx.org/">Browse Open VSX</a>. Positron’s default gallery uses this catalog, served through Posit Public Package Manager.</p>
+</div>
+</section>
+<section id="can-positron-use-vs-code-extensions" class="slide level2 smaller">
+<h2>Can Positron use VS Code extensions?</h2>
+<p><strong>Many extensions work. Direct access to Microsoft’s Marketplace does not.</strong></p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Route</th>
+<th>What to expect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Extensions view in Positron</strong></td>
+<td>Search its Open VSX-based catalog and install there</td>
+</tr>
+<tr class="even">
+<td><strong>Microsoft Marketplace</strong></td>
+<td>Reserved for Microsoft’s products under its terms</td>
+</tr>
+<tr class="odd">
+<td><strong>A publisher’s <code>.vsix</code> file</strong></td>
+<td>Install manually if its license permits Positron and it is compatible</td>
+</tr>
+</tbody>
+</table>
+<ol type="1">
+<li>Open <strong>Extensions</strong> in the Activity Bar and search by name or publisher.</li>
+<li>Check the publisher, requirements, and support for your Positron version.</li>
+<li>For an allowed local file, use <strong>Extensions: Install from VSIX</strong> in the Command Palette.</li>
+</ol>
+<p>Use Positron’s built-in R support; some VS Code language extensions conflict with it.</p>
+</section>
+<section id="commands-and-familiar-shortcuts" class="slide level2">
+<h2>Commands and familiar shortcuts</h2>
+<p>Open the <strong>Command Palette</strong>:</p>
+<ul>
+<li>Windows/Linux: <strong>Ctrl+Shift+P</strong></li>
+<li>macOS: <strong>Cmd+Shift+P</strong></li>
+</ul>
+<p>Type a task keyword such as <strong>R</strong>, <strong>Quarto</strong>, or <strong>settings</strong>, then choose a command.</p>
+<p>To use more RStudio shortcuts, search Settings for <strong>RStudio Keybindings</strong>, enable the setting, and restart Positron.</p>
+</section>
+<section id="the-same-project-folder-in-both-ides" class="slide level2 smaller">
+<h2>The same project folder in both IDEs</h2>
+<pre class="text"><code>BIOS6301-mywork/
+├── BIOS6301-mywork.Rproj
+└── work/
+    └── session09/
+        ├── orientation.R
+        └── copilot-review-lab.qmd</code></pre>
+<ol type="1">
+<li>In Positron, choose <strong>Open Folder</strong> and select <code>BIOS6301-mywork</code>.</li>
+<li>Select your installed <strong>R</strong> interpreter and start its Console.</li>
+<li>Open your copied lab starter under <code>work/session09/</code>.</li>
+<li>Run <code>getwd()</code> and <code>R.version.string</code> in the Console to check the session.</li>
+</ol>
+<p>The interactive Console starts at the workspace root. Document rendering can use a different working directory, so check the starter’s relative paths.</p>
+</section>
+<section id="a-short-r-exercise-across-the-panels" class="slide level2">
+<h2>A short R exercise across the panels</h2>
+<p>Save this as <code>work/session09/orientation.R</code> and run it in your R session:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a aria-hidden="true" tabindex="-1"></a>demo <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">marker =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="cn">NA</span>))</span>
+<span id="cb3-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(demo<span class="sc">$</span>marker, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(demo)</span>
+<span id="cb3-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(demo<span class="sc">$</span>id, demo<span class="sc">$</span>marker,</span>
+<span id="cb3-5"><a aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"ID"</span>, <span class="at">ylab =</span> <span class="st">"Marker"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ol type="1">
+<li>Find <strong>6</strong> in the Console and <strong>demo</strong> in Variables.</li>
+<li>Find the four rows in Data Explorer and the three plotted points in Plots.</li>
+<li>Find <code>orientation.R</code> in Explorer and its change in Source Control.</li>
+</ol>
+<p>Data Explorer filters change the view. Save analytical filtering decisions in code.</p>
+</section>
+<section id="orientation-checkpoint" class="slide level2">
+<h2>Orientation checkpoint</h2>
+<ol type="1">
+<li>Which program computes <code>mean(demo$marker, na.rm = TRUE)</code>?</li>
+<li>Where would you look for a saved script? For an object in memory?</li>
+<li>If you restart R, will the script still exist? Will <code>demo</code> still exist before you rerun the code?</li>
+<li>Can you perform this exercise before connecting Copilot?</li>
+</ol>
+</section>
+<section id="scripts-can-use-code-cells" class="slide level2">
+<h2>Scripts can use code cells</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># %% Create and inspect (synthetic data)</span></span>
+<span id="cb4-2"><a aria-hidden="true" tabindex="-1"></a>visit <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb4-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">arm =</span> <span class="fu">c</span>(<span class="st">"control"</span>, <span class="st">"control"</span>, <span class="st">"treated"</span>, <span class="st">"treated"</span>),</span>
+<span id="cb4-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">marker =</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">5</span>, <span class="dv">7</span>)</span>
+<span id="cb4-5"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(visit)</span>
+<span id="cb4-7"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-8"><a aria-hidden="true" tabindex="-1"></a><span class="co"># %% Summarize</span></span>
+<span id="cb4-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(marker <span class="sc">~</span> arm, <span class="at">data =</span> visit, <span class="at">FUN =</span> mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Positron recognizes <code># %%</code> cells in both R and Python scripts. Cells organize interactive execution but do not replace a reproducible top-to-bottom run.</p>
+</section>
+<section id="ai-assisted-coding" class="slide level2 section-divider">
+<h2>AI-assisted coding</h2>
+<p><strong>From a familiar conversation to help inside your R project</strong></p>
+<ol type="1">
+<li>Choose the kind of help you need.</li>
+<li>Meet the tools and connect an example provider.</li>
+<li>Practice <strong>chat</strong>, <strong>inline completion</strong>, and <strong>agent work</strong>.</li>
+<li>Check the code and its statistical meaning.</li>
+</ol>
+</section>
+<section id="start-with-a-familiar-chat-conversation" class="slide level2">
+<h2>Start with a familiar chat conversation</h2>
+<p>If you have used ChatGPT to ask a question, start with that pattern:</p>
+<blockquote>
+<p>Here is my R code. Why does it return NA? Explain how to fix it.</p>
+</blockquote>
+<p>You supply context, read the answer, ask follow-up questions, and check it.</p>
+<p><strong>Inside a coding environment, two things can change:</strong></p>
+<ul>
+<li><strong>Context:</strong> an assistant may read selected files or session information.</li>
+<li><strong>Actions:</strong> some workflows can insert code, edit files, or run commands.</li>
+</ul>
+<p>Before using a tool, identify both <strong>what it can see</strong> and <strong>what it can do</strong>.</p>
+</section>
+<section id="one-r-problem-three-different-needs" class="slide level2">
+<h2>One R problem, three different needs</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="cn">NA</span>)</span>
+<span id="cb5-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(x)  <span class="co"># NA</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>What you need now</th>
+<th>A suitable starting point</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“I do not understand why this is NA.”</td>
+<td><strong>Chat:</strong> ask for an explanation</td>
+</tr>
+<tr class="even">
+<td>“I understand missing values. Help me finish the line.”</td>
+<td><strong>Inline:</strong> complete code at the cursor</td>
+</tr>
+<tr class="odd">
+<td>“Update my saved script and add checks.”</td>
+<td><strong>Agent:</strong> delegate a bounded change</td>
+</tr>
+</tbody>
+</table>
+<p>The task is similar. <strong>Your immediate goal determines the form of help.</strong></p>
+</section>
+<section id="three-forms-of-ai-assistance" class="slide level2">
+<h2>Three forms of AI assistance</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Form</th>
+<th>How you interact</th>
+<th>What changes?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1. Chat</strong></td>
+<td>Ask a question and discuss the answer</td>
+<td>In read-only Ask mode, your files stay unchanged</td>
+</tr>
+<tr class="even">
+<td><strong>2. Inline completion</strong></td>
+<td>Type code and inspect suggested text</td>
+<td>Accepted text enters your source file</td>
+</tr>
+<tr class="odd">
+<td><strong>3. Agent / edit workflow</strong></td>
+<td>Request a change and review the work</td>
+<td>The tool may edit files and run code</td>
+</tr>
+</tbody>
+</table>
+<p>An agent often uses a <strong>chat box too</strong>. Check its mode and permissions to know whether it can act on your project.</p>
+</section>
+<section id="the-names-you-will-see" class="slide level2">
+<h2>The names you will see</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Role in today’s demonstration</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Positron</strong></td>
+<td>The workspace containing your editor, Console, and panels</td>
+</tr>
+<tr class="even">
+<td><strong>R</strong></td>
+<td>Runs the R code and calculates the result</td>
+</tr>
+<tr class="odd">
+<td><strong>GitHub Copilot</strong></td>
+<td>Our example AI service, including inline suggestions</td>
+</tr>
+<tr class="even">
+<td><strong>Posit Assistant</strong></td>
+<td>The panel where we discuss code and request agent work</td>
+</tr>
+</tbody>
+</table>
+<p>A <strong>provider</strong> supplies access to AI models. Posit Assistant can connect to different providers, including GitHub Copilot.</p>
+</section>
+<section id="github-copilot-our-worked-example" class="slide level2">
+<h2>GitHub Copilot: our worked example</h2>
+<p><strong>GitHub Copilot is GitHub’s AI coding assistant.</strong></p>
+<ul>
+<li>It can suggest code, answer questions, and help revise existing code.</li>
+<li>It works in supported editors and other GitHub workflows.</li>
+<li>In Positron, we will use its <strong>inline code suggestions</strong>.</li>
+<li>Access requires a GitHub account with Copilot enabled.</li>
+</ul>
+<p><strong>Copilot is one example.</strong> Other AI tools may be used under the same course rules. No AI tool is required for the lab.</p>
+</section>
+<section id="an-ai-chat-interface-inside-positron" class="slide level2 ai-intro">
+<h2>An AI chat interface inside Positron</h2>
+<div style="text-align: center;">
+<p><img data-src="images/posit-assistant.png" alt="Official Positron screenshot with Posit Assistant open in the left sidebar, a Python Console in the center, and Variables and Plots on the right." height="440"></p>
+</div>
+<p><strong>Posit Assistant</strong> is Posit’s chat interface. It connects to a provider you select. <strong>GitHub Copilot</strong> is one available provider, with its own coding features.</p>
+<div class="source-credit">
+<p><a href="https://positron.posit.co/tutorial-ai-notebooks.html">Posit tutorial screenshot</a>. This Python example shows the interface; our exercise uses R.</p>
+</div>
+</section>
+<section id="connect-github-copilot-in-positron" class="slide level2">
+<h2>Connect GitHub Copilot in Positron</h2>
+<ol type="1">
+<li>Open the Command Palette: <strong>Ctrl+Shift+P</strong> on Windows/Linux, <strong>Cmd+Shift+P</strong> on macOS.</li>
+<li>Run this command:</li>
+</ol>
+<pre class="text"><code>Authentication: Configure Language Model Providers</code></pre>
+<ol start="3" type="1">
+<li>Choose <strong>GitHub Copilot</strong>, then sign in through the browser.</li>
+<li>Return to Positron. We will begin with a question in Posit Assistant.</li>
+</ol>
+<p>Use an account with Copilot access. If setup is unavailable, the supplied candidate code supports the same review exercise.</p>
+</section>
+<section id="the-provider-configuration-window" class="slide level2 ai-intro">
+<h2>The provider configuration window</h2>
+<div class="columns">
+<div class="column" style="width:57%;">
+<p><img data-src="images/ai-provider-configuration.png" alt="Official Configure Language Model Providers screenshot with multiple provider choices. Posit AI is selected; the GitHub Copilot tile is partially visible at the far right." width="640"></p>
+</div><div class="column" style="width:43%;">
+<ul>
+<li>The row offers several providers.</li>
+<li>Select <strong>GitHub Copilot</strong> for today’s example. Scroll the row if needed.</li>
+<li>Complete the browser sign-in for your GitHub account.</li>
+</ul>
+<p>This screenshot has <strong>Posit AI selected</strong>, so its sign-out button is not your Copilot setup state.</p>
+</div></div>
+<div class="source-credit">
+<p><a href="https://positron.posit.co/tutorial-ai-notebooks.html">Posit tutorial screenshot</a>. Provider names and layout can change between versions.</p>
+</div>
+</section>
+<section id="practice-one-script-three-passes" class="slide level2">
+<h2>Practice: one script, three passes</h2>
+<p>Copy <code>starter/ai-forms-demo.R</code> to <code>work/session09/</code> in your personal repository.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="cn">NA</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Establish the answers yourself: <strong>4 entries</strong>, <strong>3 observed values</strong>, <strong>mean 6</strong>.</p>
+<ol type="1">
+<li><strong>Chat:</strong> understand why <code>mean(x)</code> returns NA.</li>
+<li><strong>Inline:</strong> complete the observed-mean calculation.</li>
+<li><strong>Agent:</strong> add checks to the saved script and run it.</li>
+</ol>
+<p>The screenshots show interface controls. The R prompts and reference answers are prepared course examples. You can follow them without an AI account.</p>
+</section>
+<section id="assistant-modes-discuss-plan-or-act" class="slide level2">
+<h2>Assistant modes: discuss, plan, or act</h2>
+<p>In <strong>Posit Assistant</strong>, choose the kind of work before sending the request.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Workflow</th>
+<th>Purpose</th>
+<th>What it may do</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Ask</strong> (<code>/ask</code>)</td>
+<td>Explain or inspect</td>
+<td>Read context; cannot edit files or execute R/Python</td>
+</tr>
+<tr class="even">
+<td><strong>Plan</strong> (<code>/plan</code>)</td>
+<td>Develop an approach for review</td>
+<td>Read context and write a plan; instructed to defer implementation</td>
+</tr>
+<tr class="odd">
+<td><strong>Regular agent work</strong></td>
+<td>Implement a requested change</td>
+<td>Edit and execute, subject to permissions</td>
+</tr>
+</tbody>
+</table>
+<p>Use <code>/normal</code> to leave Ask mode. After reviewing a plan, <strong>Exit and implement</strong> starts the work. A small, clear change can go directly to regular agent work.</p>
+</section>
+<section id="chat-when-you-need-an-explanation" class="slide level2">
+<h2>1. Chat: when you need an explanation</h2>
+<p><strong>Your question:</strong> “I do not understand this result.” Paste this code into chat:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="cn">NA</span>)</span>
+<span id="cb8-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<blockquote>
+<p>Why does this return NA? Explain <code>na.rm = TRUE</code>. How many values contribute to the mean? Suggest one line of base R. Do not edit files.</p>
+</blockquote>
+<p>Ask a follow-up question if an explanation is unclear. Then check the proposed line in R and compare it with <code>?mean</code>.</p>
+</section>
+<section id="chat-where-to-ask-and-attach-context" class="slide level2 ai-intro">
+<h2>Chat: where to ask and attach context</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><img data-src="images/assistant-chat-context.webp" alt="Official Posit Assistant screenshot: typing @ in the chat input opens a menu of workspace files, including an R script." width="570"></p>
+</div><div class="column" style="width:50%;">
+<ol type="1">
+<li>Open <strong>Posit Assistant</strong>.</li>
+<li>Enter <strong><code>/ask</code></strong> for a read-only discussion.</li>
+<li>Type <strong><code>@</code></strong> and select <code>work/session09/ai-forms-demo.R</code>, or paste the small code example.</li>
+<li>Ask a focused question and read the explanation.</li>
+</ol>
+<p>The screenshot’s file names and selected model are documentation examples.</p>
+</div></div>
+<div class="source-credit">
+<p><a href="https://assistant.posit.co/docs/features/chat-features/">Context screenshot</a> and <a href="https://assistant.posit.co/docs/features/ask-mode/">Ask mode</a>, Posit.</p>
+</div>
+</section>
+<section id="chat-what-a-useful-answer-should-explain" class="slide level2">
+<h2>Chat: what a useful answer should explain</h2>
+<p>For <code>x &lt;- c(4, 6, 8, NA)</code>, check these claims:</p>
+<ul>
+<li><code>mean(x)</code> returns NA because a value is missing.</li>
+<li><code>mean(x, na.rm = TRUE)</code> uses the three observed values and returns <strong>6</strong>.</li>
+<li><code>na.rm = TRUE</code> changes this calculation. It does not remove an entry from x.</li>
+</ul>
+<p><strong>Follow-up question:</strong> “Does this change x? How can I check?”</p>
+<p>Run <code>length(x)</code>, <code>sum(!is.na(x))</code>, and <code>?mean</code> yourself.</p>
+</section>
+<section id="inline-when-you-know-what-to-write" class="slide level2">
+<h2>2. Inline: when you know what to write</h2>
+<div style="text-align: center;">
+<p><img data-src="images/copilot-ghost-text.png" alt="Official VS Code screenshot of GitHub Copilot: a typed JavaScript function signature followed by dimmed suggested lines at the cursor." width="1100"></p>
+</div>
+<ul>
+<li><strong>Gray text</strong> is a proposal based on the nearby code and comments.</li>
+<li><strong>Tab</strong> accepts it. <strong>Esc</strong> dismisses it.</li>
+<li>Accepting inserts source text. Run the code yourself and check its result.</li>
+</ul>
+<div class="source-credit">
+<p><a href="https://code.visualstudio.com/docs/editing/ai-powered-suggestions">Microsoft screenshot</a>. JavaScript in VS Code illustrates ghost text. Our next example uses R in Positron.</p>
+</div>
+</section>
+<section id="inline-example-complete-a-mean-calculation" class="slide level2">
+<h2>Inline example: complete a mean calculation</h2>
+<p><strong>Now you understand the calculation.</strong> In your copied script, replace the <code>mean_x</code> assignment with this prefix:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="cn">NA</span>)</span>
+<span id="cb9-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the mean of the observed values using base R.</span></span>
+<span id="cb9-3"><a aria-hidden="true" tabindex="-1"></a>mean_x <span class="ot">&lt;-</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><strong>Inspect before accepting:</strong> does the suggestion handle <code>NA</code>?</p>
+<p>One suitable completion is:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a aria-hidden="true" tabindex="-1"></a>mean_x <span class="ot">&lt;-</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mean_x)  <span class="co"># Expected: 6</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Check by hand: <code>(4 + 6 + 8) / 3 = 6</code>. Suggestions may differ.</p>
+</section>
+<section id="chat-or-inline-choose-by-your-next-step" class="slide level2">
+<h2>Chat or inline? Choose by your next step</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Situation</th>
+<th>Choose</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>“What does <code>na.rm</code> mean?”</td>
+<td><strong>Chat</strong></td>
+<td>You need an explanation and follow-up questions</td>
+</tr>
+<tr class="even">
+<td>“Use <code>na.rm = TRUE</code>; finish this assignment.”</td>
+<td><strong>Inline</strong></td>
+<td>You know the intended code and can judge a short completion</td>
+</tr>
+<tr class="odd">
+<td>“The suggested line uses a function I do not know.”</td>
+<td><strong>Chat or R help</strong></td>
+<td>Understand the proposal before accepting it</td>
+</tr>
+</tbody>
+</table>
+<p>You can switch forms during the same task. Accepting a line does not verify it.</p>
+</section>
+<section id="agent-when-you-want-a-file-changed" class="slide level2">
+<h2>3. Agent: when you want a file changed</h2>
+<p>An <strong>agent</strong> combines a language model with tools that can read files, edit code, and run commands, depending on its permissions.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>In our example</th>
+<th>What the agent may do</th>
+<th>What you inspect</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Understand</td>
+<td>Read <code>ai-forms-demo.R</code></td>
+<td>Did it find the intended file?</td>
+</tr>
+<tr class="even">
+<td>Change</td>
+<td>Add checks to the script</td>
+<td>Does the diff match the request?</td>
+</tr>
+<tr class="odd">
+<td>Execute</td>
+<td>Run the script in R</td>
+<td>Do the results support its claim?</td>
+</tr>
+<tr class="even">
+<td>Revise</td>
+<td>Respond to a failed check</td>
+<td>Did it fix the code or weaken the check?</td>
+</tr>
+</tbody>
+</table>
+<p>An <strong>edit workflow</strong> may stop at proposed changes. An agent can continue through execution and revision. Features vary by tool.</p>
+</section>
+<section id="agent-approvals-when-will-it-ask-you" class="slide level2">
+<h2>Agent approvals: when will it ask you?</h2>
+<p><strong>Ask / Plan describes the workflow. Approval settings control tool actions.</strong></p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Approval setting</th>
+<th>What happens</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Normal</strong></td>
+<td>Routine actions may run; riskier actions prompt</td>
+</tr>
+<tr class="even">
+<td><strong>Restricted</strong></td>
+<td>Each tool action requires confirmation</td>
+</tr>
+<tr class="odd">
+<td><strong>Auto</strong></td>
+<td>An automated reviewer allows or blocks actions</td>
+</tr>
+<tr class="even">
+<td><strong>YOLO</strong></td>
+<td>Broad automatic approval, with some safeguards remaining</td>
+</tr>
+</tbody>
+</table>
+<p>For our demonstration, use <strong>Normal</strong> and inspect each proposed change. <strong>Allow once</strong> approves one action; session/project approval covers future actions too.</p>
+</section>
+<section id="agent-example-request-one-small-change" class="slide level2">
+<h2>Agent example: request one small change</h2>
+<p><strong>Your goal is now a saved file change.</strong> Leave Ask mode with <strong><code>/normal</code></strong>. Enter <strong><code>/plan</code></strong> to practice reviewing an approach, then send:</p>
+<blockquote>
+<p>In <code>work/session09/ai-forms-demo.R</code>, keep x unchanged and calculate its observed mean. Add base-R checks that x has four entries, three observed values, and a mean of 6. Change only this file. Show the plan first.</p>
+</blockquote>
+<p>Review the plan, then choose <strong>Exit and implement</strong> and request a run. Planning is optional for a change this small.</p>
+<ul>
+<li>The expected mean comes from <strong>our hand calculation</strong>.</li>
+<li>No new package or data file is needed.</li>
+<li>If the tool cannot run R, run the saved script in the R Console yourself.</li>
+</ul>
+</section>
+<section id="agent-screenshot-review-the-plan" class="slide level2 ai-intro">
+<h2>Agent screenshot: review the plan</h2>
+<div class="columns">
+<div class="column" style="width:54%;">
+<p><img data-src="images/assistant-agent-plan.webp" alt="Official Posit Assistant screenshot showing a penguin-analysis plan and buttons to Keep planning, Exit Plan mode, or Exit and implement." width="630"></p>
+</div><div class="column" style="width:46%;">
+<ul>
+<li>Read the proposed steps and expected output.</li>
+<li><strong>Keep planning</strong> lets you revise the approach.</li>
+<li><strong>Exit and implement</strong> starts work on the plan.</li>
+</ul>
+<p>For our R task, the plan should name <strong>one file</strong>, the mean calculation, and the three checks.</p>
+</div></div>
+<div class="source-credit">
+<p><a href="https://assistant.posit.co/docs/features/plan-mode/">Posit Plan mode screenshot</a>. The pictured plan uses penguin data. Our exercise uses the four-value vector.</p>
+</div>
+</section>
+<section id="agent-screenshot-inspect-a-proposed-edit" class="slide level2 ai-intro">
+<h2>Agent screenshot: inspect a proposed edit</h2>
+<div class="columns">
+<div class="column" style="width:52%;">
+<p><img data-src="images/assistant-tool-confirmation.webp" alt="Official Posit Assistant edit-confirmation screenshot showing a red and green diff in spin.R and options to allow once, allow session edits, or allow project edits." width="620"></p>
+</div><div class="column" style="width:48%;">
+<ul>
+<li>Check the <strong>file name</strong> and the red/green changes.</li>
+<li><strong>Allow once</strong> approves the displayed action.</li>
+<li>Broader options allow more future edits without asking again.</li>
+<li>Decline an unrelated change and explain what to revise.</li>
+</ul>
+<p>Prompts depend on the tool’s permission settings. Review the final diff too.</p>
+</div></div>
+<div class="source-credit">
+<p><a href="https://assistant.posit.co/docs/features/permissions/">Posit tool-confirmation screenshot</a>. The pictured <code>spin.R</code> edit is a documentation example.</p>
+</div>
+</section>
+<section id="agent-example-verify-the-saved-result" class="slide level2">
+<h2>Agent example: verify the saved result</h2>
+<p>A suitable final script is:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="cn">NA</span>)</span>
+<span id="cb11-2"><a aria-hidden="true" tabindex="-1"></a>mean_x <span class="ot">&lt;-</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb11-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">length</span>(x) <span class="sc">==</span> <span class="dv">4</span>L)</span>
+<span id="cb11-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)) <span class="sc">==</span> <span class="dv">3</span>L)</span>
+<span id="cb11-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">isTRUE</span>(<span class="fu">all.equal</span>(mean_x, <span class="dv">6</span>)))</span>
+<span id="cb11-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mean_x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Review Source Control: <strong>only the intended analysis file changed</strong>, and x still includes NA. Run from a fresh R session. Expect <strong>6</strong> and no failed assertions.</p>
+<p>The expected values came from our calculation before the agent wrote the checks.</p>
+</section>
+<section id="checkpoint-choose-the-form-and-mode" class="slide level2">
+<h2>Checkpoint: choose the form and mode</h2>
+<ol type="1">
+<li>You want to understand an unfamiliar function without changing files.</li>
+<li>You know the plot you want and need help completing its labels.</li>
+<li>You want a script revised, checked, and run.</li>
+<li>You want to discuss the approach before that revision begins.</li>
+</ol>
+<p>For each, name the form or mode and <strong>one thing you will verify</strong>.</p>
+</section>
+<section id="from-code-assistance-to-statistical-verification" class="slide level2 section-divider">
+<h2>From code assistance to statistical verification</h2>
+<p>We can now choose <strong>chat</strong>, <strong>inline completion</strong>, or <strong>agent work</strong>.</p>
+<p>Next: can we tell when plausible code answers the <strong>wrong statistical question</strong>?</p>
+<p>Our next example summarizes a measurement by treatment arm. The key issue is the denominator when values are missing.</p>
 </section>
 <section id="give-statistical-context-in-the-source" class="slide level2">
 <h2>Give statistical context in the source</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># At week 4, report total n, observed n, mean marker,</span></span>
-<span id="cb4-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># and SD by randomized arm. Do not remove missing rows</span></span>
-<span id="cb4-3"><a aria-hidden="true" tabindex="-1"></a><span class="co"># before counting total n.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># At week 4, report total n, observed n, mean marker,</span></span>
+<span id="cb12-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># and SD by randomized arm. Do not remove missing rows</span></span>
+<span id="cb12-3"><a aria-hidden="true" tabindex="-1"></a><span class="co"># before counting total n.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>A precise comment improves the proposed code and remains useful documentation even when Copilot is disabled.</p>
 </section>
 <section id="vague-instructions-invite-hidden-choices" class="slide level2 smaller">
 <h2>Vague instructions invite hidden choices</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize marker by group.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize marker by group.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Compare with:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># At week 4, retain all randomized participants and report</span></span>
-<span id="cb6-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># total n, observed n, mean, and SD by arm.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># At week 4, retain all randomized participants and report</span></span>
+<span id="cb14-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># total n, observed n, mean, and SD by arm.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The second comment specifies population, time, denominator, statistics, and grouping.</p>
 </section>
 <section id="plausible-code-can-answer-the-wrong-question" class="slide level2">
 <h2>Plausible code can answer the wrong question</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a>visit <span class="sc">|&gt;</span></span>
-<span id="cb7-2"><a aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(week <span class="sc">==</span> <span class="dv">4</span>, <span class="sc">!</span><span class="fu">is.na</span>(marker)) <span class="sc">|&gt;</span></span>
-<span id="cb7-3"><a aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(</span>
-<span id="cb7-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> dplyr<span class="sc">::</span><span class="fu">n</span>(),</span>
-<span id="cb7-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_marker =</span> <span class="fu">mean</span>(marker),</span>
-<span id="cb7-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_marker =</span> <span class="fu">sd</span>(marker),</span>
-<span id="cb7-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">.by =</span> arm</span>
-<span id="cb7-8"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a>visit <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(week <span class="sc">==</span> <span class="dv">4</span>, <span class="sc">!</span><span class="fu">is.na</span>(marker)) <span class="sc">|&gt;</span></span>
+<span id="cb15-3"><a aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(</span>
+<span id="cb15-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> dplyr<span class="sc">::</span><span class="fu">n</span>(),</span>
+<span id="cb15-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_marker =</span> <span class="fu">mean</span>(marker),</span>
+<span id="cb15-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_marker =</span> <span class="fu">sd</span>(marker),</span>
+<span id="cb15-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">.by =</span> arm</span>
+<span id="cb15-8"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The code runs, but <code>n</code> is observed <code>n</code>, not total <code>n</code>, because missing rows were removed first.</p>
 </section>
 <section id="predict-before-running" class="slide level2">
@@ -435,15 +1250,15 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="repair-the-statistical-meaning" class="slide level2">
 <h2>Repair the statistical meaning</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a aria-hidden="true" tabindex="-1"></a>visit <span class="sc">|&gt;</span></span>
-<span id="cb8-2"><a aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(week <span class="sc">==</span> <span class="dv">4</span>) <span class="sc">|&gt;</span></span>
-<span id="cb8-3"><a aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(</span>
-<span id="cb8-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">n_total =</span> dplyr<span class="sc">::</span><span class="fu">n</span>(),</span>
-<span id="cb8-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">n_observed =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(marker)),</span>
-<span id="cb8-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_marker =</span> <span class="fu">mean</span>(marker, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_marker =</span> <span class="fu">sd</span>(marker, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb8-8"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">.by =</span> arm</span>
-<span id="cb8-9"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a aria-hidden="true" tabindex="-1"></a>visit <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(week <span class="sc">==</span> <span class="dv">4</span>) <span class="sc">|&gt;</span></span>
+<span id="cb16-3"><a aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(</span>
+<span id="cb16-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">n_total =</span> dplyr<span class="sc">::</span><span class="fu">n</span>(),</span>
+<span id="cb16-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">n_observed =</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(marker)),</span>
+<span id="cb16-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_marker =</span> <span class="fu">mean</span>(marker, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb16-7"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">sd_marker =</span> <span class="fu">sd</span>(marker, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb16-8"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">.by =</span> arm</span>
+<span id="cb16-9"><a aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>The correction follows from the estimand and denominator—not from asking for more fluent-looking code.</p>
 </section>
 <section id="a-verification-ladder" class="slide level2 smaller">
@@ -498,9 +1313,9 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="independent-checks-should-be-small" class="slide level2">
 <h2>Independent checks should be small</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a>week4 <span class="ot">&lt;-</span> visit[visit<span class="sc">$</span>week <span class="sc">==</span> <span class="dv">4</span>, ]</span>
-<span id="cb9-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(week4, <span class="fu">table</span>(arm, <span class="at">useNA =</span> <span class="st">"ifany"</span>))</span>
-<span id="cb9-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(week4, <span class="fu">tapply</span>(<span class="sc">!</span><span class="fu">is.na</span>(marker), arm, sum))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a>week4 <span class="ot">&lt;-</span> visit[visit<span class="sc">$</span>week <span class="sc">==</span> <span class="dv">4</span>, ]</span>
+<span id="cb17-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(week4, <span class="fu">table</span>(arm, <span class="at">useNA =</span> <span class="st">"ifany"</span>))</span>
+<span id="cb17-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(week4, <span class="fu">tapply</span>(<span class="sc">!</span><span class="fu">is.na</span>(marker), arm, sum))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Do not ask Copilot to generate both the answer and its only verification.</p>
 </section>
 <section id="other-common-failures" class="slide level2">
@@ -550,11 +1365,12 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="course-policy-after-today" class="slide level2">
 <h2>Course policy after today</h2>
 <ul>
-<li>GitHub Copilot is allowed for homework and labs unless designated unaided.</li>
+<li>AI coding assistance is allowed for homework and labs unless designated unaided.</li>
+<li>Copilot is our example; the same rules apply to other AI tools.</li>
 <li>Students remain responsible for every submitted line.</li>
 <li>Important results and data decisions must be verified.</li>
 <li>Substantive assistance must be disclosed.</li>
-<li>Permission for homework does not automatically apply to exams.</li>
+<li>AI assistance is not permitted on any examination.</li>
 </ul>
 </section>
 <section id="keep-disclosure-short-and-useful" class="slide level2">
@@ -593,6 +1409,16 @@ missing-value handling and verified the group counts independently.</code></pre>
 <li><a href="https://positron.posit.co/guide-r.html">Positron: R guide</a></li>
 <li><a href="https://docs.github.com/en/copilot/responsible-use/inline-suggestions">GitHub: responsible use of inline suggestions</a></li>
 </ul>
+</section>
+<section id="setup-troubleshooting-reference" class="slide level2 smaller">
+<h2>Setup troubleshooting (reference)</h2>
+<ol type="1">
+<li>Confirm you are signed into the intended GitHub account.</li>
+<li>Re-run the language-model provider configuration command.</li>
+<li>Reload the Positron window.</li>
+<li>Continue with the supplied candidate code if authentication remains blocked.</li>
+</ol>
+<p>The learning goal is <strong>reviewing a suggestion</strong>, not solving account setup during lecture.</p>
 
 
 </section>

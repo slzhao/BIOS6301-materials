@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -246,7 +281,12 @@ ul.task-list li input[type="checkbox"] {
    
   <ul>
   <li><a href="#goal" id="toc-goal" class="nav-link active" data-scroll-target="#goal">Goal</a></li>
-  <li><a href="#tasks" id="toc-tasks" class="nav-link" data-scroll-target="#tasks">Tasks</a></li>
+  <li><a href="#warm-up-three-forms-of-ai-assistance" id="toc-warm-up-three-forms-of-ai-assistance" class="nav-link" data-scroll-target="#warm-up-three-forms-of-ai-assistance">Warm-up: three forms of AI assistance</a>
+  <ul class="collapse">
+  <li><a href="#modes-before-actions" id="toc-modes-before-actions" class="nav-link" data-scroll-target="#modes-before-actions">Modes before actions</a></li>
+  <li><a href="#three-passes-through-the-same-example" id="toc-three-passes-through-the-same-example" class="nav-link" data-scroll-target="#three-passes-through-the-same-example">Three passes through the same example</a></li>
+  </ul></li>
+  <li><a href="#main-task-review-a-group-summary" id="toc-main-task-review-a-group-summary" class="nav-link" data-scroll-target="#main-task-review-a-group-summary">Main task: review a group summary</a></li>
   <li><a href="#additional-practice-test-an-ai-generated-function" id="toc-additional-practice-test-an-ai-generated-function" class="nav-link" data-scroll-target="#additional-practice-test-an-ai-generated-function">Additional practice: test an AI-generated function</a>
   <ul class="collapse">
   <li><a href="#independent-practice-check" id="toc-independent-practice-check" class="nav-link" data-scroll-target="#independent-practice-check">Independent-practice check</a></li>
@@ -292,16 +332,43 @@ Note
 </div>
 </div>
 <p>Choose one format and copy either <code>starter/copilot-review-lab.Rmd</code> or <code>starter/copilot-review-lab.qmd</code> to <code>work/session09/</code>. Knit the <code>.Rmd</code> file or Render the <code>.qmd</code> file.</p>
-<p>Work in <strong>BIOS6301-mywork.Rproj</strong>. Paths under <code>work/</code> below belong to your personal repository. Copy starters from the separate <code>BIOS6301-materials</code> clone, leaving the course originals unchanged.</p>
+<p>In Positron, use <strong>Open Folder</strong> to open <strong>BIOS6301-mywork</strong> as your workspace. Keep <code>BIOS6301-mywork.Rproj</code> for opening the same folder in RStudio. Paths under <code>work/</code> below belong to your personal repository. Copy starters from the separate <code>BIOS6301-materials</code> clone, leaving the course originals unchanged.</p>
 <section id="goal" class="level2">
 <h2 class="anchored" data-anchor-id="goal">Goal</h2>
-<p>Use Copilot once on a familiar R task, identify whether the suggestion answers the question, correct it, and document the verification.</p>
+<p>Review an AI suggestion for a familiar R task, identify whether it answers the question, correct it, and document the verification. The class demonstration uses GitHub Copilot. You may use another AI coding tool under the same course rules, or complete the exercise without AI using the supplied candidate.</p>
 </section>
-<section id="tasks" class="level2">
-<h2 class="anchored" data-anchor-id="tasks">Tasks</h2>
+<section id="warm-up-three-forms-of-ai-assistance" class="level2">
+<h2 class="anchored" data-anchor-id="warm-up-three-forms-of-ai-assistance">Warm-up: three forms of AI assistance</h2>
+<p>Copy <a href="starter/ai-forms-demo.R">ai-forms-demo.R</a> to <code>work/session09/</code> in your personal repository. The synthetic vector is <code>c(4, 6, 8, NA)</code>. Before using AI, calculate its total length (4), observed count (3), and observed mean (6).</p>
+<p>First choose the kind of help you need: an explanation calls for chat, a short completion you understand fits inline assistance, and a requested file change fits an agent workflow. We will practice them in that order.</p>
+<section id="modes-before-actions" class="level3">
+<h3 class="anchored" data-anchor-id="modes-before-actions">Modes before actions</h3>
+<p>In current Posit Assistant, <strong>Ask</strong> (<code>/ask</code>) permits reading and discussion but blocks file changes and R/Python execution. <strong>Plan</strong> (<code>/plan</code>) develops an approach and can write a plan file; it is instructed to defer implementation, but it is not technically restricted to read-only actions. <strong>Regular agent work</strong> can edit and execute, subject to permissions. Use <code>/normal</code> to leave Ask mode, and review a plan before choosing <strong>Exit and implement</strong>.</p>
+<p>Approval settings answer a separate question: when should a tool action need confirmation? <strong>Normal</strong> prompts for riskier actions, <strong>Restricted</strong> prompts for each tool action, <strong>Auto</strong> uses an automated reviewer, and <strong>YOLO</strong> broadly approves actions automatically. For this walkthrough, use Normal and review the proposed changes. Existing permissions affect which prompts appear.</p>
+</section>
+<section id="three-passes-through-the-same-example" class="level3">
+<h3 class="anchored" data-anchor-id="three-passes-through-the-same-example">Three passes through the same example</h3>
 <ol type="1">
-<li>Open the copied project file in Positron and confirm the R interpreter/project.</li>
-<li>Use the supplied comment to request an inline completion for the week-4 group summary. If Copilot is unavailable, evaluate the supplied candidate instead.</li>
+<li><strong>Chat, to understand:</strong> in Posit Assistant, enter <code>/ask</code>. Paste <code>x &lt;- c(4, 6, 8, NA)</code> and <code>mean(x)</code>, then ask why the result is NA and how <code>na.rm = TRUE</code> changes the calculation. Check the answer against <code>?mean</code> and your own R execution.</li>
+<li><strong>Inline, to finish code:</strong> once you understand the calculation, replace the <code>mean_x</code> assignment with <code>mean_x &lt;-</code>. Inspect the suggested completion, accept or revise it, and run the script. Check for <code>na.rm = TRUE</code> and output 6.</li>
+<li><strong>Agent, to change a file:</strong> leave Ask mode with <code>/normal</code>, then enter <code>/plan</code>. Ask it to keep x unchanged and add base-R assertions for total length 4, observed count 3, and mean 6, changing only <code>work/session09/ai-forms-demo.R</code>. Review its plan before choosing <strong>Exit and implement</strong>, inspect proposed edits, and run the saved script. If it cannot run R, execute the script yourself.</li>
+</ol>
+<p>Planning is optional for this small change; we use it here to learn the workflow. Distinguish the assistant’s plan file from changes to the analysis script.</p>
+<p>The slides show the current controls and official screenshots. Other tools may use different mode names. If AI is unavailable, enter the reference code below manually and explain what you would review in each interaction.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">6</span>, <span class="dv">8</span>, <span class="cn">NA</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>mean_x <span class="ot">&lt;-</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">length</span>(x) <span class="sc">==</span> <span class="dv">4</span>L)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)) <span class="sc">==</span> <span class="dv">3</span>L)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">isTRUE</span>(<span class="fu">all.equal</span>(mean_x, <span class="dv">6</span>)))</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mean_x)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Use Source Control to confirm the intended analysis changes. A successful run prints 6 and produces no assertion error. The checks use values you established independently before asking the agent.</p>
+</section>
+</section>
+<section id="main-task-review-a-group-summary" class="level2">
+<h2 class="anchored" data-anchor-id="main-task-review-a-group-summary">Main task: review a group summary</h2>
+<ol type="1">
+<li>Open the personal repository folder in Positron, select your R interpreter, and open the copied starter. Confirm <code>getwd()</code> in the R Console. Locate Explorer, Editor, Console, Variables, and Plots before continuing.</li>
+<li>Use the supplied comment to request an inline completion for the week-4 group summary in Copilot, request the same code with your chosen AI tool, or evaluate the supplied candidate without AI.</li>
 <li>Preserve the first candidate as a non-executed code block for review.</li>
 <li>State what <code>n</code>, <code>n_observed</code>, and one output row should mean.</li>
 <li>Correct the candidate and verify group counts using independent base-R code.</li>
@@ -313,12 +380,12 @@ Note
 <h2 class="anchored" data-anchor-id="additional-practice-test-an-ai-generated-function">Additional practice: test an AI-generated function</h2>
 <ol type="1">
 <li>Before prompting, write a contract for <code>summarize_week(data, week)</code> specifying required columns, one-row-per-arm output, total versus observed <code>n</code>, missing- value behavior, and what happens when the requested week is absent.</li>
-<li>Ask Copilot for the function using only synthetic column names and the written contract. Preserve its first response as non-executed code.</li>
+<li>Ask your AI tool for the function using only synthetic column names and the written contract. Preserve its first response as non-executed code.</li>
 <li>Predict at least two ways the candidate could violate the contract before running it.</li>
 <li>Test it on the supplied data, reversed arm order, a group with all markers missing, and a requested week with no rows.</li>
 <li>Revise the function until it either returns a contract-compliant result or fails with an informative error. Do not weaken a test to make the code pass.</li>
 <li>Implement an independent base-R check and compare keys, counts, and numerical summaries after sorting.</li>
-<li>Give Copilot a deliberately vague request, then a precise testable request for the same task. Compare the usefulness and risks of the two responses.</li>
+<li>Give your AI tool a deliberately vague request, then a precise testable request for the same task. Compare the usefulness and risks of the two responses.</li>
 <li>Extend the disclosure to distinguish generated code, human decisions, corrections, and independent verification.</li>
 </ol>
 <section id="independent-practice-check" class="level3">

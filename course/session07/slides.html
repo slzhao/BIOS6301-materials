@@ -1552,6 +1552,153 @@ i Row 4 of `y` was not matched.</code></pre>
 </div>
 <p><code>id_cols</code> identifies an output row. <code>names_from</code> supplies column names. <code>values_from</code> supplies cell contents.</p>
 </section>
+<section id="pivot-argument-summary" class="slide level2 smaller pivot-summary">
+<h2>The two pivots: main arguments</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Role</th>
+<th><code>pivot_longer()</code></th>
+<th><code>pivot_wider()</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Input</td>
+<td>Wide table</td>
+<td>Long table</td>
+</tr>
+<tr class="even">
+<td>Columns / row identity</td>
+<td><code>cols = starts_with("marker_w")</code> selects columns to gather</td>
+<td><code>id_cols = id</code> identifies each output row</td>
+</tr>
+<tr class="odd">
+<td>Column names</td>
+<td><code>names_to = "week"</code> creates a column holding the old names</td>
+<td><code>names_from = week</code> uses values to build new column names</td>
+</tr>
+<tr class="even">
+<td>Measurements</td>
+<td><code>values_to = "marker"</code> names the new value column</td>
+<td><code>values_from = marker</code> supplies the output cell values</td>
+</tr>
+<tr class="odd">
+<td>Prefix</td>
+<td><code>names_prefix = "marker_w"</code> removes this prefix</td>
+<td><code>names_prefix = "marker_w"</code> adds this prefix</td>
+</tr>
+</tbody>
+</table>
+<p>In this example, longer repeats the unselected <code>id</code> column for each week. Wider uses <strong><code>id_cols</code> (plural)</strong> to group those weeks into one row per ID.</p>
+</section>
+<section id="pivot-parameter-map" class="slide level2 pivot-map">
+<h2>Where the pivot arguments act</h2>
+<div class="pivot-tables">
+  <div>
+    <p class="pivot-table-title">Wide: one row per participant</p>
+    
+<table class="caption-top" aria-label="Wide measurements for P01 and P02">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="pivot-annotations header">
+<th data-quarto-table-cell-role="th"></th>
+<th colspan="2" data-quarto-table-cell-role="th"><code>cols = starts_with("marker_w")</code><br>
+↓</th>
+</tr>
+<tr class="even">
+<th class="pivot-id" data-quarto-table-cell-role="th">id</th>
+<th class="pivot-name" data-quarto-table-cell-role="th">marker_w0</th>
+<th class="pivot-name" data-quarto-table-cell-role="th">marker_w4</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td class="pivot-id">P01</td>
+<td class="pivot-value">4.1</td>
+<td class="pivot-value">4.4</td>
+</tr>
+<tr class="even">
+<td class="pivot-id">P02</td>
+<td class="pivot-value">5.2</td>
+<td class="pivot-value">4.7</td>
+</tr>
+</tbody>
+</table>
+
+  </div>
+  <div class="pivot-directions">
+    <div><code>pivot_longer()</code><span aria-label="to the right">→</span></div>
+    <div><span aria-label="to the left">←</span><code>pivot_wider()</code></div>
+  </div>
+  <div>
+    <p class="pivot-table-title">Long: one row per participant-week</p>
+    
+<table class="caption-top" aria-label="Long measurements with pivot_wider arguments pointing to their input columns">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="pivot-annotations header">
+<th class="pivot-id" data-quarto-table-cell-role="th"><code>id_cols</code><br>
+<code>= id</code><br>
+↓</th>
+<th class="pivot-name" data-quarto-table-cell-role="th"><code>names_from</code><br>
+<code>= week</code><br>
+↓</th>
+<th class="pivot-value" data-quarto-table-cell-role="th"><code>values_from</code><br>
+<code>= marker</code><br>
+↓</th>
+</tr>
+<tr class="even">
+<th class="pivot-id" data-quarto-table-cell-role="th">id</th>
+<th class="pivot-name" data-quarto-table-cell-role="th">week</th>
+<th class="pivot-value" data-quarto-table-cell-role="th">marker</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td class="pivot-id">P01</td>
+<td class="pivot-name">0</td>
+<td class="pivot-value">4.1</td>
+</tr>
+<tr class="even">
+<td class="pivot-id">P01</td>
+<td class="pivot-name">4</td>
+<td class="pivot-value">4.4</td>
+</tr>
+<tr class="odd">
+<td class="pivot-id">P02</td>
+<td class="pivot-name">0</td>
+<td class="pivot-value">5.2</td>
+</tr>
+<tr class="even">
+<td class="pivot-id">P02</td>
+<td class="pivot-name">4</td>
+<td class="pivot-value">4.7</td>
+</tr>
+</tbody>
+</table>
+
+  </div>
+</div>
+<div class="pivot-map-explanation">
+  <p><strong>Longer:</strong> <code>names_to = "week"</code> names the gold column.<br><code>values_to = "marker"</code> names the green column. IDs repeat.</p>
+  <p><strong>Wider:</strong> blue identifies the row, gold supplies the column name,<br>and green supplies the cell value. For P01, week 4 gives <strong>marker_w4 = 4.4</strong>.</p>
+  <p class="pivot-map-footnote"><code>names_prefix = "marker_w"</code>: remove when lengthening, add when widening. Only P01/P02 shown.</p>
+</div>
+</section>
 <section id="a-check-after-reshaping" class="slide level2 smaller">
 <h2>A check after reshaping</h2>
 <div class="cell">
