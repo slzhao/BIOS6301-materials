@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.38">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -39,10 +42,10 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bb62276ab45c84d9efd712f51ff97b5a.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-b7b2ba6e893e72e3fc5356a4ce84bc8b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-0543d5c6d19a61d0ca7780a2bbd25b8e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -312,7 +315,7 @@ Note
 </div>
 </div>
 <div class="callout-body-container callout-body">
-<p>Complete Goals 1–6 in order using the same participant-visit data as the slides. The core lab uses the NumPy and pandas packages prepared before class. Large data, speed, and GPU topics are discussion only. No additional installation or hardware is required.</p>
+<p>Complete Goals 1–6 in order using the same participant-visit data as the slides. The core lab uses the NumPy and pandas packages prepared before class. Large data, speed, machine learning, GPU computing, and research software are discussion only. No additional installation or hardware is required.</p>
 </div>
 </div>
 <section id="files-and-working-folder" class="level2">
@@ -320,16 +323,18 @@ Note
 <p>Work in your personal <strong>BIOS6301-mywork</strong> project folder in Positron. Copy these files from <code>BIOS6301-materials/course/session10/starter/</code> into your project’s <code>work/session10/</code> folder:</p>
 <ul>
 <li><a href="starter/python-intro.py">Python starter: python-intro.py</a></li>
+<li><a href="starter/python-intro.qmd" download="python-intro.qmd">The same code in Quarto: python-intro.qmd</a></li>
 <li><a href="starter/r-reference.R">R reference: r-reference.R</a></li>
 </ul>
-<p>Edit your copies, leaving the course originals unchanged. Keep Python code in the <code>.py</code> file and run the <code>.R</code> reference in an R session. The two languages have separate objects even when the objects have the same names.</p>
+<p>Edit your copies, leaving the course originals unchanged. Keep Python code in the <code>.py</code> cells or <code>.qmd</code> Python chunks and run the <code>.R</code> reference in an R session. The two languages have separate objects even when the objects have the same names.</p>
 <p>Use the <a href="../../course/session10/slides.html">Session 10 slides</a> as a reference. Record explanations as comments in the matching goal cells of your Python script.</p>
+<p>The Quarto file demonstrates that Python works interactively in a familiar document format. Open it in <strong>Source</strong> mode, select Python, and run its <code>{python}</code> chunks in order. The code is the same as the <code>.py</code> cells. Use <code>.py</code> for the Goal 2 script check, then run <strong>Setup</strong> and <strong>Synthetic data</strong> from the <code>.qmd</code> file and inspect <code>visit.head()</code> in the Python Console. For later goals, choose one format and record explanations in comments or Markdown. Restart Python and run all cells/chunks in order for the final check. Rendering a report is not required; no additional installation is assigned.</p>
 </section>
 <section id="goal-1-explain-when-python-can-help-a-research-project" class="level2">
 <h2 class="anchored" data-anchor-id="goal-1-explain-when-python-can-help-a-research-project">Goal 1 · Explain when Python can help a research project</h2>
 <p>Write a short response in the <strong>Goal 1</strong> cell:</p>
 <ol type="1">
-<li>Choose a research situation: using a collaborator’s Python model, working within a Python data pipeline, or using a library for deep learning.</li>
+<li>Choose a research situation: a collaborator’s scikit-learn model, a Python data pipeline, deep learning, or research software such as Scanpy or scvi-tools.</li>
 <li>Explain what Python would help you do in that situation.</li>
 <li>A team has a 200 GB file and 16 GB of RAM. Explain why changing from R to <code>pd.read_csv()</code> alone does not solve the memory problem. Name one useful strategy, such as selecting fewer columns or processing batches.</li>
 <li>For reading a file, adding a column, calculating a mean, or saving a file, name one factor besides language that affects speed.</li>

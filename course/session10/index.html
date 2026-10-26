@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.38">
+<meta name="generator" content="quarto-1.10.18">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -12,10 +12,13 @@
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
 */
-code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
-div.columns{display: flex; gap: min(4vw, 1.5em);}
-div.column{flex: auto; overflow-x: auto;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
 div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
@@ -74,10 +77,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-de63f62b328812d8e578a4d74e282472.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-bb62276ab45c84d9efd712f51ff97b5a.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-b7b2ba6e893e72e3fc5356a4ce84bc8b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-0543d5c6d19a61d0ca7780a2bbd25b8e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -286,7 +289,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#install-python" id="toc-install-python" class="nav-link" data-scroll-target="#install-python">Install Python</a></li>
   <li><a href="#install-the-three-lab-packages" id="toc-install-the-three-lab-packages" class="nav-link" data-scroll-target="#install-the-three-lab-packages">Install the three lab packages</a></li>
   </ul></li>
-  <li><a href="#materials" id="toc-materials" class="nav-link" data-scroll-target="#materials">Materials</a></li>
+  <li><a href="#materials" id="toc-materials" class="nav-link" data-scroll-target="#materials">Materials</a>
+  <ul class="collapse">
+  <li><a href="#python-also-runs-interactively-in-quarto" id="toc-python-also-runs-interactively-in-quarto" class="nav-link" data-scroll-target="#python-also-runs-interactively-in-quarto">Python also runs interactively in Quarto</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -323,7 +329,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Compare missing-value and indexing behavior with R.</li>
 <li>Verify equivalent R and Python results.</li>
 </ol>
-<p>Brief examples introduce large-data workflows, R/Python speed comparisons, and deep learning/GPU computing. These are conceptual discussions and require no additional software or hardware.</p>
+<p>Brief examples introduce large-data workflows, R/Python function comparisons, scikit-learn, deep learning/GPU computing, and Python research software. These are conceptual discussions and require no additional software or hardware.</p>
 </section>
 <section id="before-class" class="level2">
 <h2 class="anchored" data-anchor-id="before-class">Before class</h2>
@@ -351,11 +357,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><a href="../../course/session10/slides.html">Slides</a></li>
 <li><a href="../../course/session10/lab.html">Guided lab</a></li>
 <li><a href="starter/python-intro.py">Python starter</a></li>
+<li><a href="starter/python-intro.qmd" download="python-intro.qmd">The same starter in Quarto (.qmd)</a></li>
 <li><a href="starter/r-reference.R">R reference analysis</a></li>
 </ul>
-<p>Copy both scripts to <code>work/session10/</code>. This is a single introduction, not a second full programming course; R remains the primary BIOS6301 language.</p>
+<p>Copy these files to <code>work/session10/</code>. This is a single introduction, not a second full programming course; R remains the primary BIOS6301 language.</p>
+<section id="python-also-runs-interactively-in-quarto" class="level3">
+<h3 class="anchored" data-anchor-id="python-also-runs-interactively-in-quarto">Python also runs interactively in Quarto</h3>
+<p>The <code>.py</code> and <code>.qmd</code> starters contain the same Python code, data, and exercises. Open the Quarto file in Positron’s <strong>Source</strong> mode, select the Python interpreter, and run the <code>{python}</code> chunks in order, starting with <strong>Setup</strong> and <strong>Synthetic data</strong>. Inspect objects in the Python Console and Variables pane, just as for the <code>.py</code> script. You can also run a line or selection from a chunk.</p>
+<p>Use the <code>.py</code> file for the Goal 2 script check, then demonstrate the same code in the <code>.qmd</code> file. Complete the remaining work in one format, not both. Interactive execution does not require rendering an HTML report. Full report rendering uses a Python/Jupyter environment and is outside this session’s setup. No additional installation is assigned.</p>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
