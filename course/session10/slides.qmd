@@ -43,18 +43,6 @@ data-analysis reasoning while checking differences in behavior?
 6. Verify equivalent R and Python results.
 
 
-## Six goals, one 90-minute lesson
-
-| Goal | What we will do | Minutes |
-|---|---|---:|
-| 1. Explain when Python helps | Discuss large data, speed, and deep learning | 10 |
-| 2. Run a script in Positron | Select Python, run cells, save and rerun | 10 |
-| 3. Recognize the objects | Compare lists, arrays, and DataFrames | 15 |
-| 4. Translate an analysis | Select rows, add a column, summarize by arm | 25 |
-| 5. Compare behavior with R | Check indexing and missing-value defaults | 15 |
-| 6. Verify equivalent results | Compare counts and estimates, then run all | 15 |
-
-
 ## Goal 1 · When Python helps {data-goal="1"}
 
 **Explain when Python can help a research project.**
@@ -70,63 +58,113 @@ Which part of the research task would Python help us do?
 R remains our main analysis language. We choose tools for the task.
 
 
-## Large data: when memory becomes a constraint {data-goal="1"}
+## Large data: when a different workflow helps {data-goal="1"}
 
 ::: {.question}
-Suppose a research team has 200 GB of patient-visit records and a laptop
-with 16 GB of RAM. How could they compute a summary by clinic?
+You have 200 GB of visit records, 16 GB of RAM, and need the mean of one marker.
+What must stay in memory?
 :::
 
-- Loading the entire table into memory is impractical.
-- Python can coordinate reading subsets and processing data in batches.
-- pandas also works primarily in memory. Switching languages alone does
-  not remove the memory limit.
+- `pd.read_csv(..., usecols=["marker"])` keeps only the required column.
+- Add `chunksize=100_000` to process one batch at a time.
+- `pd.read_parquet(..., columns=["marker"])` can read selected columns
+  from a column-oriented file.
+
+These can use less memory than loading the whole table with `read.csv()`.
+R also has chunked readers and Arrow. **The workflow creates the advantage.**
 
 
-## Large data: strategies and Python's role {data-goal="1"}
+## Large data: a mean without loading every row {data-goal="1"}
 
-| Strategy | Patient-visit example |
-|---|---|
-| Read less data | Select the needed years and columns |
-| Process batches | Accumulate clinic sums and observed counts |
-| Query a database | Return a small summary instead of all records |
+Illustration for a separate CSV containing a numeric `marker` column:
 
-Python is useful when the team's data pipeline or required tools already use it.
-R can use these strategies too.
+```python
+import pandas as pd
 
-**The decision starts with the workload and available memory.**
+total, observed = 0.0, 0
+for chunk in pd.read_csv("visits.csv", usecols=["marker"],
+                         chunksize=100_000):
+    total += chunk["marker"].sum()
+    observed += chunk["marker"].count()
+mean_marker = total / observed if observed else float("nan")
+```
 
+Keep a batch and two running totals in memory. Combine **sums and counts**,
+not batch means when observed batch sizes differ.
 
-## Speed: Python versus R {data-goal="1"}
-
-**Python is not generally faster than R for large tables.**
-
-| Task | What determines speed? |
-|---|---|
-| Read a large file | Reader, file format, data types, and disk speed |
-| Add a column | Vectorized calculation and unnecessary data copies |
-| Calculate a mean | Numerical implementation, data type, and missing values |
-| Save a large file | Writer, file format, compression, and disk speed |
-
-R has fast tools too: `data.table::fread()` / `fwrite()` for CSV and
-`:=` for column updates. Both languages have vectorized numerical operations.
+**When useful:** a full import exceeds RAM, but each batch fits.
 
 
-## When a Python workflow can be faster {data-goal="1"}
+## Reading and saving: compare the functions {data-goal="1"}
 
-The comparison must name the implementation on **both** sides.
-
-| Task | Python approach | Compared with this R approach |
+| Task | Python | R alternatives |
 |---|---|---|
-| Read a large CSV | Optimized C/Arrow reader | Base `read.csv()` |
-| Repeated numerical calculations | NumPy operations or compiled loops | An interpreted loop over elements |
-| Train a large neural network | GPU operations through PyTorch | CPU-only training |
+| Read CSV | `pd.read_csv()` | `read.csv()` / `data.table::fread()` |
+| Save CSV | `df.to_csv()` | `write.csv()` / `data.table::fwrite()` |
+| Read Parquet | `pd.read_parquet()` | `arrow::read_parquet()` |
+| Save Parquet | `df.to_parquet()` | `arrow::write_parquet()` |
 
-These are possible advantages, **not guaranteed wins over optimized R**.
-R also has optimized readers, compiled code, and GPU interfaces.
+For CSV, compare `pd.read_csv(..., engine="c")` or `engine="pyarrow"`
+against both R readers. A win over base `read.csv()` does not establish a win
+over `fread()`.
 
-**Measure the actual workflow:** same data and results, including missing values,
-with reading, processing, and saving timed separately.
+**Match the file, selected columns, types, and compression before timing.**
+
+
+## Columns and means: compare equivalent operations {data-goal="1"}
+
+| Task | Python / pandas | R |
+|---|---|---|
+| Add `y = 2 * x` | `df.assign(y=2*df["x"])` | `transform(df, y=2*x)` |
+| Mean, omit missing | `df["x"].mean()` | `mean(df$x, na.rm=TRUE)` |
+
+For a data.table `DT`, `DT[, y := 2*x]` adds the column by reference.
+
+- NumPy/pandas vector operations can beat an R loop that updates one row at a time.
+- R's vectorized operations and data.table are the relevant optimized comparisons.
+- For custom repeated calculations, Python's `@numba.njit` can compile a loop.
+  Compare with R's compiled options, such as Rcpp, too.
+
+**No universal winner:** measure the actual operation and peak memory.
+
+
+## Machine learning with scikit-learn {data-goal="1"}
+
+**Example:** predict a binary follow-up outcome from baseline measurements.
+
+| Part of the analysis | scikit-learn tools |
+|---|---|
+| Prepare predictors | `SimpleImputer`, `StandardScaler` |
+| Fit a prediction model | `LogisticRegression`, `RandomForestClassifier` |
+| Combine the steps | `make_pipeline()` |
+| Evaluate on held-out folds | `cross_validate()` |
+
+Models share a `fit(X, y)` / `predict(X_new)` interface.
+Python is useful when the research team's models and preprocessing use this API.
+
+**R counterparts:** **mlr3** (successor to **mlr**), **tidymodels**, and **caret**
+also support model fitting, resampling, and tuning.
+
+
+## A scikit-learn pipeline in a research study {data-goal="1"}
+
+Illustration: `X` has numeric predictors, `y` has 0/1 outcomes,
+and each row is an independent participant.
+
+```python
+from sklearn.pipeline import make_pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import cross_validate
+
+model = make_pipeline(SimpleImputer(), StandardScaler(),
+                      LogisticRegression(max_iter=1000))
+scores = cross_validate(model, X, y, cv=5, scoring="roc_auc")
+```
+
+The pipeline learns preprocessing within each training fold.
+`scores["test_score"]` contains the five held-out ROC AUC values.
 
 
 ## Deep learning: why Python is useful {data-goal="1"}
@@ -152,6 +190,21 @@ images. What would we need to understand to use their code?
   also matter.
 
 **For this session:** understand the use case. No GPU or extra software is required.
+
+
+## Research software: single-cell biology {data-goal="1"}
+
+| Research task | Python software | Example API |
+|---|---|---|
+| Quality control and clustering of single-cell RNA-seq | **Scanpy** | `sc.pp.calculate_qc_metrics()` / `sc.tl.leiden()` |
+| Model and integrate single-cell expression across batches | **scvi-tools** | `scvi.model.SCVI` |
+
+**Why learn Python here?** A collaborator shares an AnnData object and a
+Scanpy/scvi-tools workflow. Python lets you inspect the data, adjust the analysis,
+and reuse that implementation.
+
+**Goal 1 check:** name a package, the research task it supports, and why you
+would use its Python workflow.
 
 
 ## Goal 2 · Run a Python script in Positron {data-goal="2"}
@@ -195,6 +248,9 @@ Click **Run Cell** to execute one section. Its output appears in the Console.
 
 Save useful code in the `.py` file. Git tracks the saved code, including
 the `# %%` comments, so you can review changes later.
+
+**The same code works interactively in Quarto:** open `python-intro.qmd`
+in Source mode, select Python, and run its `{python}` chunks in order.
 
 
 ## Check the script from a fresh session {data-goal="2"}
@@ -389,7 +445,7 @@ summary = week4.groupby("arm", as_index=False).agg(
 Each output name maps to a **column** and an **operation**.
 
 
-## Goal 4 check: predict the output {data-goal="4"}
+## Goal 4 result: the week-4 summary {data-goal="4"}
 
 Our week-4 outcomes are:
 
@@ -401,7 +457,8 @@ Our week-4 outcomes are:
 | Control | 3 | 2 | 4.60 | 0.282843 |
 | Treated | 3 | 2 | 4.85 | 0.353553 |
 
-**Check:** why is total n still 3 when the mean uses only two outcomes?
+**Total n counts all three participants.** Observed n, mean, and SD use the
+two nonmissing outcomes in each arm.
 
 
 ## Goal 5 · Indexing and missing values {data-goal="5"}
@@ -417,16 +474,17 @@ Our week-4 outcomes are:
 Python positions start at **0**. A positional slice excludes its stop value.
 
 
-## Predict the slice before running {.smaller data-goal="5"}
+## Slices: expressions and results {.smaller data-goal="5"}
 
 ```python
 x = np.array([10, 20, 30, 40])
-x[1:3]
-x[-1]
+x[1:3]   # array([20, 30])
+x[-1]    # 40
 ```
 
 - `x[1:3]` returns `20, 30`: the stop position is excluded.
-- `x[-1]` returns the last element; it does **not** exclude position 1 as in R.
+- `x[-1]` returns `40`, the last element. In R, `x[-1]` returns `20, 30, 40`.
+- For the same values in R, `x[1:3]` returns `10, 20, 30`.
 
 
 ## pandas labels and positions {data-goal="5"}
@@ -441,7 +499,8 @@ week4.loc[1:3]             # labels 1 through 3, inclusive
 - `loc` selects by **label** and includes the ending label in a slice.
 - Filtering retains the original index labels. They need not start at 0.
 
-**Check:** why would `week4.loc[0]` fail for this table?
+`week4.loc[0]` raises **KeyError** because label 0 is absent.
+`week4.iloc[0]` selects the first row: P01 at week 4, marker 4.4.
 
 
 ## Compound conditions need elementwise logic {data-goal="5"}
@@ -556,7 +615,7 @@ For this small example, each estimate must differ by at most **0.000000000001**.
 Unexpected missing estimates fail the check.
 
 
-## Goal 6 check: a plausible but wrong table {data-goal="6"}
+## Goal 6 result: detecting a wrong denominator {data-goal="6"}
 
 Suppose we accidentally drop missing outcomes **before** grouping:
 
@@ -567,9 +626,10 @@ Suppose we accidentally drop missing outcomes **before** grouping:
 
 The means and SDs still match. The **total counts are wrong**.
 
-::: {.question}
-Which assertion catches this mistake? What filter would you repair?
-:::
+**Failed check:** `n_total` is `[2, 2]`; the reference is `[3, 3]`.
+
+**Repair:** retain all week-4 rows, including missing outcomes, then
+recompute the summary. Do not apply `dropna()` before counting participants.
 
 
 ## Use AI as translation support, not authority {data-goal="6"}
@@ -596,24 +656,25 @@ Do not ask AI to translate restricted data or confidential source.
 **Evidence:** a saved `.py` file and a comparison that passes from a fresh session.
 
 
-## Exit check · Goals 1–3
+## Worked recap · Goals 1–3
 
-1. **When Python helps:** give one research use case. Why does a large
-   file alone not prove Python will be faster?
-2. **Run a script:** show your saved `.py` file. How do you select Python
-   and rerun it from a fresh session?
-3. **Recognize objects:** why does `[1, 2, 3] * 2` behave differently
-   from `np.array([1, 2, 3]) * 2`?
+1. **When Python helps:** adapt a collaborator's Scanpy or scikit-learn
+   workflow. Speed depends on the library, algorithm, and workload.
+2. **Run interactively:** select Python in Positron; run `.py` cells or the
+   matching `.qmd` chunks. Save, restart Python, and run in order.
+3. **Recognize objects:** `[1, 2, 3] * 2` repeats the list to give
+   `[1, 2, 3, 1, 2, 3]`. NumPy array multiplication gives `[2, 4, 6]`.
 
 
-## Exit check · Goals 4–6
+## Worked recap · Goals 4–6
 
-4. **Translate an analysis:** which row filter, derived column, and
-   grouped summary implement our week-4 question?
-5. **Compare behavior:** how do `x[1:3]` and a mean with a missing value
-   differ between R and Python? Name the Python object/function.
-6. **Verify results:** which check catches a wrong total n when the
-   means still match? How did you check the numerical estimates?
+4. **Translate:** retain `week == 4`, add `month = week / 4`, then group
+   by arm using `size`, `count`, `mean`, and `std`.
+5. **Compare:** for `10, 20, 30, 40`, R's `x[1:3]` gives `10, 20, 30`;
+   Python gives `20, 30`. R and NumPy ordinary means propagate missingness;
+   pandas `Series.mean()` skips it.
+6. **Verify:** compare group labels and counts exactly. Compare means/SDs
+   with `assert_allclose(rtol=0, atol=1e-12)`, then rerun from a fresh session.
 
 
 ## Continue after class {.smaller}
@@ -626,7 +687,7 @@ Do not ask AI to translate restricted data or confidential source.
 
 ## Optional reference and practice
 
-The six learning goals end with the checks above.
+The six learning goals end with the worked recap above.
 
 - The next slides provide a syntax lookup, a file-import example, and a plot.
 - Use these with the lab's additional practice after completing the core analysis.
