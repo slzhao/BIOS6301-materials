@@ -36,20 +36,22 @@ whether it answers the statistical question?
 ## Learning goals
 
 1. Explain how Positron uses R and locate familiar RStudio tools in its panels.
-2. Choose chat, inline completion, or an agent workflow for a small R task.
-3. Inspect and test a suggestion before relying on it.
-4. Apply the privacy and disclosure rules.
+2. Distinguish models, applications, context, and agent tools.
+3. Choose completion or an explicit request for the intended work.
+4. Inspect and test a suggestion before relying on it.
+5. Apply the privacy and disclosure rules.
 
 
 ## A 90-minute route
 
 | Block | Purpose | Minutes |
 |---|---|---:|
-| Positron orientation | Tour the panels and find familiar R tools | 25 |
-| Three forms of AI assistance | Understand, complete, and edit a small R example | 25 |
-| Statistical failure case | Diagnose and repair a wrong denominator | 20 |
-| Verification and policy | Build a repeatable review habit | 10 |
-| Demonstration and exit check | Apply the complete workflow | 10 |
+| Positron orientation | Tour the panels and find familiar R tools | 20 |
+| 1. Understand | LLMs, applications, interactions, and agent tools | 10 |
+| 2. Set up and 3. Work | Connect a provider and work through the SBP examples | 25 |
+| 4. Verify | Diagnose and repair the week-12 SBP denominator | 20 |
+| Verification and policy | Apply checks, privacy rules, and disclosure | 5 |
+| Synthesis and exit check | Explain the workflow and the evidence | 10 |
 
 
 ## R, RStudio, and Positron
@@ -331,154 +333,342 @@ catalog, served through Posit Public Package Manager.
 :::
 
 
-## Can Positron use VS Code extensions? {.smaller}
+## Four workflow differences to try
 
-**Many extensions work. Direct access to Microsoft's Marketplace does not.**
+Your R code carries over. These conveniences change how you work with it.
 
-| Route | What to expect |
+| Feature | What to try |
 |---|---|
-| **Extensions view in Positron** | Search its Open VSX-based catalog and install there |
-| **Microsoft Marketplace** | Reserved for Microsoft's products under its terms |
-| **A publisher's `.vsix` file** | Install manually if its license permits Positron and it is compatible |
+| **Script cells** | Run a named section of a plain R script |
+| **Multiple sessions** | Switch between independent R or Python sessions |
+| **Data Explorer** | Inspect a file or data frame with column summaries |
+| **Air formatting** | Format R code and choose project-level settings |
 
-1. Open **Extensions** in the Activity Bar and search by name or publisher.
-2. Check the publisher, requirements, and support for your Positron version.
-3. For an allowed local file, use **Extensions: Install from VSIX** in the Command Palette.
-
-Use Positron's built-in R support; some VS Code language extensions conflict with it.
-
-
-## Commands and familiar shortcuts
-
-Open the **Command Palette**:
-
-- Windows/Linux: **Ctrl+Shift+P**
-- macOS: **Cmd+Shift+P**
-
-Type a task keyword such as **R**, **Quarto**, or **settings**, then choose a command.
-
-To use more RStudio shortcuts, search Settings for **RStudio Keybindings**,
-enable the setting, and restart Positron.
-
-
-## The same project folder in both IDEs {.smaller}
-
-```text
-BIOS6301-mywork/
-├── BIOS6301-mywork.Rproj
-└── work/
-    └── session09/
-        ├── orientation.R
-        └── copilot-review-lab.qmd
-```
-
-1. In Positron, choose **Open Folder** and select `BIOS6301-mywork`.
-2. Select your installed **R** interpreter and start its Console.
-3. Open your copied lab starter under `work/session09/`.
-4. Run `getwd()` and `R.version.string` in the Console to check the session.
-
-The interactive Console starts at the workspace root. Document rendering can
-use a different working directory, so check the starter's relative paths.
-
-
-## A short R exercise across the panels
-
-Save this as `work/session09/orientation.R` and run it in your R session:
-
-```r
-demo <- data.frame(id = 1:4, marker = c(4, 6, 8, NA))
-mean(demo$marker, na.rm = TRUE)
-View(demo)
-plot(demo$id, demo$marker,
-     xlab = "ID", ylab = "Marker")
-```
-
-1. Find **6** in the Console and **demo** in Variables.
-2. Find the four rows in Data Explorer and the three plotted points in Plots.
-3. Find `orientation.R` in Explorer and its change in Source Control.
-
-Data Explorer filters change the view. Save analytical filtering decisions in code.
-
-
-## Orientation checkpoint
-
-1. Which program computes `mean(demo$marker, na.rm = TRUE)`?
-2. Where would you look for a saved script? For an object in memory?
-3. If you restart R, will the script still exist? Will `demo` still exist
-   before you rerun the code?
-4. Can you perform this exercise before connecting Copilot?
+RStudio has comparable features. Here we focus on Positron's controls and defaults.
 
 
 ## Scripts can use code cells
 
 ```r
-# %% Create and inspect (synthetic data)
-visit <- data.frame(
-  arm = c("control", "control", "treated", "treated"),
-  marker = c(4, 6, 5, 7)
-)
+# %% Create and inspect (small synthetic example)
+visit <- data.frame(sbp0 = c(130, 145, 150),
+                    sbp12 = c(125, 140, 142))
 str(visit)
 
-# %% Summarize
-aggregate(marker ~ arm, data = visit, FUN = mean)
+# %% Plot the visits
+plot(visit$sbp0, visit$sbp12)
 ```
 
-Positron recognizes `# %%` cells in both R and Python scripts. Cells organize
-interactive execution but do not replace a reproducible top-to-bottom run.
+Use **Run Cell**, **Run Above**, or **Run Next** above a cell delimiter.
+Output appears in the current Console session.
+
+The file stays an ordinary `.R` script. Cells share session objects, so run
+from the top when checking reproducibility.
+
+::: {.source-credit}
+[Positron code cells](https://positron.posit.co/code-cells.html)
+:::
+
+
+## Multiple interpreters in one workspace
+
+Positron can keep several **independent R and Python sessions** running.
+Use the interpreter picker to start or switch sessions.
+
+| Example | What it demonstrates |
+|---|---|
+| In R session A, run `x <- 10` | A now contains `x` |
+| Start a fresh R session B and run `exists("x")` | B returns `FALSE` |
+| Switch back to A and run `x` | A still returns `10` |
+
+**Before running a cell, check the selected session.** Variables and Plots
+follow the active interpreter. Sessions can use different R versions or libraries.
+
+::: {.source-credit}
+[Managing interpreters](https://positron.posit.co/managing-interpreters.html)
+:::
+
+
+## Data Explorer: a file view or a session object
+
+RStudio users know `View(df)`. Positron also opens data files directly and
+provides a column-summary panel beside its grid.
+
+| Starting point | What you inspect |
+|---|---|
+| Open `sbp-demo.csv` from Explorer | The saved file, without first creating an R object |
+| Run `View(trial)` | The data frame currently in the selected R session |
+| Use column summaries and filters | Distributions, missingness, and a temporary subset |
+
+**A filtered view does not change the analysis data.** Put inclusion rules
+and missing-value handling in the saved R code.
+
+::: {.source-credit}
+[Data Explorer](https://positron.posit.co/data-explorer.html)
+:::
+
+
+## Air formatting and workspace settings
+
+Positron includes **Air**, an R code formatter. Run **Format Document**
+from the Command Palette to standardize spacing and layout.
+
+```r
+# Before
+mean(visit$sbp12,na.rm=TRUE)
+# After formatting
+mean(visit$sbp12, na.rm = TRUE)
+```
+
+**Format on save is opt-in.** Workspace settings apply to the current project
+and are stored in `.vscode/settings.json`. User settings apply more broadly.
+
+Formatting improves readability. It does not check the statistical analysis.
+
+::: {.source-credit}
+[Air in Positron](https://positron.posit.co/guide-r-air.html)
+:::
 
 
 ## AI-assisted coding {.section-divider}
 
-**From a familiar conversation to help inside your R project**
+**Four parts, one workflow**
 
-1. Choose the kind of help you need.
-2. Meet the tools and connect an example provider.
-3. Practice **chat**, **inline completion**, and **agent work**.
-4. Check the code and its statistical meaning.
-
-
-## Start with a familiar chat conversation
-
-If you have used ChatGPT to ask a question, start with that pattern:
-
-> Here is my R code. Why does it return NA? Explain how to fix it.
-
-You supply context, read the answer, ask follow-up questions, and check it.
-
-**Inside a coding environment, two things can change:**
-
-- **Context:** an assistant may read selected files or session information.
-- **Actions:** some workflows can insert code, edit files, or run commands.
-
-Before using a tool, identify both **what it can see** and **what it can do**.
+1. **Understand:** how an LLM and a coding application work together.
+2. **Set up:** choose a provider, mode, and permitted tools.
+3. **Work:** try completion, then make explicit requests using SBP.
+4. **Verify:** inspect the code, check the statistics, and disclose assistance.
 
 
-## One R problem, three different needs
+## 1. Understand: the LLM and the application
+
+**The AI model is usually a large language model (LLM), sometimes with image capabilities.** It uses supplied context to generate responses, code, or tool requests.
+
+**The coding application lets you interact with the LLM.** It gathers context, sends requests, displays responses, and can use tools to act on those responses.
+
+**R executes the R code.** The LLM can propose a calculation without actually running it.
+
+The same LLM can behave differently in applications with different context, tools, and permissions.
+
+::: {.source-credit}
+[Models, applications, and tools in an agent workflow](https://docs.cloud.google.com/gemini/docs/codeassist/agent-mode)
+:::
+
+
+## What happens between typing and a result?
+
+| Step | Who does it? |
+|---|---|
+| You type, select code, or send a message | **You** provide an action or explicit request |
+| Relevant code and instructions become model input | **The application** constructs a request |
+| A continuation, explanation, edit, or tool request is generated | **The LLM** produces a response |
+| Suggested text appears or a permitted tool runs | **The application** presents or acts on the response |
+
+**You do not always type a question. The application can construct a request from what you type, select, or change.**
+
+
+## Five interactions you may encounter
+
+| Interaction | What you do | What the application presents or does |
+|---|---|---|
+| **Inline completion** | Type code | Suggested continuation at the cursor |
+| **Next-edit suggestion** | Change code | A predicted related edit |
+| **Chat / explanation** | Ask a question | An answer or proposed code |
+| **Directed edit / inline chat** | Request a specific change | An edit for review |
+| **Agent workflow** | Request an outcome | Connected tool actions and results |
+
+The first two can start **without an explicit user request**. The last three respond to a request you express.
+
+::: {.source-credit}
+[VS Code AI workflows](https://code.visualstudio.com/docs/agents/overview) ·
+[Completion and next-edit suggestions](https://code.visualstudio.com/docs/editing/ai-powered-suggestions)
+:::
+
+
+## Predictions: what might the application ask the LLM?
+
+| Your action | Conceptual model request | Possible proposal |
+|---|---|---|
+| Type `write.csv(` | “Given this code, what continuation is likely?” | An object, file path, and arguments |
+| Change `T1` to `T001` | “Given this edit and the nearby code, what related edit might follow?” | Change `T2` to `T002` |
+
+The application displays the proposal for you to accept or dismiss.
+
+**A predicted edit is a guess about intent.** Changing `T1` does not establish that `T2` should change too.
+
+::: {.source-credit}
+[How inline suggestions use context](https://docs.github.com/en/copilot/responsible-use/inline-suggestions)
+:::
+
+
+## Explicit requests: answer, edit, or act?
+
+| Your request | What you want back | Application behavior to check |
+|---|---|---|
+| “Why does this plot not appear?” | An explanation | Does it only reply, or also change code? |
+| “Add arm colors to this plot.” | A focused edit | Which lines changed? |
+| “Create the outputs and check them.” | Completed work with evidence | Which files and commands did it use? |
+
+**Inline chat is a place to make an explicit editing request.** It differs from predicted inline completion.
+
+
+## Context: what information does AI receive?
+
+**Context is the information the application supplies for a model response.**
+There are several ways information enters it:
+
+| Route | Example | What to check |
+|---|---|---|
+| **Automatic context** | Conversation, editor context, session metadata | Which features and settings are enabled? |
+| **You supply it** | Paste an error, attach a plot, reference a file | Was it included, and was it truncated? |
+| **A tool retrieves it** | Read a file, search code, inspect console output | Did a tool actually return the information? |
+
+**Accessible is not the same as already read.** An open tab or a named path
+does not prove the model has received the whole file.
+
+::: {.source-credit}
+[Posit context](https://assistant.posit.co/docs/features/context-management/) ·
+[Attachments and file references](https://assistant.posit.co/docs/features/chat-features/)
+:::
+
+
+## What Posit Assistant includes automatically
+
+With an R session connected and **session context enabled**, Posit Assistant
+automatically receives:
+
+- The language and version.
+- Variable **names and types**, such as `trial` being a data frame.
+- **Not the variables' values** through this automatic session summary.
+
+Use the **eye icon** to toggle session context. To supply specific code or data,
+use `@` file references, attachments, or paste the relevant output.
+
+Values can enter later through file reads, supplied output, or permitted R execution.
+
+::: {.source-credit}
+[Session context and its toggle](https://assistant.posit.co/docs/features/context-management/) ·
+[Explicit file context](https://assistant.posit.co/docs/features/chat-features/)
+:::
+
+
+## Ask and agent work: different access to actions
+
+**Chat is an interface. Ask is a mode. The LLM is the model.**
+Changing mode need not change the selected model.
+
+| In Posit Assistant | Ask mode | Regular agent work |
+|---|---|---|
+| Receive enabled session metadata (names/types) | Yes | Yes |
+| Read/search files; inspect console history or plots | Available | Available |
+| Edit files or execute R/Python | Blocked | Available, subject to permissions |
+
+Ask can gather information and explain it. Agent work can also **change code,
+run it, and use the new result** to continue.
+
+::: {.source-credit}
+[Ask mode capabilities](https://assistant.posit.co/docs/features/ask-mode/)
+:::
+
+
+## SBP example: what does the answer rely on?
+
+Suppose you ask, **“How many patients have missing week-12 SBP?”**
+
+| Information available | What it establishes |
+|---|---|
+| Session summary says `trial` is a data frame | The object exists, not the missing-value count |
+| The CSV is attached or read with a file tool | The saved values can be inspected, even in Ask mode |
+| You run the check below and paste the output | Evidence from your current R object |
+| A permitted execution tool runs the check | Evidence returned through the agent workflow |
 
 ```r
-x <- c(4, 6, 8, NA)
-mean(x)  # NA
+sum(is.na(trial$sbp_12))
 ```
 
-| What you need now | A suitable starting point |
-|---|---|
-| “I do not understand why this is NA.” | **Chat:** ask for an explanation |
-| “I understand missing values. Help me finish the line.” | **Inline:** complete code at the cursor |
-| “Update my saved script and add checks.” | **Agent:** delegate a bounded change |
-
-The task is similar. **Your immediate goal determines the form of help.**
+Ask which data source and observed result support the answer.
 
 
-## Three forms of AI assistance
+## An agent works through a feedback loop
 
-| Form | How you interact | What changes? |
+**An agent combines an LLM with tools and a feedback loop to pursue a task.**
+
+For “Fix the report and rerun it,” the workflow might be:
+
+1. Read the report source and relevant input files.
+2. Propose and apply a code change.
+3. Run the report through an execution tool.
+4. Read the error message or inspect the output.
+5. Revise the code and check again.
+
+The LLM proposes actions. **The application runs permitted tools and returns their observations to the LLM.**
+
+::: {.source-credit}
+[Agent action-and-evaluation cycle](https://docs.cloud.google.com/gemini/docs/codeassist/agent-mode)
+:::
+
+
+## Where does the code run?
+
+| | Local execution | Cloud execution |
 |---|---|---|
-| **1. Chat** | Ask a question and discuss the answer | In read-only Ask mode, your files stay unchanged |
-| **2. Inline completion** | Type code and inspect suggested text | Accepted text enters your source file |
-| **3. Agent / edit workflow** | Request a change and review the work | The tool may edit files and run code |
+| **Workspace** | Files on your computer or connected host | A separately configured remote workspace |
+| **Software** | The available local R and packages | R and packages must be available there |
+| **Data access** | Depends on local paths and permissions | Depends on files and connections provided there |
+| **Typical workflow** | Interactive work beside your editor | A task can continue independently of your laptop |
 
-An agent often uses a **chat box too**. Check its mode and permissions to know
-whether it can act on your project.
+**Local execution does not necessarily mean a local AI model.** Code may run locally while permitted context goes to a remote model service.
+
+::: {.source-credit}
+[Cloud environments](https://learn.chatgpt.com/docs/environments/cloud-environments) ·
+[Posit Assistant providers](https://assistant.posit.co/docs/getting-started/providers/)
+:::
+
+
+## Examples: AI inside a coding environment
+
+| Product | What it brings together |
+|---|---|
+| **GitHub Copilot** | Suggestions, chat, focused edits, and agent workflows in supported clients |
+| **Cursor** | An editor and agent workflows with project search, file edits, commands, and change review |
+| **Posit Assistant in Positron** | Assistance integrated with an R/Python workspace and session context |
+
+One product can offer several interactions. **Features depend on the client, configuration, and account.**
+
+::: {.source-credit}
+[Copilot in VS Code](https://code.visualstudio.com/docs/agents/overview) ·
+[Cursor](https://prod.cursor.com/help/ai-features/agent) ·
+[Posit Assistant](https://positron.posit.co/assistant.html)
+:::
+
+
+## Examples: agents across several interfaces
+
+| Product | Ways to work with it |
+|---|---|
+| **Claude Code** | Terminal, IDE, desktop, and browser interfaces for working on a codebase |
+| **OpenAI Codex** | Desktop, IDE, terminal, and cloud workflows for project tasks |
+| **Google Antigravity** | Agent tools across desktop, editor, and terminal interfaces, including browser interaction |
+
+An agent can appear in a sidebar, terminal, or separate app. **Its interface does not tell you everything it can access or do.**
+
+::: {.source-credit}
+[Claude Code](https://code.claude.com/docs/en/overview) ·
+[Codex](https://learn.chatgpt.com/docs/codex/ide) ·
+[Antigravity](https://www.antigravity.google/docs/overview?tab=ide)
+:::
+
+
+## 2. Set up the class workflow {.section-divider}
+
+**Apply the concepts to one example configuration.**
+
+1. Identify the application, provider, and R interpreter.
+2. Connect the provider and find the assistant panel.
+3. Choose whether to discuss, plan, or implement.
+4. Check tool permissions before editing or execution.
+
+Copilot is our example provider. Other AI tools are permitted, and the lab has an AI-free route.
 
 
 ## The names you will see
@@ -533,7 +723,7 @@ Authentication: Configure Language Model Providers
 ```
 
 3. Choose **GitHub Copilot**, then sign in through the browser.
-4. Return to Positron. We will begin with a question in Posit Assistant.
+4. Return to Positron. We will try completion, then Posit Assistant.
 
 Use an account with Copilot access. If setup is unavailable, the supplied
 candidate code supports the same review exercise.
@@ -563,22 +753,23 @@ Provider names and layout can change between versions.
 :::
 
 
-## Practice: one script, three passes
+## A request, a mode, and a permission are different
 
-Copy `starter/ai-forms-demo.R` to `work/session09/` in your personal repository.
+| Question | What it controls |
+|---|---|
+| **What did you request?** | The intended outcome and scope |
+| **Which workflow or mode is active?** | Whether the assistant should explain, plan, or implement |
+| **Which tools are available?** | Whether it can read, edit, execute, or inspect |
+| **What is permitted?** | Which actions can proceed and which require approval |
 
-```r
-x <- c(4, 6, 8, NA)
-```
+“Explain this script” and “Edit and run this script” authorize different work.
 
-Establish the answers yourself: **4 entries**, **3 observed values**, **mean 6**.
+Mode names vary. Check their behavior in the application you are using.
 
-1. **Chat:** understand why `mean(x)` returns NA.
-2. **Inline:** complete the observed-mean calculation.
-3. **Agent:** add checks to the saved script and run it.
-
-The screenshots show interface controls. The R prompts and reference answers
-are prepared course examples. You can follow them without an AI account.
+::: {.source-credit}
+[VS Code workflows](https://code.visualstudio.com/docs/agents/overview) ·
+[Example tool-approval controls](https://cursor.com/docs/agent/security/run-modes)
+:::
 
 
 ## Assistant modes: discuss, plan, or act
@@ -587,131 +778,12 @@ In **Posit Assistant**, choose the kind of work before sending the request.
 
 | Workflow | Purpose | What it may do |
 |---|---|---|
-| **Ask** (`/ask`) | Explain or inspect | Read context; cannot edit files or execute R/Python |
+| **Ask** (`/ask`) | Explain or inspect | Read/search files and inspect session output; cannot edit or run R/Python |
 | **Plan** (`/plan`) | Develop an approach for review | Read context and write a plan; instructed to defer implementation |
 | **Regular agent work** | Implement a requested change | Edit and execute, subject to permissions |
 
 Use `/normal` to leave Ask mode. After reviewing a plan, **Exit and implement**
 starts the work. A small, clear change can go directly to regular agent work.
-
-
-## 1. Chat: when you need an explanation
-
-**Your question:** “I do not understand this result.” Paste this code into chat:
-
-```r
-x <- c(4, 6, 8, NA)
-mean(x)
-```
-
-> Why does this return NA? Explain `na.rm = TRUE`. How many values
-> contribute to the mean? Suggest one line of base R. Do not edit files.
-
-Ask a follow-up question if an explanation is unclear.
-Then check the proposed line in R and compare it with `?mean`.
-
-
-## Chat: where to ask and attach context {.ai-intro}
-
-:::: {.columns}
-::: {.column width="50%"}
-![](images/assistant-chat-context.webp){width=570 fig-alt="Official Posit Assistant screenshot: typing @ in the chat input opens a menu of workspace files, including an R script."}
-:::
-::: {.column width="50%"}
-
-1. Open **Posit Assistant**.
-2. Enter **`/ask`** for a read-only discussion.
-3. Type **`@`** and select `work/session09/ai-forms-demo.R`, or paste the small code example.
-4. Ask a focused question and read the explanation.
-
-The screenshot's file names and selected model are documentation examples.
-
-:::
-::::
-
-::: {.source-credit}
-[Context screenshot](https://assistant.posit.co/docs/features/chat-features/) and
-[Ask mode](https://assistant.posit.co/docs/features/ask-mode/), Posit.
-:::
-
-
-## Chat: what a useful answer should explain
-
-For `x <- c(4, 6, 8, NA)`, check these claims:
-
-- `mean(x)` returns NA because a value is missing.
-- `mean(x, na.rm = TRUE)` uses the three observed values and returns **6**.
-- `na.rm = TRUE` changes this calculation. It does not remove an entry from x.
-
-**Follow-up question:** “Does this change x? How can I check?”
-
-Run `length(x)`, `sum(!is.na(x))`, and `?mean` yourself.
-
-
-## 2. Inline: when you know what to write
-
-::: {style="text-align: center;"}
-![](images/copilot-ghost-text.png){width=1100 fig-alt="Official VS Code screenshot of GitHub Copilot: a typed JavaScript function signature followed by dimmed suggested lines at the cursor."}
-:::
-
-- **Gray text** is a proposal based on the nearby code and comments.
-- **Tab** accepts it. **Esc** dismisses it.
-- Accepting inserts source text. Run the code yourself and check its result.
-
-::: {.source-credit}
-[Microsoft screenshot](https://code.visualstudio.com/docs/editing/ai-powered-suggestions).
-JavaScript in VS Code illustrates ghost text. Our next example uses R in Positron.
-:::
-
-
-## Inline example: complete a mean calculation
-
-**Now you understand the calculation.** In your copied script, replace the
-`mean_x` assignment with this prefix:
-
-```r
-x <- c(4, 6, 8, NA)
-# Calculate the mean of the observed values using base R.
-mean_x <-
-```
-
-**Inspect before accepting:** does the suggestion handle `NA`?
-
-One suitable completion is:
-
-```r
-mean_x <- mean(x, na.rm = TRUE)
-print(mean_x)  # Expected: 6
-```
-
-Check by hand: `(4 + 6 + 8) / 3 = 6`. Suggestions may differ.
-
-
-## Chat or inline? Choose by your next step
-
-| Situation | Choose | Why |
-|---|---|---|
-| “What does `na.rm` mean?” | **Chat** | You need an explanation and follow-up questions |
-| “Use `na.rm = TRUE`; finish this assignment.” | **Inline** | You know the intended code and can judge a short completion |
-| “The suggested line uses a function I do not know.” | **Chat or R help** | Understand the proposal before accepting it |
-
-You can switch forms during the same task. Accepting a line does not verify it.
-
-
-## 3. Agent: when you want a file changed
-
-An **agent** combines a language model with tools that can read files,
-edit code, and run commands, depending on its permissions.
-
-| In our example | What the agent may do | What you inspect |
-|---|---|---|
-| Understand | Read `ai-forms-demo.R` | Did it find the intended file? |
-| Change | Add checks to the script | Does the diff match the request? |
-| Execute | Run the script in R | Do the results support its claim? |
-| Revise | Respond to a failed check | Did it fix the code or weaken the check? |
-
-An **edit workflow** may stop at proposed changes. An agent can continue through
-execution and revision. Features vary by tool.
 
 
 ## Agent approvals: when will it ask you?
@@ -729,21 +801,195 @@ For our demonstration, use **Normal** and inspect each proposed change.
 **Allow once** approves one action; session/project approval covers future actions too.
 
 
-## Agent example: request one small change
+## 3. Work through the SBP example {.section-divider}
 
-**Your goal is now a saved file change.** Leave Ask mode with **`/normal`**.
-Enter **`/plan`** to practice reviewing an approach, then send:
+**Start with predictions, then make increasingly broad requests.**
 
-> In `work/session09/ai-forms-demo.R`, keep x unchanged and calculate its
-> observed mean. Add base-R checks that x has four entries, three observed
-> values, and a mean of 6. Change only this file. Show the plan first.
+- Completion and next-edit suggestions: inspect the application's predictions.
+- Level 1: revise existing code.
+- Level 2: write specified code.
+- Level 3: implement an analysis plan.
+- Level 4: develop an analysis plan from a question.
 
-Review the plan, then choose **Exit and implement** and request a run.
-Planning is optional for a change this small.
+At every step: provide context, inspect the response or edits, run when appropriate, and check the result.
 
-- The expected mean comes from **our hand calculation**.
-- No new package or data file is needed.
-- If the tool cannot run R, run the saved script in the R Console yourself.
+
+## Familiar data: SBP at three visits
+
+Copy `sbp-demo.R` and `sbp-demo.csv` to `work/session09/`.
+
+| Column | Meaning |
+|---|---|
+| `id` | Patient identifier, one row per patient |
+| `arm` | Placebo or Treatment |
+| `sbp_0` | Baseline systolic blood pressure, mmHg |
+| `sbp_6`, `sbp_12` | SBP at 6 and 12 weeks, mmHg |
+
+These are the **same 60 synthetic patients from Session 4**, using only the columns needed here. Three week-12 values are missing.
+
+
+## Inline completion: AI predicts code as you type
+
+::: {style="text-align: center;"}
+![](images/copilot-ghost-text.png){width=1100 fig-alt="Official VS Code screenshot of GitHub Copilot: a typed JavaScript function signature followed by dimmed suggested lines at the cursor."}
+:::
+
+- **Gray text** is a proposal based on the nearby code and comments.
+- **Tab** accepts it. **Esc** dismisses it.
+- Accepting inserts source text. Run the code yourself and check its result.
+
+::: {.source-credit}
+[Microsoft screenshot](https://code.visualstudio.com/docs/editing/ai-powered-suggestions).
+JavaScript in VS Code illustrates ghost text. Our next example uses R in Positron.
+:::
+
+
+## Inline example: you start typing write.csv
+
+Suppose your script has a data frame named `trial` and nearby output paths.
+
+**You type:**
+
+```r
+write.csv(
+```
+
+**A possible completion:**
+
+```r
+write.csv(trial, "work/session09/trial-export.csv", row.names = FALSE)
+```
+
+AI predicts the object, path, and arguments from context. The application constructed a model request; you did not send an explicit task request.
+
+Check every proposed argument. **Accepting inserts code. Executing writes the file.**
+
+
+## Next-edit suggestions: a predicted change {.ai-intro}
+
+::: {style="text-align: center;"}
+![](images/copilot-next-edit.png){width=1000 fig-alt="Official GitHub screenshot in VS Code showing a predicted Java edit from name to userName and options to accept or reject it."}
+:::
+
+The application highlights a related edit for review. Decide whether it matches your intended change.
+
+::: {.source-credit}
+[GitHub screenshot](https://docs.github.com/en/copilot/how-tos/get-code-suggestions/get-ide-code-suggestions).
+Java in VS Code illustrates the control, not the SBP exercise.
+:::
+
+
+## Four levels of explicit requests: the SBP example
+
+| Level | What you provide | What AI supplies |
+|---|---|---|
+| **1. Revise existing code** | Plot code and a specific issue | A fix or small change |
+| **2. Write specified code** | Variables, plot type, labels | Code for that defined task |
+| **3. Implement an analysis plan** | An agreed plan and the dataset | Data inspection, working code, checked outputs |
+| **4. Develop an analysis plan** | A research question and the dataset | A justified approach for review, then implementation |
+
+**Level 3 starts with a plan. Level 4 starts with a question.**
+
+Inline prediction sits outside this ladder of explicit requests.
+
+
+## Level 1: revise existing code
+
+The starter reads the CSV into `trial` and creates this plot object:
+
+```r
+p <- ggplot(trial, aes(sbp_0, sbp_12)) +
+  geom_point()
+```
+
+**Debugging request:** “I sourced this script, but the plot did not appear. Explain why and show the smallest fix.”
+
+**Editing request:** “Color these points by treatment arm. Keep the axes.”
+
+You provide the code and a specific change or problem.
+
+
+## Chat: where to ask and attach context {.ai-intro}
+
+:::: {.columns}
+::: {.column width="50%"}
+![](images/assistant-chat-context.webp){width=570 fig-alt="Official Posit Assistant screenshot: typing @ in the chat input opens a menu of workspace files, including an R script."}
+:::
+::: {.column width="50%"}
+
+1. Open **Posit Assistant**.
+2. Enter **`/ask`** for a read-only discussion.
+3. Type **`@`** and select `work/session09/sbp-demo.R`, or paste the small code example.
+4. Ask a focused question and read the explanation.
+
+The screenshot's file names and selected model are documentation examples.
+
+:::
+::::
+
+::: {.source-credit}
+[Context screenshot](https://assistant.posit.co/docs/features/chat-features/) and
+[Ask mode](https://assistant.posit.co/docs/features/ask-mode/), Posit.
+:::
+
+
+## Level 1: discussion and directed editing
+
+**For an explanation:** attach the code in Ask mode and ask why sourcing it shows no plot. Read the proposed fix and apply it yourself.
+
+**For an edit:** request “Add arm colors and print the plot. Keep the variables unchanged.” In a workflow with editing tools, inspect the resulting code differences.
+
+Both are **level-1 requests**. The difference is whether you want an answer or a change applied to the file.
+
+
+## Level 1: inspect the proposed change
+
+```r
+p <- ggplot(trial, aes(sbp_0, sbp_12, color = arm)) +
+  geom_point()
+print(p)
+```
+
+- `print(p)` displays the plot object when the script runs.
+- `color = arm` inside `aes()` maps treatment arm to colors.
+- Each point represents one patient's baseline and week-12 SBP.
+- Three patients lack week-12 SBP. Account for their omitted points.
+
+**Check the explanation, the code change, and the result.**
+
+
+## Level 2: write code for a specified task
+
+> Using `trial`, make a scatterplot with baseline SBP on x and week-12 SBP on y. Color points by arm. Label both axes in mmHg and display the plot.
+
+**You have chosen** the variables, plot type, grouping, and labels.
+
+**AI supplies** the implementation. Chat can return code for you to run. An agent can write and run the script if asked.
+
+Check that x is baseline, y is week 12, and each point represents one patient.
+
+
+## From a specified plot to an analysis plan
+
+**Level 2 supplies one task:** draw the baseline-versus-week-12 scatterplot.
+
+**Level 3 supplies a connected plan:**
+
+1. Inspect patient IDs, variable types, visit columns, and missing values.
+2. Summarize observed SBP by visit and arm, reporting the count with each mean.
+3. Make the baseline-versus-week-12 scatterplot, colored by arm.
+4. Save the summary and plot, then verify counts and labels.
+
+AI works out **how to implement this plan in these data**.
+
+
+## Level 3: implement the supplied analysis plan
+
+> Implement the plan on the previous slide using `work/session09/sbp-demo.csv`. Inspect the data first. Use available SBP values for each visit-and-arm mean and report its count. Use complete baseline/week-12 pairs for the scatterplot.
+
+> Save an R script, summary CSV, and plot PNG under `work/session09/`. Run the script and check the outputs. Keep the source CSV unchanged. Raise any issue that would require changing the plan.
+
+You supply the analytical approach. AI handles the connected implementation and reports evidence.
 
 
 ## Agent screenshot: review the plan {.ai-intro}
@@ -758,15 +1004,15 @@ Planning is optional for a change this small.
 - **Keep planning** lets you revise the approach.
 - **Exit and implement** starts work on the plan.
 
-For our R task, the plan should name **one file**, the mean calculation,
-and the three checks.
+For our plot task, the plan should name the **input CSV**, visit summaries,
+missing-value handling, and output files.
 
 :::
 ::::
 
 ::: {.source-credit}
 [Posit Plan mode screenshot](https://assistant.posit.co/docs/features/plan-mode/).
-The pictured plan uses penguin data. Our exercise uses the four-value vector.
+The pictured plan uses penguin data. Our exercise uses the Session 4 SBP data.
 :::
 
 
@@ -794,88 +1040,142 @@ The pictured `spin.R` edit is a documentation example.
 :::
 
 
-## Agent example: verify the saved result
+## Level 3: verify the delivered outputs
 
-A suitable final script is:
-
-```r
-x <- c(4, 6, 8, NA)
-mean_x <- mean(x, na.rm = TRUE)
-stopifnot(length(x) == 4L)
-stopifnot(sum(!is.na(x)) == 3L)
-stopifnot(isTRUE(all.equal(mean_x, 6)))
-print(mean_x)
-```
-
-Review Source Control: **only the intended analysis file changed**, and x still includes NA.
-Run from a fresh R session. Expect **6** and no failed assertions.
-
-The expected values came from our calculation before the agent wrote the checks.
-
-
-## Checkpoint: choose the form and mode
-
-1. You want to understand an unfamiliar function without changing files.
-2. You know the plot you want and need help completing its labels.
-3. You want a script revised, checked, and run.
-4. You want to discuss the approach before that revision begins.
-
-For each, name the form or mode and **one thing you will verify**.
-
-
-## From code assistance to statistical verification {.section-divider}
-
-We can now choose **chat**, **inline completion**, or **agent work**.
-
-Next: can we tell when plausible code answers the **wrong statistical question**?
-
-Our next example summarizes a measurement by treatment arm.
-The key issue is the denominator when values are missing.
-
-
-## Give statistical context in the source
+| Output | What to check |
+|---|---|
+| **R script** | Runs from a fresh session with the intended input |
+| **Visit summary CSV** | 6 rows: 3 visits × 2 arms, with observed counts |
+| **Scatterplot PNG** | Baseline x, week 12 y, mmHg, arm legend |
+| **Execution evidence** | 60 patients, 57 complete pairs, 3 omitted |
 
 ```r
-# At week 4, report total n, observed n, mean marker,
-# and SD by randomized arm. Do not remove missing rows
-# before counting total n.
+with(trial, table(arm, is.na(sbp_12)))
+#            FALSE TRUE
+# Placebo       28    2
+# Treatment     29    1
 ```
 
-A precise comment improves the proposed code and remains useful documentation
-even when Copilot is disabled.
+
+## The SBP plot we can check {.ai-intro}
+
+::: {style="text-align: center;"}
+![](images/sbp-reference.png){height=490 fig-alt="Scatterplot of baseline versus week-12 SBP for 57 of the 60 synthetic patients from Session 4, with treatment arm shown by color and shape."}
+:::
+
+::: {.small}
+Prepared R reference output. Check the axes, arm legend, and 57 complete pairs. The three patients missing week 12 still contribute to earlier visit summaries.
+:::
+
+
+## Level 4: develop a plan from a question
+
+**Research question:** “How does SBP change over the three visits, and how does that pattern differ by treatment arm?”
+
+> Inspect the dataset and propose an analysis plan for this question. Explain the summaries and plots you would use, how you would account for repeated measurements and missing values, and what the results could tell us. Present the plan before implementing it.
+
+Here, AI helps choose **what analysis to do and why**.
+
+After review, carrying out that plan becomes the level-3 workflow.
+
+
+## Level 3 versus level 4: what is already decided?
+
+| | **3. Implement an analysis plan** | **4. Develop an analysis plan** |
+|---|---|---|
+| Starting point | Agreed steps plus data | Research question plus data |
+| AI decides | How to implement the steps correctly | Which approach addresses the question and why |
+| Data exploration | Checks structure and informs coding | Informs the proposed analytical approach |
+| Your review | Code, outputs, and fidelity to the plan | Reasoning and assumptions, then implementation |
+
+**A mode named “Plan” can help at either level.** These levels describe the request, not a product setting.
+
+
+## Level 4: review the proposed reasoning
+
+A useful SBP plan should explain:
+
+1. Whether it describes visit means, within-patient change, or both.
+2. Why the chosen plots answer the question about change and arm differences.
+3. How it preserves patient pairing across visits and handles missing SBP.
+4. Whether descriptive summaries suffice or an inferential method is needed.
+
+**Visit means can involve different patients. A difference in visit means need not equal the mean paired change.**
+
+An agent can implement a reviewed plan. Successful execution does not validate its scientific reasoning.
+
+
+## Checkpoint: prediction, request, or plan?
+
+1. You type `write.csv(` and AI suggests the remaining arguments.
+2. “Why does sourcing my plot script show no figure?”
+3. “Write a baseline-versus-week-12 scatterplot, colored by arm.”
+4. “Implement these visit summaries and plot steps, then check the outputs.”
+5. “How does SBP change by arm? Propose an analysis plan.”
+
+Which is inline prediction? Which requests are levels 1–4?
+
+**Discuss:** could chat help develop the plan even if it cannot execute R?
+
+
+## 4. Verify the work and its statistical meaning {.section-divider}
+
+**Keep the same SBP data and inspect a plausible mistake.**
+
+The request: report the number of patients, observed week-12 SBP values, mean SBP, and SD by arm.
+
+The trap: filtering missing SBP before counting changes the denominator.
+
+We will predict the error, repair the code, check independently, and document the assistance.
+
+
+## Evaluating an AI coding workflow
+
+| Ask | Look for |
+|---|---|
+| **What did it know?** | The code, data, instructions, and context supplied |
+| **What did it do?** | Suggested text, applied edits, or executed commands |
+| **What evidence supports the result?** | Code differences, execution output, figures, and checks |
+| **Does it answer our question?** | Correct quantities, pairing, missing-data handling, and interpretation |
+
+**A successful run supports a claim about execution. Statistical validity requires additional reasoning.**
+
+Apply these questions to the week-12 SBP summary on the next slides.
 
 
 ## Vague instructions invite hidden choices {.smaller}
 
-```r
-# Summarize marker by group.
-```
-
-Compare with:
+**Vague:**
 
 ```r
-# At week 4, retain all randomized participants and report
-# total n, observed n, mean, and SD by arm.
+# Summarize SBP by arm.
 ```
 
-The second comment specifies population, time, denominator, statistics, and grouping.
+**Specific:**
+
+```r
+# Using trial, report total n, observed n, mean and SD
+# of week-12 SBP by arm. Keep missing values when
+# counting total n; omit them for the mean and SD.
+```
+
+These instructions can guide a completion or an explicit request. They specify the quantity you will verify.
 
 
 ## Plausible code can answer the wrong question
 
 ```r
-visit |>
-  dplyr::filter(week == 4, !is.na(marker)) |>
+trial |>
+  dplyr::filter(!is.na(sbp_12)) |>
   dplyr::summarise(
     n = dplyr::n(),
-    mean_marker = mean(marker),
-    sd_marker = sd(marker),
+    mean_sbp = mean(sbp_12),
+    sd_sbp = sd(sbp_12),
     .by = arm
   )
 ```
 
-The code runs, but `n` is observed `n`, not total `n`, because missing rows were
-removed first.
+What does `n` count after the filter? Does the output contain everything requested?
 
 
 ## Predict before running
@@ -891,31 +1191,29 @@ For the proposed pipeline, write down:
 ## Repair the statistical meaning
 
 ```r
-visit |>
-  dplyr::filter(week == 4) |>
+trial |>
   dplyr::summarise(
     n_total = dplyr::n(),
-    n_observed = sum(!is.na(marker)),
-    mean_marker = mean(marker, na.rm = TRUE),
-    sd_marker = sd(marker, na.rm = TRUE),
+    n_observed = sum(!is.na(sbp_12)),
+    mean_sbp = mean(sbp_12, na.rm = TRUE),
+    sd_sbp = sd(sbp_12, na.rm = TRUE),
     .by = arm
   )
 ```
 
-The correction follows from the estimand and denominator—not from asking for
-more fluent-looking code.
+Both arms have **30 patients**. Observed week-12 SBP counts are **28 Placebo** and **29 Treatment**.
 
 
-## A verification ladder {.smaller}
+## Four kinds of verification {.smaller}
 
-| Level | Question | Example evidence |
+| Check | Question | Example evidence |
 |---|---|---|
-| Syntax | Did it run? | no error or warning |
+| Execution | Did the saved code run? | exit status, output, and reviewed warnings |
 | Data | Did it use the intended rows? | counts and key checks |
 | Statistical | Did it estimate the intended quantity? | denominator and missingness review |
 | Reproducibility | Does it work from source? | restart and render/run all |
 
-Passing a lower level does not imply passing the next one.
+Passing one check does not establish that the others pass.
 
 
 ## Five verification questions
@@ -930,12 +1228,15 @@ Passing a lower level does not imply passing the next one.
 ## Independent checks should be small
 
 ```r
-week4 <- visit[visit$week == 4, ]
-with(week4, table(arm, useNA = "ifany"))
-with(week4, tapply(!is.na(marker), arm, sum))
+table(trial$arm)
+# Placebo Treatment
+#      30        30
+with(trial, tapply(!is.na(sbp_12), arm, sum))
+# Placebo Treatment
+#      28        29
 ```
 
-Do not ask Copilot to generate both the answer and its only verification.
+Compare these counts with the candidate's output. Use a check whose logic you can explain independently.
 
 
 ## Other common failures
@@ -995,8 +1296,8 @@ Would you place each item in an AI-visible editor?
 ## Keep disclosure short and useful
 
 ```text
-AI use: I used GitHub Copilot to suggest the group-summary code. I corrected its
-missing-value handling and verified the group counts independently.
+AI use: I used Posit Assistant with GitHub Copilot as provider to revise the
+summary. I reviewed its missing-value handling and checked counts with base R.
 ```
 
 Or:
@@ -1006,23 +1307,42 @@ AI use: None.
 ```
 
 
-## Live demonstration: one complete cycle
+## One workflow to carry into your own projects
 
-1. Open the same project in Positron.
-2. Start the correct R interpreter.
-3. Type a precise statistical comment.
-4. Inspect and partially accept one completion.
-5. Run the code on synthetic data.
-6. Verify group totals with independent base R.
-7. Add the disclosure sentence and review the diff.
+1. **Specify:** state the goal, relevant context, and intended scope.
+2. **Choose:** prediction, discussion, directed editing, or agent execution.
+3. **Inspect:** read the response, proposed plan, and code differences.
+4. **Execute:** run the saved code in the intended environment.
+5. **Verify:** check data use, statistical meaning, and reproducibility.
+6. **Record:** preserve the reviewed source and disclose substantive assistance.
+
+The amount of work delegated can change. Your responsibility for the result remains.
 
 
 ## Exit check
 
-1. What changes when a completion is accepted?
-2. Why was the first group-summary code wrong?
-3. Name one independent check you would run.
-4. What information must never be placed in AI-visible context?
+1. What does the application do that the LLM does not do by itself?
+2. How does inline completion differ from an explicit editing request?
+3. What distinguishes implementing a plan from developing one?
+4. Why did the first SBP summary report 28 and 29 instead of 30 and 30?
+5. What evidence and disclosure would you keep?
+
+
+## Beyond one prompt: extensions (reference)
+
+| Concept | What it adds |
+|---|---|
+| **Project instructions** | Persistent guidance about the project and its conventions |
+| **Skills** | Reusable instructions and resources for a particular kind of task |
+| **MCP connections** | A standard way to connect supported applications to external tools or data |
+| **Subagents** | Separate agent workers handling subtasks and returning results |
+
+These extend an assistant's workflow. They do not establish that its output is correct.
+
+::: {.source-credit}
+[Context, rules, and skills](https://prod.cursor.com/docs/agent/prompting) ·
+[Agent extensions](https://www.antigravity.google/docs/overview?tab=ide)
+:::
 
 
 ## Official references {.smaller}
@@ -1033,7 +1353,6 @@ AI use: None.
 - [GitHub: responsible use of inline suggestions](https://docs.github.com/en/copilot/responsible-use/inline-suggestions)
 
 
-
 ## Setup troubleshooting (reference) {.smaller}
 
 1. Confirm you are signed into the intended GitHub account.
@@ -1041,5 +1360,5 @@ AI use: None.
 3. Reload the Positron window.
 4. Continue with the supplied candidate code if authentication remains blocked.
 
-The learning goal is **reviewing a suggestion**, not solving account setup during lecture.
+The learning goal is **specifying and verifying AI-assisted work**. Use the supplied examples if setup takes too long.
 

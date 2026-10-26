@@ -1,130 +1,136 @@
 ---
 title: "Session 9 guided lab"
-subtitle: "Accept less, inspect more"
+subtitle: "Discuss, revise, and verify with Posit Assistant"
 ---
 
+## One report, one review cycle
+
+Use **Posit Assistant in Positron**, connected to **GitHub Copilot as the model
+provider**. Posit Assistant supplies the conversation and tools. Copilot supplies
+access to the selected model. R runs the analysis.
+
+The core lab takes about **35–40 minutes**. Improve a supplied SBP scatterplot
+and repair a week-12 summary, then verify both in one rendered report.
+The four levels in the lecture describe different requests; you do not need
+to complete four separate analyses here.
+
+| Step | Your task | Approximate time |
+|---|---|---:|
+| Set up | Copy two files and connect the provider | 5 minutes |
+| Discuss | Predict the problem, then use Ask | 8 minutes |
+| Revise | Request a bounded edit and inspect the changes | 10 minutes |
+| Verify | Run independent checks and render the report | 12 minutes |
+
+## 1. Set up
+
+1. Open your **BIOS6301-mywork** folder in Positron. From the separate course
+   materials folder, copy [the Quarto starter](starter/copilot-review-lab.qmd)
+   and [sbp-demo.csv](starter/sbp-demo.csv) into `work/session09/`.
+   If you prefer R Markdown, use [the Rmd starter](starter/copilot-review-lab.Rmd)
+   instead. Choose one document format.
+2. Select your R interpreter. The lab uses the familiar **ggplot2** and **dplyr**
+   packages. Install either if missing before continuing.
+3. Open the copied document and **Render** it (or **Knit** the Rmd).
+   Its `read.csv("sbp-demo.csv")` path is relative to the document's folder.
+   When running chunks interactively, check that the R working directory is
+   `work/session09/`. Do not add a machine-specific absolute path to the report.
+4. If not already connected, open the Command Palette and run
+   **Authentication: Configure Language Model Providers**. Select **GitHub
+   Copilot**, sign in, and open **Posit Assistant**. Confirm the provider and
+   selected model. Keep the usual **Normal** approval setting.
+
+The CSV contains the same **60 synthetic patients** used in class: `id`, `arm`,
+`sbp_0`, `sbp_6`, and `sbp_12`. Each row is one patient. SBP is in mmHg.
+Keep the original CSV unchanged.
+
+If AI access is unavailable, use the supplied candidates and make the revisions
+yourself. Other tools remain permitted under the course policy, but the
+instructions below use our class configuration.
+
+## 2. Discuss in Ask mode
+
+Read the starter's two candidates. **Before asking AI**, write one sentence
+predicting what the summary's `n` counts after missing SBP rows are removed.
+
+Select **Ask** (`/ask`). Use `@` to reference your copied document and CSV,
+then send:
+
+> Read these two files. Explain which columns represent baseline and week-12
+> SBP. Explain why assigning the plot to p does not explicitly display it.
+> Does the prepared summary report all patients or only patients with observed
+> week-12 SBP? Suggest the smallest corrections. Do not change files.
+
+Record whether the explanation agrees with your prediction and how the
+assistant obtained the column names.
+
 ::: {.callout-note}
-**Suggested use:** the first review cycle is the core route. Additional practice
-repeats the generate–inspect–test–revise cycle on a small function. The instructor
-may choose how far to proceed; the remainder is independent practice.
+**Reading a CSV does not require running R.** Ask can read its header and values
+with a file tool. It cannot run `names(trial)` or other R code to inspect a live
+object. Automatic session context supplies object names/types, not their values.
+If needed, run an R check yourself and paste its output. A saved CSV can differ
+from an object you have transformed in memory.
 :::
 
-Choose one format and copy either `starter/copilot-review-lab.Rmd` or
-`starter/copilot-review-lab.qmd` to `work/session09/`. Knit the `.Rmd` file or
-Render the `.qmd` file.
+## 3. Request a bounded revision
 
-In Positron, use **Open Folder** to open **BIOS6301-mywork** as your workspace.
-Keep `BIOS6301-mywork.Rproj` for opening the same folder in RStudio. Paths under
-`work/` below belong to your personal repository. Copy starters from the separate
-`BIOS6301-materials` clone, leaving the course originals unchanged.
+Save your prediction. Leave Ask using `/normal`, then send this implementation
+plan in **Posit Assistant**:
 
-## Goal
+> In my copied lab document, fill only the Revised plot and Corrected summary
+> sections. Plot sbp_0 on x and sbp_12 on y, color by arm, label both axes in
+> mmHg, and explicitly print the plot. Use complete pairs for the plot only.
+> Summarize week-12 SBP by arm as n_total, n_observed, mean_sbp, and sd_sbp.
+> Count all patients in n_total and use observed SBP for the mean and SD.
+> Keep the CSV, original candidates, my prediction, verification code, and
+> disclosure unchanged. Render or knit the document if the tools are available;
+> otherwise tell me what to run. Report what you actually changed and ran.
 
-Review an AI suggestion for a familiar R task, identify whether it answers the
-question, correct it, and document the verification. The class demonstration
-uses GitHub Copilot. You may use another AI coding tool under the same course
-rules, or complete the exercise without AI using the supplied candidate.
+Inspect the file differences before accepting the result. Check that the agent
+changed only the intended sections. If something is wrong, request one focused
+correction and inspect again. An agent's statement that it ran the report is
+not enough: look for the command result or render it yourself.
 
-## Warm-up: three forms of AI assistance
+This implements a **supplied plan**, matching level 3 in the lecture. Adding
+arm colors alone is a level-1 edit. The same interface can handle either scope.
 
-Copy [ai-forms-demo.R](starter/ai-forms-demo.R) to `work/session09/` in your
-personal repository. The synthetic vector is `c(4, 6, 8, NA)`. Before using AI,
-calculate its total length (4), observed count (3), and observed mean (6).
+## 4. Verify and explain
 
-First choose the kind of help you need: an explanation calls for chat, a short
-completion you understand fits inline assistance, and a requested file change
-fits an agent workflow. We will practice them in that order.
+Run the starter's supplied base-R checks yourself and compare them with the
+revised analysis. Check the rendered output as well as the code.
 
-### Modes before actions
+- **Plot:** baseline on x, week 12 on y, labels in mmHg, and arm colors.
+  There are **57 complete pairs** and **3 omitted patients**. Points can overlap,
+  so use the count rather than trying to count visible dots.
+- **Summary:** two rows, one per arm. Total counts are **30 and 30**.
+  Observed week-12 counts are **28 Placebo and 29 Treatment**.
+- **Meaning:** excluding a missing week-12 value from a mean must not exclude
+  that patient from the total count. Explain this in your own words.
 
-In current Posit Assistant, **Ask** (`/ask`) permits reading and discussion but
-blocks file changes and R/Python execution. **Plan** (`/plan`) develops an approach
-and can write a plan file; it is instructed to defer implementation, but it is
-not technically restricted to read-only actions. **Regular agent work** can edit
-and execute, subject to permissions. Use `/normal` to leave Ask mode, and review
-a plan before choosing **Exit and implement**.
+Save and render/knit the document from the beginning. Keep one source document
+and its HTML report, containing your prediction, the preserved candidates,
+revised plot and summary, verification results, and a short disclosure.
+Record **Posit Assistant**, **GitHub Copilot as provider**, and the displayed
+model name if available. Describe your own review and corrections.
 
-Approval settings answer a separate question: when should a tool action need
-confirmation? **Normal** prompts for riskier actions, **Restricted** prompts for
-each tool action, **Auto** uses an automated reviewer, and **YOLO** broadly
-approves actions automatically. For this walkthrough, use Normal and review
-the proposed changes. Existing permissions affect which prompts appear.
+## Optional: develop a plan from a question
 
-### Three passes through the same example
+After the core report is complete, use **Plan** (`/plan`) and reference the CSV:
 
-1. **Chat, to understand:** in Posit Assistant, enter `/ask`. Paste `x <- c(4, 6, 8, NA)`
-   and `mean(x)`, then ask why the result is NA and how `na.rm = TRUE` changes
-   the calculation. Check the answer against `?mean` and your own R execution.
-2. **Inline, to finish code:** once you understand the calculation, replace the
-   `mean_x` assignment with `mean_x <- `. Inspect the suggested completion,
-   accept or revise it, and run the script. Check for `na.rm = TRUE` and output 6.
-3. **Agent, to change a file:** leave Ask mode with `/normal`, then enter `/plan`. Ask it to keep
-   x unchanged and add base-R assertions for total length 4, observed count 3,
-   and mean 6, changing only `work/session09/ai-forms-demo.R`. Review its plan
-   before choosing **Exit and implement**, inspect proposed edits, and run the saved script.
-   If it cannot run R, execute the script yourself.
+> How does SBP change over the three visits, and how does that pattern differ
+> by arm? Propose a short descriptive analysis plan. Explain how you would
+> handle missing visits and repeated measurements. Do not implement it yet.
 
-Planning is optional for this small change; we use it here to learn the workflow.
-Distinguish the assistant's plan file from changes to the analysis script.
+Identify one analytical decision you would question or change. This is level 4:
+developing a plan from a question. Plan mode can write a plan file; it differs
+from Ask's enforced read-only behavior. No additional analysis is required.
 
-The slides show the current controls and official screenshots. Other tools may
-use different mode names. If AI is unavailable, enter the reference code below
-manually and explain what you would review in each interaction.
+Inline completion, next-edit suggestions, and the full three-visit implementation
+remain lecture demonstrations. The [demo script](starter/sbp-demo.R) and
+[reference script](starter/sbp-reference.R) are optional follow-up materials.
+Custom functions and edge-case testing are not part of this core lab.
 
-```r
-x <- c(4, 6, 8, NA)
-mean_x <- mean(x, na.rm = TRUE)
-stopifnot(length(x) == 4L)
-stopifnot(sum(!is.na(x)) == 3L)
-stopifnot(isTRUE(all.equal(mean_x, 6)))
-print(mean_x)
-```
+## References
 
-Use Source Control to confirm the intended analysis changes. A successful run prints
-6 and produces no assertion error. The checks use values you established
-independently before asking the agent.
-
-## Main task: review a group summary
-
-1. Open the personal repository folder in Positron, select your R interpreter,
-   and open the copied starter. Confirm `getwd()` in the R Console. Locate
-   Explorer, Editor, Console, Variables, and Plots before continuing.
-2. Use the supplied comment to request an inline completion for the week-4 group
-   summary in Copilot, request the same code with your chosen AI tool, or evaluate
-   the supplied candidate without AI.
-3. Preserve the first candidate as a non-executed code block for review.
-4. State what `n`, `n_observed`, and one output row should mean.
-5. Correct the candidate and verify group counts using independent base-R code.
-6. Check that the corrected output has one row per randomized arm.
-7. Add either `AI use: None.` or a concise disclosure describing the suggestion,
-   correction, and verification.
-
-## Additional practice: test an AI-generated function
-
-1. Before prompting, write a contract for `summarize_week(data, week)` specifying
-   required columns, one-row-per-arm output, total versus observed `n`, missing-
-   value behavior, and what happens when the requested week is absent.
-2. Ask your AI tool for the function using only synthetic column names and the written
-   contract. Preserve its first response as non-executed code.
-3. Predict at least two ways the candidate could violate the contract before
-   running it.
-4. Test it on the supplied data, reversed arm order, a group with all markers
-   missing, and a requested week with no rows.
-5. Revise the function until it either returns a contract-compliant result or
-   fails with an informative error. Do not weaken a test to make the code pass.
-6. Implement an independent base-R check and compare keys, counts, and numerical
-   summaries after sorting.
-7. Give your AI tool a deliberately vague request, then a precise testable request for
-   the same task. Compare the usefulness and risks of the two responses.
-8. Extend the disclosure to distinguish generated code, human decisions,
-   corrections, and independent verification.
-
-### Independent-practice check
-
-Every accepted line must have a stated purpose. The test with an all-missing group
-must retain its total `n`, and the absent-week test must have deliberate behavior.
-
-## Exit evidence
-
-Render the candidate, critique, corrected code, independent checks, and disclosure.
-Be prepared to explain every line without Copilot.
+[Provider setup](https://positron.posit.co/assistant-providers.html) ·
+[Ask mode](https://assistant.posit.co/docs/features/ask-mode/) ·
+[Session context](https://assistant.posit.co/docs/features/context-management/)
