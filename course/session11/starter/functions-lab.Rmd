@@ -3,145 +3,119 @@ title: "Session 11 lab: conditions and functions"
 output: html_document
 ---
 
-All values below are synthetic teaching data. Complete the TODOs, then render.
-The numbered sections match the lecture outline and guided lab.
-Copy the supplied R/centre-values.R beside this report, preserving the R folder.
+All data are synthetic and included below. This starter runs as supplied.
+Complete the TODOs and replace each ANSWER prompt with a short explanation.
+Keep all definitions in this file; no packages or helper files need downloading.
+
+## 1. Choose a condition
+
+Run this check first. Then change `followup` to `c(138, 132, 150, 155)`
+and rerun the chunk. These observations are already matched by participant.
+
+```{r}
+baseline <- c(150, 140, 160, 155)
+followup <- c(138, 132)
+if (length(followup) != length(baseline)) {
+  "Check the input: baseline and follow-up counts differ"
+} else {
+  followup - baseline
+}
+```
+
+ANSWER: Why should we check the lengths before subtracting?
+
+```{r}
+change <- c(-2, NA, 1, 0)
+# TODO: replace this placeholder with ifelse(is.na(change), "missing", ...).
+# Inside it, use a second ifelse() for decrease versus no decrease.
+labels <- rep("not completed", length(change))
+labels
+
+if (any(change < 0, na.rm = TRUE)) {
+  "At least one observed change is negative"
+} else {
+  "No observed change is negative"
+}
+```
+
+ANSWER: Why does `any(change < 0, na.rm = TRUE)` work in `if`,
+while `change < 0` does not?
+
+## 2. Write and call a small function
+
+Open `help("median", package = "stats")` in the Console.
+
+ANSWER: Identify the package, function, default for `na.rm`, and supplied
+argument that changes it. Predict the result and its length using **Value**.
+
+```{r}
+median_result <- stats::median(c(10, NA, 14), na.rm = TRUE)
+median_result
+length(median_result)
+
+centre_values <- function(x, centre = 0) {
+  x  # TODO: replace this placeholder with x - centre.
+}
+measurements <- c(10, NA, 14)
+default_result <- centre_values(measurements)
+centered_result <- centre_values(measurements, centre = 12)
+default_result
+centered_result
+```
+
+ANSWER: Why pass the center as an argument instead of reading a global
+`reference_mean` inside the function?
+
+## 3. Read a function with checks
+
+This helper is complete. Run it and explain the four example results.
+
+```{r}
+safe_mean <- function(x) {
+  if (!is.numeric(x) || !is.null(dim(x))) {
+    stop("x must be a numeric vector", call. = FALSE)
+  }
+  if (any(is.infinite(x))) {
+    stop("x must not contain infinite values", call. = FALSE)
+  }
+  if (all(is.na(x))) return(NA_real_)
+  mean(x, na.rm = TRUE)
+}
+
+safe_mean(c(2, NA, 4))
+safe_mean(numeric(0))
+safe_mean(c(NA_real_, NA_real_))
+try(safe_mean("4"), silent = TRUE)
+```
+
+ANSWER: Which check or return handles each of these four inputs?
+
+## 4. Reuse the function and check the result
+
+These two calculations establish the results before refactoring.
 
 ```{r}
 markers <- data.frame(
   marker_a = c(4.1, 5.2, NA, 6.0),
-  marker_b = c(12, 10, 9, 11),
-  marker_c = rep(NA_real_, 4)
+  marker_b = c(12, 10, 9, 11)
 )
-baseline <- c(10, 8, NA, 12)
-followup <- c(8, 9, 7, 12)
-baseline_b <- c(4, 6, 8, NA)
-followup_b <- c(5, 4, 8, 9)
+original_a <- mean(markers[["marker_a"]], na.rm = TRUE)
+original_b <- mean(markers[["marker_b"]], na.rm = TRUE)
+c(marker_a = original_a, marker_b = original_b)
+
+# TODO: replace each NA_real_ with safe_mean(markers[["column_name"]]).
+refactored_a <- NA_real_
+refactored_b <- NA_real_
+isTRUE(all.equal(refactored_a, original_a))
+isTRUE(all.equal(refactored_b, original_b))
 ```
 
-## 1. Conditions
+Both comparisons are FALSE for the placeholders. They should be TRUE after
+you complete the two calls.
 
-```{r}
-change <- c(-2, NA, 1, 0)
-# TODO: label each value, then make one decision about any observed decrease.
-```
+ANSWER: What do the comparisons tell you about the refactor?
 
-```{r}
-# TODO: distinguish an unknown condition from a length-zero condition.
-# Report no observed measurements before comparing an empty/all-missing input.
-```
+## Final check
 
-## 2. Why functions? State a contract
-
-TODO: identify the changing input, fixed calculation, and expected output.
-
-## 3. Function basics
-
-Open `help("median", package = "stats")` interactively.
-
-TODO: identify the namespace, function, parameter names, supplied arguments,
-and default for `na.rm` in `stats::median(c(120, NA, 140), na.rm = TRUE)`.
-Use **Value** to predict the result type and length, then check in R.
-
-Build a summary from a checked calculation before adding a missing-data option.
-
-```{r}
-summary_input <- c(100, 120, 140)
-summary_reference <- c(n = length(summary_input),
-                       mean = mean(summary_input), sd = sd(summary_input))
-# TODO: generalize the calculation and check the input shifted by 10.
-sbp_summary_missing <- function(x, digits = 1, na_rm = TRUE) {
-  # TODO: return n, n_missing, mean, sd; n counts observed values.
-}
-# TODO: check c(100, 120, NA, 140) under both missing-data options.
-```
-
-TODO: explain why a text status belongs in a list with the numeric results.
-
-```{r}
-centre_values <- function(x, centre = 0) {
-  # TODO: return centered values.
-}
-# TODO: call with the default and with centre = 12.
-# TODO: compute the observed mean outside the function and pass it as centre.
-# Explain why the observed centered values sum to zero.
-```
-
-## 4. Scope
-
-```{r}
-reference_mean <- 130
-adjust <- function(x) x - reference_mean
-first <- adjust(c(120, 140))
-reference_mean <- 150
-second <- adjust(c(120, 140))
-# TODO: replace adjust() with a function requiring reference_mean as an argument.
-```
-
-## 5. Validation
-
-```{r}
-# TODO: add the scalar-center checks to centre_values().
-safe_mean <- function(x) {
-  # TODO: validate numeric vector and reject infinity.
-  # TODO: return numeric NA for empty/all-missing input, otherwise observed mean.
-}
-# TODO: ordinary, empty, all-missing, and invalid-input checks.
-# To keep an expected failure visible without stopping a render:
-# try(safe_mean("4"), silent = TRUE)
-```
-
-## 6. Data-frame functions
-
-```{r}
-summarise_column <- function(data, column) {
-  # TODO: check data and quoted column name; extract with [[ ]].
-}
-```
-
-## 7. Refactoring and evidence
-
-These working blocks establish the reference behavior before refactoring.
-
-```{r}
-change_a <- followup - baseline
-category_a <- ifelse(is.na(change_a), "missing",
-                     ifelse(change_a < 0, "decrease", "no decrease"))
-original_a <- data.frame(change = change_a, category = category_a)
-
-change_b <- followup_b - baseline_b
-category_b <- ifelse(is.na(change_b), "missing",
-                     ifelse(change_b < 0, "decrease", "no decrease"))
-original_b <- data.frame(change = change_b, category = category_b)
-original_a
-original_b
-```
-
-```{r}
-classify_change <- function(change) {
-  # TODO: return same-length character labels, including character(0).
-}
-change_summary <- function(baseline, followup) {
-  # TODO: validate, calculate, call classify_change(), return a data frame.
-}
-# TODO: compare each refactored result against original_a/original_b.
-# TODO: compare with a hand-built expected table and check edge cases.
-```
-
-### Reuse from saved scripts
-
-TODO: compare your validated centre_values() with the supplied R/centre-values.R.
-Move the four other completed helpers into R/functions.R. After checking them,
-remove their duplicate definitions here and place these calls before first use:
-
-```r
-source("R/centre-values.R")
-source("R/functions.R")
-```
-
-TODO: restart R and render using only saved source. Submit both R files too.
-
-## 8. Exit evidence
-
-TODO: describe the inputs, output, patient-order assumption, and missing-value
-policy. Explain the evidence that your refactor preserved the intended behavior.
+Restart R, then Render or Knit this saved file. Submit this source file and
+the HTML report. No separate R scripts are required.

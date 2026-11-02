@@ -1,153 +1,91 @@
 ---
 title: "Session 11 guided lab"
-subtitle: "Conditions, functions, and a verified refactor"
+subtitle: "Four short exercises: conditions and functions"
 ---
 
-## How to use this lab
-
-Follow the numbered lecture outline. Complete each function and its checks
-before using it in the integrated refactor.
+## Start here
 
 Work in **BIOS6301-mywork.Rproj**. Copy either
 [the Quarto starter](starter/functions-lab.qmd) or
-[the R Markdown starter](starter/functions-lab.Rmd) from the separate
-BIOS6301-materials clone to `work/session11/` in your personal repository.
-Also copy the supplied [R/centre-values.R](starter/R/centre-values.R) into
-`work/session11/R/`. Render or Knit your copy, leaving the course original unchanged.
+[the R Markdown starter](starter/functions-lab.Rmd) to `work/session11/` in
+your personal repository. Use just one format.
 
-## 1. Conditions · Practice 1
+The starter runs as supplied. Complete the clearly marked TODOs, then Render
+or Knit again. All data are small synthetic vectors included in the file;
+the exercises use only base R and the standard `stats` package.
+Keep your functions in this report. No extra helper files or data downloads
+are required.
 
-Use `change <- c(-2, NA, 1, 0)`.
+## 1. Choose a condition
 
-1. Return one label per value: `"decrease"`, `"no decrease"`, or `"missing"`.
-2. Use one `if` decision to report whether any **observed** change is negative.
-3. Explain why `if (change < 0)` fails and why all-missing input does not prove
-   that no participant decreased.
+**Lecture connection:** one decision with `if`; one label per value with `ifelse()`.
 
-Separate availability checks from vector length: explain why `if (NA > 0)`
-and `if (numeric(0) > 0)` fail for different reasons. Write a check that reports
-"no observed measurements" for empty or all-missing input before a group comparison.
+- Run the supplied length check for four baseline readings and two follow-up
+  readings. Explain why it avoids a misleading subtraction.
+- Replace `followup` with `c(138, 132, 150, 155)` and rerun the same check.
+  You should obtain changes `-12, -8, -10, 0`. The rows are already matched by
+  participant; equal lengths alone cannot establish that match.
+- For `change <- c(-2, NA, 1, 0)`, replace the placeholder labels with nested
+  `ifelse()` calls. Return `"decrease"`, `"missing"`, `"no decrease"`, and
+  `"no decrease"`. Keep the supplied `any()` decision and explain why
+  `if (change < 0)` would not work.
 
-## 2. Why functions? · contract discussion
+The `any()` example asks only whether an observed decrease exists; it does
+not treat missing observations as known non-decreases.
 
-Suppose you repeat a mean calculation for three markers. List the part that
-changes, the part that stays fixed, and the expected output. Decide how to report
-the number of observed values separately from the number of rows.
+## 2. Write and call a small function
 
-## 3. Function basics · Practice 2
+**Lecture connection:** help pages, parameters, defaults, return values, and explicit inputs.
 
-Open `help("median", package = "stats")`. Identify the package, function name,
-parameters, and default for `na.rm`. Use **Value** to predict the result type
-and length for `stats::median(c(120, NA, 140), na.rm = TRUE)`. Distinguish the
-parameter names from the argument values supplied in that call.
+Open `help("median", package = "stats")` in the Console. For the supplied call
+`stats::median(c(10, NA, 14), na.rm = TRUE)`, identify the package, function,
+the default for `na.rm`, and the supplied argument that overrides it.
+Use **Value** to predict the return value and its length, then run the call.
 
-Start from a hand-checked summary of `c(100, 120, 140)`: count 3, mean 120,
-and sample SD 20. Generalize it to a function, with required `x` and optional
-`digits = 1`. Verify that adding 10 changes the mean but not the count or SD.
+Complete `centre_values(x, centre = 0)` by replacing its placeholder body
+with `x - centre`. Run the two supplied calls and save their results:
 
-Then write `sbp_summary_missing(x, digits = 1, na_rm = TRUE)`. Return the named
-numeric vector `n`, `n_missing`, `mean`, `sd`, where `n` counts observed values.
-For this first draft, assume numeric input with at least two observed values.
-Check `c(100, 120, NA, 140)` with `na_rm = TRUE` and `FALSE`; keep the counts
-unchanged while the mean and SD follow the option. Explain why adding a text
-status would call for a list rather than `c()` with the numeric summaries.
+- Default center: `c(10, NA, 14)`.
+- `centre = 12`: `c(-2, NA, 2)`.
 
-Write `centre_values(x, centre = 0)` to return `x - centre`. Predict the results
-for `c(10, NA, 14)` with the default and with `centre = 12`. Assign its return
-value to an object. State the required input type, length, and output shape.
-Calculate the observed mean of `c(10, NA, 14)` outside the function, pass that
-number as `centre`, and explain why the observed centered values sum to zero.
+In one sentence, explain why passing the center as an argument is preferable
+to reading a global `reference_mean` inside the function.
 
-## 4. Scope · Practice 3
+## 3. Read a function with checks
 
-Predict the results, then make the reference mean an explicit required argument.
+**Lecture connection:** validation and early returns.
 
-```r
-reference_mean <- 130
-adjust <- function(x) x - reference_mean
-first <- adjust(c(120, 140))
-reference_mean <- 150
-second <- adjust(c(120, 140))
-```
+The complete `safe_mean()` is supplied. Run its four example calls; do not
+rewrite it. Explain which branch handles each input:
 
-Demonstrate that changing a global `reference_mean` cannot change your revised
-function's answer when you pass the same explicit arguments.
+| Input | Expected result |
+|---|---|
+| `c(2, NA, 4)` | `3` |
+| `numeric(0)` | Numeric `NA` |
+| `c(NA_real_, NA_real_)` | Numeric `NA` |
+| `"4"` | An error about numeric input |
 
-## 5. Validation · Practice 4
+The last call is wrapped in `try(..., silent = TRUE)` so the expected error
+can be shown without stopping the report. Missing measurements are allowed;
+character values are invalid input.
 
-Add checks to `centre_values()`: `x` must be a numeric vector and `centre` must
-be one finite number. Reject a character center, a missing center, infinity,
-and a center of length two. Use `&&` in the order type, shape, value.
+## 4. Reuse the function and check the result
 
-Then implement `safe_mean(x)` with this contract:
+**Lecture connection:** quoted column names and refactoring repeated code.
 
-- Accept a numeric vector containing finite values and missing values (`NA`/`NaN`).
-- Ignore missing observations and return one numeric mean.
-- Return `NA_real_` for an empty or all-missing numeric vector.
-- Reject nonnumeric input, matrices, and infinite values with useful errors.
+The starter calculates two observed means using repeated code. Replace the
+two placeholder assignments with calls to `safe_mean()`, extracting each
+column with `markers[["column_name"]]`. Keep the original results for comparison.
 
-Check `c(2, 4, NA)`, `numeric(0)`, `c(NA_real_, NA_real_)`, `"4"`, and `c(2, Inf)`.
-Do not convert invalid character input silently.
+Run the supplied `isTRUE(all.equal(...))` comparisons. Both should be `TRUE`;
+the means should be approximately `5.1` and `10.5`. Explain in one sentence
+what these comparisons tell you about the refactor.
 
-## 6. Data-frame functions · interface check
+## Submit
 
-Write `summarise_column(data, column)` with a quoted column name. Validate that
-`data` is a data frame and that `column` is one nonmissing character string naming
-an existing column. Pass `data[[column]]` to `safe_mean()`.
+Submit your completed `.qmd` or `.Rmd` file and its rendered HTML, including
+the short explanations above. Restart R and render the saved file once to
+check that it works without objects left in the Console.
 
-Call it with `summarise_column(markers, "marker_a")`. Explain why
-`data$column` would look for the wrong name. Contrast this interface with the
-lecture's `summarise_by_arm(data, outcome)` and <code>&#123;&#123; outcome &#125;&#125;</code>.
-
-## 7. Refactoring and reuse · Practice 5 and integrated task
-
-The starter contains repeated calculations for marker A and marker B.
-
-1. Write `classify_change(change)`, returning a character vector of the same
-   length. Negative changes are `"decrease"`, zero and positive changes are
-   `"no decrease"`, and missing changes are `"missing"`. Empty input returns
-   `character(0)`. Reject nonnumeric input and matrices.
-2. Write `change_summary(baseline, followup)` to validate numeric vectors of
-   equal length, reject infinity, compute `followup - baseline`, and return
-   a data frame with numeric `change` and character `category` columns.
-3. Use `classify_change()` inside it. Document that observations must already
-   be matched by patient and in the same order.
-4. Compare the result for `c(10, 8, NA, 12)` and `c(8, 9, 7, 12)` with a hand-built
-   expected table: changes `-2, 1, NA, 0` and the corresponding labels.
-5. Replace both repeated blocks with calls to `change_summary()`. Compare
-   each result with its original using `isTRUE(all.equal(...))`.
-6. Check zero-length, all-missing, one-pair, unequal-length, and invalid-type inputs.
-   Show expected failures without preventing your report from rendering.
-
-The labels describe direction only. They do not establish clinical benefit or
-statistical significance. Equal lengths alone cannot verify patient alignment.
-
-### Save and reuse the completed helpers
-
-Keep the supplied validated `centre_values()` in `R/centre-values.R`. Compare
-it with your completed version. Move `safe_mean()`, `summarise_column()`,
-`classify_change()`, and `change_summary()` into `R/functions.R`. These files
-should contain definitions and documentation, not data loading or example calls.
-
-In your saved report, source both files before their first use:
-
-```r
-source("R/centre-values.R")
-source("R/functions.R")
-```
-
-These paths are relative to the report folder during rendering. In the Console,
-use `here::here("work", "session11", "R", "functions.R")` from your personal
-project. After verifying the saved helpers, remove their duplicate definitions
-from the report. Restart R and render without manually running helpers first.
-Submit both R files with the report so someone else can reproduce it.
-
-## 8. Exit evidence
-
-Submit a rendered report and the two helper R files, with compact checks, the column-summary result,
-both refactored tables, and a paragraph describing `change_summary()`'s contract.
-Explain the distinction between correcting an error and preserving behavior
-while reorganizing code.
-
-The same helpers return in Session 12 for diagnosis and regression checks.
-Session 13 repeats them across columns and pairs of datasets.
+The lecture's paired-change helpers and separate R scripts remain reference
+examples. Sessions 12 and 13 supply the helpers needed for their own labs.
