@@ -602,7 +602,7 @@ will return in Section 6; this helper summarizes one numeric vector.
 # Return n, mean, and SD of a numeric vector, rounded.
 sbp_summary <- function(x, digits = 1) {
   result <- c(n = length(x), mean = mean(x), sd = sd(x))
-  round(result, digits)
+  return(round(result, digits))
 }
 
 ```
@@ -636,7 +636,7 @@ Which calculations below ignore the supplied `x`?
 ```{r}
 #| label: summary-hardcoded
 bad_summary <- function(x) {
-  c(n = length(x), mean = mean(example_sbp), sd = sd(example_sbp))
+  return(c(n = length(x), mean = mean(example_sbp), sd = sd(example_sbp)))
 }
 ```
 
@@ -697,7 +697,7 @@ sbp_summary(c(120, 130, 140), digits = 1)
 1. Bind `x` to the supplied vector and `digits` to `1` for this call.
 2. Evaluate the function body using those local arguments.
 3. Create local `result`: `n = 3`, `mean = 130`, and `sd = 10`.
-4. Evaluate `round(result, digits)` and return that last expression.
+4. `return(round(result, digits))` sends the rounded result to the caller and ends the call.
 
 ## Inspect the returned answer {.smaller}
 
@@ -731,11 +731,11 @@ The count and the missing-data rule are separate decisions. State both.
 #| label: defaults
 # n counts non-missing values, so the reported n matches the mean.
 sbp_summary <- function(x, digits = 1, na_rm = TRUE) {
-  round(c(
+  return(round(c(
     n    = sum(!is.na(x)),
     mean = mean(x, na.rm = na_rm),
     sd   = sd(x, na.rm = na_rm)
-  ), digits)
+  ), digits))
 }
 
 ```
@@ -772,7 +772,7 @@ Partial matching works, and is a trap:
 ```{r}
 #| label: matching-error
 #| error: true
-report <- function(x, na_rm = FALSE, names = TRUE) "ok"
+report <- function(x, na_rm = FALSE, names = TRUE) return("ok")
 report(1, n = TRUE)
 ```
 
@@ -784,26 +784,25 @@ names break the day somebody adds an argument.
 :::
 
 
-## Return values, and the implicit return {.smaller}
+## Make the return explicit {.smaller #return-values-and-the-implicit-return}
 
-A function returns the value of its **last evaluated expression**.
+Use `return(value)` at every normal exit, including the end of the function.
 
 ```{r}
 #| label: returns
-mean_sbp   <- function(x) mean(x)          # implicit return
-mean_sbp_2 <- function(x) return(mean(x))  # identical, more typing
-mean_sbp_3 <- function(x) { m <- mean(x) } # returns m, invisibly
-
-mean_sbp(trial$sbp_0)
-mean_sbp_3(trial$sbp_0)      # prints nothing
-print(mean_sbp_3(trial$sbp_0))
+mean_sbp <- function(x) {
+  return(mean(x))
+}
+quiet_mean <- function(x) {
+  return(invisible(mean(x)))
+}
+mean_sbp(c(120, 140))         # automatically prints 130
+quiet_mean(c(120, 140))       # no automatic printing
+print(quiet_mean(c(120, 140))) # explicitly prints 130
 ```
 
-. . .
-
-::: {.callout-note appearance="simple"}
-Use `return()` for an **early exit**. For the value at the end, let it fall out.
-:::
+`return()` ends the call. `invisible()` suppresses automatic printing;
+the returned value is still available to the caller.
 
 
 ## Choose a return shape for the next step {.smaller}
@@ -831,13 +830,13 @@ named results. Here we want the observed count, missing count, and observed mean
 ```{r}
 #| label: list-result
 describe_measurements <- function(x) {
-  list(n_observed = sum(!is.na(x)),
+  return(list(n_observed = sum(!is.na(x)),
        n_missing = sum(is.na(x)),
-       mean = mean(x, na.rm = TRUE))
+       mean = mean(x, na.rm = TRUE)))
 }
 ```
 
-`list(...)` is the last expression, so the function returns the whole list.
+`return(list(...))` returns the whole list as one object.
 It does not return only the last component, `mean`.
 
 ## Use the returned components {.smaller}
@@ -860,71 +859,23 @@ description$mean
 `description` holds the list; `$` selects a named component. Section 5 adds the
 policy for empty or entirely missing input.
 
-## Practice 2: write a function {.smaller}
+## Practice 2: one summary, four named results {.smaller #practice-2-write-a-function}
 
-Write `centre_values(x, centre = 0)`.
+Write `sbp_summary_missing(x, digits = 1, na_rm = TRUE)` for
+`x <- c(120, NA, 140)`. Assume at least two observed numeric values.
 
-- Return each element of `x` minus `centre`.
-- Keep the same length and preserve missing positions.
-- Make the result available for assignment to an object.
+| Name | Meaning | Expected value |
+|---|---|---:|
+| `n` | Observed count | 2 |
+| `n_missing` | Missing count | 1 |
+| `mean` | Mean of observed values | 130 |
+| `sd` | Sample SD of observed values, rounded | 14.1 |
 
-Predict before running:
+Return **one named numeric vector with these four components**.
+Keep the counts unchanged when `na_rm = FALSE`; mean and SD then become `NA`.
+Use an explicit `return()` at the end.
 
-```r
-centre_values(c(10, NA, 14))
-centre_values(c(10, NA, 14), centre = 12)
-```
-
-Then name one input your first version does not validate yet.
-
-**Extend the task:** calculate the observed mean of `c(10, NA, 14)`, pass it
-as `centre`, and predict the centered values. Keep the one-number contract.
-
-## Practice 2: answer and contract {.smaller}
-
-```{r}
-#| label: centre-answer
-centre_values <- function(x, centre = 0) {
-  x - centre
-}
-centre_values(c(10, NA, 14))
-centre_values(c(10, NA, 14), centre = 12)
-```
-
-**Contract:** numeric vector in, numeric vector of the same length out;
-`centre` should be one finite number. Section 5 adds the checks.
-
-If `centre` has length two, R may recycle it. An interface should reject
-that input when only one center is intended.
-
-## Practice 2 extension: compute, then pass an argument {.smaller}
-
-```{r}
-#| label: centre-computed-reference
-measurements <- c(10, NA, 14)
-reference <- mean(measurements, na.rm = TRUE)
-centered <- centre_values(measurements, centre = reference)
-centered
-sum(centered, na.rm = TRUE)
-```
-
-The result is `c(-2, NA, 2)`. The observed centered values sum to zero.
-The function still accepts one scalar center; the caller decides how to obtain it.
-
-## Extend the summary for a new reporting requirement {.smaller}
-
-A collaborator needs the missing count as well. Write
-`sbp_summary_missing(x, digits = 1, na_rm = TRUE)`.
-
-- Return a named numeric vector: `n`, `n_missing`, `mean`, `sd`.
-- Keep `n` as the observed count and preserve the existing missing-data option.
-- For `c(120, NA, 140)`, expect `c(2, 1, 130, 14.1)` with those names.
-- Assume numeric input with at least two observed values for this first draft.
-
-Which lines of the existing helper change? Which interface choices stay the same?
-Write your version before revealing the answer.
-
-## Extend the output without changing its type {.smaller}
+## Practice 2: build and return the summary {.smaller #practice-2-answer-and-contract}
 
 ```{r}
 #| label: summary-missing-extension
@@ -932,14 +883,35 @@ sbp_summary_missing <- function(x, digits = 1, na_rm = TRUE) {
   counts <- c(n = sum(!is.na(x)), n_missing = sum(is.na(x)))
   estimates <- c(mean = mean(x, na.rm = na_rm),
                  sd = sd(x, na.rm = na_rm))
-  c(counts, round(estimates, digits))
+  return(c(counts, round(estimates, digits)))
 }
-sbp_summary_missing(c(120, NA, 140))
+answer <- sbp_summary_missing(c(120, NA, 140))
+answer
 ```
 
-Counts are kept separate from rounding the estimates. The additional component
-changes the length, so tell callers; access by name is clearer than position.
+The result always has **four named numeric components** in this example.
+Counts are separate from the estimates that need rounding.
 
+
+## Use names to select the intended result {.smaller #extend-the-output-without-changing-its-type}
+
+Reorder the same four components. Which extraction still selects the mean?
+
+```{r}
+#| label: summary-named-access
+reordered <- answer[c("mean", "sd", "n", "n_missing")]
+rbind(
+  by_name = c(original = answer[["mean"]],
+              reordered = reordered[["mean"]]),
+  by_position = c(original = answer[[3]],
+                  reordered = reordered[[3]])
+)
+```
+
+Both vectors have length **4**. `[["mean"]]` gives **130** in either order;
+`[[3]]` gives **130** in the original order but **2** after reordering.
+
+Names express what the caller wants; positions depend on the current order.
 
 ## What happens inside stays inside {.smaller}
 
@@ -947,7 +919,7 @@ changes the length, so tell callers; access by name is clearer than position.
 #| label: locals
 centre_sbp <- function(x) {
   offset <- mean(x)      # local to this call
-  x - offset
+  return(x - offset)
 }
 
 centred <- centre_sbp(trial$sbp_0)
@@ -976,7 +948,7 @@ it in inherited code. Do not write it.
 
 ```{r}
 #| label: dots
-mean_sbp <- function(x, ...) mean(x, ...)
+mean_sbp <- function(x, ...) return(mean(x, ...))
 
 mean_sbp(trial_raw$sbp_12)
 mean_sbp(trial_raw$sbp_12, na.rm = TRUE)
@@ -984,13 +956,14 @@ mean_sbp(trial_raw$sbp_12, na.rm = TRUE)
 
 ## Return a value without automatically printing it {.smaller}
 
-`invisible()` returns a value without printing it:
+Use `return(invisible(value))` to return a value without automatic printing.
+Explicit output such as `cat()` still appears:
 
 ```{r}
 #| label: invisible-demo
 report_n <- function(data) {
   cat("n =", nrow(data), "\n")
-  invisible(nrow(data))
+  return(invisible(nrow(data)))
 }
 
 report_n(trial)          # prints the message, not the value
@@ -1031,7 +1004,7 @@ is what "lexical" means.
 #| label: scope-works
 threshold <- 140
 
-is_high <- function(sbp) sbp > threshold   # threshold is not an argument
+is_high <- function(sbp) return(sbp > threshold)   # threshold is not an argument
 
 sum(is_high(trial$sbp_0))
 ```
@@ -1062,7 +1035,7 @@ variable **each time it is called**; it does not keep its original value.
 ```{r}
 #| label: scope-silent
 threshold <- 140
-is_high <- function(sbp) sbp > threshold
+is_high <- function(sbp) return(sbp > threshold)
 sum(is_high(trial$sbp_0))
 ```
 
@@ -1092,7 +1065,7 @@ The data and function definition are unchanged. The answer changes because
 # Flag patients above a systolic threshold. Threshold is an argument so the
 # result depends only on what the caller passed.
 is_high <- function(sbp, threshold = 140) {
-  sbp > threshold
+  return(sbp > threshold)
 }
 
 sum(is_high(trial$sbp_0))
@@ -1118,7 +1091,7 @@ reassignment fifty lines away.
 
 ```r
 reference_mean <- 130
-adjust <- function(x) x - reference_mean
+adjust <- function(x) return(x - reference_mean)
 first <- adjust(c(120, 140))
 reference_mean <- 150
 second <- adjust(c(120, 140))
@@ -1133,7 +1106,7 @@ second <- adjust(c(120, 140))
 ```{r}
 #| label: scope-practice-answer
 adjust <- function(x, reference_mean) {
-  x - reference_mean
+  return(x - reference_mean)
 }
 adjust(c(120, 140), reference_mean = 130)
 adjust(c(120, 140), reference_mean = 150)
@@ -1151,7 +1124,7 @@ recreates and later changes that global can still run with the wrong value.
 
 ```{r}
 #| label: silent-wrong
-mean_weight <- function(weight_kg) mean(weight_kg)
+mean_weight <- function(weight_kg) return(mean(weight_kg))
 
 mean_weight(trial_raw$weight_kg)   # one weight is recorded as -99
 mean_weight(trial$weight_kg)       # the same cohort, repaired
@@ -1181,7 +1154,7 @@ plausible wrong answer.
 checked_mean <- function(x, digits = 1) {
   stopifnot(is.numeric(x), length(x) > 0, digits >= 0)
 
-  round(mean(x, na.rm = TRUE), digits)
+  return(round(mean(x, na.rm = TRUE), digits))
 }
 
 checked_mean(trial$arm)
@@ -1199,7 +1172,7 @@ checked_mean <- function(x, digits = 1) {
     "x must be a numeric vector" = is.numeric(x),
     "digits must not be negative" = digits >= 0
   )
-  round(mean(x, na.rm = TRUE), digits)
+  return(round(mean(x, na.rm = TRUE), digits))
 }
 
 checked_mean(trial$arm)
@@ -1218,7 +1191,7 @@ mean_weight <- function(weight_kg) {
     stop("weight_kg contains values below 20: check for sentinel codes",
          call. = FALSE)
   }
-  mean(weight_kg, na.rm = TRUE)
+  return(mean(weight_kg, na.rm = TRUE))
 }
 
 mean_weight(trial_raw$weight_kg)
@@ -1285,7 +1258,7 @@ safe_mean <- function(x) {
     stop("x must not contain infinite values", call. = FALSE)
   }
   if (all(is.na(x))) return(NA_real_)
-  mean(x, na.rm = TRUE)
+  return(mean(x, na.rm = TRUE))
 }
 safe_mean(c(2, 4, NA))
 safe_mean(numeric(0))
@@ -1311,7 +1284,7 @@ The early return supplies one numeric `NA`, not an empty vector.
 
 ```{r}
 #| label: mean-shortcut
-mean_shortcut <- function(x) mean(x, na.rm = TRUE)
+mean_shortcut <- function(x) return(mean(x, na.rm = TRUE))
 mean_shortcut(numeric(0))
 safe_mean(numeric(0))
 ```
@@ -1331,7 +1304,7 @@ centre_values <- function(x, centre = 0) {
     "x must be a numeric vector" = is.numeric(x) && is.null(dim(x)),
     "centre must be one finite number" = # your condition
   )
-  x - centre
+  return(x - centre)
 }
 ```
 
@@ -1349,7 +1322,7 @@ centre_values <- function(x, centre = 0) {
       is.numeric(centre) && length(centre) == 1 &&
       is.null(dim(centre)) && is.finite(centre)
   )
-  x - centre
+  return(x - centre)
 }
 stopifnot(identical(centre_values(c(1, NA, 3), centre = 2),
                     c(-1, NA, 1)))
@@ -1372,7 +1345,7 @@ add_change <- function(data) {
   stopifnot(is.data.frame(data),
             all(c("sbp_0", "sbp_12") %in% names(data)))
 
-  data |> mutate(change = sbp_12 - sbp_0)
+  return(data |> mutate(change = sbp_12 - sbp_0))
 }
 
 trial_raw |> add_change() |> summarise(mean_change = mean(change, na.rm = TRUE))
@@ -1392,12 +1365,13 @@ When the **column itself** is the argument, dplyr needs to be told:
 ```{r}
 #| label: tidyeval
 summarise_by_arm <- function(data, outcome) {
-  data |>
+  result <- data |>
     group_by(arm) |>
     summarise(
       n    = sum(!is.na({{ outcome }})),
       mean = round(mean({{ outcome }}, na.rm = TRUE), 1)
     )
+  return(result)
 }
 
 ```
@@ -1424,7 +1398,7 @@ tapply(trial_raw$sbp_12, trial_raw$arm, mean, na.rm = TRUE)
 #| label: tidyeval-fail
 #| error: true
 bad_summary <- function(data, outcome) {
-  data |> group_by(arm) |> summarise(mean = mean(outcome))
+  return(data |> group_by(arm) |> summarise(mean = mean(outcome)))
 }
 
 bad_summary(trial, sbp_0)
@@ -1455,7 +1429,7 @@ summarise_column <- function(data, column) {
   stopifnot(is.data.frame(data), is.character(column),
             length(column) == 1, !is.na(column),
             column %in% names(data))
-  safe_mean(data[[column]])
+  return(safe_mean(data[[column]]))
 }
 summarise_column(trial_raw, "sbp_12")
 ```
@@ -1507,13 +1481,14 @@ Six blocks, two shapes, **inconsistent missing-value rules**.
 summarise_by_arm <- function(data, outcome, digits = 1) {
   stopifnot(is.data.frame(data), "arm" %in% names(data))
 
-  data |>
+  result <- data |>
     group_by(arm) |>
     summarise(
       n    = sum(!is.na({{ outcome }})),
       mean = round(mean({{ outcome }}, na.rm = TRUE), digits),
       sd   = round(sd({{ outcome }}, na.rm = TRUE), digits)
     )
+  return(result)
 }
 
 ```
@@ -1524,10 +1499,11 @@ summarise_by_arm <- function(data, outcome, digits = 1) {
 #| label: refactor-plot-helper
 # One boxplot of an outcome by arm, labelled for a clinical reader.
 plot_by_arm <- function(data, outcome, y_label) {
-  ggplot(data, aes(arm, {{ outcome }}, fill = arm)) +
+  plot <- ggplot(data, aes(arm, {{ outcome }}, fill = arm)) +
     geom_boxplot(alpha = 0.7, width = 0.5) +
     labs(x = NULL, y = y_label) +
     theme(legend.position = "none")
+  return(plot)
 }
 
 summarise_by_arm(trial_raw, change)
@@ -1571,7 +1547,7 @@ classify_change <- function(change) {
   observed <- !is.na(change)
   out[observed & change < 0] <- "decrease"
   out[observed & change >= 0] <- "no decrease"
-  out
+  return(out)
 }
 classify_change(c(-2, 1, NA, 0))
 ```
@@ -1589,7 +1565,7 @@ change_summary <- function(baseline, followup) {
             length(baseline) == length(followup),
             !any(is.infinite(baseline)), !any(is.infinite(followup)))
   change <- followup - baseline
-  data.frame(change = change, category = classify_change(change))
+  return(data.frame(change = change, category = classify_change(change)))
 }
 change_summary(c(10, 8, NA, 12), c(8, 9, 7, 12))
 ```
@@ -1691,6 +1667,7 @@ without manually running definitions in the Console first.
 | **Verbs for functions, nouns for objects** | `summarise_by_arm()`, not `arm_summary()` |
 | **`snake_case`, no exceptions** | `plot_by_arm`, not `plotByArm` |
 | **One job per function** | If the name needs "and", it is two functions |
+| **Make exits explicit** | Use `return(value)` at every normal exit |
 | **Keep it focused** | A long function is a reason to review its responsibilities |
 | **Data argument first** | So it pipes |
 | **Validate inputs** | Two or three checks, at the top |
