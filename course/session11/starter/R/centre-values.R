@@ -7,5 +7,5 @@ centre_values <- function(x, centre = 0) {
       is.numeric(centre) && length(centre) == 1 &&
       is.null(dim(centre)) && is.finite(centre)
   )
-  x - centre
+  return(x - centre)
 }

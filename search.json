@@ -1131,7 +1131,7 @@
     "href": "course/session11/slides.html#your-first-function-from-your-own-code",
     "title": "Conditions and Functions",
     "section": "Your first function, from your own code",
-    "text": "Your first function, from your own code\nFirst extract the numeric summary used inside each repeated block. Grouping will return in Section 6; this helper summarizes one numeric vector.\n\n# Return n, mean, and SD of a numeric vector, rounded.\nsbp_summary &lt;- function(x, digits = 1) {\n  result &lt;- c(n = length(x), mean = mean(x), sd = sd(x))\n  round(result, digits)\n}"
+    "text": "Your first function, from your own code\nFirst extract the numeric summary used inside each repeated block. Grouping will return in Section 6; this helper summarizes one numeric vector.\n\n# Return n, mean, and SD of a numeric vector, rounded.\nsbp_summary &lt;- function(x, digits = 1) {\n  result &lt;- c(n = length(x), mean = mean(x), sd = sd(x))\n  return(round(result, digits))\n}"
   },
   {
     "objectID": "course/session11/slides.html#check-the-original-case-then-change-the-input",
@@ -1145,7 +1145,7 @@
     "href": "course/session11/slides.html#a-function-wrapper-can-still-use-the-wrong-data",
     "title": "Conditions and Functions",
     "section": "A function wrapper can still use the wrong data",
-    "text": "A function wrapper can still use the wrong data\nWhich calculations below ignore the supplied x?\n\nbad_summary &lt;- function(x) {\n  c(n = length(x), mean = mean(example_sbp), sd = sd(example_sbp))\n}\n\n\n\nrbind(first = bad_summary(c(10, 20, 30)),\n      second = bad_summary(c(100, 200, 300)))\n\n       n mean sd\nfirst  3  130 10\nsecond 3  130 10\n\n\n\n\nOnly the count uses x. The mean and SD still read the external vector. Repair both references; expect means of 20 and 200 after the repair."
+    "text": "A function wrapper can still use the wrong data\nWhich calculations below ignore the supplied x?\n\nbad_summary &lt;- function(x) {\n  return(c(n = length(x), mean = mean(example_sbp), sd = sd(example_sbp)))\n}\n\n\n\nrbind(first = bad_summary(c(10, 20, 30)),\n      second = bad_summary(c(100, 200, 300)))\n\n       n mean sd\nfirst  3  130 10\nsecond 3  130 10\n\n\n\n\nOnly the count uses x. The mean and SD still read the external vector. Repair both references; expect means of 20 and 200 after the repair."
   },
   {
     "objectID": "course/session11/slides.html#call-the-same-function-with-different-inputs",
@@ -1159,14 +1159,14 @@
     "href": "course/session11/slides.html#a-function-is-three-things",
     "title": "Conditions and Functions",
     "section": "Inside an R function object",
-    "text": "Inside an R function object\n\nformals(sbp_summary)\nbody(sbp_summary)\nenvironment(sbp_summary)\n\n$x\n\n\n$digits\n[1] 1\n\n{\n    result &lt;- c(n = length(x), mean = mean(x), sd = sd(x))\n    round(result, digits)\n}\n&lt;environment: R_GlobalEnv&gt;\n\n\n\nFormals — the arguments it accepts, and their defaults · body — the code it runs · environment — where it looks for names it does not define itself."
+    "text": "Inside an R function object\n\nformals(sbp_summary)\nbody(sbp_summary)\nenvironment(sbp_summary)\n\n$x\n\n\n$digits\n[1] 1\n\n{\n    result &lt;- c(n = length(x), mean = mean(x), sd = sd(x))\n    return(round(result, digits))\n}\n&lt;environment: R_GlobalEnv&gt;\n\n\n\nFormals — the arguments it accepts, and their defaults · body — the code it runs · environment — where it looks for names it does not define itself."
   },
   {
     "objectID": "course/session11/slides.html#trace-one-function-call",
     "href": "course/session11/slides.html#trace-one-function-call",
     "title": "Conditions and Functions",
     "section": "Trace one function call",
-    "text": "Trace one function call\nsbp_summary(c(120, 130, 140), digits = 1)\n\nBind x to the supplied vector and digits to 1 for this call.\nEvaluate the function body using those local arguments.\nCreate local result: n = 3, mean = 130, and sd = 10.\nEvaluate round(result, digits) and return that last expression."
+    "text": "Trace one function call\nsbp_summary(c(120, 130, 140), digits = 1)\n\nBind x to the supplied vector and digits to 1 for this call.\nEvaluate the function body using those local arguments.\nCreate local result: n = 3, mean = 130, and sd = 10.\nreturn(round(result, digits)) sends the rounded result to the caller and ends the call."
   },
   {
     "objectID": "course/session11/slides.html#inspect-the-returned-answer",
@@ -1187,7 +1187,7 @@
     "href": "course/session11/slides.html#arguments-and-defaults",
     "title": "Conditions and Functions",
     "section": "Arguments and defaults",
-    "text": "Arguments and defaults\n\n# n counts non-missing values, so the reported n matches the mean.\nsbp_summary &lt;- function(x, digits = 1, na_rm = TRUE) {\n  round(c(\n    n    = sum(!is.na(x)),\n    mean = mean(x, na.rm = na_rm),\n    sd   = sd(x, na.rm = na_rm)\n  ), digits)\n}"
+    "text": "Arguments and defaults\n\n# n counts non-missing values, so the reported n matches the mean.\nsbp_summary &lt;- function(x, digits = 1, na_rm = TRUE) {\n  return(round(c(\n    n    = sum(!is.na(x)),\n    mean = mean(x, na.rm = na_rm),\n    sd   = sd(x, na.rm = na_rm)\n  ), digits))\n}"
   },
   {
     "objectID": "course/session11/slides.html#use-or-override-a-default",
@@ -1201,14 +1201,14 @@
     "href": "course/session11/slides.html#how-r-matches-arguments",
     "title": "Conditions and Functions",
     "section": "How R matches arguments",
-    "text": "How R matches arguments\nThree ways, tried in this order: exact name, then partial name, then position.\n\nsbp_summary(trial$sbp_0, 2)                 # position\n\n     n   mean     sd \n 60.00 149.47  11.85 \n\nsbp_summary(digits = 2, x = trial$sbp_0)    # exact name — order stops mattering\n\n     n   mean     sd \n 60.00 149.47  11.85 \n\n\n\nPartial matching works, and is a trap:\n\nreport &lt;- function(x, na_rm = FALSE, names = TRUE) \"ok\"\nreport(1, n = TRUE)\n\nError in report(1, n = TRUE): argument 2 matches multiple formal arguments\n\n\n\n\n\n\n\n\n\n\nHouse rule: data argument by position, everything else by full name. Partial names break the day somebody adds an argument."
+    "text": "How R matches arguments\nThree ways, tried in this order: exact name, then partial name, then position.\n\nsbp_summary(trial$sbp_0, 2)                 # position\n\n     n   mean     sd \n 60.00 149.47  11.85 \n\nsbp_summary(digits = 2, x = trial$sbp_0)    # exact name — order stops mattering\n\n     n   mean     sd \n 60.00 149.47  11.85 \n\n\n\nPartial matching works, and is a trap:\n\nreport &lt;- function(x, na_rm = FALSE, names = TRUE) return(\"ok\")\nreport(1, n = TRUE)\n\nError in report(1, n = TRUE): argument 2 matches multiple formal arguments\n\n\n\n\n\n\n\n\n\n\nHouse rule: data argument by position, everything else by full name. Partial names break the day somebody adds an argument."
   },
   {
     "objectID": "course/session11/slides.html#return-values-and-the-implicit-return",
     "href": "course/session11/slides.html#return-values-and-the-implicit-return",
     "title": "Conditions and Functions",
-    "section": "Return values, and the implicit return",
-    "text": "Return values, and the implicit return\nA function returns the value of its last evaluated expression.\n\nmean_sbp   &lt;- function(x) mean(x)          # implicit return\nmean_sbp_2 &lt;- function(x) return(mean(x))  # identical, more typing\nmean_sbp_3 &lt;- function(x) { m &lt;- mean(x) } # returns m, invisibly\n\nmean_sbp(trial$sbp_0)\n\n[1] 149.4667\n\nmean_sbp_3(trial$sbp_0)      # prints nothing\nprint(mean_sbp_3(trial$sbp_0))\n\n[1] 149.4667\n\n\n\n\n\n\n\n\n\nUse return() for an early exit. For the value at the end, let it fall out."
+    "section": "Make the return explicit",
+    "text": "Make the return explicit\nUse return(value) at every normal exit, including the end of the function.\n\nmean_sbp &lt;- function(x) {\n  return(mean(x))\n}\nquiet_mean &lt;- function(x) {\n  return(invisible(mean(x)))\n}\nmean_sbp(c(120, 140))         # automatically prints 130\n\n[1] 130\n\nquiet_mean(c(120, 140))       # no automatic printing\nprint(quiet_mean(c(120, 140))) # explicitly prints 130\n\n[1] 130\n\n\nreturn() ends the call. invisible() suppresses automatic printing; the returned value is still available to the caller."
   },
   {
     "objectID": "course/session11/slides.html#choose-a-return-shape-for-the-next-step",
@@ -1222,7 +1222,7 @@
     "href": "course/session11/slides.html#return-several-pieces-in-one-object",
     "title": "Conditions and Functions",
     "section": "Return several results in one list",
-    "text": "Return several results in one list\nA function returns one object. That object can be a list containing several named results. Here we want the observed count, missing count, and observed mean.\n\ndescribe_measurements &lt;- function(x) {\n  list(n_observed = sum(!is.na(x)),\n       n_missing = sum(is.na(x)),\n       mean = mean(x, na.rm = TRUE))\n}\n\nlist(...) is the last expression, so the function returns the whole list. It does not return only the last component, mean."
+    "text": "Return several results in one list\nA function returns one object. That object can be a list containing several named results. Here we want the observed count, missing count, and observed mean.\n\ndescribe_measurements &lt;- function(x) {\n  return(list(n_observed = sum(!is.na(x)),\n       n_missing = sum(is.na(x)),\n       mean = mean(x, na.rm = TRUE)))\n}\n\nreturn(list(...)) returns the whole list as one object. It does not return only the last component, mean."
   },
   {
     "objectID": "course/session11/slides.html#use-the-returned-components",
@@ -1235,15 +1235,15 @@
     "objectID": "course/session11/slides.html#practice-2-write-a-function",
     "href": "course/session11/slides.html#practice-2-write-a-function",
     "title": "Conditions and Functions",
-    "section": "Practice 2: write a function",
-    "text": "Practice 2: write a function\nWrite centre_values(x, centre = 0).\n\nReturn each element of x minus centre.\nKeep the same length and preserve missing positions.\nMake the result available for assignment to an object.\n\nPredict before running:\ncentre_values(c(10, NA, 14))\ncentre_values(c(10, NA, 14), centre = 12)\nThen name one input your first version does not validate yet.\nExtend the task: calculate the observed mean of c(10, NA, 14), pass it as centre, and predict the centered values. Keep the one-number contract."
+    "section": "Practice 2: one summary, four named results",
+    "text": "Practice 2: one summary, four named results\nWrite sbp_summary_missing(x, digits = 1, na_rm = TRUE) for x &lt;- c(120, NA, 140). Assume at least two observed numeric values.\n\n\n\nName\nMeaning\nExpected value\n\n\n\n\nn\nObserved count\n2\n\n\nn_missing\nMissing count\n1\n\n\nmean\nMean of observed values\n130\n\n\nsd\nSample SD of observed values, rounded\n14.1\n\n\n\nReturn one named numeric vector with these four components. Keep the counts unchanged when na_rm = FALSE; mean and SD then become NA. Use an explicit return() at the end."
   },
   {
     "objectID": "course/session11/slides.html#practice-2-answer-and-contract",
     "href": "course/session11/slides.html#practice-2-answer-and-contract",
     "title": "Conditions and Functions",
-    "section": "Practice 2: answer and contract",
-    "text": "Practice 2: answer and contract\n\ncentre_values &lt;- function(x, centre = 0) {\n  x - centre\n}\ncentre_values(c(10, NA, 14))\n\n[1] 10 NA 14\n\ncentre_values(c(10, NA, 14), centre = 12)\n\n[1] -2 NA  2\n\n\nContract: numeric vector in, numeric vector of the same length out; centre should be one finite number. Section 5 adds the checks.\nIf centre has length two, R may recycle it. An interface should reject that input when only one center is intended."
+    "section": "Practice 2: build and return the summary",
+    "text": "Practice 2: build and return the summary\n\nsbp_summary_missing &lt;- function(x, digits = 1, na_rm = TRUE) {\n  counts &lt;- c(n = sum(!is.na(x)), n_missing = sum(is.na(x)))\n  estimates &lt;- c(mean = mean(x, na.rm = na_rm),\n                 sd = sd(x, na.rm = na_rm))\n  return(c(counts, round(estimates, digits)))\n}\nanswer &lt;- sbp_summary_missing(c(120, NA, 140))\nanswer\n\n        n n_missing      mean        sd \n      2.0       1.0     130.0      14.1 \n\n\nThe result always has four named numeric components in this example. Counts are separate from the estimates that need rounding."
   },
   {
     "objectID": "course/session11/slides.html#practice-2-extension-compute-then-pass-an-argument",
@@ -1263,29 +1263,29 @@
     "objectID": "course/session11/slides.html#extend-the-output-without-changing-its-type",
     "href": "course/session11/slides.html#extend-the-output-without-changing-its-type",
     "title": "Conditions and Functions",
-    "section": "Extend the output without changing its type",
-    "text": "Extend the output without changing its type\n\nsbp_summary_missing &lt;- function(x, digits = 1, na_rm = TRUE) {\n  counts &lt;- c(n = sum(!is.na(x)), n_missing = sum(is.na(x)))\n  estimates &lt;- c(mean = mean(x, na.rm = na_rm),\n                 sd = sd(x, na.rm = na_rm))\n  c(counts, round(estimates, digits))\n}\nsbp_summary_missing(c(120, NA, 140))\n\n        n n_missing      mean        sd \n      2.0       1.0     130.0      14.1 \n\n\nCounts are kept separate from rounding the estimates. The additional component changes the length, so tell callers; access by name is clearer than position."
+    "section": "Use names to select the intended result",
+    "text": "Use names to select the intended result\nReorder the same four components. Which extraction still selects the mean?\n\nreordered &lt;- answer[c(\"mean\", \"sd\", \"n\", \"n_missing\")]\nrbind(\n  by_name = c(original = answer[[\"mean\"]],\n              reordered = reordered[[\"mean\"]]),\n  by_position = c(original = answer[[3]],\n                  reordered = reordered[[3]])\n)\n\n            original reordered\nby_name          130       130\nby_position      130         2\n\n\nBoth vectors have length 4. [[\"mean\"]] gives 130 in either order; [[3]] gives 130 in the original order but 2 after reordering.\nNames express what the caller wants; positions depend on the current order."
   },
   {
     "objectID": "course/session11/slides.html#what-happens-inside-stays-inside",
     "href": "course/session11/slides.html#what-happens-inside-stays-inside",
     "title": "Conditions and Functions",
     "section": "What happens inside stays inside",
-    "text": "What happens inside stays inside\n\ncentre_sbp &lt;- function(x) {\n  offset &lt;- mean(x)      # local to this call\n  x - offset\n}\n\ncentred &lt;- centre_sbp(trial$sbp_0)\nround(head(centred, 4), 1)\n\n[1] 10.5 12.5  7.5  7.5\n\nexists(\"offset\", envir = .GlobalEnv, inherits = FALSE)\n\n[1] FALSE\n\n\n\n\nEvery call gets a fresh evaluation environment. Ordinary local assignments do not change objects in the global workspace.\n\n\n\n\n\n\n\n\n\n&lt;&lt;- writes to the enclosing environment and defeats all of this. You will meet it in inherited code. Do not write it."
+    "text": "What happens inside stays inside\n\ncentre_sbp &lt;- function(x) {\n  offset &lt;- mean(x)      # local to this call\n  return(x - offset)\n}\n\ncentred &lt;- centre_sbp(trial$sbp_0)\nround(head(centred, 4), 1)\n\n[1] 10.5 12.5  7.5  7.5\n\nexists(\"offset\", envir = .GlobalEnv, inherits = FALSE)\n\n[1] FALSE\n\n\n\n\nEvery call gets a fresh evaluation environment. Ordinary local assignments do not change objects in the global workspace.\n\n\n\n\n\n\n\n\n\n&lt;&lt;- writes to the enclosing environment and defeats all of this. You will meet it in inherited code. Do not write it."
   },
   {
     "objectID": "course/session11/slides.html#forward-additional-arguments-with-...",
     "href": "course/session11/slides.html#forward-additional-arguments-with-...",
     "title": "Conditions and Functions",
     "section": "Forward additional arguments with ...",
-    "text": "Forward additional arguments with ...\n... collects arguments you did not name and passes them on:\n\nmean_sbp &lt;- function(x, ...) mean(x, ...)\n\nmean_sbp(trial_raw$sbp_12)\n\n[1] NA\n\nmean_sbp(trial_raw$sbp_12, na.rm = TRUE)\n\n[1] 141.3158"
+    "text": "Forward additional arguments with ...\n... collects arguments you did not name and passes them on:\n\nmean_sbp &lt;- function(x, ...) return(mean(x, ...))\n\nmean_sbp(trial_raw$sbp_12)\n\n[1] NA\n\nmean_sbp(trial_raw$sbp_12, na.rm = TRUE)\n\n[1] 141.3158"
   },
   {
     "objectID": "course/session11/slides.html#return-a-value-without-automatically-printing-it",
     "href": "course/session11/slides.html#return-a-value-without-automatically-printing-it",
     "title": "Conditions and Functions",
     "section": "Return a value without automatically printing it",
-    "text": "Return a value without automatically printing it\ninvisible() returns a value without printing it:\n\nreport_n &lt;- function(data) {\n  cat(\"n =\", nrow(data), \"\\n\")\n  invisible(nrow(data))\n}\n\nreport_n(trial)          # prints the message, not the value\n\nn = 60 \n\nn_rows &lt;- report_n(trial)\n\nn = 60 \n\nn_rows\n\n[1] 60"
+    "text": "Return a value without automatically printing it\nUse return(invisible(value)) to return a value without automatic printing. Explicit output such as cat() still appears:\n\nreport_n &lt;- function(data) {\n  cat(\"n =\", nrow(data), \"\\n\")\n  return(invisible(nrow(data)))\n}\n\nreport_n(trial)          # prints the message, not the value\n\nn = 60 \n\nn_rows &lt;- report_n(trial)\n\nn = 60 \n\nn_rows\n\n[1] 60"
   },
   {
     "objectID": "course/session11/slides.html#where-r-looks-for-a-name",
@@ -1299,63 +1299,63 @@
     "href": "course/session11/slides.html#the-global-that-vanishes",
     "title": "Conditions and Functions",
     "section": "The global that vanishes",
-    "text": "The global that vanishes\n\nthreshold &lt;- 140\n\nis_high &lt;- function(sbp) sbp &gt; threshold   # threshold is not an argument\n\nsum(is_high(trial$sbp_0))\n\n[1] 50\n\n\n\nIt works. Now restart R — or hand the script to a colleague:\n\nrm(threshold)\nsum(is_high(trial$sbp_0))\n\nError in is_high(trial$sbp_0): object 'threshold' not found\n\n\n\n\n\nThis is the honest failure. It is annoying, and it tells you immediately."
+    "text": "The global that vanishes\n\nthreshold &lt;- 140\n\nis_high &lt;- function(sbp) return(sbp &gt; threshold)   # threshold is not an argument\n\nsum(is_high(trial$sbp_0))\n\n[1] 50\n\n\n\nIt works. Now restart R — or hand the script to a colleague:\n\nrm(threshold)\nsum(is_high(trial$sbp_0))\n\nError in is_high(trial$sbp_0): object 'threshold' not found\n\n\n\n\n\nThis is the honest failure. It is annoying, and it tells you immediately."
   },
   {
     "objectID": "course/session11/slides.html#the-global-that-is-stale",
     "href": "course/session11/slides.html#the-global-that-is-stale",
     "title": "Conditions and Functions",
     "section": "A hidden input changes the answer",
-    "text": "A hidden input changes the answer\nThis version reads threshold from outside the function. It looks up that variable each time it is called; it does not keep its original value.\n\nthreshold &lt;- 140\nis_high &lt;- function(sbp) sbp &gt; threshold\nsum(is_high(trial$sbp_0))\n\n[1] 50\n\n\n\nA sensitivity analysis changes the external variable. The same call now uses that new value:\n\nthreshold &lt;- 160        # for the sensitivity analysis\nsum(is_high(trial$sbp_0))\n\n[1] 8\n\n\n\n\n\n\n\n\n\n\nThe data and function definition are unchanged. The answer changes because threshold is a hidden input: the first call uses 140 and the second uses 160."
+    "text": "A hidden input changes the answer\nThis version reads threshold from outside the function. It looks up that variable each time it is called; it does not keep its original value.\n\nthreshold &lt;- 140\nis_high &lt;- function(sbp) return(sbp &gt; threshold)\nsum(is_high(trial$sbp_0))\n\n[1] 50\n\n\n\nA sensitivity analysis changes the external variable. The same call now uses that new value:\n\nthreshold &lt;- 160        # for the sensitivity analysis\nsum(is_high(trial$sbp_0))\n\n[1] 8\n\n\n\n\n\n\n\n\n\n\nThe data and function definition are unchanged. The answer changes because threshold is a hidden input: the first call uses 140 and the second uses 160."
   },
   {
     "objectID": "course/session11/slides.html#everything-comes-in-through-an-argument",
     "href": "course/session11/slides.html#everything-comes-in-through-an-argument",
     "title": "Conditions and Functions",
     "section": "Everything comes in through an argument",
-    "text": "Everything comes in through an argument\n\n# Flag patients above a systolic threshold. Threshold is an argument so the\n# result depends only on what the caller passed.\nis_high &lt;- function(sbp, threshold = 140) {\n  sbp &gt; threshold\n}\n\nsum(is_high(trial$sbp_0))\n\n[1] 50\n\nsum(is_high(trial$sbp_0, threshold = 160))\n\n[1] 8\n\n\n\n\n\n\n\n\n\nThe rule: a function’s return value should depend only on its arguments. Nothing else.\n\n\n\n\n\n\nThe sensitivity analysis is now a second call, visible on the page, instead of a reassignment fifty lines away."
+    "text": "Everything comes in through an argument\n\n# Flag patients above a systolic threshold. Threshold is an argument so the\n# result depends only on what the caller passed.\nis_high &lt;- function(sbp, threshold = 140) {\n  return(sbp &gt; threshold)\n}\n\nsum(is_high(trial$sbp_0))\n\n[1] 50\n\nsum(is_high(trial$sbp_0, threshold = 160))\n\n[1] 8\n\n\n\n\n\n\n\n\n\nThe rule: a function’s return value should depend only on its arguments. Nothing else.\n\n\n\n\n\n\nThe sensitivity analysis is now a second call, visible on the page, instead of a reassignment fifty lines away."
   },
   {
     "objectID": "course/session11/slides.html#practice-3-find-the-hidden-input",
     "href": "course/session11/slides.html#practice-3-find-the-hidden-input",
     "title": "Conditions and Functions",
     "section": "Practice 3: find the hidden input",
-    "text": "Practice 3: find the hidden input\nreference_mean &lt;- 130\nadjust &lt;- function(x) x - reference_mean\nfirst &lt;- adjust(c(120, 140))\nreference_mean &lt;- 150\nsecond &lt;- adjust(c(120, 140))\n\nPredict first and second.\nRewrite adjust() so the reference value is a required argument.\nExplain why restarting R exposes only some global-dependency problems."
+    "text": "Practice 3: find the hidden input\nreference_mean &lt;- 130\nadjust &lt;- function(x) return(x - reference_mean)\nfirst &lt;- adjust(c(120, 140))\nreference_mean &lt;- 150\nsecond &lt;- adjust(c(120, 140))\n\nPredict first and second.\nRewrite adjust() so the reference value is a required argument.\nExplain why restarting R exposes only some global-dependency problems."
   },
   {
     "objectID": "course/session11/slides.html#practice-3-explicit-inputs",
     "href": "course/session11/slides.html#practice-3-explicit-inputs",
     "title": "Conditions and Functions",
     "section": "Practice 3: explicit inputs",
-    "text": "Practice 3: explicit inputs\n\nadjust &lt;- function(x, reference_mean) {\n  x - reference_mean\n}\nadjust(c(120, 140), reference_mean = 130)\n\n[1] -10  10\n\nadjust(c(120, 140), reference_mean = 150)\n\n[1] -30 -10\n\n\nOriginal results: c(-10, 10) and c(-30, -10).\nA restart removes a missing global, producing an error. A script that recreates and later changes that global can still run with the wrong value."
+    "text": "Practice 3: explicit inputs\n\nadjust &lt;- function(x, reference_mean) {\n  return(x - reference_mean)\n}\nadjust(c(120, 140), reference_mean = 130)\n\n[1] -10  10\n\nadjust(c(120, 140), reference_mean = 150)\n\n[1] -30 -10\n\n\nOriginal results: c(-10, 10) and c(-30, -10).\nA restart removes a missing global, producing an error. A script that recreates and later changes that global can still run with the wrong value."
   },
   {
     "objectID": "course/session11/slides.html#fail-loudly-or-be-wrong-quietly",
     "href": "course/session11/slides.html#fail-loudly-or-be-wrong-quietly",
     "title": "Conditions and Functions",
     "section": "Fail loudly, or be wrong quietly",
-    "text": "Fail loudly, or be wrong quietly\n\nmean_weight &lt;- function(weight_kg) mean(weight_kg)\n\nmean_weight(trial_raw$weight_kg)   # one weight is recorded as -99\n\n[1] 80.275\n\nmean_weight(trial$weight_kg)       # the same cohort, repaired\n\n[1] 83.22\n\n\n\n\n80.3 kg against 83.2 kg. Both are plausible. Only one is right, and the function had no opinion about which.\n\n\n\n\n\n\n\n\n\nImportant\n\n\nA function that fails loudly on bad input is safer than one that returns a plausible wrong answer."
+    "text": "Fail loudly, or be wrong quietly\n\nmean_weight &lt;- function(weight_kg) return(mean(weight_kg))\n\nmean_weight(trial_raw$weight_kg)   # one weight is recorded as -99\n\n[1] 80.275\n\nmean_weight(trial$weight_kg)       # the same cohort, repaired\n\n[1] 83.22\n\n\n\n\n80.3 kg against 83.2 kg. Both are plausible. Only one is right, and the function had no opinion about which.\n\n\n\n\n\n\n\n\n\nImportant\n\n\nA function that fails loudly on bad input is safer than one that returns a plausible wrong answer."
   },
   {
     "objectID": "course/session11/slides.html#stopifnot",
     "href": "course/session11/slides.html#stopifnot",
     "title": "Conditions and Functions",
     "section": "stopifnot()",
-    "text": "stopifnot()\n\nchecked_mean &lt;- function(x, digits = 1) {\n  stopifnot(is.numeric(x), length(x) &gt; 0, digits &gt;= 0)\n\n  round(mean(x, na.rm = TRUE), digits)\n}\n\nchecked_mean(trial$arm)\n\nError in checked_mean(trial$arm): is.numeric(x) is not TRUE"
+    "text": "stopifnot()\n\nchecked_mean &lt;- function(x, digits = 1) {\n  stopifnot(is.numeric(x), length(x) &gt; 0, digits &gt;= 0)\n\n  return(round(mean(x, na.rm = TRUE), digits))\n}\n\nchecked_mean(trial$arm)\n\nError in checked_mean(trial$arm): is.numeric(x) is not TRUE"
   },
   {
     "objectID": "course/session11/slides.html#give-failed-checks-a-useful-message",
     "href": "course/session11/slides.html#give-failed-checks-a-useful-message",
     "title": "Conditions and Functions",
     "section": "Give failed checks a useful message",
-    "text": "Give failed checks a useful message\nName the checks and you choose the message:\n\nchecked_mean &lt;- function(x, digits = 1) {\n  stopifnot(\n    \"x must be a numeric vector\" = is.numeric(x),\n    \"digits must not be negative\" = digits &gt;= 0\n  )\n  round(mean(x, na.rm = TRUE), digits)\n}\n\nchecked_mean(trial$arm)\n\nError in checked_mean(trial$arm): x must be a numeric vector"
+    "text": "Give failed checks a useful message\nName the checks and you choose the message:\n\nchecked_mean &lt;- function(x, digits = 1) {\n  stopifnot(\n    \"x must be a numeric vector\" = is.numeric(x),\n    \"digits must not be negative\" = digits &gt;= 0\n  )\n  return(round(mean(x, na.rm = TRUE), digits))\n}\n\nchecked_mean(trial$arm)\n\nError in checked_mean(trial$arm): x must be a numeric vector"
   },
   {
     "objectID": "course/session11/slides.html#stop-and-guard-clauses",
     "href": "course/session11/slides.html#stop-and-guard-clauses",
     "title": "Conditions and Functions",
     "section": "stop() and guard clauses",
-    "text": "stop() and guard clauses\n\n# Mean weight, refusing sentinel codes. Site 3 used -99 for \"not recorded\",\n# and averaging those understates the mean by about 3 kg.\nmean_weight &lt;- function(weight_kg) {\n  if (any(weight_kg &lt; 20, na.rm = TRUE)) {\n    stop(\"weight_kg contains values below 20: check for sentinel codes\",\n         call. = FALSE)\n  }\n  mean(weight_kg, na.rm = TRUE)\n}\n\nmean_weight(trial_raw$weight_kg)\n\nError: weight_kg contains values below 20: check for sentinel codes\n\n\n\n\nA guard clause is a check at the top that exits early. It keeps the happy path unindented and the failure cases visible."
+    "text": "stop() and guard clauses\n\n# Mean weight, refusing sentinel codes. Site 3 used -99 for \"not recorded\",\n# and averaging those understates the mean by about 3 kg.\nmean_weight &lt;- function(weight_kg) {\n  if (any(weight_kg &lt; 20, na.rm = TRUE)) {\n    stop(\"weight_kg contains values below 20: check for sentinel codes\",\n         call. = FALSE)\n  }\n  return(mean(weight_kg, na.rm = TRUE))\n}\n\nmean_weight(trial_raw$weight_kg)\n\nError: weight_kg contains values below 20: check for sentinel codes\n\n\n\n\nA guard clause is a check at the top that exits early. It keeps the happy path unindented and the failure cases visible."
   },
   {
     "objectID": "course/session11/slides.html#how-much-validation-is-enough",
@@ -1376,7 +1376,7 @@
     "href": "course/session11/slides.html#build-safe_mean-with-guard-clauses",
     "title": "Conditions and Functions",
     "section": "Build safe_mean() with guard clauses",
-    "text": "Build safe_mean() with guard clauses\n\nsafe_mean &lt;- function(x) {\n  if (!is.numeric(x) || !is.null(dim(x))) {\n    stop(\"x must be a numeric vector\", call. = FALSE)\n  }\n  if (any(is.infinite(x))) {\n    stop(\"x must not contain infinite values\", call. = FALSE)\n  }\n  if (all(is.na(x))) return(NA_real_)\n  mean(x, na.rm = TRUE)\n}\nsafe_mean(c(2, 4, NA))\n\n[1] 3\n\nsafe_mean(numeric(0))\n\n[1] NA\n\n\nThe empty case also exits because all(logical(0)) is TRUE."
+    "text": "Build safe_mean() with guard clauses\n\nsafe_mean &lt;- function(x) {\n  if (!is.numeric(x) || !is.null(dim(x))) {\n    stop(\"x must be a numeric vector\", call. = FALSE)\n  }\n  if (any(is.infinite(x))) {\n    stop(\"x must not contain infinite values\", call. = FALSE)\n  }\n  if (all(is.na(x))) return(NA_real_)\n  return(mean(x, na.rm = TRUE))\n}\nsafe_mean(c(2, 4, NA))\n\n[1] 3\n\nsafe_mean(numeric(0))\n\n[1] NA\n\n\nThe empty case also exits because all(logical(0)) is TRUE."
   },
   {
     "objectID": "course/session11/slides.html#trace-the-branch-that-ends-the-call",
@@ -1390,35 +1390,35 @@
     "href": "course/session11/slides.html#explain-why-the-shorter-version-changes-the-contract",
     "title": "Conditions and Functions",
     "section": "Explain why the shorter version changes the contract",
-    "text": "Explain why the shorter version changes the contract\n\nmean_shortcut &lt;- function(x) mean(x, na.rm = TRUE)\nmean_shortcut(numeric(0))\n\n[1] NaN\n\nsafe_mean(numeric(0))\n\n[1] NA\n\n\nBoth run. The first returns NaN; our helper returns NA_real_ by design.\nAsk which behavior a report expects, and document it. A shorter implementation is useful only if it preserves the intended input and output rules."
+    "text": "Explain why the shorter version changes the contract\n\nmean_shortcut &lt;- function(x) return(mean(x, na.rm = TRUE))\nmean_shortcut(numeric(0))\n\n[1] NaN\n\nsafe_mean(numeric(0))\n\n[1] NA\n\n\nBoth run. The first returns NaN; our helper returns NA_real_ by design.\nAsk which behavior a report expects, and document it. A shorter implementation is useful only if it preserves the intended input and output rules."
   },
   {
     "objectID": "course/session11/slides.html#practice-4-choose-the-checks",
     "href": "course/session11/slides.html#practice-4-choose-the-checks",
     "title": "Conditions and Functions",
     "section": "Practice 4: choose the checks",
-    "text": "Practice 4: choose the checks\nComplete the contract for centre_values(x, centre).\ncentre_values &lt;- function(x, centre = 0) {\n  stopifnot(\n    \"x must be a numeric vector\" = is.numeric(x) && is.null(dim(x)),\n    \"centre must be one finite number\" = # your condition\n  )\n  x - centre\n}\nReject centre = c(1, 2), NA, Inf, and \"2\". In what order should the checks run so each later check can safely assume the earlier ones passed?"
+    "text": "Practice 4: choose the checks\nComplete the contract for centre_values(x, centre).\ncentre_values &lt;- function(x, centre = 0) {\n  stopifnot(\n    \"x must be a numeric vector\" = is.numeric(x) && is.null(dim(x)),\n    \"centre must be one finite number\" = # your condition\n  )\n  return(x - centre)\n}\nReject centre = c(1, 2), NA, Inf, and \"2\". In what order should the checks run so each later check can safely assume the earlier ones passed?"
   },
   {
     "objectID": "course/session11/slides.html#practice-4-answer-and-checks",
     "href": "course/session11/slides.html#practice-4-answer-and-checks",
     "title": "Conditions and Functions",
     "section": "Practice 4: answer and checks",
-    "text": "Practice 4: answer and checks\n\ncentre_values &lt;- function(x, centre = 0) {\n  stopifnot(\n    \"x must be a numeric vector\" = is.numeric(x) && is.null(dim(x)),\n    \"centre must be one finite number\" =\n      is.numeric(centre) && length(centre) == 1 &&\n      is.null(dim(centre)) && is.finite(centre)\n  )\n  x - centre\n}\nstopifnot(identical(centre_values(c(1, NA, 3), centre = 2),\n                    c(-1, NA, 1)))\n\nValidate the type, then the length, then the value. An expected failure is also evidence that the interface works; try centre_values(1:3, centre = NA)."
+    "text": "Practice 4: answer and checks\n\ncentre_values &lt;- function(x, centre = 0) {\n  stopifnot(\n    \"x must be a numeric vector\" = is.numeric(x) && is.null(dim(x)),\n    \"centre must be one finite number\" =\n      is.numeric(centre) && length(centre) == 1 &&\n      is.null(dim(centre)) && is.finite(centre)\n  )\n  return(x - centre)\n}\nstopifnot(identical(centre_values(c(1, NA, 3), centre = 2),\n                    c(-1, NA, 1)))\n\nValidate the type, then the length, then the value. An expected failure is also evidence that the interface works; try centre_values(1:3, centre = NA)."
   },
   {
     "objectID": "course/session11/slides.html#data-argument-first",
     "href": "course/session11/slides.html#data-argument-first",
     "title": "Conditions and Functions",
     "section": "Data argument first",
-    "text": "Data argument first\nWhen the column names are fixed, nothing special is needed:\n\n# Add change from baseline; check the required columns before computing.\nadd_change &lt;- function(data) {\n  stopifnot(is.data.frame(data),\n            all(c(\"sbp_0\", \"sbp_12\") %in% names(data)))\n\n  data |&gt; mutate(change = sbp_12 - sbp_0)\n}\n\ntrial_raw |&gt; add_change() |&gt; summarise(mean_change = mean(change, na.rm = TRUE))\n\n  mean_change\n1   -7.614035\n\n\n\n\nData first, so the function drops into a pipeline like any dplyr verb."
+    "text": "Data argument first\nWhen the column names are fixed, nothing special is needed:\n\n# Add change from baseline; check the required columns before computing.\nadd_change &lt;- function(data) {\n  stopifnot(is.data.frame(data),\n            all(c(\"sbp_0\", \"sbp_12\") %in% names(data)))\n\n  return(data |&gt; mutate(change = sbp_12 - sbp_0))\n}\n\ntrial_raw |&gt; add_change() |&gt; summarise(mean_change = mean(change, na.rm = TRUE))\n\n  mean_change\n1   -7.614035\n\n\n\n\nData first, so the function drops into a pipeline like any dplyr verb."
   },
   {
     "objectID": "course/session11/slides.html#pass-a-bare-column-name-with-double-braces",
     "href": "course/session11/slides.html#pass-a-bare-column-name-with-double-braces",
     "title": "Conditions and Functions",
     "section": "Pass a bare column name with double braces",
-    "text": "Pass a bare column name with double braces\nWhen the column itself is the argument, dplyr needs to be told:\n\nsummarise_by_arm &lt;- function(data, outcome) {\n  data |&gt;\n    group_by(arm) |&gt;\n    summarise(\n      n    = sum(!is.na({{ outcome }})),\n      mean = round(mean({{ outcome }}, na.rm = TRUE), 1)\n    )\n}"
+    "text": "Pass a bare column name with double braces\nWhen the column itself is the argument, dplyr needs to be told:\n\nsummarise_by_arm &lt;- function(data, outcome) {\n  result &lt;- data |&gt;\n    group_by(arm) |&gt;\n    summarise(\n      n    = sum(!is.na({{ outcome }})),\n      mean = round(mean({{ outcome }}, na.rm = TRUE), 1)\n    )\n  return(result)\n}"
   },
   {
     "objectID": "course/session11/slides.html#call-the-column-aware-helper",
@@ -1432,7 +1432,7 @@
     "href": "course/session11/slides.html#without-double-braces-two-failures",
     "title": "Conditions and Functions",
     "section": "Without double braces: two failures",
-    "text": "Without double braces: two failures\n\nbad_summary &lt;- function(data, outcome) {\n  data |&gt; group_by(arm) |&gt; summarise(mean = mean(outcome))\n}\n\nbad_summary(trial, sbp_0)\n\nError in `summarise()`:\ni In argument: `mean = mean(outcome)`.\ni In group 1: `arm = \"Placebo\"`.\nCaused by error:\n! object 'sbp_0' not found"
+    "text": "Without double braces: two failures\n\nbad_summary &lt;- function(data, outcome) {\n  return(data |&gt; group_by(arm) |&gt; summarise(mean = mean(outcome)))\n}\n\nbad_summary(trial, sbp_0)\n\nError in `summarise()`:\ni In argument: `mean = mean(outcome)`.\ni In group 1: `arm = \"Placebo\"`.\nCaused by error:\n! object 'sbp_0' not found"
   },
   {
     "objectID": "course/session11/slides.html#a-stray-global-can-produce-a-plausible-wrong-answer",
@@ -1446,7 +1446,7 @@
     "href": "course/session11/slides.html#a-quoted-column-name-with-base-r",
     "title": "Conditions and Functions",
     "section": "A quoted column name with base R",
-    "text": "A quoted column name with base R\n\nsummarise_column &lt;- function(data, column) {\n  stopifnot(is.data.frame(data), is.character(column),\n            length(column) == 1, !is.na(column),\n            column %in% names(data))\n  safe_mean(data[[column]])\n}\nsummarise_column(trial_raw, \"sbp_12\")\n\n[1] 141.3158\n\n\ndata[[column]] looks up the value of column. data$column looks for a column literally named column.\nUse {{ outcome }} for a bare-name dplyr interface and [[column]] for a quoted-name base R interface. State which interface the function expects."
+    "text": "A quoted column name with base R\n\nsummarise_column &lt;- function(data, column) {\n  stopifnot(is.data.frame(data), is.character(column),\n            length(column) == 1, !is.na(column),\n            column %in% names(data))\n  return(safe_mean(data[[column]]))\n}\nsummarise_column(trial_raw, \"sbp_12\")\n\n[1] 141.3158\n\n\ndata[[column]] looks up the value of column. data$column looks for a column literally named column.\nUse {{ outcome }} for a bare-name dplyr interface and [[column]] for a quoted-name base R interface. State which interface the function expects."
   },
   {
     "objectID": "course/session11/slides.html#before-the-script-we-all-wrote",
@@ -1460,14 +1460,14 @@
     "href": "course/session11/slides.html#after-the-summary-helper",
     "title": "Conditions and Functions",
     "section": "After: the summary helper",
-    "text": "After: the summary helper\n\n# n counts patients contributing to the mean, not patients randomised.\nsummarise_by_arm &lt;- function(data, outcome, digits = 1) {\n  stopifnot(is.data.frame(data), \"arm\" %in% names(data))\n\n  data |&gt;\n    group_by(arm) |&gt;\n    summarise(\n      n    = sum(!is.na({{ outcome }})),\n      mean = round(mean({{ outcome }}, na.rm = TRUE), digits),\n      sd   = round(sd({{ outcome }}, na.rm = TRUE), digits)\n    )\n}"
+    "text": "After: the summary helper\n\n# n counts patients contributing to the mean, not patients randomised.\nsummarise_by_arm &lt;- function(data, outcome, digits = 1) {\n  stopifnot(is.data.frame(data), \"arm\" %in% names(data))\n\n  result &lt;- data |&gt;\n    group_by(arm) |&gt;\n    summarise(\n      n    = sum(!is.na({{ outcome }})),\n      mean = round(mean({{ outcome }}, na.rm = TRUE), digits),\n      sd   = round(sd({{ outcome }}, na.rm = TRUE), digits)\n    )\n  return(result)\n}"
   },
   {
     "objectID": "course/session11/slides.html#after-the-plotting-helper",
     "href": "course/session11/slides.html#after-the-plotting-helper",
     "title": "Conditions and Functions",
     "section": "After: the plotting helper",
-    "text": "After: the plotting helper\n\n# One boxplot of an outcome by arm, labelled for a clinical reader.\nplot_by_arm &lt;- function(data, outcome, y_label) {\n  ggplot(data, aes(arm, {{ outcome }}, fill = arm)) +\n    geom_boxplot(alpha = 0.7, width = 0.5) +\n    labs(x = NULL, y = y_label) +\n    theme(legend.position = \"none\")\n}\n\nsummarise_by_arm(trial_raw, change)\n\n# A tibble: 2 x 4\n  arm           n  mean    sd\n  &lt;chr&gt;     &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;\n1 Placebo      28  -1.9   6.9\n2 Treatment    29 -13.2   9.1"
+    "text": "After: the plotting helper\n\n# One boxplot of an outcome by arm, labelled for a clinical reader.\nplot_by_arm &lt;- function(data, outcome, y_label) {\n  plot &lt;- ggplot(data, aes(arm, {{ outcome }}, fill = arm)) +\n    geom_boxplot(alpha = 0.7, width = 0.5) +\n    labs(x = NULL, y = y_label) +\n    theme(legend.position = \"none\")\n  return(plot)\n}\n\nsummarise_by_arm(trial_raw, change)\n\n# A tibble: 2 x 4\n  arm           n  mean    sd\n  &lt;chr&gt;     &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt;\n1 Placebo      28  -1.9   6.9\n2 Treatment    29 -13.2   9.1"
   },
   {
     "objectID": "course/session11/slides.html#verify-the-refactor",
@@ -1488,14 +1488,14 @@
     "href": "course/session11/slides.html#compose-two-functions-for-paired-measurements",
     "title": "Conditions and Functions",
     "section": "Compose two functions for paired measurements",
-    "text": "Compose two functions for paired measurements\n\nclassify_change &lt;- function(change) {\n  stopifnot(is.numeric(change), is.null(dim(change)))\n  out &lt;- rep(\"missing\", length(change))\n  observed &lt;- !is.na(change)\n  out[observed & change &lt; 0] &lt;- \"decrease\"\n  out[observed & change &gt;= 0] &lt;- \"no decrease\"\n  out\n}\nclassify_change(c(-2, 1, NA, 0))\n\n[1] \"decrease\"    \"no decrease\" \"missing\"     \"no decrease\"\n\n\nThis returns a character vector even for zero rows. It describes the sign of change, not whether a change is clinically meaningful."
+    "text": "Compose two functions for paired measurements\n\nclassify_change &lt;- function(change) {\n  stopifnot(is.numeric(change), is.null(dim(change)))\n  out &lt;- rep(\"missing\", length(change))\n  observed &lt;- !is.na(change)\n  out[observed & change &lt; 0] &lt;- \"decrease\"\n  out[observed & change &gt;= 0] &lt;- \"no decrease\"\n  return(out)\n}\nclassify_change(c(-2, 1, NA, 0))\n\n[1] \"decrease\"    \"no decrease\" \"missing\"     \"no decrease\"\n\n\nThis returns a character vector even for zero rows. It describes the sign of change, not whether a change is clinically meaningful."
   },
   {
     "objectID": "course/session11/slides.html#a-reusable-paired-change-calculation",
     "href": "course/session11/slides.html#a-reusable-paired-change-calculation",
     "title": "Conditions and Functions",
     "section": "A reusable paired-change calculation",
-    "text": "A reusable paired-change calculation\n\nchange_summary &lt;- function(baseline, followup) {\n  stopifnot(is.numeric(baseline), is.null(dim(baseline)),\n            is.numeric(followup), is.null(dim(followup)),\n            length(baseline) == length(followup),\n            !any(is.infinite(baseline)), !any(is.infinite(followup)))\n  change &lt;- followup - baseline\n  data.frame(change = change, category = classify_change(change))\n}\nchange_summary(c(10, 8, NA, 12), c(8, 9, 7, 12))\n\n  change    category\n1     -2    decrease\n2      1 no decrease\n3     NA     missing\n4      0 no decrease\n\n\nPrecondition: the two vectors refer to the same people in the same order. Equal lengths do not establish patient alignment; join by ID first when needed."
+    "text": "A reusable paired-change calculation\n\nchange_summary &lt;- function(baseline, followup) {\n  stopifnot(is.numeric(baseline), is.null(dim(baseline)),\n            is.numeric(followup), is.null(dim(followup)),\n            length(baseline) == length(followup),\n            !any(is.infinite(baseline)), !any(is.infinite(followup)))\n  change &lt;- followup - baseline\n  return(data.frame(change = change, category = classify_change(change)))\n}\nchange_summary(c(10, 8, NA, 12), c(8, 9, 7, 12))\n\n  change    category\n1     -2    decrease\n2      1 no decrease\n3     NA     missing\n4      0 no decrease\n\n\nPrecondition: the two vectors refer to the same people in the same order. Equal lengths do not establish patient alignment; join by ID first when needed."
   },
   {
     "objectID": "course/session11/slides.html#practice-5-verify-the-refactor",
@@ -1537,7 +1537,7 @@
     "href": "course/session11/slides.html#house-style-for-functions",
     "title": "Conditions and Functions",
     "section": "House style for functions",
-    "text": "House style for functions\n\n\n\n\n\n\n\n\nRule\nIn practice\n\n\n\n\nVerbs for functions, nouns for objects\nsummarise_by_arm(), not arm_summary()\n\n\nsnake_case, no exceptions\nplot_by_arm, not plotByArm\n\n\nOne job per function\nIf the name needs “and”, it is two functions\n\n\nKeep it focused\nA long function is a reason to review its responsibilities\n\n\nData argument first\nSo it pipes\n\n\nValidate inputs\nTwo or three checks, at the top\n\n\nOne line above saying what it does\nWhat it takes, what it returns\n\n\nComments say why\nThe code already says what\n\n\n\n\n\n\n\n\n\n\n\nAll of this is in style-guide.md, §7. Code quality is graded on it."
+    "text": "House style for functions\n\n\n\n\n\n\n\n\nRule\nIn practice\n\n\n\n\nVerbs for functions, nouns for objects\nsummarise_by_arm(), not arm_summary()\n\n\nsnake_case, no exceptions\nplot_by_arm, not plotByArm\n\n\nOne job per function\nIf the name needs “and”, it is two functions\n\n\nMake exits explicit\nUse return(value) at every normal exit\n\n\nKeep it focused\nA long function is a reason to review its responsibilities\n\n\nData argument first\nSo it pipes\n\n\nValidate inputs\nTwo or three checks, at the top\n\n\nOne line above saying what it does\nWhat it takes, what it returns\n\n\nComments say why\nThe code already says what\n\n\n\n\n\n\n\n\n\n\n\nAll of this is in style-guide.md, §7. Code quality is graded on it."
   },
   {
     "objectID": "course/session11/slides.html#explain-predict-and-choose",
@@ -7515,7 +7515,7 @@
     "href": "course/session11/index.html#session-outline-and-content",
     "title": "Session 11 · Conditions and Functions",
     "section": "Session outline and content",
-    "text": "Session outline and content\n\n1. Conditions\nBegin with unequal-length paired measurements: R can silently recycle values and produce incorrect changes. Use if to check whether calculation may proceed, then repair a vector condition using ifelse() for row labels or any()/all() for a group decision. Treat missing and empty conditions separately before practice.\n\n\n2. Why functions?\nIdentify duplicated calculations and state inputs, options, outputs, and edge cases.\n\n\n3. Function basics\nRead an existing function call: package namespace, function name, parameters, supplied arguments, and return value. Connect these to Usage, Arguments, and Value in its help page. Build a summary from a checked calculation, identify required inputs and options, trace a call, and check changed inputs. Extend the helper with an observed count, missing count, and explicit missing-data policy. Choose the return shape to suit the caller.\n\n\n4. Scope\nReplace hidden global dependencies with explicit arguments.\n\n\n5. Validation\nUse guard clauses and enforce the safe-mean and scalar-center contracts. Trace the first exit for invalid, all-missing, empty, and ordinary inputs.\n\n\n6. Data-frame functions\nCheck columns and distinguish quoted-name extraction from bare-name dplyr interfaces.\n\n\n7. Refactoring and reuse\nCompose paired-change helpers and compare against hand-built and original results. Save reusable definitions in R scripts, load them with source(), and verify the report in a fresh session.\n\n\n8. Exit check\nExplain the contract and the evidence that intended behavior was preserved."
+    "text": "Session outline and content\n\n1. Conditions\nBegin with unequal-length paired measurements: R can silently recycle values and produce incorrect changes. Use if to check whether calculation may proceed, then repair a vector condition using ifelse() for row labels or any()/all() for a group decision. Treat missing and empty conditions separately before practice.\n\n\n2. Why functions?\nIdentify duplicated calculations and state inputs, options, outputs, and edge cases.\n\n\n3. Function basics\nRead an existing function call: package namespace, function name, parameters, supplied arguments, and return value. Connect these to Usage, Arguments, and Value in its help page. Build a summary from a checked calculation, identify required inputs and options, trace a call, and check changed inputs. Extend the helper with an observed count, missing count, and explicit missing-data policy. Use explicit return() calls and invisible() when automatic printing is unwanted. Practice one four-component summary and extract results by name.\n\n\n4. Scope\nReplace hidden global dependencies with explicit arguments.\n\n\n5. Validation\nUse guard clauses and enforce the safe-mean and scalar-center contracts. Trace the first exit for invalid, all-missing, empty, and ordinary inputs.\n\n\n6. Data-frame functions\nCheck columns and distinguish quoted-name extraction from bare-name dplyr interfaces.\n\n\n7. Refactoring and reuse\nCompose paired-change helpers and compare against hand-built and original results. Save reusable definitions in R scripts, load them with source(), and verify the report in a fresh session.\n\n\n8. Exit check\nExplain the contract and the evidence that intended behavior was preserved."
   },
   {
     "objectID": "course/session11/index.html#materials",
@@ -8873,7 +8873,7 @@
     "href": "course/session11/lab.html#write-and-call-a-small-function",
     "title": "Session 11 guided lab",
     "section": "2. Write and call a small function",
-    "text": "2. Write and call a small function\nLecture connection: help pages, parameters, defaults, return values, and explicit inputs.\nOpen help(\"median\", package = \"stats\") in the Console. For the supplied call stats::median(c(10, NA, 14), na.rm = TRUE), identify the package, function, the default for na.rm, and the supplied argument that overrides it. Use Value to predict the return value and its length, then run the call.\nComplete centre_values(x, centre = 0) by replacing its placeholder body with x - centre. Run the two supplied calls and save their results:\n\nDefault center: c(10, NA, 14).\ncentre = 12: c(-2, NA, 2).\n\nIn one sentence, explain why passing the center as an argument is preferable to reading a global reference_mean inside the function."
+    "text": "2. Write and call a small function\nLecture connection: help pages, parameters, defaults, return values, and explicit inputs.\nOpen help(\"median\", package = \"stats\") in the Console. For the supplied call stats::median(c(10, NA, 14), na.rm = TRUE), identify the package, function, the default for na.rm, and the supplied argument that overrides it. Use Value to predict the return value and its length, then run the call.\nComplete centre_values(x, centre = 0) by replacing its placeholder body with return(x - centre). Run the two supplied calls and save their results:\n\nDefault center: c(10, NA, 14).\ncentre = 12: c(-2, NA, 2).\n\nIn one sentence, explain why passing the center as an argument is preferable to reading a global reference_mean inside the function."
   },
   {
     "objectID": "course/session11/lab.html#read-a-function-with-checks",
