@@ -30,7 +30,7 @@
     ul.task-list{list-style: none;}
     ul.task-list li input[type="checkbox"] {
       width: 0.8em;
-      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */
       vertical-align: middle;
     }
     /* CSS for syntax highlighting */
@@ -131,12 +131,12 @@
     }
     .reveal .footnotes ol {
       counter-reset: ol;
-      list-style-type: none; 
+      list-style-type: none;
       margin-left: 0;
     }
     .reveal .footnotes ol li:before {
       counter-increment: ol;
-      content: counter(ol) ". "; 
+      content: counter(ol) ". ";
     }
     .reveal .footnotes ol li > p:first-child {
       display: inline-block;
@@ -178,19 +178,19 @@
     .reveal .slide > img.r-stretch.quarto-figure-center {
       display: block;
       margin-left: auto;
-      margin-right: auto; 
+      margin-right: auto;
     }
     .reveal .slide > img.stretch.quarto-figure-left,
     .reveal .slide > img.r-stretch.quarto-figure-left  {
       display: block;
       margin-left: 0;
-      margin-right: auto; 
+      margin-right: auto;
     }
     .reveal .slide > img.stretch.quarto-figure-right,
     .reveal .slide > img.r-stretch.quarto-figure-right  {
       display: block;
       margin-left: auto;
-      margin-right: 0; 
+      margin-right: 0;
     }
   </style>
   <script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
@@ -208,7 +208,7 @@
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
 <div class="quarto-title-author-name">
-Department of Biostatistics, Vanderbilt University Medical Center 
+Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 </div>
@@ -270,43 +270,32 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="roadmap-for-today" class="slide level2">
 <h2>Roadmap for today</h2>
 <table class="caption-top">
-<colgroup>
-<col style="width: 6%">
-<col style="width: 64%">
-<col style="width: 30%">
-</colgroup>
 <thead>
 <tr class="header">
 <th></th>
 <th>Block</th>
-<th>Minutes</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>1</td>
 <td>RStudio workbench and <code>.R</code> scripts</td>
-<td>20</td>
 </tr>
 <tr class="even">
 <td>2</td>
 <td>R Markdown documents and knitr options</td>
-<td>25</td>
 </tr>
 <tr class="odd">
 <td>3</td>
 <td>What Quarto adds or changes</td>
-<td>15</td>
 </tr>
 <tr class="even">
 <td>4</td>
 <td>Reproducible projects, paths, and the Duke case</td>
-<td>20</td>
 </tr>
 <tr class="odd">
 <td>5</td>
 <td>Clean-session rendering and summary</td>
-<td>10</td>
 </tr>
 </tbody>
 </table>
@@ -561,19 +550,12 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <span id="cb3-5"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-6"><a aria-hidden="true" tabindex="-1"></a>The report contains **prose** and computed results.</span>
 <span id="cb3-7"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-9"><a aria-hidden="true" tabindex="-1"></a>::: {.cell}</span>
-<span id="cb3-10"><a aria-hidden="true" tabindex="-1"></a>::: {.cell-output .cell-output-stdout}</span>
-<span id="cb3-11"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-12"><a aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb3-13"><a aria-hidden="true" tabindex="-1"></a><span class="in">[1] 50.58333</span></span>
-<span id="cb3-14"><a aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb3-15"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-17"><a aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb3-18"><a aria-hidden="true" tabindex="-1"></a>:::</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb3-8"><a aria-hidden="true" tabindex="-1"></a><span class="in">```{r summary, echo=FALSE}</span></span>
+<span id="cb3-9"><a aria-hidden="true" tabindex="-1"></a>clinic <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/clinic_summary.csv"</span>)</span>
+<span id="cb3-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(clinic<span class="sc">$</span>age)</span>
+<span id="cb3-11"><a aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="smaller">
-<p>Three layers: <strong>YAML</strong> says what to create; <strong>Markdown</strong> explains the analysis; an <strong>R chunk</strong> performs the computation. <code>rmarkdown</code>, <code>knitr</code>, and Pandoc turn the source into the report.</p>
+<p><strong>YAML</strong> configures the output; <strong>Markdown</strong> explains; <strong>R chunks</strong> compute.</p>
 </div>
 </section>
 <section id="what-.rmd-adds-to-an-.r-script" class="slide level2 smaller">
@@ -617,7 +599,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb4-1"><a aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span>
 <span id="cb4-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">title</span><span class="kw">:</span><span class="at"> </span><span class="st">"Synthetic clinic summary"</span></span>
 <span id="cb4-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">author</span><span class="kw">:</span><span class="at"> </span><span class="st">"Student name"</span></span>
-<span id="cb4-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">date</span><span class="kw">:</span><span class="at"> </span><span class="st">"2026-08-31"</span></span>
+<span id="cb4-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">date</span><span class="kw">:</span><span class="at"> </span><span class="st">"2026-11-02"</span></span>
 <span id="cb4-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">output</span><span class="kw">:</span></span>
 <span id="cb4-6"><a aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">html_document</span><span class="kw">:</span></span>
 <span id="cb4-7"><a aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">toc</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
@@ -649,17 +631,10 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="anatomy-of-an-r-markdown-code-chunk" class="slide level2 smaller">
 <h2>Anatomy of an R Markdown code chunk</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-2"><a aria-hidden="true" tabindex="-1"></a>::: {.cell}</span>
-<span id="cb6-3"><a aria-hidden="true" tabindex="-1"></a>::: {.cell-output .cell-output-stdout}</span>
-<span id="cb6-4"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-5"><a aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-6"><a aria-hidden="true" tabindex="-1"></a><span class="in">[1] 50.58333</span></span>
-<span id="cb6-7"><a aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-8"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-9"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-10"><a aria-hidden="true" tabindex="-1"></a>:::</span>
-<span id="cb6-11"><a aria-hidden="true" tabindex="-1"></a>:::</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a aria-hidden="true" tabindex="-1"></a><span class="in">```{r age-summary, echo=FALSE, warning=FALSE}</span></span>
+<span id="cb6-2"><a aria-hidden="true" tabindex="-1"></a>mean_age <span class="ot">&lt;-</span> <span class="fu">mean</span>(clinic<span class="sc">$</span>age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-3"><a aria-hidden="true" tabindex="-1"></a>mean_age</span>
+<span id="cb6-4"><a aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div style="font-size:0.88em">
 <table class="caption-top">
 <colgroup>
@@ -831,7 +806,17 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="a-setup-chunk-establishes-document-wide-defaults" class="slide level2 smaller">
 <h2>A setup chunk establishes document-wide defaults</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a><span class="in">```{r rmd-setup-example, include=FALSE}</span></span>
+<span id="cb7-2"><a aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb7-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">echo =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb7-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">message =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb7-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">warning =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb7-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.width =</span> <span class="dv">7</span>,</span>
+<span id="cb7-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">fig.height =</span> <span class="dv">4</span></span>
+<span id="cb7-8"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-9"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a aria-hidden="true" tabindex="-1"></a>clinic <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"data/clinic_summary.csv"</span>)</span>
+<span id="cb7-11"><a aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Individual chunks can override these defaults in their own headers.</p>
 </section>
 <section id="inline-r-keeps-numbers-connected-to-calculations" class="slide level2 smaller">
@@ -963,14 +948,15 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 </div>
-<div class="fragment">
+</section>
+<section id="what-rendering-requires" class="slide level2 smaller">
+<h2>What rendering requires</h2>
 <div class="smaller">
 <p>Two things follow from this picture, and both matter:</p>
 <ul>
 <li><strong>knitr executes the document in order during rendering.</strong> Anything the report needs must be created or loaded by saved source.</li>
 <li><strong>The source is one file; the outputs are many.</strong> You never maintain an HTML and a Word version by hand.</li>
 </ul>
-</div>
 </div>
 </section>
 <section id="anatomy-of-a-.qmd" class="slide level2 smaller">
@@ -983,7 +969,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <span id="cb10-5"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">## Baseline characteristics            ← 2. Prose: markdown</span></span>
 <span id="cb10-7"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-8"><a aria-hidden="true" tabindex="-1"></a>Mean baseline SBP was 149.9 mmHg.</span>
+<span id="cb10-8"><a aria-hidden="true" tabindex="-1"></a>Mean baseline SBP was <span class="in">`r round(mean(trial$sbp_0), 1)`</span> mmHg.</span>
 <span id="cb10-9"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-10"><a aria-hidden="true" tabindex="-1"></a><span class="in">```{r}                               ← 3. Code chunk: executed</span></span>
 <span id="cb10-11"><a aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-sbp</span></span>
@@ -1018,6 +1004,9 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <span id="cb11-11"><a aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">echo</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
 <span id="cb11-12"><a aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">warning</span><span class="kw">:</span><span class="at"> </span><span class="ch">false</span></span>
 <span id="cb11-13"><a aria-hidden="true" tabindex="-1"></a><span class="pp">---</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="read-the-yaml-options" class="slide level2 smaller">
+<h2>Read the YAML options</h2>
 <div class="smaller">
 <table class="caption-top">
 <colgroup>
@@ -1071,7 +1060,9 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <span id="cb12-12"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">ylab =</span> <span class="st">"SBP at 12 weeks (mmHg)"</span></span>
 <span id="cb12-13"><a aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb12-14"><a aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
+</section>
+<section id="read-the-chunk-options" class="slide level2 smaller">
+<h2>Read the chunk options</h2>
 <div class="smaller">
 <ul>
 <li>Options go <strong>inside</strong> the chunk, on <code>#|</code> lines, at the top. Not in the header.</li>
@@ -1086,7 +1077,6 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <div class="callout-content">
 <p>This is the biggest visible change from R Markdown, where options lived in the chunk header: <code>```{r fig-sbp, echo=TRUE}</code>.</p>
-</div>
 </div>
 </div>
 </div>
@@ -1133,16 +1123,6 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <td>Keep rendering despite an error</td>
 <td>Deliberately demonstrating a failure</td>
 </tr>
-<tr class="even">
-<td><code>fig-width</code>, <code>fig-height</code></td>
-<td>Figure size in inches</td>
-<td>Always, for anything published</td>
-</tr>
-<tr class="odd">
-<td><code>cache: true</code></td>
-<td>Reuse results unless the chunk changes</td>
-<td>An expensive step</td>
-</tr>
 </tbody>
 </table>
 </div>
@@ -1158,6 +1138,35 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 </div>
+</section>
+<section id="figure-size-and-caching" class="slide level2 smaller">
+<h2>Figure size and caching</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Option</th>
+<th>Effect</th>
+<th>Use when</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>fig-width</code>, <code>fig-height</code></td>
+<td>Figure size in inches</td>
+<td>Always, for anything published</td>
+</tr>
+<tr class="even">
+<td><code>cache: true</code></td>
+<td>Reuse results unless the chunk changes</td>
+<td>An expensive step</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="inline-code" class="slide level2 smaller">
 <h2>Inline code</h2>
@@ -1206,7 +1215,12 @@ Figure&nbsp;1: Systolic BP at 12 weeks by treatment arm.
 </section>
 <section id="tables-come-from-code-too" class="slide level2 smaller">
 <h2>Tables come from code too</h2>
-<div class="cell">
+<div id="tbl-baseline" class="cell quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-tbl">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-baseline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Baseline characteristics by arm.
+</figcaption>
+<div aria-describedby="tbl-baseline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a>baseline <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(<span class="fu">split</span>(trial, trial<span class="sc">$</span>arm), <span class="cf">function</span>(d) {</span>
 <span id="cb15-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
 <span id="cb15-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">Arm =</span> <span class="fu">unique</span>(d<span class="sc">$</span>arm),</span>
@@ -1217,16 +1231,17 @@ Figure&nbsp;1: Systolic BP at 12 weeks by treatment arm.
 <span id="cb15-8"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
 <span id="cb15-9"><a aria-hidden="true" tabindex="-1"></a>  )</span>
 <span id="cb15-10"><a aria-hidden="true" tabindex="-1"></a>}))</span>
-<span id="cb15-11"><a aria-hidden="true" tabindex="-1"></a><span class="fu">row.names</span>(baseline) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
-<span id="cb15-12"><a aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(baseline)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div id="tbl-baseline" class="cell quarto-float quarto-figure quarto-figure-center">
-<figure class="quarto-float quarto-float-tbl">
-<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-baseline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;1: Baseline characteristics by arm.
-</figcaption>
-<div aria-describedby="tbl-baseline-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<span id="cb15-11"><a aria-hidden="true" tabindex="-1"></a><span class="fu">row.names</span>(baseline) <span class="ot">&lt;-</span> <span class="cn">NULL</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</figure>
+</div>
+</section>
+<section id="display-the-computed-table" class="slide level2 smaller">
+<h2>Display the computed table</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(baseline)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
-<table class="cell caption-top">
+<table class="caption-top">
 <thead>
 <tr class="header">
 <th style="text-align: left;">Arm</th>
@@ -1253,9 +1268,6 @@ Table&nbsp;1: Baseline characteristics by arm.
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-</figure>
 </div>
 </div>
 <div class="smaller">
@@ -1425,16 +1437,16 @@ Table&nbsp;1: Baseline characteristics by arm.
 <div class="columns">
 <div class="column" style="width:48%;">
 <h3 id="data-inside-the-project">Data inside the project</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a>clinic <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(</span>
-<span id="cb17-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="st">"data/clinic_summary.csv"</span></span>
-<span id="cb17-3"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a aria-hidden="true" tabindex="-1"></a>clinic <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(</span>
+<span id="cb18-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="st">"data/clinic_summary.csv"</span></span>
+<span id="cb18-3"><a aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Relative paths are convenient for course-sized, shareable data.</p>
 </div><div class="column" style="width:48%;">
 <h3 id="large-or-protected-data-elsewhere">Large or protected data elsewhere</h3>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a aria-hidden="true" tabindex="-1"></a>data_root <span class="ot">&lt;-</span> <span class="st">"D:/shared/study123"</span></span>
-<span id="cb18-2"><a aria-hidden="true" tabindex="-1"></a>clinic <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(</span>
-<span id="cb18-3"><a aria-hidden="true" tabindex="-1"></a>  data_root, <span class="st">"derived/cohort.rds"</span></span>
-<span id="cb18-4"><a aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a aria-hidden="true" tabindex="-1"></a>data_root <span class="ot">&lt;-</span> <span class="st">"D:/shared/study123"</span></span>
+<span id="cb19-2"><a aria-hidden="true" tabindex="-1"></a>clinic <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">file.path</span>(</span>
+<span id="cb19-3"><a aria-hidden="true" tabindex="-1"></a>  data_root, <span class="st">"derived/cohort.rds"</span></span>
+<span id="cb19-4"><a aria-hidden="true" tabindex="-1"></a>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>An absolute root is often correct on a server, cluster, or shared drive.</p>
 </div></div>
 <div class="fragment">
@@ -1443,7 +1455,7 @@ Table&nbsp;1: Baseline characteristics by arm.
 </section>
 <section id="restarting-r-tests-saved-source" class="slide level2 smaller">
 <h2>Restarting R tests saved source</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>This removes objects, but loaded packages, changed options, working-directory changes, and other process state can remain.</p>
 <div class="fragment">
 <div class="callout callout-tip callout-titled callout-style-default">
@@ -1523,7 +1535,7 @@ Table&nbsp;1: Baseline characteristics by arm.
   <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
   <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
-  
+
 
   <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
   <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
@@ -1545,7 +1557,7 @@ Table&nbsp;1: Baseline characteristics by arm.
 'jumpToSlide': true,
 'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
 'smaller': false,
- 
+
         // Display controls in the bottom right corner
         controls: false,
 
@@ -1723,7 +1735,7 @@ Table&nbsp;1: Baseline characteristics by arm.
         ]
       });
     </script>
-    
+
 
     <script>
 
@@ -1747,13 +1759,13 @@ Table&nbsp;1: Baseline characteristics by arm.
 
         }
 
-    
+
 
         function fireSlideChanged(previousSlide, currentSlide) {
 
           fireSlideEnter();
 
-    
+
 
           // dispatch for shiny
 
@@ -1775,7 +1787,7 @@ Table&nbsp;1: Baseline characteristics by arm.
 
         }
 
-    
+
 
         // hookup for slidy
 
@@ -1791,13 +1803,13 @@ Table&nbsp;1: Baseline characteristics by arm.
 
         }
 
-    
+
 
       })();
 
     </script>
 
-    
+
 
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -1807,7 +1819,7 @@ Table&nbsp;1: Baseline characteristics by arm.
         });
         const isCodeAnnotation = (el) => {
           for (const clz of el.classList) {
-            if (clz.startsWith('code-annotation-')) {                     
+            if (clz.startsWith('code-annotation-')) {
               return true;
             }
           }
@@ -1827,11 +1839,11 @@ Table&nbsp;1: Baseline characteristics by arm.
             button.setAttribute("data-bs-toggle", "tooltip");
             button.setAttribute("data-bs-placement", "left");
             button.setAttribute("data-bs-title", "Copied!");
-            tooltip = new bootstrap.Tooltip(button, 
-              { trigger: "manual", 
+            tooltip = new bootstrap.Tooltip(button,
+              { trigger: "manual",
                 customClass: "code-copy-button-tooltip",
                 offset: [0, -8]});
-            tooltip.show();    
+            tooltip.show();
           }
           setTimeout(function() {
             if (tooltip) {
@@ -1910,7 +1922,7 @@ Table&nbsp;1: Baseline characteristics by arm.
           }
             config['offset'] = [0,0];
             config['maxWidth'] = 700;
-          window.tippy(el, config); 
+          window.tippy(el, config);
         }
         const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
         for (var i=0; i<noterefs.length; i++) {
@@ -1967,6 +1979,6 @@ Table&nbsp;1: Baseline characteristics by arm.
         }
       });
       </script>
-    
+
 
 </body></html>

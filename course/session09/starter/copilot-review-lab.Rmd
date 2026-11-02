@@ -1,49 +1,101 @@
 ---
-title: "Session 9 lab: Copilot review"
+title: "Session 9 lab: Posit Assistant review"
 date: "`r format(Sys.time(), '%Y-%m-%d %H:%M:%S %Z')`"
 output: html_document
 ---
 
+Copy this document and `sbp-demo.csv` into the same `work/session09/` folder.
+Use Posit Assistant with GitHub Copilot as provider. Follow the guided lab:
+predict, discuss in Ask, request a bounded revision, then verify yourself.
+
+Render/Knit runs code relative to this document's folder. For interactive chunks,
+check that your R working directory is that folder too.
+
+## 1. Load the synthetic SBP data
+
 ```{r}
-visit <- data.frame(
-  id = rep(sprintf("P%02d", 1:8), each = 2),
-  arm = rep(rep(c("control", "treated"), each = 4), each = 2),
-  week = rep(c(0, 4), 8),
-  marker = c(4.1, 4.3, 4.8, NA, 5.0, 5.2, 4.5, 4.7,
-             5.2, 4.6, 5.8, 5.0, 6.1, NA, 5.5, 4.9)
-)
+library(ggplot2)
+trial <- read.csv("sbp-demo.csv")
+stopifnot(nrow(trial) == 60L, !anyDuplicated(trial$id))
+names(trial)
 ```
 
-## Statistical request
+The data have one row per patient and SBP at baseline, 6 weeks, and 12 weeks.
+The analysis uses `sbp_0` and `sbp_12`, with treatment group in `arm`.
 
-At week 4, report total `n`, observed `n`, mean marker, and SD by randomized
-arm. Do not remove missing rows before counting total `n`.
+## 2. Original candidates and my prediction
 
-## First candidate
+These are **prepared teaching examples**, not a transcript of an AI response.
+The plain code blocks below are preserved for review and do not execute.
 
-Use Copilot or another AI coding tool to suggest code below the comment. To complete the exercise without AI, begin with this
-candidate:
+Plot candidate:
 
 ```r
-visit |>
-  dplyr::filter(week == 4, !is.na(marker)) |>
-  dplyr::summarise(n = dplyr::n(), mean = mean(marker), sd = sd(marker), .by = arm)
+p <- ggplot(trial, aes(sbp_0, sbp_12)) + geom_point()
 ```
 
-Explain what is correct and incorrect about the candidate.
+Summary candidate:
 
-## Corrected analysis
+```r
+# Requested: total n, observed n, mean and SD of week-12 SBP by arm.
+trial |>
+  dplyr::filter(!is.na(sbp_12)) |>
+  dplyr::summarise(n = dplyr::n(), mean_sbp = mean(sbp_12),
+                 sd_sbp = sd(sbp_12), .by = arm)
+```
+
+**My prediction before Ask:** What does `n` count after the filter?
+Replace this sentence with your answer.
+
+**After Ask:** Did the explanation agree with your prediction? How did the
+assistant obtain the column names: a file read, supplied output, or something
+else? Replace these questions with two or three sentences.
+
+## 3. Revised plot
+
+Have the assistant fill this section, then inspect the changes. Use complete
+baseline/week-12 pairs, color by arm, label axes in mmHg, and call `print(p)`.
 
 ```{r}
-# Add corrected dplyr or base-R code.
+# Add the reviewed plotting code here.
 ```
 
-## Independent verification
+## 4. Corrected summary
+
+Have the assistant fill this section. Store the result as `summary_sbp` and
+display it. Return one row per arm with `n_total`, `n_observed`, `mean_sbp`,
+and `sd_sbp`. Count all patient rows for total n.
 
 ```{r}
-# Verify total and observed counts using a different, simple approach.
+# Add the reviewed summary code here.
 ```
 
-## AI disclosure
+## 5. Independent verification
 
-Replace this sentence with the required disclosure.
+Run these supplied checks yourself. Compare their output with the revised plot
+and summary. Keep these checks unchanged when requesting the revision.
+
+```{r}
+# Pair count: count eligible rows instead of counting visible dots.
+sum(complete.cases(trial[c("sbp_0", "sbp_12")]))
+sum(!complete.cases(trial[c("sbp_0", "sbp_12")]))
+
+# Independent base-R checks for total and observed counts.
+table(trial$arm)
+with(trial, tapply(!is.na(sbp_12), arm, sum))
+
+# Compare these means with the corrected summary as well.
+with(trial, tapply(sbp_12, arm, mean, na.rm = TRUE))
+```
+
+**My verification:** Report the pair count, total counts, and observed counts.
+Explain why total and observed n differ. Confirm the plot's axes and colors,
+and whether the independently calculated means match. Note any correction
+you made after reviewing the assistant's work.
+
+## 6. AI disclosure
+
+Write two or three sentences naming the tool (**Posit Assistant**), provider
+(**GitHub Copilot**), displayed model if available, what it changed, and what
+you checked yourself. Distinguish work the assistant actually ran from code
+you ran. If completing the manual route, write `AI use: None.`

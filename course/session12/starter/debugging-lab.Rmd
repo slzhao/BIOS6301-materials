@@ -1,40 +1,78 @@
 ---
-title: "Session 12 lab: debugging"
-date: "`r format(Sys.time(), '%Y-%m-%d %H:%M:%S %Z')`"
+title: "Session 12 programming lab"
 output: html_document
 ---
 
+## Supplied failures
+
+These functions are deliberately broken. Keep them as evidence.
+
 ```{r}
-events_treated <- c(4, 2, NA, 3)
-time_treated <- c(40, 25, 30, 0)
-events_control <- c(5, 4, 3)
-time_control <- c(42, 27, 31)
+pooled_mean <- function(x) sum(x) / length(x)
+summarise_change <- function(x) pooled_mean(x)
+report_change <- function(data) summarise_change(data$change)
+bad_data <- data.frame(change = c("-2", "1", "0"))
+broken_mean <- function(x) sum(x, na.rm = TRUE) / length(x)
+broken_change <- function(baseline, followup) followup - baseline
 ```
 
-## Broken function
+## 1–2. Symptoms and minimal example
 
 ```{r}
-risk_ratio <- function(e1, t1, e0, t0) {
-  mean(e1 / t1) / mean(e0 / t0)
+mean(c("2", "4"))
+try(report_change(bad_data), silent = TRUE)
+broken_mean(c(2, NA, 4))
+# TODO: record expected versus actual behavior and shrink the nested error.
+```
+
+## 3. Console-only inspection
+
+Run the lines below interactively, not while rendering. At the browser prompt,
+inspect `str(x)` and exit with `Q`. Then describe what you found.
+
+```{r, eval=FALSE}
+report_change(bad_data)
+traceback()
+debugonce(pooled_mean)
+report_change(bad_data)
+```
+
+## 4. Repair and regression checks
+
+```{r}
+safe_mean <- function(x) {
+  # TODO: restore the complete Session 11 contract.
 }
+# TODO: ordinary, partial, all-missing, empty, single-value, and NaN checks.
+# TODO: verify errors for character input, matrices, and infinity.
 ```
 
-## 1. Reproduce and diagnose
+## 5. Numerical reliability
 
 ```{r}
-# Call the function and inspect intermediate rates.
+0.1 + 0.2 == 0.3
+isTRUE(all.equal(0.1 + 0.2, 0.3))
+all.equal(1, 2)
+# Overflow in integer arithmetic; the double result is exact at this size.
+.Machine$integer.max + 1L
+.Machine$integer.max + 1
+# Avoid forming a product that underflows before taking its logarithm.
+log(prod(rep(0.01, 200)))
+sum(log(rep(0.01, 200)))
 ```
 
-## 2. Repair and validate
+## 6. Expected errors and paired inputs
 
 ```{r}
-# Define a documented missing/zero-time policy and enforce it.
+paired_change <- function(baseline, followup) {
+  # TODO: validate before subtracting; preserve empty input behavior.
+}
+# Example pattern: NULL means the call did not raise an error.
+# failure <- tryCatch({ paired_change(c(10, 20), 8); NULL },
+#                     error = function(e) conditionMessage(e))
+# TODO: assert the expected message and protect the valid c(-2, 1) result.
 ```
 
-## 3. Tests and minimal reprex
+## Exit evidence
 
-```{r}
-# Add ordinary, missing, boundary, and invalid-input tests.
-```
-
-Explain why `(0.1 + 0.2) == 0.3` is not a suitable test.
+TODO: write the diagnosis, contract, console observations, and minimal reprex.

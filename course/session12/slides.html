@@ -28,7 +28,7 @@
     ul.task-list{list-style: none;}
     ul.task-list li input[type="checkbox"] {
       width: 0.8em;
-      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */
       vertical-align: middle;
     }
     /* CSS for syntax highlighting */
@@ -129,12 +129,12 @@
     }
     .reveal .footnotes ol {
       counter-reset: ol;
-      list-style-type: none; 
+      list-style-type: none;
       margin-left: 0;
     }
     .reveal .footnotes ol li:before {
       counter-increment: ol;
-      content: counter(ol) ". "; 
+      content: counter(ol) ". ";
     }
     .reveal .footnotes ol li > p:first-child {
       display: inline-block;
@@ -176,19 +176,19 @@
     .reveal .slide > img.r-stretch.quarto-figure-center {
       display: block;
       margin-left: auto;
-      margin-right: auto; 
+      margin-right: auto;
     }
     .reveal .slide > img.stretch.quarto-figure-left,
     .reveal .slide > img.r-stretch.quarto-figure-left  {
       display: block;
       margin-left: 0;
-      margin-right: auto; 
+      margin-right: auto;
     }
     .reveal .slide > img.stretch.quarto-figure-right,
     .reveal .slide > img.r-stretch.quarto-figure-right  {
       display: block;
       margin-left: auto;
-      margin-right: 0; 
+      margin-right: 0;
     }
   </style>
   <script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
@@ -206,7 +206,7 @@
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
 <div class="quarto-title-author-name">
-Department of Biostatistics, Vanderbilt University Medical Center 
+Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 </div>
@@ -253,6 +253,41 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </table>
 <p>Today’s deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.</p>
 </section>
+<section id="the-r-programming-sequence" class="slide level2 smaller">
+<h2>The R programming sequence</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Session</th>
+<th>Main question</th>
+<th>What you produce</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>11 · Functions</strong></td>
+<td>How do I express one operation clearly?</td>
+<td>Functions with explicit contracts</td>
+</tr>
+<tr class="even">
+<td><strong>12 · Reliability</strong></td>
+<td>How do I diagnose and prevent wrong results?</td>
+<td>A repaired function and regression checks</td>
+</tr>
+<tr class="odd">
+<td><strong>13 · Iteration</strong></td>
+<td>How do I repeat a correct operation?</td>
+<td>Named results, checked implementations, measured performance</td>
+</tr>
+</tbody>
+</table>
+<p>The same numeric summaries and paired-change examples connect all three labs. Statistical methods in later sessions use these programming tools.</p>
+</section>
 <section id="what-you-will-be-able-to-do" class="slide level2 smaller">
 <h2>What you will be able to do</h2>
 <div class="smaller">
@@ -268,53 +303,41 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="roadmap-for-today" class="slide level2">
 <h2>Roadmap for today</h2>
 <table class="caption-top">
-<colgroup>
-<col style="width: 6%">
-<col style="width: 64%">
-<col style="width: 30%">
-</colgroup>
 <thead>
 <tr class="header">
 <th></th>
 <th>Block</th>
-<th>Minutes</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>1</td>
 <td>What the machine is telling you</td>
-<td>12</td>
 </tr>
 <tr class="even">
 <td>2</td>
 <td>Isolating a minimal failing example</td>
-<td>18</td>
 </tr>
 <tr class="odd">
 <td>3</td>
 <td><code>traceback()</code>, <code>browser()</code>, <code>debug()</code></td>
-<td>22</td>
 </tr>
 <tr class="even">
 <td>4</td>
 <td>Fail fast: assertions and small tests</td>
-<td>14</td>
 </tr>
 <tr class="odd">
 <td>5</td>
 <td>Floating point</td>
-<td>20</td>
 </tr>
 <tr class="even">
 <td>6</td>
 <td><code>suppressWarnings()</code>, naming, and the reprex</td>
-<td>12</td>
 </tr>
 </tbody>
 </table>
 <div class="fragment">
-<p><strong>In lab this week</strong> you fix five genuinely broken functions — one for each way code goes wrong.</p>
+<p><strong>In the lab</strong> you diagnose a nested type error, repair a missing-value denominator, protect paired-change inputs, and preserve the fixes with regression checks.</p>
 </div>
 </section>
 <section>
@@ -329,7 +352,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <h3 id="it-stops">It stops</h3>
 <pre><code>Error in sum(x) :
   invalid 'type' (character) of argument</code></pre>
-<p><strong>Loud.</strong> You know instantly. The location is roughly right. The worst case is that you lose an hour.</p>
+<p><strong>Loud.</strong> You know instantly. The location is roughly right. Inspect the message and the input that triggered it.</p>
 </div><div class="column" style="width:48%;">
 <h3 id="it-finishes">It finishes</h3>
 <pre><code>[1] -7.88</code></pre>
@@ -350,7 +373,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="the-three-conditions" class="slide level2 smaller">
 <h2>The three conditions</h2>
-<p>R has exactly three, and they differ in <strong>what happens next</strong>:</p>
+<p>Three common condition classes differ in <strong>what happens next</strong>:</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a aria-hidden="true" tabindex="-1"></a>check_dose <span class="ot">&lt;-</span> <span class="cf">function</span>(mg) {</span>
 <span id="cb3-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span>(<span class="st">"checking "</span>, <span class="fu">length</span>(mg), <span class="st">" doses"</span>)   <span class="co"># 1. carries on</span></span>
@@ -370,7 +393,9 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <pre><code>Error in check_dose(c(10, 120, -5)): negative dose</code></pre>
 </div>
 </div>
-<div class="fragment">
+</section>
+<section id="choose-the-condition-by-what-happens-next" class="slide level2 smaller">
+<h2>Choose the condition by what happens next</h2>
 <div class="smaller">
 <table class="caption-top">
 <colgroup>
@@ -408,7 +433,6 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </tr>
 </tbody>
 </table>
-</div>
 </div>
 </section>
 <section id="anatomy-of-an-error-message" class="slide level2 smaller">
@@ -541,7 +565,9 @@ logical: returning NA</code></pre>
 <pre><code>Error in sum(x): invalid 'type' (character) of argument</code></pre>
 </div>
 </div>
-<div class="fragment">
+</section>
+<section id="remove-wrappers-and-inspect-the-failing-value" class="slide level2 smaller">
+<h2>Remove wrappers and inspect the failing value</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">pooled_mean</span>(site_3<span class="sc">$</span>change[<span class="dv">1</span>])       <span class="co"># drop the wrappers entirely</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
@@ -550,7 +576,6 @@ logical: returning NA</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a aria-hidden="true" tabindex="-1"></a>site_3<span class="sc">$</span>change[<span class="dv">1</span>]                    <span class="co"># look at the value itself</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "-1"</code></pre>
-</div>
 </div>
 </div>
 <div class="fragment">
@@ -612,11 +637,20 @@ logical: returning NA</code></pre>
 <i class="callout-icon"></i>
 </div>
 <div class="callout-content">
-<p>The minimal example you end up with is not a by-product. It is the <strong>test</strong> you add so the bug cannot come back, and the <strong>reprex</strong> you post if you still need help.</p>
+<p>Keep the minimal example as a <strong>regression test</strong>. If you still need help, include it in a <strong>reprex</strong> with the actual output and your expected behavior.</p>
 </div>
 </div>
 </div>
 </div>
+</section>
+<section id="practice-shrink-a-failure" class="slide level2 smaller">
+<h2>Practice: shrink a failure</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a aria-hidden="true" tabindex="-1"></a>pooled_mean <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">sum</span>(x) <span class="sc">/</span> <span class="fu">length</span>(x)</span>
+<span id="cb35-2"><a aria-hidden="true" tabindex="-1"></a>summarise_change <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">pooled_mean</span>(x)</span>
+<span id="cb35-3"><a aria-hidden="true" tabindex="-1"></a>mean_change <span class="ot">&lt;-</span> <span class="cf">function</span>(data) <span class="fu">summarise_change</span>(data<span class="sc">$</span>change)</span>
+<span id="cb35-4"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">change =</span> <span class="fu">c</span>(<span class="st">"-2"</span>, <span class="st">"1"</span>, <span class="st">"0"</span>))</span>
+<span id="cb35-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_change</span>(d)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Reduce this to one value and one calculation that still fails. State the input type the calculation expected. Keep the original example for the next block’s interactive <code>traceback()</code> and <code>debugonce()</code> demonstration.</p>
 </section></section>
 <section>
 <section id="traceback-browser-debug" class="title-slide slide level1 section-divider center">
@@ -626,16 +660,16 @@ logical: returning NA</code></pre>
 <section id="traceback" class="slide level2 smaller">
 <h2><code>traceback()</code></h2>
 <p>Run it <strong>immediately</strong> after an error. It prints the call stack as it was when R gave up:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">mean_change</span>(site_3)</span>
-<span id="cb35-2"><a aria-hidden="true" tabindex="-1"></a>Error <span class="cf">in</span> <span class="fu">sum</span>(x) <span class="sc">:</span> invalid <span class="st">'type'</span> (character) of argument</span>
-<span id="cb35-3"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-4"><a aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">traceback</span>()</span>
-<span id="cb35-5"><a aria-hidden="true" tabindex="-1"></a><span class="dv">3</span><span class="sc">:</span> <span class="fu">pooled_mean</span>(x)</span>
-<span id="cb35-6"><a aria-hidden="true" tabindex="-1"></a><span class="dv">2</span><span class="sc">:</span> <span class="fu">summarise_change</span>(data<span class="sc">$</span>change)</span>
-<span id="cb35-7"><a aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="sc">:</span> <span class="fu">mean_change</span>(site_3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">mean_change</span>(site_3)</span>
+<span id="cb36-2"><a aria-hidden="true" tabindex="-1"></a>Error <span class="cf">in</span> <span class="fu">sum</span>(x) <span class="sc">:</span> invalid <span class="st">'type'</span> (character) of argument</span>
+<span id="cb36-3"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a aria-hidden="true" tabindex="-1"></a><span class="sc">&gt;</span> <span class="fu">traceback</span>()</span>
+<span id="cb36-5"><a aria-hidden="true" tabindex="-1"></a><span class="dv">3</span><span class="sc">:</span> <span class="fu">pooled_mean</span>(x)</span>
+<span id="cb36-6"><a aria-hidden="true" tabindex="-1"></a><span class="dv">2</span><span class="sc">:</span> <span class="fu">summarise_change</span>(data<span class="sc">$</span>change)</span>
+<span id="cb36-7"><a aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="sc">:</span> <span class="fu">mean_change</span>(site_3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <div class="smaller">
-<p><strong>Read it from the bottom up.</strong> Line 1 is what <em>you</em> typed. Line 3 is the last thing R was doing. The bug is somewhere on the way down.</p>
+<p><strong>Read from the original call toward the failing call.</strong> Line 1 is what you typed; line 3 is the nested call closest to the error. Inspect the inputs along that path.</p>
 </div>
 </div>
 <div class="fragment">
@@ -645,7 +679,7 @@ logical: returning NA</code></pre>
 <i class="callout-icon"></i>
 </div>
 <div class="callout-content">
-<p><code>traceback()</code> shows the <em>most recent</em> error only, and only after a real error at the console. It has nothing to say inside a rendering document.</p>
+<p><code>traceback()</code> shows the <em>most recent</em> error only, and only after a real error at the console. Errors caught by knitr or <code>tryCatch()</code> do not update the usual console traceback. Reproduce the call interactively for this demonstration.</p>
 </div>
 </div>
 </div>
@@ -678,12 +712,12 @@ logical: returning NA</code></pre>
 <section id="browser" class="slide level2 smaller">
 <h2><code>browser()</code></h2>
 <p><code>traceback()</code> tells you <em>where</em>. <code>browser()</code> lets you <em>look</em>.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a aria-hidden="true" tabindex="-1"></a>pooled_mean <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
-<span id="cb36-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">browser</span>()            <span class="co"># ← execution pauses here, with x available</span></span>
-<span id="cb36-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(x) <span class="sc">/</span> <span class="fu">length</span>(x)</span>
-<span id="cb36-4"><a aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb36-5"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_change</span>(site_3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a aria-hidden="true" tabindex="-1"></a>pooled_mean <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb37-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">browser</span>()            <span class="co"># ← execution pauses here, with x available</span></span>
+<span id="cb37-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(x) <span class="sc">/</span> <span class="fu">length</span>(x)</span>
+<span id="cb37-4"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-5"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_change</span>(site_3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <pre><code>Called from: pooled_mean(x)
 Browse[1]&gt; str(x)
@@ -764,11 +798,11 @@ Browse[1]&gt; Q</code></pre>
 <section id="debug-debugonce-and-breakpoints" class="slide level2 smaller">
 <h2><code>debug()</code>, <code>debugonce()</code>, and breakpoints</h2>
 <p>When you cannot edit the function — it is in a package, or it is 300 lines away:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">debugonce</span>(pooled_mean)   <span class="co"># browse the next call, then forget about it</span></span>
-<span id="cb38-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_change</span>(site_3)</span>
-<span id="cb38-3"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">debug</span>(pooled_mean)       <span class="co"># browse EVERY call until you stop it</span></span>
-<span id="cb38-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">undebug</span>(pooled_mean)     <span class="co"># ...which you must remember to do</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">debugonce</span>(pooled_mean)   <span class="co"># browse the next call, then forget about it</span></span>
+<span id="cb39-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_change</span>(site_3)</span>
+<span id="cb39-3"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">debug</span>(pooled_mean)       <span class="co"># browse EVERY call until you stop it</span></span>
+<span id="cb39-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">undebug</span>(pooled_mean)     <span class="co"># ...which you must remember to do</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <div class="smaller">
 <table class="caption-top">
@@ -808,9 +842,12 @@ Browse[1]&gt; Q</code></pre>
 <section id="optionserror-recover" class="slide level2 smaller">
 <h2><code>options(error = recover)</code></h2>
 <p>The heavy tool. On <strong>any</strong> error, R offers you every frame in the stack and drops you into the one you choose:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">error =</span> recover)</span>
-<span id="cb39-2"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb39-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_change</span>(site_3)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a aria-hidden="true" tabindex="-1"></a>old <span class="ot">&lt;-</span> <span class="fu">options</span>(<span class="at">error =</span> recover)</span>
+<span id="cb40-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean_change</span>(site_3)</span>
+<span id="cb40-3"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Restore after inspecting: options(old)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="choose-a-frame-and-inspect-its-objects" class="slide level2 smaller">
+<h2>Choose a frame and inspect its objects</h2>
 <pre><code>Error in sum(x) : invalid 'type' (character) of argument
 
 Enter a frame number, or 0 to exit
@@ -821,11 +858,11 @@ Enter a frame number, or 0 to exit
 
 Selection: 2
 Called from: summarise_change(data$change)
-Browse[1]&gt; str(data$change)
+Browse[1]&gt; str(x)
  chr [1:11] "-2" "-14" "-25" ...</code></pre>
 <div class="fragment">
 <div class="smaller">
-<p>Turn it off with <code>options(error = NULL)</code>. <strong>Never set it in a script or a <code>.qmd</code>.</strong></p>
+<p>Save the previous setting with <code>old &lt;- options(error = recover)</code> and restore it with <code>options(old)</code> afterward. <strong>Never set it in a script or a <code>.qmd</code>.</strong></p>
 </div>
 </div>
 </section>
@@ -893,50 +930,55 @@ Browse[1]&gt; str(data$change)
 <h1>4 · Fail fast, fail loud</h1>
 
 </section>
-<section id="fail-fast-fail-loud-1" class="slide level2 smaller">
-<h2>Fail fast, fail loud</h2>
-<p>Session 11 gave you guard clauses. The argument is worth restating in this session’s terms:</p>
-<div class="smaller">
-<ul>
-<li>A function that <strong>stops</strong> costs you ten minutes.</li>
-<li>A function that returns a <strong>plausible wrong number</strong> costs you a paper.</li>
-</ul>
-</div>
-<div class="fragment">
+<section id="repair-the-operation-from-session-11" class="slide level2 smaller">
+<h2>Repair the operation from Session 11</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Responder rate: percentage of patients with a fall of at least 10 mmHg.</span></span>
-<span id="cb41-2"><a aria-hidden="true" tabindex="-1"></a>responder_rate <span class="ot">&lt;-</span> <span class="cf">function</span>(change) {</span>
-<span id="cb41-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.numeric</span>(change))</span>
-<span id="cb41-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(change) <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;&amp;</span> <span class="fu">all</span>(<span class="fu">is.na</span>(change))) {</span>
-<span id="cb41-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">"change is entirely missing"</span>, <span class="at">call. =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb41-6"><a aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb41-7"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-8"><a aria-hidden="true" tabindex="-1"></a>  n_obs <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(change))</span>
-<span id="cb41-9"><a aria-hidden="true" tabindex="-1"></a>  <span class="dv">100</span> <span class="sc">*</span> <span class="fu">sum</span>(change <span class="sc">&lt;=</span> <span class="sc">-</span><span class="dv">10</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> n_obs</span>
-<span id="cb41-10"><a aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb41-11"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-12"><a aria-hidden="true" tabindex="-1"></a><span class="fu">responder_rate</span>(<span class="fu">as.character</span>(trial<span class="sc">$</span>change))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in responder_rate(as.character(trial$change)): is.numeric(change) is not TRUE</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a aria-hidden="true" tabindex="-1"></a>broken_mean <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb42-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">/</span> <span class="fu">length</span>(x)</span>
+<span id="cb42-3"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb42-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">broken_mean</span>(<span class="fu">c</span>(<span class="dv">2</span>, <span class="cn">NA</span>, <span class="dv">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2</code></pre>
 </div>
 </div>
+<p>The result is <code>2</code>. The intended mean of observed values is <code>3</code>. The numerator removed missing values; the denominator counted them.</p>
+<p><strong>Diagnose before editing:</strong> write the contract and the expected answer. This is a silent logic error, so a traceback alone cannot find it.</p>
+</section>
+<section id="repair-and-preserve-the-missing-value-policy" class="slide level2 smaller">
+<h2>Repair and preserve the missing-value policy</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a aria-hidden="true" tabindex="-1"></a>safe_mean <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb44-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.numeric</span>(x) <span class="sc">||</span> <span class="sc">!</span><span class="fu">is.null</span>(<span class="fu">dim</span>(x))) {</span>
+<span id="cb44-3"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">"x must be a numeric vector"</span>, <span class="at">call. =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb44-4"><a aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb44-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">any</span>(<span class="fu">is.infinite</span>(x))) {</span>
+<span id="cb44-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">"x must not contain infinite values"</span>, <span class="at">call. =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb44-7"><a aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb44-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">all</span>(<span class="fu">is.na</span>(x))) <span class="fu">return</span>(<span class="cn">NA_real_</span>)</span>
+<span id="cb44-9"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb44-10"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb44-11"><a aria-hidden="true" tabindex="-1"></a><span class="fu">safe_mean</span>(<span class="fu">c</span>(<span class="dv">2</span>, <span class="cn">NA</span>, <span class="dv">4</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3</code></pre>
 </div>
+</div>
+<p>Keep Session 11’s contract: one numeric answer; numeric <code>NA</code> for empty or all-missing input; an error for invalid types, dimensions, or infinity.</p>
 </section>
 <section id="stopifnot-outside-a-function" class="slide level2 smaller">
 <h2><code>stopifnot()</code> outside a function</h2>
 <p>Assertions are not only for functions. Put them in the <strong>analysis</strong> where an assumption is made:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># One row per patient is assumed by every summary below.</span></span>
-<span id="cb43-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="sc">!</span><span class="fu">anyDuplicated</span>(trial<span class="sc">$</span>id))</span>
-<span id="cb43-3"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-4"><a aria-hidden="true" tabindex="-1"></a><span class="co"># The join in session 7 must not have created rows.</span></span>
-<span id="cb43-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(trial) <span class="sc">==</span> <span class="dv">60</span>)</span>
-<span id="cb43-6"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-7"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Change must be derived, never imported.</span></span>
-<span id="cb43-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(trial<span class="sc">$</span>change <span class="sc">==</span> trial<span class="sc">$</span>sbp_12 <span class="sc">-</span> trial<span class="sc">$</span>sbp_0))</span>
-<span id="cb43-9"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-10"><a aria-hidden="true" tabindex="-1"></a><span class="co"># And the one that actually fails:</span></span>
-<span id="cb43-11"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="st">"no outcome may be missing"</span> <span class="ot">=</span> <span class="sc">!</span><span class="fu">anyNA</span>(trial_raw<span class="sc">$</span>sbp_12))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># One row per patient is assumed by every summary below.</span></span>
+<span id="cb46-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="sc">!</span><span class="fu">anyDuplicated</span>(trial<span class="sc">$</span>id))</span>
+<span id="cb46-3"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-4"><a aria-hidden="true" tabindex="-1"></a><span class="co"># The join in session 7 must not have created rows.</span></span>
+<span id="cb46-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(trial) <span class="sc">==</span> <span class="dv">60</span>)</span>
+<span id="cb46-6"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-7"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Change must be derived, never imported.</span></span>
+<span id="cb46-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(trial<span class="sc">$</span>change <span class="sc">==</span> trial<span class="sc">$</span>sbp_12 <span class="sc">-</span> trial<span class="sc">$</span>sbp_0))</span>
+<span id="cb46-9"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-10"><a aria-hidden="true" tabindex="-1"></a><span class="co"># And the one that actually fails:</span></span>
+<span id="cb46-11"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="st">"no outcome may be missing"</span> <span class="ot">=</span> <span class="sc">!</span><span class="fu">anyNA</span>(trial_raw<span class="sc">$</span>sbp_12))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-error">
 <pre><code>Error: no outcome may be missing</code></pre>
 </div>
@@ -949,85 +991,52 @@ Browse[1]&gt; str(data$change)
 </section>
 <section id="make-the-check-permanent" class="slide level2 smaller">
 <h2>Make the check permanent</h2>
-<p>You already built a minimal failing example. <strong>Do not throw it away.</strong></p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Known answers, worked out by hand, checked on every render.</span></span>
-<span id="cb45-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(</span>
-<span id="cb45-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="st">"empty input gives NaN, not an error"</span> <span class="ot">=</span></span>
-<span id="cb45-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">is.nan</span>(<span class="fu">responder_rate</span>(<span class="fu">numeric</span>(<span class="dv">0</span>))),</span>
-<span id="cb45-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="st">"a single responder gives 100"</span> <span class="ot">=</span></span>
-<span id="cb45-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">responder_rate</span>(<span class="sc">-</span><span class="dv">12</span>) <span class="sc">==</span> <span class="dv">100</span>,</span>
-<span id="cb45-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="st">"a single non-responder gives 0"</span> <span class="ot">=</span></span>
-<span id="cb45-8"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">responder_rate</span>(<span class="sc">-</span><span class="dv">2</span>) <span class="sc">==</span> <span class="dv">0</span>,</span>
-<span id="cb45-9"><a aria-hidden="true" tabindex="-1"></a>  <span class="st">"missing values are excluded from the denominator"</span> <span class="ot">=</span></span>
-<span id="cb45-10"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">responder_rate</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">12</span>, <span class="cn">NA</span>)) <span class="sc">==</span> <span class="dv">100</span></span>
-<span id="cb45-11"><a aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb45-12"><a aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"all checks passed</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(</span>
+<span id="cb48-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">identical</span>(<span class="fu">safe_mean</span>(<span class="fu">c</span>(<span class="dv">2</span>, <span class="cn">NA</span>, <span class="dv">4</span>)), <span class="dv">3</span>),</span>
+<span id="cb48-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">identical</span>(<span class="fu">safe_mean</span>(<span class="fu">numeric</span>(<span class="dv">0</span>)), <span class="cn">NA_real_</span>),</span>
+<span id="cb48-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">identical</span>(<span class="fu">safe_mean</span>(<span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="dv">2</span>)), <span class="cn">NA_real_</span>),</span>
+<span id="cb48-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">identical</span>(<span class="fu">safe_mean</span>(<span class="dv">5</span>), <span class="dv">5</span>)</span>
+<span id="cb48-6"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb48-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"all checks passed</span><span class="sc">\n</span><span class="st">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>all checks passed</code></pre>
 </div>
 </div>
-<div class="fragment">
-<div class="smaller">
-<p>Four lines, and the fourth is the one the lab’s broken version fails. A test is just <strong>an example with a known answer</strong>, written down.</p>
-</div>
-</div>
+<p>The first check reproduces the bug. The other checks protect the rest of the contract. A repair should not break previously valid cases.</p>
+<p><strong>Practice:</strong> add a case with two missing observations and a case containing <code>NaN</code>.</p>
 </section>
 <section id="testthat-in-one-slide" class="slide level2 smaller">
 <h2><code>testthat</code>, in one slide</h2>
-<p>When the project is big enough to want real tests:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(testthat)</span>
-<span id="cb47-2"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">test_that</span>(<span class="st">"responder_rate handles missingness"</span>, {</span>
-<span id="cb47-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect_equal</span>(<span class="fu">responder_rate</span>(<span class="sc">-</span><span class="dv">12</span>), <span class="dv">100</span>)</span>
-<span id="cb47-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect_equal</span>(<span class="fu">responder_rate</span>(<span class="fu">c</span>(<span class="sc">-</span><span class="dv">12</span>, <span class="cn">NA</span>)), <span class="dv">100</span>)</span>
-<span id="cb47-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect_error</span>(<span class="fu">responder_rate</span>(<span class="st">"a"</span>), <span class="st">"is.numeric"</span>)</span>
-<span id="cb47-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect_true</span>(<span class="fu">is.nan</span>(<span class="fu">responder_rate</span>(<span class="fu">numeric</span>(<span class="dv">0</span>))))</span>
-<span id="cb47-8"><a aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
-<div class="smaller">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(testthat)</span>
+<span id="cb50-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">test_that</span>(<span class="st">"safe_mean follows its input/output contract"</span>, {</span>
+<span id="cb50-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect_equal</span>(<span class="fu">safe_mean</span>(<span class="fu">c</span>(<span class="dv">2</span>, <span class="cn">NA</span>, <span class="dv">4</span>)), <span class="dv">3</span>)</span>
+<span id="cb50-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect_identical</span>(<span class="fu">safe_mean</span>(<span class="fu">numeric</span>(<span class="dv">0</span>)), <span class="cn">NA_real_</span>)</span>
+<span id="cb50-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">expect_error</span>(<span class="fu">safe_mean</span>(<span class="st">"4"</span>), <span class="st">"numeric vector"</span>)</span>
+<span id="cb50-6"><a aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
 <thead>
 <tr class="header">
-<th></th>
-<th>Does</th>
+<th>Check</th>
+<th>What it establishes</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>expect_equal(x, y)</code></td>
-<td>Equal <strong>within tolerance</strong> — the right choice for numbers</td>
+<td><code>expect_equal()</code></td>
+<td>Numerical agreement within tolerance</td>
 </tr>
 <tr class="even">
-<td><code>expect_identical(x, y)</code></td>
-<td>Exactly equal, type included</td>
+<td><code>expect_identical()</code></td>
+<td>Exact agreement, including type</td>
 </tr>
 <tr class="odd">
-<td><code>expect_error(f(), "text")</code></td>
-<td>The call fails, with a message matching <code>"text"</code></td>
-</tr>
-<tr class="even">
-<td><code>expect_warning()</code>, <code>expect_true()</code></td>
-<td>As they read</td>
+<td><code>expect_error()</code></td>
+<td>A failure with the intended message</td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="callout callout-note callout-style-simple">
-<div class="callout-body">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-content">
-<p>Not installed on the course machines and not required here. Use <code>stopifnot()</code> — the idea is identical, and it is what the previous slide runs.</p>
-</div>
-</div>
-</div>
-</div>
+<p><code>testthat</code> is an optional extension. The lab uses base R assertions and <code>tryCatch()</code> so it can run without another package.</p>
 </section></section>
 <section>
 <section id="floating-point" class="title-slide slide level1 section-divider center">
@@ -1037,14 +1046,14 @@ Browse[1]&gt; str(data$change)
 <section id="the-slide-that-ruins-everyones-afternoon" class="slide level2 smaller">
 <h2>The slide that ruins everyone’s afternoon</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a aria-hidden="true" tabindex="-1"></a><span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.2</span> <span class="sc">==</span> <span class="fl">0.3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a aria-hidden="true" tabindex="-1"></a><span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.2</span> <span class="sc">==</span> <span class="fl">0.3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE</code></pre>
 </div>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a aria-hidden="true" tabindex="-1"></a><span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.2</span> <span class="sc">-</span> <span class="fl">0.3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a><span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.2</span> <span class="sc">-</span> <span class="fl">0.3</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 5.551115e-17</code></pre>
 </div>
@@ -1052,7 +1061,7 @@ Browse[1]&gt; str(data$change)
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fl">0.1</span>, <span class="at">digits =</span> <span class="dv">22</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(<span class="fl">0.1</span>, <span class="at">digits =</span> <span class="dv">22</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.1000000000000000055511</code></pre>
 </div>
@@ -1072,20 +1081,20 @@ Browse[1]&gt; str(data$change)
 </div>
 <div class="fragment">
 <div class="smaller">
-<p>A double gets 53 bits for the value. So R stores the closest 53-bit truncation, which is off by about 1 part in 10<sup>16</sup>.</p>
+<p>A double gets 53 bits for the value. So R stores the nearest representable value at that precision, which is off by about 1 part in 10<sup>16</sup>.</p>
 </div>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a aria-hidden="true" tabindex="-1"></a><span class="fl">0.5</span> <span class="sc">+</span> <span class="fl">0.25</span> <span class="sc">==</span> <span class="fl">0.75</span>    <span class="co"># exact: halves and quarters ARE representable</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a aria-hidden="true" tabindex="-1"></a><span class="fl">0.5</span> <span class="sc">+</span> <span class="fl">0.25</span> <span class="sc">==</span> <span class="fl">0.75</span>    <span class="co"># exact: halves and quarters ARE representable</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.9</span> <span class="sc">==</span> <span class="fl">0.1</span>        <span class="co"># not exact</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.9</span> <span class="sc">==</span> <span class="fl">0.1</span>        <span class="co"># not exact</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a aria-hidden="true" tabindex="-1"></a><span class="fl">0.3</span> <span class="sc">-</span> <span class="fl">0.1</span> <span class="sc">==</span> <span class="fl">0.2</span>      <span class="co"># not exact</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a aria-hidden="true" tabindex="-1"></a><span class="fl">0.3</span> <span class="sc">-</span> <span class="fl">0.1</span> <span class="sc">==</span> <span class="fl">0.2</span>      <span class="co"># not exact</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE</code></pre>
 </div>
@@ -1107,7 +1116,7 @@ Browse[1]&gt; str(data$change)
 <section id="machine-epsilon" class="slide level2 smaller">
 <h2>Machine epsilon</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a aria-hidden="true" tabindex="-1"></a>.Machine<span class="sc">$</span>double.eps</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a aria-hidden="true" tabindex="-1"></a>.Machine<span class="sc">$</span>double.eps</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2.220446e-16</code></pre>
 </div>
@@ -1117,11 +1126,11 @@ Browse[1]&gt; str(data$change)
 <p>The <strong>smallest</strong> <code>e</code> such that <code>1 + e != 1</code>. It is the width of the gap between representable numbers near 1 — and it is the unit in which “close enough” is measured.</p>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> .Machine<span class="sc">$</span>double.eps <span class="sc">==</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> .Machine<span class="sc">$</span>double.eps <span class="sc">==</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> .Machine<span class="sc">$</span>double.eps <span class="sc">/</span> <span class="dv">2</span> <span class="sc">==</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="sc">+</span> .Machine<span class="sc">$</span>double.eps <span class="sc">/</span> <span class="dv">2</span> <span class="sc">==</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
@@ -1136,18 +1145,18 @@ Browse[1]&gt; str(data$change)
 <section id="all.equal-and-the-trap-in-it" class="slide level2 smaller">
 <h2><code>all.equal()</code>, and the trap in it</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(<span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.2</span>, <span class="fl">0.3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(<span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.2</span>, <span class="fl">0.3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">isTRUE</span>(<span class="fu">all.equal</span>(<span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.2</span>, <span class="fl">0.3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">isTRUE</span>(<span class="fu">all.equal</span>(<span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.2</span>, <span class="fl">0.3</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(<span class="dv">1</span>, <span class="dv">2</span>)          <span class="co"># NOT FALSE — a character description</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">all.equal</span>(<span class="dv">1</span>, <span class="dv">2</span>)          <span class="co"># NOT FALSE — a character description</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Mean relative difference: 1"</code></pre>
 </div>
@@ -1160,19 +1169,20 @@ Browse[1]&gt; str(data$change)
 <i class="callout-icon"></i>
 </div>
 <div class="callout-content">
-<p><code>all.equal()</code> returns <code>TRUE</code> <strong>or a description of the difference</strong>. A non-empty string is truthy enough to break an <code>if</code>. Always wrap it: <code>isTRUE(all.equal(x, y))</code>.</p>
+<p><code>all.equal()</code> returns <code>TRUE</code> <strong>or a description of the difference</strong>. A description is a character vector, not a logical condition; using it in <code>if</code> errors. Always wrap it: <code>isTRUE(all.equal(x, y))</code>.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="fragment">
+</section>
+<section id="choose-an-explicit-numerical-tolerance" class="slide level2 smaller">
+<h2>Choose an explicit numerical tolerance</h2>
 <div class="smaller">
-<p>Or compare by hand, when you know the scale you care about:</p>
+<p>Compare by hand when you know the scale you care about:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">abs</span>((<span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.2</span>) <span class="sc">-</span> <span class="fl">0.3</span>) <span class="sc">&lt;</span> <span class="fl">1e-8</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">abs</span>((<span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.2</span>) <span class="sc">-</span> <span class="fl">0.3</span>) <span class="sc">&lt;</span> <span class="fl">1e-8</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
-</div>
 </div>
 </div>
 </div>
@@ -1180,22 +1190,21 @@ Browse[1]&gt; str(data$change)
 <section id="it-is-not-only" class="slide level2 smaller">
 <h2>It is not only <code>==</code></h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a aria-hidden="true" tabindex="-1"></a>schedule <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fl">0.1</span>, <span class="fl">1.0</span>, <span class="at">by =</span> <span class="fl">0.1</span>)   <span class="co"># titration steps, as a fraction</span></span>
-<span id="cb74-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">which</span>(schedule <span class="sc">==</span> <span class="fl">0.3</span>)                 <span class="co"># integer(0) — no such step</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a aria-hidden="true" tabindex="-1"></a>schedule <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fl">0.1</span>, <span class="fl">1.0</span>, <span class="at">by =</span> <span class="fl">0.1</span>)   <span class="co"># titration steps, as a fraction</span></span>
+<span id="cb77-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">which</span>(schedule <span class="sc">==</span> <span class="fl">0.3</span>)                 <span class="co"># integer(0) — no such step</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>integer(0)</code></pre>
 </div>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Session 13's loop, accumulating a total dose.</span></span>
-<span id="cb76-2"><a aria-hidden="true" tabindex="-1"></a>total <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb76-3"><a aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>) total <span class="ot">&lt;-</span> total <span class="sc">+</span> <span class="fl">0.1</span></span>
-<span id="cb76-4"><a aria-hidden="true" tabindex="-1"></a>total <span class="sc">==</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Repeated addition can accumulate rounding error.</span></span>
+<span id="cb79-2"><a aria-hidden="true" tabindex="-1"></a>total <span class="ot">&lt;-</span> <span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.1</span> <span class="sc">+</span> <span class="fl">0.1</span></span>
+<span id="cb79-3"><a aria-hidden="true" tabindex="-1"></a>total <span class="sc">==</span> <span class="dv">1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] FALSE</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(total, <span class="at">digits =</span> <span class="dv">18</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(total, <span class="at">digits =</span> <span class="dv">18</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.999999999999999889</code></pre>
 </div>
@@ -1210,15 +1219,15 @@ Browse[1]&gt; str(data$change)
 <section id="integer-overflow" class="slide level2 smaller">
 <h2>Integer overflow</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a aria-hidden="true" tabindex="-1"></a>.Machine<span class="sc">$</span>integer.max</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a aria-hidden="true" tabindex="-1"></a>.Machine<span class="sc">$</span>integer.max</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2147483647</code></pre>
 </div>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">2147483647</span>L</span>
-<span id="cb82-2"><a aria-hidden="true" tabindex="-1"></a>x <span class="sc">+</span> <span class="dv">1</span>L</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="dv">2147483647</span>L</span>
+<span id="cb85-2"><a aria-hidden="true" tabindex="-1"></a>x <span class="sc">+</span> <span class="dv">1</span>L</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in x + 1L: NAs produced by integer overflow</code></pre>
 </div>
@@ -1229,7 +1238,7 @@ Browse[1]&gt; str(data$change)
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="sc">+</span> <span class="dv">1</span>        <span class="co"># a double: no overflow, but no longer exact either</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="sc">+</span> <span class="dv">1</span>        <span class="co"># a double: 2147483648 is still exactly representable</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2147483648</code></pre>
 </div>
@@ -1244,20 +1253,20 @@ Browse[1]&gt; str(data$change)
 <section id="why-likelihoods-are-computed-on-the-log-scale" class="slide level2 smaller">
 <h2>Why likelihoods are computed on the log scale</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a aria-hidden="true" tabindex="-1"></a>big <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">400</span>, <span class="at">mean =</span> <span class="dv">148</span>, <span class="at">sd =</span> <span class="dv">14</span>)</span>
-<span id="cb87-2"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb87-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">prod</span>(<span class="fu">dnorm</span>(big, <span class="dv">148</span>, <span class="dv">14</span>))        <span class="co"># the likelihood, directly</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a aria-hidden="true" tabindex="-1"></a>big <span class="ot">&lt;-</span> <span class="fu">rnorm</span>(<span class="dv">400</span>, <span class="at">mean =</span> <span class="dv">148</span>, <span class="at">sd =</span> <span class="dv">14</span>)</span>
+<span id="cb90-2"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb90-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">prod</span>(<span class="fu">dnorm</span>(big, <span class="dv">148</span>, <span class="dv">14</span>))        <span class="co"># the likelihood, directly</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">log</span>(<span class="fu">prod</span>(<span class="fu">dnorm</span>(big, <span class="dv">148</span>, <span class="dv">14</span>)))   <span class="co"># ...and its log</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">log</span>(<span class="fu">prod</span>(<span class="fu">dnorm</span>(big, <span class="dv">148</span>, <span class="dv">14</span>)))   <span class="co"># ...and its log</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] -Inf</code></pre>
 </div>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">dnorm</span>(big, <span class="dv">148</span>, <span class="dv">14</span>, <span class="at">log =</span> <span class="cn">TRUE</span>))   <span class="co"># the same quantity, computed properly</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">dnorm</span>(big, <span class="dv">148</span>, <span class="dv">14</span>, <span class="at">log =</span> <span class="cn">TRUE</span>))   <span class="co"># the same quantity, computed properly</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] -1624.257</code></pre>
 </div>
@@ -1265,7 +1274,7 @@ Browse[1]&gt; str(data$change)
 </div>
 <div class="fragment">
 <div class="smaller">
-<p>The true value is about 10<sup>-705</sup>. The smallest positive double is about 10<sup>-308</sup>, so the product <strong>underflows to exactly zero</strong> — and <code>log(0)</code> is <code>-Inf</code>. Summing logs never leaves the representable range.</p>
+<p>This product is too small to represent, so it <strong>underflows to zero</strong> and <code>log(0)</code> is <code>-Inf</code>. Positive subnormal doubles reach about 5 × 10<sup>-324</sup>. Summing the log densities stays finite in this example.</p>
 </div>
 </div>
 </section>
@@ -1321,48 +1330,87 @@ Browse[1]&gt; str(data$change)
 <h1>6 · Habits that prevent debugging</h1>
 
 </section>
-<section id="suppresswarnings" class="slide level2 smaller">
-<h2><code>suppressWarnings()</code></h2>
+<section id="diagnose-a-warning-before-suppressing-it" class="slide level2 smaller">
+<h2>Diagnose a warning before suppressing it</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a aria-hidden="true" tabindex="-1"></a>creat <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(<span class="fu">as.numeric</span>(trial_raw<span class="sc">$</span>creat_raw))</span>
-<span id="cb93-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(creat, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a aria-hidden="true" tabindex="-1"></a>creat <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(trial_raw<span class="sc">$</span>creat_raw)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: NAs introduced by coercion</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a aria-hidden="true" tabindex="-1"></a>trial_raw<span class="sc">$</span>creat_raw[<span class="fu">is.na</span>(creat)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.927193</code></pre>
+<pre><code>[1] "NA"    "&lt;0.30" "NA"   </code></pre>
 </div>
 </div>
-<div class="fragment">
-<div class="smaller">
-<p>This runs cleanly, produces a number, and has <strong>silently deleted a real measurement</strong>. The warning was the only thing standing between you and that result.</p>
-</div>
-</div>
-<div class="fragment">
-<div class="smaller">
-<p>It has exactly one legitimate use: a warning you have <strong>read, diagnosed, and decided is not a problem</strong> — with a comment saying so.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Sites 1-4 only; `site` is a factor with an unused level 5 from the CRF,</span></span>
-<span id="cb95-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># which as.integer() warns about. Checked: no patient has site 5.</span></span>
-<span id="cb95-3"><a aria-hidden="true" tabindex="-1"></a>site_num <span class="ot">&lt;-</span> <span class="fu">suppressWarnings</span>(<span class="fu">as.integer</span>(<span class="fu">as.character</span>(trial<span class="sc">$</span>site)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-</div>
+<p><code>"NA"</code> is a documented missing marker. <code>"&lt;0.30"</code> is a below-detection-limit record that needs an explicit analysis policy. Coercion cannot choose that policy.</p>
+<p><code>suppressWarnings()</code> only hides the warning. It does not recover a measurement, validate an input, or repair a denominator. Investigate the affected values first.</p>
 </section>
 <section id="names-and-comments-that-debug-for-you" class="slide level2 smaller">
 <h2>Names and comments that debug for you</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># what you cannot debug</span></span>
-<span id="cb96-2"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> d[d<span class="sc">$</span>g <span class="sc">==</span> <span class="dv">1</span>, ]</span>
-<span id="cb96-3"><a aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">mean</span>(x<span class="sc">$</span>v, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb96-4"><a aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> y <span class="sc">*</span> <span class="fl">0.1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># what you cannot debug</span></span>
+<span id="cb100-2"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> d[d<span class="sc">$</span>g <span class="sc">==</span> <span class="dv">1</span>, ]</span>
+<span id="cb100-3"><a aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">mean</span>(x<span class="sc">$</span>v, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb100-4"><a aria-hidden="true" tabindex="-1"></a>z <span class="ot">&lt;-</span> y <span class="sc">*</span> <span class="fl">0.1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># what you can</span></span>
-<span id="cb97-2"><a aria-hidden="true" tabindex="-1"></a>site_3 <span class="ot">&lt;-</span> <span class="fu">subset</span>(trial, site <span class="sc">==</span> <span class="dv">3</span>)</span>
-<span id="cb97-3"><a aria-hidden="true" tabindex="-1"></a>mean_weight_kg <span class="ot">&lt;-</span> <span class="fu">mean</span>(site_3<span class="sc">$</span>weight_kg, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb97-4"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb97-5"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Dose is 0.1 mg per kg of body weight (protocol v2, section 4.3).</span></span>
-<span id="cb97-6"><a aria-hidden="true" tabindex="-1"></a>mean_dose_mg <span class="ot">&lt;-</span> mean_weight_kg <span class="sc">*</span> <span class="fl">0.1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb101"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb101-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># what you can</span></span>
+<span id="cb101-2"><a aria-hidden="true" tabindex="-1"></a>site_3 <span class="ot">&lt;-</span> <span class="fu">subset</span>(trial, site <span class="sc">==</span> <span class="dv">3</span>)</span>
+<span id="cb101-3"><a aria-hidden="true" tabindex="-1"></a>mean_weight_kg <span class="ot">&lt;-</span> <span class="fu">mean</span>(site_3<span class="sc">$</span>weight_kg, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb101-4"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb101-5"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Dose is 0.1 mg per kg of body weight (protocol v2, section 4.3).</span></span>
+<span id="cb101-6"><a aria-hidden="true" tabindex="-1"></a>mean_dose_mg <span class="ot">&lt;-</span> mean_weight_kg <span class="sc">*</span> <span class="fl">0.1</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="fragment">
 <div class="smaller">
-<p>The second version cannot have a unit bug hiding in it, because the units are in the names. The comment answers the question a reader would otherwise have to ask you — and <strong>“why 0.1” is not answerable from the code</strong>.</p>
+<p>Unit-bearing names make unit mistakes easier to notice; they do not verify conversions. The comment answers the question a reader would otherwise have to ask you — and <strong>“why 0.1” is not answerable from the code</strong>.</p>
 </div>
 </div>
+</section>
+<section id="capture-an-expected-failure-with-trycatch" class="slide level2 smaller">
+<h2>Capture an expected failure with <code>tryCatch()</code></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb102"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb102-1"><a aria-hidden="true" tabindex="-1"></a>failure <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>(</span>
+<span id="cb102-2"><a aria-hidden="true" tabindex="-1"></a>  { <span class="fu">safe_mean</span>(<span class="st">"4"</span>); <span class="cn">NULL</span> },</span>
+<span id="cb102-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">conditionMessage</span>(e)</span>
+<span id="cb102-4"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb102-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">is.character</span>(failure),</span>
+<span id="cb102-6"><a aria-hidden="true" tabindex="-1"></a>          <span class="fu">grepl</span>(<span class="st">"numeric vector"</span>, failure, <span class="at">fixed =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb102-7"><a aria-hidden="true" tabindex="-1"></a>failure</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "x must be a numeric vector"</code></pre>
+</div>
+</div>
+<p>The test passes only when the call fails for the expected reason. A handler receives the error object as <code>e</code>. Do not replace all analysis errors with <code>NA</code>.</p>
+</section>
+<section id="practice-protect-paired-observations" class="slide level2 smaller">
+<h2>Practice: protect paired observations</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb104"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb104-1"><a aria-hidden="true" tabindex="-1"></a>broken_change <span class="ot">&lt;-</span> <span class="cf">function</span>(baseline, followup) {</span>
+<span id="cb104-2"><a aria-hidden="true" tabindex="-1"></a>  followup <span class="sc">-</span> baseline</span>
+<span id="cb104-3"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb104-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">broken_change</span>(<span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>), <span class="dv">8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ol type="1">
+<li>Predict the result and explain the silent recycling.</li>
+<li>Add a length check before subtraction.</li>
+<li>Use <code>tryCatch()</code> to verify the invalid call fails.</li>
+<li>Check the valid pair <code>c(10, 20)</code> and <code>c(8, 21)</code> still returns <code>c(-2, 1)</code>.</li>
+</ol>
+</section>
+<section id="paired-input-repair-and-evidence" class="slide level2 smaller">
+<h2>Paired-input repair and evidence</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a aria-hidden="true" tabindex="-1"></a>paired_change <span class="ot">&lt;-</span> <span class="cf">function</span>(baseline, followup) {</span>
+<span id="cb105-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.numeric</span>(baseline), <span class="fu">is.numeric</span>(followup),</span>
+<span id="cb105-3"><a aria-hidden="true" tabindex="-1"></a>            <span class="fu">is.null</span>(<span class="fu">dim</span>(baseline)), <span class="fu">is.null</span>(<span class="fu">dim</span>(followup)))</span>
+<span id="cb105-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(baseline) <span class="sc">!=</span> <span class="fu">length</span>(followup)) {</span>
+<span id="cb105-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">"paired inputs must have equal lengths"</span>, <span class="at">call. =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb105-6"><a aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb105-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">any</span>(<span class="fu">is.infinite</span>(baseline)) <span class="sc">||</span> <span class="fu">any</span>(<span class="fu">is.infinite</span>(followup))) {</span>
+<span id="cb105-8"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">stop</span>(<span class="st">"paired inputs must not contain infinity"</span>, <span class="at">call. =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb105-9"><a aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb105-10"><a aria-hidden="true" tabindex="-1"></a>  followup <span class="sc">-</span> baseline</span>
+<span id="cb105-11"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb105-12"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">identical</span>(<span class="fu">paired_change</span>(<span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>), <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">21</span>)), <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">1</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Equal length is necessary. Matching patients and row order is still a separate precondition inherited from Session 11.</p>
 </section>
 <section id="how-to-write-a-reprex" class="slide level2 smaller">
 <h2>How to write a reprex</h2>
@@ -1375,21 +1423,69 @@ Browse[1]&gt; str(data$change)
 <li><strong>The actual output</strong> — the real error text, copied, not described.</li>
 </ol>
 </div>
-<div class="fragment">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb98"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb98-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb98-2"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb98-3"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">id =</span> <span class="fu">c</span>(<span class="st">"P001"</span>, <span class="st">"P002"</span>), <span class="at">sbp =</span> <span class="fu">c</span>(<span class="st">"148"</span>, <span class="st">"152"</span>))</span>
-<span id="cb98-4"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb98-5"><a aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> <span class="fu">summarise</span>(<span class="at">mean_sbp =</span> <span class="fu">mean</span>(sbp))</span>
-<span id="cb98-6"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: argument is not numeric or logical: returning NA</span></span>
-<span id="cb98-7"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   mean_sbp</span></span>
-<span id="cb98-8"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1       NA</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
+</section>
+<section id="a-complete-reproducible-example" class="slide level2 smaller">
+<h2>A complete reproducible example</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb106-2"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb106-3"><a aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">id =</span> <span class="fu">c</span>(<span class="st">"P001"</span>, <span class="st">"P002"</span>), <span class="at">sbp =</span> <span class="fu">c</span>(<span class="st">"148"</span>, <span class="st">"152"</span>))</span>
+<span id="cb106-4"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb106-5"><a aria-hidden="true" tabindex="-1"></a>d <span class="sc">|&gt;</span> <span class="fu">summarise</span>(<span class="at">mean_sbp =</span> <span class="fu">mean</span>(sbp))</span>
+<span id="cb106-6"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; Warning: argument is not numeric or logical: returning NA</span></span>
+<span id="cb106-7"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt;   mean_sbp</span></span>
+<span id="cb106-8"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; 1       NA</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <div class="smaller">
 <p><code>reprex::reprex()</code> runs your clipboard in a clean session and formats it exactly like this. <strong>Most reprexes never get posted</strong> — you find the bug while building one.</p>
 </div>
 </div>
+</section>
+<section id="lab-route-and-exit-check" class="slide level2 smaller">
+<h2>Lab route and exit check</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Lab task</th>
+<th>Lecture connection</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Nested character-input failure</td>
+<td>Conditions, minimal example, call stack</td>
+</tr>
+<tr class="even">
+<td>Incorrect observed mean</td>
+<td>Contract, denominator, regression check</td>
+</tr>
+<tr class="odd">
+<td>Unequal paired inputs</td>
+<td>Validation before arithmetic</td>
+</tr>
+<tr class="even">
+<td>Floating-point comparison</td>
+<td><code>isTRUE(all.equal(...))</code></td>
+</tr>
+<tr class="odd">
+<td>Renderable evidence</td>
+<td>Expected errors and a self-contained reprex</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Exit check:</strong> explain why a function can run without an error and still need repair. Give one ordinary, one boundary, and one invalid input for <code>safe_mean()</code>.</p>
+</section>
+<section id="reference-and-continuing-practice" class="slide level2 smaller">
+<h2>Reference and continuing practice</h2>
+<ul>
+<li><a href="https://stat.ethz.ch/R-manual/R-devel/library/base/html/zMachine.html">R numerical characteristics</a></li>
+<li><a href="https://stat.ethz.ch/R-manual/R-devel/library/base/html/all.equal.html">R approximate equality</a></li>
+<li><a href="../../course/session12/lab.html">Guided debugging lab</a></li>
+</ul>
+<p>Keep the repaired helpers and regression checks together. Session 13 changes how often the operation is called, while retaining the checked behavior.</p>
 </section>
 <section id="summary" class="slide level2 smaller">
 <h2>Summary</h2>
@@ -1421,7 +1517,7 @@ Browse[1]&gt; str(data$change)
   <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
   <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
-  
+
 
   <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
   <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
@@ -1443,7 +1539,7 @@ Browse[1]&gt; str(data$change)
 'jumpToSlide': true,
 'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
 'smaller': false,
- 
+
         // Display controls in the bottom right corner
         controls: false,
 
@@ -1621,7 +1717,7 @@ Browse[1]&gt; str(data$change)
         ]
       });
     </script>
-    
+
 
     <script>
 
@@ -1645,13 +1741,13 @@ Browse[1]&gt; str(data$change)
 
         }
 
-    
+
 
         function fireSlideChanged(previousSlide, currentSlide) {
 
           fireSlideEnter();
 
-    
+
 
           // dispatch for shiny
 
@@ -1673,7 +1769,7 @@ Browse[1]&gt; str(data$change)
 
         }
 
-    
+
 
         // hookup for slidy
 
@@ -1689,13 +1785,13 @@ Browse[1]&gt; str(data$change)
 
         }
 
-    
+
 
       })();
 
     </script>
 
-    
+
 
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -1705,7 +1801,7 @@ Browse[1]&gt; str(data$change)
         });
         const isCodeAnnotation = (el) => {
           for (const clz of el.classList) {
-            if (clz.startsWith('code-annotation-')) {                     
+            if (clz.startsWith('code-annotation-')) {
               return true;
             }
           }
@@ -1725,11 +1821,11 @@ Browse[1]&gt; str(data$change)
             button.setAttribute("data-bs-toggle", "tooltip");
             button.setAttribute("data-bs-placement", "left");
             button.setAttribute("data-bs-title", "Copied!");
-            tooltip = new bootstrap.Tooltip(button, 
-              { trigger: "manual", 
+            tooltip = new bootstrap.Tooltip(button,
+              { trigger: "manual",
                 customClass: "code-copy-button-tooltip",
                 offset: [0, -8]});
-            tooltip.show();    
+            tooltip.show();
           }
           setTimeout(function() {
             if (tooltip) {
@@ -1808,7 +1904,7 @@ Browse[1]&gt; str(data$change)
           }
             config['offset'] = [0,0];
             config['maxWidth'] = 700;
-          window.tippy(el, config); 
+          window.tippy(el, config);
         }
         const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
         for (var i=0; i<noterefs.length; i++) {
@@ -1865,6 +1961,6 @@ Browse[1]&gt; str(data$change)
         }
       });
       </script>
-    
+
 
 </body></html>

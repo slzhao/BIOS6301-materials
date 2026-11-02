@@ -28,7 +28,7 @@
     ul.task-list{list-style: none;}
     ul.task-list li input[type="checkbox"] {
       width: 0.8em;
-      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */
       vertical-align: middle;
     }
     /* CSS for syntax highlighting */
@@ -129,12 +129,12 @@
     }
     .reveal .footnotes ol {
       counter-reset: ol;
-      list-style-type: none; 
+      list-style-type: none;
       margin-left: 0;
     }
     .reveal .footnotes ol li:before {
       counter-increment: ol;
-      content: counter(ol) ". "; 
+      content: counter(ol) ". ";
     }
     .reveal .footnotes ol li > p:first-child {
       display: inline-block;
@@ -176,19 +176,19 @@
     .reveal .slide > img.r-stretch.quarto-figure-center {
       display: block;
       margin-left: auto;
-      margin-right: auto; 
+      margin-right: auto;
     }
     .reveal .slide > img.stretch.quarto-figure-left,
     .reveal .slide > img.r-stretch.quarto-figure-left  {
       display: block;
       margin-left: 0;
-      margin-right: auto; 
+      margin-right: auto;
     }
     .reveal .slide > img.stretch.quarto-figure-right,
     .reveal .slide > img.r-stretch.quarto-figure-right  {
       display: block;
       margin-left: auto;
-      margin-right: 0; 
+      margin-right: 0;
     }
   </style>
   <script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
@@ -206,7 +206,7 @@
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
 <div class="quarto-title-author-name">
-Department of Biostatistics, Vanderbilt University Medical Center 
+Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 </div>
@@ -256,66 +256,53 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="what-you-will-be-able-to-do" class="slide level2 smaller">
 <h2>What you will be able to do</h2>
 <div class="smaller">
-<p><span class="objective-num">1</span> <strong>Describe</strong> what R is used for, inspect the current R session, and find authoritative help without leaving RStudio.</p>
-<p><span class="objective-num">2</span> <strong>Name</strong> the four atomic vector types and inspect any object with <code>class()</code>, <code>typeof()</code>, and <code>str()</code>.</p>
-<p><span class="objective-num">3</span> <strong>Distinguish</strong> <code>NA</code>, <code>NaN</code>, <code>Inf</code>, and <code>NULL</code>, and predict how each propagates.</p>
-<p><span class="objective-num">4</span> <strong>Predict</strong> the type of a coerced vector, and explain how one stray <code>"NA"</code> turns a numeric column into text.</p>
-<p><span class="objective-num">5</span> <strong>Subset</strong> a vector by position, negation, logical condition, and name — and say what <code>x[NA]</code> returns.</p>
-<p><span class="objective-num">6</span> <strong>Recognise</strong> recycling, including the case where it produces a wrong answer silently.</p>
-<p><span class="objective-num">7</span> <strong>Write</strong> a vectorized conditional with <code>ifelse()</code>, and explain why it is not <code>if</code>.</p>
-<p><span class="objective-num">8</span> <strong>Diagnose</strong> a sentinel value such as <code>-99</code> before it reaches a mean.</p>
+<p><span class="objective-num">1</span> Describe R’s uses, inspect the session, and find help.</p>
+<p><span class="objective-num">2</span> Inspect atomic types with <code>class()</code>, <code>typeof()</code>, and <code>str()</code>.</p>
+<p><span class="objective-num">3</span> Distinguish <code>NA</code>, <code>NaN</code>, <code>Inf</code>, and <code>NULL</code>.</p>
+<p><span class="objective-num">4</span> Predict how one text value changes a numeric vector.</p>
+<p><span class="objective-num">5</span> Subset by position, negation, condition, and name.</p>
+<p><span class="objective-num">6</span> Recognise recycling, including silent wrong answers.</p>
+<p><span class="objective-num">7</span> Write an elementwise conditional with <code>ifelse()</code>.</p>
+<p><span class="objective-num">8</span> Detect sentinel values before computing a mean.</p>
 </div>
 </section>
 <section id="roadmap-for-today" class="slide level2">
 <h2>Roadmap for today</h2>
 <table class="caption-top">
-<colgroup>
-<col style="width: 6%">
-<col style="width: 64%">
-<col style="width: 30%">
-</colgroup>
 <thead>
 <tr class="header">
 <th></th>
 <th>Block</th>
-<th>Minutes</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>0</td>
 <td>R as a computing environment</td>
-<td>12</td>
 </tr>
 <tr class="even">
 <td>1</td>
 <td>Everything is a vector</td>
-<td>12</td>
 </tr>
 <tr class="odd">
 <td>2</td>
 <td><code>NA</code>, <code>NaN</code>, <code>Inf</code> — three kinds of nothing</td>
-<td>10</td>
 </tr>
 <tr class="even">
 <td>3</td>
 <td><strong>Coercion</strong>, and the silent wrong answer</td>
-<td>18</td>
 </tr>
 <tr class="odd">
 <td>4</td>
 <td>Names and indexing</td>
-<td>20</td>
 </tr>
 <tr class="even">
 <td>5</td>
 <td><strong>Recycling</strong></td>
-<td>8</td>
 </tr>
 <tr class="odd">
 <td>6</td>
 <td>Vectorized conditionals: <code>ifelse()</code></td>
-<td>10</td>
 </tr>
 </tbody>
 </table>
@@ -683,7 +670,9 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </tbody>
 </table>
 </div>
-<div class="fragment">
+</section>
+<section id="special-values-in-calculations" class="slide level2 smaller">
+<h2>Special values in calculations</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="dv">1</span> <span class="sc">/</span> <span class="dv">0</span>, <span class="sc">-</span><span class="dv">1</span> <span class="sc">/</span> <span class="dv">0</span>, <span class="dv">0</span> <span class="sc">/</span> <span class="dv">0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
@@ -695,7 +684,6 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0</code></pre>
-</div>
 </div>
 </div>
 </section>
@@ -860,7 +848,9 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <pre><code>[1] "NA"    "&lt;0.30"</code></pre>
 </div>
 </div>
-<div class="fragment">
+</section>
+<section id="two-failures-from-a-text-column" class="slide level2 smaller">
+<h2>Two failures from a text column</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(creat_raw)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
@@ -869,7 +859,6 @@ returning NA</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] NA</code></pre>
-</div>
 </div>
 </div>
 <div class="fragment">
@@ -1004,22 +993,23 @@ returning NA</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a aria-hidden="true" tabindex="-1"></a>sbp[<span class="st">"P003"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>P003 
+<pre><code>P003
  161 </code></pre>
 </div>
 </div>
-<div class="fragment">
+</section>
+<section id="look-up-several-namesor-a-missing-name" class="slide level2 smaller">
+<h2>Look up several names—or a missing name</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a aria-hidden="true" tabindex="-1"></a>sbp[<span class="fu">c</span>(<span class="st">"P001"</span>, <span class="st">"P004"</span>)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>P001 P004 
+<pre><code>P001 P004
  152  144 </code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a aria-hidden="true" tabindex="-1"></a>sbp[<span class="st">"P999"</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>&lt;NA&gt; 
+<pre><code>&lt;NA&gt;
   NA </code></pre>
-</div>
 </div>
 </div>
 <div class="fragment">
@@ -1139,7 +1129,7 @@ returning NA</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">a =</span> <span class="dv">10</span>, <span class="at">b =</span> <span class="dv">20</span>, <span class="at">c =</span> <span class="dv">30</span>)</span>
 <span id="cb112-2"><a aria-hidden="true" tabindex="-1"></a>x[<span class="cn">NA</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>&lt;NA&gt; &lt;NA&gt; &lt;NA&gt; 
+<pre><code>&lt;NA&gt; &lt;NA&gt; &lt;NA&gt;
   NA   NA   NA </code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a aria-hidden="true" tabindex="-1"></a>x[<span class="cn">FALSE</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -1155,7 +1145,7 @@ returning NA</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a aria-hidden="true" tabindex="-1"></a>x[<span class="dv">10</span>]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>&lt;NA&gt; 
+<pre><code>&lt;NA&gt;
   NA </code></pre>
 </div>
 </div>
@@ -1429,7 +1419,7 @@ shorter object length</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb151"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb151-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(bp_group)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>bp_group
-  high normal 
+  high normal
     47     13 </code></pre>
 </div>
 </div>
@@ -1582,7 +1572,7 @@ shorter object length</code></pre>
   <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
   <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
-  
+
 
   <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
   <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
@@ -1604,7 +1594,7 @@ shorter object length</code></pre>
 'jumpToSlide': true,
 'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
 'smaller': false,
- 
+
         // Display controls in the bottom right corner
         controls: false,
 
@@ -1782,7 +1772,7 @@ shorter object length</code></pre>
         ]
       });
     </script>
-    
+
 
     <script>
 
@@ -1806,13 +1796,13 @@ shorter object length</code></pre>
 
         }
 
-    
+
 
         function fireSlideChanged(previousSlide, currentSlide) {
 
           fireSlideEnter();
 
-    
+
 
           // dispatch for shiny
 
@@ -1834,7 +1824,7 @@ shorter object length</code></pre>
 
         }
 
-    
+
 
         // hookup for slidy
 
@@ -1850,13 +1840,13 @@ shorter object length</code></pre>
 
         }
 
-    
+
 
       })();
 
     </script>
 
-    
+
 
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -1866,7 +1856,7 @@ shorter object length</code></pre>
         });
         const isCodeAnnotation = (el) => {
           for (const clz of el.classList) {
-            if (clz.startsWith('code-annotation-')) {                     
+            if (clz.startsWith('code-annotation-')) {
               return true;
             }
           }
@@ -1886,11 +1876,11 @@ shorter object length</code></pre>
             button.setAttribute("data-bs-toggle", "tooltip");
             button.setAttribute("data-bs-placement", "left");
             button.setAttribute("data-bs-title", "Copied!");
-            tooltip = new bootstrap.Tooltip(button, 
-              { trigger: "manual", 
+            tooltip = new bootstrap.Tooltip(button,
+              { trigger: "manual",
                 customClass: "code-copy-button-tooltip",
                 offset: [0, -8]});
-            tooltip.show();    
+            tooltip.show();
           }
           setTimeout(function() {
             if (tooltip) {
@@ -1969,7 +1959,7 @@ shorter object length</code></pre>
           }
             config['offset'] = [0,0];
             config['maxWidth'] = 700;
-          window.tippy(el, config); 
+          window.tippy(el, config);
         }
         const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
         for (var i=0; i<noterefs.length; i++) {
@@ -2026,6 +2016,6 @@ shorter object length</code></pre>
         }
       });
       </script>
-    
+
 
 </body></html>

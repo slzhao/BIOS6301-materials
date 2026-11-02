@@ -1,0 +1,90 @@
+---
+title: "Session 16 lab: Practical statistical computing"
+format: html
+---
+
+## How to use this starter
+
+The setup runs as supplied. Exercise chunks are disabled with `eval=FALSE` so the
+unfinished starter can render. Replace each TODO, remove that option, and render
+again. A successful render of the untouched starter is not completion.
+
+## Supplied synthetic data and helpers
+
+```{r}
+# Synthetic teaching participants; no real patient records.
+set.seed(6301)
+n <- 80
+trial <- data.frame(id = sprintf("P%03d", seq_len(n)),
+  arm = factor(rep(c("Control", "Treatment"), each = n / 2)),
+  age = round(rnorm(n, 60, 9)), sbp_0 = rnorm(n, 145, 12))
+trial$sbp_12 <- 25 + .8 * trial$sbp_0 + .1 * (trial$age - 60) -
+  7 * (trial$arm == "Treatment") + rnorm(n, 0, 7)
+trial$response <- rbinom(n, 1, plogis(-.5 + .8 * (trial$arm == "Treatment") -
+                                     .025 * (trial$sbp_0 - 145)))
+trial$sbp_0[c(5, 29, 61)] <- NA_real_
+```
+
+## 1. Define and fit the analysis
+
+Use complete cases for the stated model variables, retaining excluded IDs. Fit sbp_12 ~ sbp_0 + age + arm with Control as reference and na.fail. Produce an estimate/interval table and verify the model matrix reproduces fitted values.
+
+```{r, eval=FALSE}
+# TODO: define keep and analysis, inspect model.matrix(), fit lm(), and extract results.
+```
+
+Interpret the result and state its limitations.
+
+## 2. Predict and diagnose
+
+Predict for baseline SBP 140 and 155, ages 55 and 65, and Control and Treatment respectively. Compare mean-response confidence intervals with individual prediction intervals. Create an ID-linked diagnostic table and inspect residual and influence plots.
+
+```{r, eval=FALSE}
+# TODO: construct new_people, use predict() twice, and link diagnostics to analysis$id.
+```
+
+Interpret the result and state its limitations.
+
+## 3. Check binary prediction scales
+
+Fit response ~ sbp_0 + arm with family = binomial(). Compare link and response predictions and verify plogis(link) equals the probability. Inspect convergence and finite coefficients; interpret the treatment coefficient scale.
+
+```{r, eval=FALSE}
+# TODO: fit glm(), state response=1, and check the prediction scale.
+```
+
+Interpret the result and state its limitations.
+
+## 4. Verify numerical methods
+
+For counts 0,1,2,1,4,3,2,0,5,2, minimize the Poisson negative log-likelihood and compare with the sample mean. Demonstrate an interval excluding that solution. Find the 0.975 standard-normal quantile by root finding and check a normal-probability integral.
+
+```{r, eval=FALSE}
+# TODO: write poisson_nll(), optimize(), uniroot(), and integrate(); compare known answers.
+```
+
+Interpret the result and state its limitations.
+
+## 5. Parse and audit specimen identifiers
+
+Implement the lecture grammar and its semantic checks. Retain all original strings. Test valid identifiers, bad format, an unknown participant, an invalid visit, missing documentation, and an empty string. Create accepted and review tables.
+
+```{r, eval=FALSE}
+# TODO: implement parse_specimen(x, known_ids), expected statuses, and row-count checks.
+```
+
+Interpret the result and state its limitations.
+
+## 6. Prepare a reproducible handoff
+
+Save the result table, review queue, analysis bundle, and sessionInfo under a local output folder. Verify the saved bundle can be read back. Write a README paragraph describing input generation, sample exclusions, entry point, package requirements, and the optional role of renv.
+
+```{r, eval=FALSE}
+# TODO: create output/, write outputs, read the bundle back, and write the handoff paragraph.
+```
+
+Interpret the result and state its limitations.
+
+## AI-use disclosure
+
+AI use: None. Replace this line if assistance was used.

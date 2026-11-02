@@ -56,7 +56,7 @@ Official images downloaded unchanged on October 21, 2026:
   The @ file menu uses example file names and a Posit AI model.
 - `assistant-agent-plan.webp`: https://assistant.posit.co/docs/_astro/plan-mode-exit.D41z0wQ5_ZxVlQG.webp
   Posit documentation: https://assistant.posit.co/docs/features/plan-mode/.
-  The pictured plan concerns penguin data, not the course vector.
+  The pictured plan concerns penguin data; it is not a plan generated for our synthetic records.
 - `assistant-tool-confirmation.webp`: https://assistant.posit.co/docs/_astro/tool-confirmation.CMihJ6D8_Z1S5J9m.webp
   Posit documentation: https://assistant.posit.co/docs/features/permissions/.
   Shows an edit to spin.R and approval scopes. The open menu covers part of the diff.
@@ -64,3 +64,15 @@ Official images downloaded unchanged on October 21, 2026:
 The slides pair these authentic interface screenshots with separately labeled,
 instructor-prepared R prompts and reference code. The images do not depict a live
 execution of the course examples.
+
+## Prepared SBP reference plot
+
+sbp-reference.png was generated on October 25, 2026 with R and ggplot2 using
+starter/sbp-reference.R and starter/sbp-demo.csv. The CSV contains the id, arm,
+sbp_0, sbp_6, and sbp_12 columns from the existing Session 4 synthetic trial.
+To reproduce the data, run the Session 4 setup with set.seed(6301) and export
+those columns without row names. All 60 patients are invented teaching records.
+The plot shows 57 complete baseline/week-12 pairs; three lack week-12 SBP.
+This is prepared R output, not a captured AI response. The reference also writes
+a six-row summary CSV with observed counts and mean SBP by visit and arm.
+Regenerate the PNG by following the reference script's copy-and-run instructions.

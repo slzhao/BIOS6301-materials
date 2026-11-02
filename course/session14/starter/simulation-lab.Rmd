@@ -1,36 +1,137 @@
 ---
-title: "Session 14 lab: simulation"
-date: "`r format(Sys.time(), '%Y-%m-%d %H:%M:%S %Z')`"
+title: "Session 14 lab: Design and evaluate a simulation"
 output: html_document
 ---
 
-## ADEMP
+## How to use this starter
 
-Write the aims, data-generating mechanism, estimand, methods, and performance
-measures here.
+The setup runs as supplied. Exercise chunks are disabled with `eval=FALSE` so the
+unfinished starter can render. Replace each TODO, remove that option, and render
+again. A successful render of the untouched starter is not completion.
+
+## Supplied synthetic data and helpers
 
 ```{r}
-simulate_one <- function(n = 30, delta = 0, sd_control = 1, sd_treated = 2) {
-  # Generate two groups.
-  # Run Welch and equal-variance t tests.
-  # Return the estimate and both p-values as a named numeric vector.
+# Simulate one two-arm trial. Returns a data frame with `arm` and `y`.
+# Control is N(0, sd_ctrl^2); treatment is N(delta, sd_trt^2).
+simulate_trial <- function(n_ctrl, n_trt, sd_ctrl, sd_trt, delta = 0) {
+  stopifnot(n_ctrl >= 2, n_trt >= 2, sd_ctrl > 0, sd_trt > 0)
+
+  data.frame(
+    arm = rep(c("ctrl", "trt"), c(n_ctrl, n_trt)),
+    y   = c(rnorm(n_ctrl, mean = 0,     sd = sd_ctrl),
+            rnorm(n_trt,  mean = delta, sd = sd_trt))
+  )
+}
+
+set.seed(6301)
+head(simulate_trial(3, 3, 12, 4, delta = 8), 3)
+
+analyse_trial <- function(data, pooled = FALSE) {
+  x <- data$y[data$arm == "trt"]
+  y <- data$y[data$arm == "ctrl"]
+  fit <- t.test(x, y, var.equal = pooled)
+  c(est = mean(x) - mean(y), se = fit$stderr,
+    p = fit$p.value, lo = fit$conf.int[1], hi = fit$conf.int[2])
+}
+set.seed(6301)
+round(analyse_trial(simulate_trial(20, 20, 12, 4, delta = 8)), 3)
+
+draw_error <- function(n, target_sd, dgm = "normal") {
+  if (dgm == "normal") return(rnorm(n, 0, target_sd))
+  if (dgm != "skewed") stop("unknown dgm")
+  a <- 0.7
+  mu <- exp(a^2 / 2)
+  sigma <- sqrt((exp(a^2) - 1) * exp(a^2))
+  target_sd * (rlnorm(n, 0, a) - mu) / sigma
+}
+
+simulate_dgm <- function(n_ctrl, n_trt, sd_ctrl, sd_trt,
+                         delta = 0, dgm = "normal") {
+  data.frame(arm = rep(c("ctrl", "trt"), c(n_ctrl, n_trt)),
+    y = c(draw_error(n_ctrl, sd_ctrl, dgm),
+          delta + draw_error(n_trt, sd_trt, dgm)))
+}
+set.seed(1403)
+head(simulate_dgm(10, 40, 12, 4, 6, "skewed"), 3)
+
+analyse_checked <- function(data, pooled = FALSE) {
+  tryCatch({
+    value <- analyse_trial(data, pooled)
+    if (any(!is.finite(value))) stop("nonfinite result")
+    list(value = value, error = NA_character_)
+  }, error = function(e) list(value = NULL, error = conditionMessage(e)))
+}
+bad_data <- data.frame(arm = rep(c("ctrl", "trt"), each = 3), y = 1)
+analyse_checked(bad_data)$error
+```
+
+## 1. Specify ADEMP
+
+Use independent control and treatment groups with SDs 12 and 4. Compare sizes 10/40 and 30/40, differences 0 and 6, and normal versus skewed errors. Both tests target treatment minus control. State the performance measures before running the study.
+
+```{r, eval=FALSE}
+# TODO: write ADEMP in prose above this chunk.
+# Build a scenario table with allocation, delta, and dgm.
+```
+
+Interpret the result and state its limitations.
+
+## 2. Inspect one replicate
+
+Generate one dataset and compare Welch and pooled results on that same dataset. Verify the estimate direction, result names, and interval ordering. Exercise a failed constant-outcome sample.
+
+```{r, eval=FALSE}
+set.seed(1401)
+# TODO: generate d, fit both methods, and write checks.
+# Use analyse_checked() on a constant-outcome example.
+```
+
+Interpret the result and state its limitations.
+
+## 3. Retain each method and replicate
+
+Implement run_study(s, B) for one scenario row. Retain replicate, method, scenario values, numeric results, and an error message. Both methods must use the same generated dataset in each replicate.
+
+```{r, eval=FALSE}
+run_study <- function(s, B) {
+  # TODO: repeat generation and both analyses; bind one row per method/replicate.
 }
 ```
 
-## One-replicate validation
+Interpret the result and state its limitations.
 
-```{r}
-set.seed(6301)
-# Inspect one result and test its names, type, and length.
+## 4. Plan precision and run scenarios
+
+Use a target worst-case MCSE of 0.016 for a probability. Calculate the required replication count using 0.25 / target^2, then use at least that many replicates. Seed once before the complete grid.
+
+```{r, eval=FALSE}
+target <- .016
+# TODO: choose B; run every scenario with one advancing random stream.
 ```
 
-## Scenarios
+Interpret the result and state its limitations.
 
-```{r}
-# Run delta = 0, 0.3, and 0.6; retain parameters and calculate MCSE.
+## 5. Summarize performance and failures
+
+For each scenario and method report attempts, failures, bias, empirical SE, mean model SE, RMSE, coverage, mean width, rejection rate, and MCSE for bias, coverage, and rejection. Label quantities conditional on success.
+
+```{r, eval=FALSE}
+# TODO: summarize valid rows without silently discarding the failed-attempt count.
 ```
 
-## Interpretation
+Interpret the result and state its limitations.
 
-State the precision target, failures, and the conditions under which the results
-apply.
+## 6. Interpret sensitivity
+
+Compare null calibration, power, interval coverage, and failure counts across allocation and distribution. Draw one comparison with Monte Carlo uncertainty. Explain why a skewed error is centered using population quantities rather than its sample mean.
+
+```{r, eval=FALSE}
+# TODO: make a scenario plot; distinguish MCSE from sampling SE.
+```
+
+Interpret the result and state its limitations.
+
+## AI-use disclosure
+
+AI use: None. Replace this line if assistance was used.

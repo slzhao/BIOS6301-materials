@@ -28,7 +28,7 @@
     ul.task-list{list-style: none;}
     ul.task-list li input[type="checkbox"] {
       width: 0.8em;
-      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */
       vertical-align: middle;
     }
     /* CSS for syntax highlighting */
@@ -129,12 +129,12 @@
     }
     .reveal .footnotes ol {
       counter-reset: ol;
-      list-style-type: none; 
+      list-style-type: none;
       margin-left: 0;
     }
     .reveal .footnotes ol li:before {
       counter-increment: ol;
-      content: counter(ol) ". "; 
+      content: counter(ol) ". ";
     }
     .reveal .footnotes ol li > p:first-child {
       display: inline-block;
@@ -176,19 +176,19 @@
     .reveal .slide > img.r-stretch.quarto-figure-center {
       display: block;
       margin-left: auto;
-      margin-right: auto; 
+      margin-right: auto;
     }
     .reveal .slide > img.stretch.quarto-figure-left,
     .reveal .slide > img.r-stretch.quarto-figure-left  {
       display: block;
       margin-left: 0;
-      margin-right: auto; 
+      margin-right: auto;
     }
     .reveal .slide > img.stretch.quarto-figure-right,
     .reveal .slide > img.r-stretch.quarto-figure-right  {
       display: block;
       margin-left: auto;
-      margin-right: 0; 
+      margin-right: 0;
     }
   </style>
   <script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
@@ -201,57 +201,51 @@
 
 <section id="title-slide" class="quarto-title-block center">
   <h1 class="title">Random Numbers and Simulation</h1>
-  <p class="subtitle">BIOS 6301 · Introduction to Statistical Computing</p>
+  <p class="subtitle">BIOS 6301 · Session 14 · Introduction to Statistical Computing</p>
 
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
 <div class="quarto-title-author-name">
-Department of Biostatistics, Vanderbilt University Medical Center 
+Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 </div>
 
-  <p class="date">Invalid Date</p>
 </section>
-<section id="where-we-are" class="slide level2 smaller">
-<h2>Where we are</h2>
+<section id="the-statistical-computing-sequence" class="slide level2 smaller">
+<h2>The statistical computing sequence</h2>
 <table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
 <thead>
 <tr class="header">
-<th>Course arc</th>
-<th style="text-align: right;">Sessions</th>
-<th></th>
+<th>Session</th>
+<th>Question</th>
+<th>Main product</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Setup and workflow</td>
-<td style="text-align: right;">0–2</td>
-<td></td>
+<td>14 · Simulation</td>
+<td>How does a method behave when the truth is known?</td>
+<td>A checked simulation study</td>
 </tr>
 <tr class="even">
-<td>Data foundations</td>
-<td style="text-align: right;">3–8</td>
-<td></td>
+<td>15 · Resampling</td>
+<td>What can repeated use of observed data tell us?</td>
+<td>Uncertainty and held-out performance</td>
 </tr>
 <tr class="odd">
-<td>Modern tools</td>
-<td style="text-align: right;">9–10</td>
-<td></td>
-</tr>
-<tr class="even">
-<td>R programming</td>
-<td style="text-align: right;">11–13</td>
-<td></td>
-</tr>
-<tr class="odd">
-<td><strong>Statistical computing</strong></td>
-<td style="text-align: right;"><strong>14–16</strong></td>
-<td><strong>← today</strong></td>
+<td>16 · Practical analysis</td>
+<td>How do we fit, inspect, and deliver an analysis?</td>
+<td>Models, numerical checks, and an auditable handoff</td>
 </tr>
 </tbody>
 </table>
-<p>Today’s deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.</p>
+<p>Functions, validation, and iteration from Sessions 11–13 support all three.</p>
 </section>
 <section id="what-you-will-be-able-to-do" class="slide level2 smaller">
 <h2>What you will be able to do</h2>
@@ -260,108 +254,69 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <p><span class="objective-num">2</span> <strong>Draw</strong> from a distribution using the <code>r*</code> functions, and use <code>d*</code>, <code>p*</code>, <code>q*</code> for the other three questions.</p>
 <p><span class="objective-num">3</span> <strong>Structure</strong> a simulation study with the ADEMP scaffold.</p>
 <p><span class="objective-num">4</span> <strong>Write</strong> one function that simulates a dataset and one that analyses it, and iterate over replicates.</p>
-<p><span class="objective-num">5</span> <strong>Compute</strong> bias, empirical standard error, and <strong>Monte Carlo error</strong>.</p>
+<p><span class="objective-num">5</span> <strong>Evaluate</strong> bias, RMSE, coverage, interval width, and failed replicates, with <strong>Monte Carlo uncertainty</strong>.</p>
 <p><span class="objective-num">6</span> <strong>Choose</strong> the number of replicates from a target Monte Carlo SE.</p>
 <p><span class="objective-num">7</span> <strong>Estimate</strong> type I error and power, and say what to do when the type I error is not what it should be.</p>
 </div>
 </section>
-<section id="roadmap-for-today" class="slide level2 smaller">
-<h2>Roadmap for today</h2>
+<section id="session-outline" class="slide level2 smaller">
+<h2>Session outline</h2>
 <table class="caption-top">
-<colgroup>
-<col style="width: 6%">
-<col style="width: 64%">
-<col style="width: 30%">
-</colgroup>
 <thead>
 <tr class="header">
-<th></th>
 <th>Block</th>
-<th>Minutes</th>
+<th>Content</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>1</td>
-<td>Pseudorandom numbers, seeds, and streams</td>
-<td>12</td>
+<td>Pseudorandom numbers and reproducible streams</td>
 </tr>
 <tr class="even">
 <td>2</td>
-<td>Drawing from distributions: <code>sample</code> and the four prefixes</td>
-<td>13</td>
+<td>Sampling and distribution functions</td>
 </tr>
 <tr class="odd">
 <td>3</td>
-<td>ADEMP — a protocol for a simulation study</td>
-<td>10</td>
+<td>ADEMP and known simulation truths</td>
 </tr>
 <tr class="even">
 <td>4</td>
-<td>Building it: simulate one, analyse one, replicate</td>
-<td>20</td>
+<td>Generate, analyse, repeat, and retain failures</td>
 </tr>
 <tr class="odd">
 <td>5</td>
-<td>Bias, empirical SE, and Monte Carlo error</td>
-<td>12</td>
+<td>Bias, coverage, precision, and Monte Carlo error</td>
 </tr>
 <tr class="even">
 <td>6</td>
-<td>Type I error and power, worked</td>
-<td>18</td>
+<td>Type I error, power, and allocation</td>
 </tr>
 <tr class="odd">
 <td>7</td>
-<td>Practice and summary</td>
-<td>5</td>
+<td>Scenario sensitivity and lab decisions</td>
 </tr>
 </tbody>
 </table>
-<div class="fragment">
-<div class="callout callout-note callout-style-simple">
-<div class="callout-body">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-content">
-<p><strong>Style policy, from today: your choice.</strong> Base R, tidyverse, or a defensible mix — consistently, within a document. Today’s slides use base R for the simulation machinery and dplyr for summarising results, and says why when it matters.</p>
-</div>
-</div>
-</div>
-</div>
+<p>Use base R or tidyverse consistently; validate the same statistical target.</p>
 </section>
 <section>
 <section id="pseudorandom-numbers" class="title-slide slide level1 section-divider center">
 <h1>1 · Pseudorandom numbers</h1>
 
 </section>
-<section id="there-is-no-randomness-in-your-laptop" class="slide level2 smaller">
-<h2>There is no randomness in your laptop</h2>
-<p><code>rnorm()</code> does not produce random numbers. It produces a <strong>deterministic sequence</strong> that passes the statistical tests we ask of randomness: the right distribution, no detectable serial correlation, an astronomically long period before it repeats.</p>
-<div class="fragment">
-<div class="smaller">
-<p>R’s default generator is the <strong>Mersenne–Twister</strong>. Its state is 624 32-bit integers and its period is <span class="math inline">\(2^{19937}-1\)</span>.</p>
-</div>
+<section id="pseudorandom-numbers-1" class="slide level2 smaller">
+<h2>Pseudorandom numbers</h2>
+<p>R’s random-number functions use a deterministic generator. Its state determines the next draw; a suitable generator gives sequences useful for statistical simulation.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">RNGkind</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Mersenne-Twister" "Inversion"        "Rejection"       </code></pre>
 </div>
 </div>
-</div>
-<div class="fragment">
-<div class="callout callout-important callout-style-simple">
-<div class="callout-body">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-content">
-<p>The word is <strong>pseudorandom</strong>, and the determinism is not a defect. It is the property the rest of this session exploits.</p>
-</div>
-</div>
-</div>
-</div>
+<p><code>set.seed()</code> makes a run repeatable in a documented R environment. It does not guarantee that the simulated model represents the study of interest.</p>
+<p>Record the R version and RNG settings when exact reproduction matters.</p>
 </section>
 <section id="the-seed-picks-your-starting-point" class="slide level2 smaller">
 <h2>The seed picks your starting point</h2>
@@ -377,7 +332,9 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <pre><code>[1]  1.3709584 -0.5646982  0.3631284</code></pre>
 </div>
 </div>
-<div class="fragment">
+</section>
+<section id="new-calls-advance-the-random-stream" class="slide level2 smaller">
+<h2>New calls advance the random stream</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
 <span id="cb7-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">rnorm</span>(<span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -389,7 +346,6 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <pre><code>[1]  0.6328626  0.4042683 -0.1061245</code></pre>
 </div>
 </div>
-</div>
 <div class="fragment">
 <div class="callout callout-note callout-style-simple">
 <div class="callout-body">
@@ -397,7 +353,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <i class="callout-icon"></i>
 </div>
 <div class="callout-content">
-<p><strong>Reproducible randomness is not a contradiction.</strong> The numbers are random with respect to your <em>data</em> — no structure, no correlation with anything you care about. They are fixed with respect to your <em>machine</em>.</p>
+<p><strong>Reproducible randomness is not a contradiction.</strong> The same seed, RNG settings, and sequence of random calls reproduce a run in the same computational environment. Changing the calls changes the stream used downstream.</p>
 </div>
 </div>
 </div>
@@ -433,7 +389,6 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="where-to-put-set.seed" class="slide level2 smaller">
 <h2>Where to put <code>set.seed()</code></h2>
-<div style="font-size:0.86em">
 <table class="caption-top">
 <colgroup>
 <col style="width: 50%">
@@ -442,45 +397,29 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <thead>
 <tr class="header">
 <th>Placement</th>
-<th>Verdict</th>
+<th>Consequence</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Once near the top of the document</td>
-<td><strong>Fine</strong> for an analysis. The whole render is reproducible</td>
+<td>Before the complete study</td>
+<td>One reproducible advancing stream</td>
 </tr>
 <tr class="even">
-<td>Immediately before a simulation or a resample</td>
-<td><strong>Best.</strong> Stable even if you edit above it</td>
+<td>Before a documented independent analysis block</td>
+<td>Its output is stable when earlier blocks change</td>
 </tr>
 <tr class="odd">
-<td>Inside a function that gets called repeatedly</td>
-<td><strong>Catastrophic.</strong> Every replicate is identical, and nothing errors</td>
+<td>The same seed inside every replicate</td>
+<td>Repeats the same random draws: a simulation bug</td>
 </tr>
 <tr class="even">
-<td><code>set.seed(i)</code> inside a loop over <code>i</code></td>
-<td>Reproducible, but the streams are not <em>provably</em> independent</td>
-</tr>
-<tr class="odd">
-<td>Nowhere</td>
-<td>Not reproducible. Not submittable</td>
+<td>Arbitrary seeds chosen until results look desirable</td>
+<td>Selects results instead of studying performance</td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="fragment">
-<div class="callout callout-warning callout-style-simple">
-<div class="callout-body">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-content">
-<p><strong>Running in parallel?</strong> Workers do not inherit a usable stream. Use <code>RNGkind("L'Ecuyer-CMRG")</code> and seed once before <code>parallel::mclapply()</code>, or hand each worker a stream from <code>parallel::nextRNGStream()</code>. Know the name; the details are Advanced Statistical Computing.</p>
-</div>
-</div>
-</div>
-</div>
+<p>For parallel work, use the framework’s documented independent-stream support. <code>parallel::clusterSetRNGStream()</code> supports R clusters; fork-based <code>mclapply()</code> is not a multicore solution on Windows.</p>
 </section></section>
 <section>
 <section id="drawing-from-distributions" class="title-slide slide level1 section-divider center">
@@ -508,7 +447,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <div class="smaller">
 <ul>
 <li>Default is <strong>without replacement</strong>, and <code>size</code> defaults to <code>length(x)</code>.</li>
-<li><code>replace = TRUE</code> is the one-word difference between <em>permuting</em> and <em>resampling</em> — which is the whole of session 15.</li>
+<li><code>replace = TRUE</code> is the one-word difference between <em>permuting</em> and <em>resampling</em> — but the statistical target and resampling unit also change in Session 15.</li>
 <li><code>prob =</code> gives unequal selection probabilities.</li>
 </ul>
 </div>
@@ -565,12 +504,12 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </tr>
 <tr class="even">
 <td><code>p</code></td>
-<td>What is <span class="math inline">\(P(X \le q)\)</span> — the <strong>CDF</strong>?</td>
+<td>What is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>≤</mo><mi>q</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(X \le q)</annotation></semantics></math> — the <strong>CDF</strong>?</td>
 <td><code>pnorm(1.96)</code></td>
 </tr>
 <tr class="odd">
 <td><code>q</code></td>
-<td>Which <code>q</code> has <span class="math inline">\(P(X \le q) = p\)</span> — the <strong>quantile</strong>?</td>
+<td>Which <code>q</code> has <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>≤</mo><mi>q</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">P(X \le q) = p</annotation></semantics></math> — the <strong>quantile</strong>?</td>
 <td><code>qnorm(0.975)</code></td>
 </tr>
 <tr class="even">
@@ -614,7 +553,9 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <pre><code>[1] 5 3 3</code></pre>
 </div>
 </div>
-<div class="fragment">
+</section>
+<section id="generate-observations-with-different-parameters" class="slide level2 smaller">
+<h2>Generate observations with different parameters</h2>
 <div class="smaller">
 <p><strong>Parameters recycle</strong>, which is how you generate a whole trial in one call:</p>
 </div>
@@ -623,7 +564,6 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <span id="cb37-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">rnorm</span>(<span class="dv">6</span>, <span class="at">mean =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="dv">148</span>, <span class="dv">134</span>), <span class="at">each =</span> <span class="dv">3</span>), <span class="at">sd =</span> <span class="dv">14</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 156 144 173 137 150 140</code></pre>
-</div>
 </div>
 </div>
 </section></section>
@@ -719,11 +659,11 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </tr>
 <tr class="even">
 <td><strong>D</strong></td>
-<td><span class="math inline">\(y_{\text{ctrl}} \sim N(0, 12^2)\)</span>, <span class="math inline">\(n_{\text{ctrl}}\)</span> patients; <span class="math inline">\(y_{\text{trt}} \sim N(\delta, 4^2)\)</span>, <span class="math inline">\(n_{\text{trt}}\)</span> patients. Allocations 25/25, 10/40, 40/10</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mtext mathvariant="normal">ctrl</mtext></msub><mo>∼</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><msup><mn>12</mn><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y_{\text{ctrl}} \sim N(0, 12^2)</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mtext mathvariant="normal">ctrl</mtext></msub><annotation encoding="application/x-tex">n_{\text{ctrl}}</annotation></semantics></math> patients; <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mtext mathvariant="normal">trt</mtext></msub><mo>∼</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mi>δ</mi><mo>,</mo><msup><mn>4</mn><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y_{\text{trt}} \sim N(\delta, 4^2)</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mtext mathvariant="normal">trt</mtext></msub><annotation encoding="application/x-tex">n_{\text{trt}}</annotation></semantics></math> patients. Allocations 25/25, 10/40, 40/10</td>
 </tr>
 <tr class="odd">
 <td><strong>E</strong></td>
-<td><span class="math inline">\(\delta\)</span>, the difference in mean SBP change. Null case <span class="math inline">\(\delta = 0\)</span>; power cases <span class="math inline">\(\delta = 3, 6, 9, 12\)</span> mmHg</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>, the difference in mean SBP change. Null case <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\delta = 0</annotation></semantics></math>; power cases <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>3</mn><mo>,</mo><mn>6</mn><mo>,</mo><mn>9</mn><mo>,</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">\delta = 3, 6, 9, 12</annotation></semantics></math> mmHg</td>
 </tr>
 <tr class="even">
 <td><strong>M</strong></td>
@@ -731,14 +671,14 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </tr>
 <tr class="odd">
 <td><strong>P</strong></td>
-<td>Rejection rate at <span class="math inline">\(\alpha = 0.05\)</span>; bias and empirical SE of <span class="math inline">\(\hat\delta\)</span>. <span class="math inline">\(n_{\text{sim}} = 10{,}000\)</span>, chosen for a Monte Carlo SE of 0.0022</td>
+<td>Rejection rate, bias, empirical SE, coverage, and interval width. 10,000 replicates give MCSE about 0.0022 for a probability near 0.05</td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="fragment">
 <div class="smaller">
-<p>The SDs are not invented: 12 and 4 mmHg bracket what our <code>trial</code> cohort shows for <code>sbp_12</code> by arm.</p>
+<p>The SDs 12 and 4 are deliberately chosen teaching scenarios, not estimates from a clinical study. Other variance ratios require separate scenarios.</p>
 </div>
 </div>
 </section>
@@ -758,7 +698,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <div class="smaller">
 <ul>
 <li>Two methods can both be “unbiased” — for <strong>different</strong> estimands. A marginal risk difference and a conditional odds ratio are not the same target, and a simulation that mixes them will report bias that is an artefact of the question, not the method.</li>
-<li>In today’s study the estimand is <span class="math inline">\(\delta\)</span>, and we know it because we <strong>set</strong> it. That is the entire reason simulation can measure bias at all.</li>
+<li>In today’s study the estimand is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>δ</mi><annotation encoding="application/x-tex">\delta</annotation></semantics></math>, and we know it because we <strong>set</strong> it. That is the entire reason simulation can measure bias at all.</li>
 </ul>
 </div>
 </div>
@@ -796,8 +736,8 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 </section>
-<section id="simulate_one" class="slide level2 smaller">
-<h2><code>simulate_one()</code></h2>
+<section id="generate-one-dataset" class="slide level2 smaller">
+<h2>Generate one dataset</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate one two-arm trial. Returns a data frame with `arm` and `y`.</span></span>
 <span id="cb39-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Control is N(0, sd_ctrl^2); treatment is N(delta, sd_trt^2).</span></span>
@@ -821,51 +761,64 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 </section>
-<section id="analyse_one" class="slide level2 smaller">
-<h2><code>analyse_one()</code></h2>
+<section id="analyse-one-dataset" class="slide level2 smaller">
+<h2>Analyse one dataset</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Analyse one simulated trial with a two-sample t-test.</span></span>
-<span id="cb41-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># Returns a named numeric vector: estimate, p-value, CI limits.</span></span>
-<span id="cb41-3"><a aria-hidden="true" tabindex="-1"></a>analyse_trial <span class="ot">&lt;-</span> <span class="cf">function</span>(data, <span class="at">pooled =</span> <span class="cn">TRUE</span>) {</span>
-<span id="cb41-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.data.frame</span>(data), <span class="fu">all</span>(<span class="fu">c</span>(<span class="st">"arm"</span>, <span class="st">"y"</span>) <span class="sc">%in%</span> <span class="fu">names</span>(data)))</span>
-<span id="cb41-5"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-6"><a aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">t.test</span>(y <span class="sc">~</span> arm, <span class="at">data =</span> data, <span class="at">var.equal =</span> pooled)</span>
-<span id="cb41-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">est =</span> <span class="fu">unname</span>(<span class="fu">diff</span>(fit<span class="sc">$</span>estimate)),    <span class="co"># trt minus ctrl</span></span>
-<span id="cb41-8"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">p   =</span> fit<span class="sc">$</span>p.value,</span>
-<span id="cb41-9"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">lo  =</span> <span class="sc">-</span>fit<span class="sc">$</span>conf.int[<span class="dv">2</span>],              <span class="co"># t.test's CI is ctrl minus trt</span></span>
-<span id="cb41-10"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">hi  =</span> <span class="sc">-</span>fit<span class="sc">$</span>conf.int[<span class="dv">1</span>])</span>
-<span id="cb41-11"><a aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb41-12"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-13"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
-<span id="cb41-14"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">analyse_trial</span>(<span class="fu">simulate_trial</span>(<span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">8</span>)), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a>analyse_trial <span class="ot">&lt;-</span> <span class="cf">function</span>(data, <span class="at">pooled =</span> <span class="cn">FALSE</span>) {</span>
+<span id="cb41-2"><a aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> data<span class="sc">$</span>y[data<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"trt"</span>]</span>
+<span id="cb41-3"><a aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> data<span class="sc">$</span>y[data<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"ctrl"</span>]</span>
+<span id="cb41-4"><a aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">t.test</span>(x, y, <span class="at">var.equal =</span> pooled)</span>
+<span id="cb41-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">est =</span> <span class="fu">mean</span>(x) <span class="sc">-</span> <span class="fu">mean</span>(y), <span class="at">se =</span> fit<span class="sc">$</span>stderr,</span>
+<span id="cb41-6"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">p =</span> fit<span class="sc">$</span>p.value, <span class="at">lo =</span> fit<span class="sc">$</span>conf.int[<span class="dv">1</span>], <span class="at">hi =</span> fit<span class="sc">$</span>conf.int[<span class="dv">2</span>])</span>
+<span id="cb41-7"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb41-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
+<span id="cb41-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">analyse_trial</span>(<span class="fu">simulate_trial</span>(<span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">8</span>)), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>   est      p     lo     hi 
- 8.171  0.002  3.164 13.177 </code></pre>
+<pre><code>   est     se      p     lo     hi
+ 8.171  2.473  0.003  3.096 13.246 </code></pre>
 </div>
 </div>
+<p>Passing treatment first makes the estimate and interval both treatment minus control. Check this direction before running any replications.</p>
+</section>
+<section id="compare-methods-on-the-same-dataset" class="slide level2 smaller">
+<h2>Compare methods on the same dataset</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1401</span>)</span>
+<span id="cb43-2"><a aria-hidden="true" tabindex="-1"></a>one_data <span class="ot">&lt;-</span> <span class="fu">simulate_trial</span>(<span class="dv">10</span>, <span class="dv">40</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">0</span>)</span>
+<span id="cb43-3"><a aria-hidden="true" tabindex="-1"></a>one_pair <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="at">Welch =</span> <span class="fu">analyse_trial</span>(one_data, <span class="cn">FALSE</span>),</span>
+<span id="cb43-4"><a aria-hidden="true" tabindex="-1"></a>                 <span class="at">pooled =</span> <span class="fu">analyse_trial</span>(one_data, <span class="cn">TRUE</span>))</span>
+<span id="cb43-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(one_pair, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         est    se     p     lo    hi
+Welch  1.116 2.512 0.666 -4.429 6.661
+pooled 1.116 1.883 0.556 -2.670 4.902</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(one_pair[<span class="st">"Welch"</span>, <span class="st">"est"</span>] <span class="sc">==</span> one_pair[<span class="st">"pooled"</span>, <span class="st">"est"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Both tests estimate the same mean difference. Their standard errors, degrees of freedom, intervals, and p-values can differ. Pairing methods within a replicate also supports direct comparisons of their performance.</p>
 </section>
 <section id="one-replicate-then-ten-thousand" class="slide level2 smaller">
 <h2>One replicate, then ten thousand</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a>run_scenario <span class="ot">&lt;-</span> <span class="cf">function</span>(n_sim, n_ctrl, n_trt, sd_ctrl, sd_trt,</span>
-<span id="cb43-2"><a aria-hidden="true" tabindex="-1"></a>                         <span class="at">delta =</span> <span class="dv">0</span>, <span class="at">pooled =</span> <span class="cn">TRUE</span>) {</span>
-<span id="cb43-3"><a aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">replicate</span>(n_sim, {</span>
-<span id="cb43-4"><a aria-hidden="true" tabindex="-1"></a>    d <span class="ot">&lt;-</span> <span class="fu">simulate_trial</span>(n_ctrl, n_trt, sd_ctrl, sd_trt, delta)</span>
-<span id="cb43-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">analyse_trial</span>(d, <span class="at">pooled =</span> pooled)</span>
-<span id="cb43-6"><a aria-hidden="true" tabindex="-1"></a>  })</span>
-<span id="cb43-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(<span class="fu">t</span>(out))          <span class="co"># n_sim rows, one per replicate</span></span>
-<span id="cb43-8"><a aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb43-9"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
-<span id="cb43-11"><a aria-hidden="true" tabindex="-1"></a>demo <span class="ot">&lt;-</span> <span class="fu">run_scenario</span>(<span class="dv">5</span>, <span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">8</span>)</span>
-<span id="cb43-12"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(demo, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a aria-hidden="true" tabindex="-1"></a>run_scenario <span class="ot">&lt;-</span> <span class="cf">function</span>(n_sim, n_ctrl, n_trt, sd_ctrl, sd_trt,</span>
+<span id="cb46-2"><a aria-hidden="true" tabindex="-1"></a>                         <span class="at">delta =</span> <span class="dv">0</span>, <span class="at">pooled =</span> <span class="cn">TRUE</span>) {</span>
+<span id="cb46-3"><a aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">replicate</span>(n_sim, {</span>
+<span id="cb46-4"><a aria-hidden="true" tabindex="-1"></a>    d <span class="ot">&lt;-</span> <span class="fu">simulate_trial</span>(n_ctrl, n_trt, sd_ctrl, sd_trt, delta)</span>
+<span id="cb46-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">analyse_trial</span>(d, <span class="at">pooled =</span> pooled)</span>
+<span id="cb46-6"><a aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb46-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.data.frame</span>(<span class="fu">t</span>(out))          <span class="co"># n_sim rows, one per replicate</span></span>
+<span id="cb46-8"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb46-9"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
+<span id="cb46-11"><a aria-hidden="true" tabindex="-1"></a>demo <span class="ot">&lt;-</span> <span class="fu">run_scenario</span>(<span class="dv">5</span>, <span class="dv">20</span>, <span class="dv">20</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">8</span>)</span>
+<span id="cb46-12"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(demo, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>    est     p     lo     hi
-1 8.171 0.002  3.164 13.177
-2 2.910 0.312 -2.845  8.664
-3 1.976 0.474 -3.551  7.502
-4 5.212 0.159 -2.138 12.562
-5 6.813 0.027  0.811 12.815</code></pre>
+<pre><code>    est    se     p     lo     hi
+1 8.171 2.473 0.002  3.164 13.177
+2 2.910 2.843 0.312 -2.845  8.664
+3 1.976 2.730 0.474 -3.551  7.502
+4 5.212 3.631 0.159 -2.138 12.562
+5 6.813 2.965 0.027  0.811 12.815</code></pre>
 </div>
 </div>
 </section>
@@ -873,13 +826,13 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <h2>Store results tidily</h2>
 <p>Keep <strong>one row per replicate</strong>, and carry every parameter that varies:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
-<span id="cb45-2"><a aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">run_scenario</span>(<span class="dv">200</span>, <span class="dv">10</span>, <span class="dv">40</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">0</span>, <span class="at">pooled =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb45-3"><a aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>n_ctrl <span class="ot">&lt;-</span> <span class="dv">10</span>; res<span class="sc">$</span>n_trt <span class="ot">&lt;-</span> <span class="dv">40</span>; res<span class="sc">$</span>method <span class="ot">&lt;-</span> <span class="st">"pooled"</span></span>
-<span id="cb45-4"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb45-5"><a aria-hidden="true" tabindex="-1"></a>res <span class="sc">|&gt;</span></span>
-<span id="cb45-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(method) <span class="sc">|&gt;</span></span>
-<span id="cb45-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">reject =</span> <span class="fu">mean</span>(p <span class="sc">&lt;</span> <span class="fl">0.05</span>), <span class="at">bias =</span> <span class="fu">mean</span>(est), <span class="at">emp_se =</span> <span class="fu">sd</span>(est))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
+<span id="cb48-2"><a aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">run_scenario</span>(<span class="dv">200</span>, <span class="dv">10</span>, <span class="dv">40</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">0</span>, <span class="at">pooled =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb48-3"><a aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>n_ctrl <span class="ot">&lt;-</span> <span class="dv">10</span>; res<span class="sc">$</span>n_trt <span class="ot">&lt;-</span> <span class="dv">40</span>; res<span class="sc">$</span>method <span class="ot">&lt;-</span> <span class="st">"pooled"</span></span>
+<span id="cb48-4"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-5"><a aria-hidden="true" tabindex="-1"></a>res <span class="sc">|&gt;</span></span>
+<span id="cb48-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(method) <span class="sc">|&gt;</span></span>
+<span id="cb48-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">reject =</span> <span class="fu">mean</span>(p <span class="sc">&lt;</span> <span class="fl">0.05</span>), <span class="at">bias =</span> <span class="fu">mean</span>(est), <span class="at">emp_se =</span> <span class="fu">sd</span>(est))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 1 x 4
   method reject   bias emp_se
@@ -895,7 +848,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <div class="callout-content">
 <p><strong>The base R way</strong></p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">reject =</span> <span class="fu">mean</span>(res<span class="sc">$</span>p <span class="sc">&lt;</span> <span class="fl">0.05</span>), <span class="at">bias =</span> <span class="fu">mean</span>(res<span class="sc">$</span>est), <span class="at">emp_se =</span> <span class="fu">sd</span>(res<span class="sc">$</span>est))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">reject =</span> <span class="fu">mean</span>(res<span class="sc">$</span>p <span class="sc">&lt;</span> <span class="fl">0.05</span>), <span class="at">bias =</span> <span class="fu">mean</span>(res<span class="sc">$</span>est), <span class="at">emp_se =</span> <span class="fu">sd</span>(res<span class="sc">$</span>est))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </div>
 </div>
@@ -904,17 +857,17 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="many-scenarios" class="slide level2 smaller">
 <h2>Many scenarios</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
-<span id="cb48-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">alloc  =</span> <span class="fu">c</span>(<span class="st">"25 / 25"</span>, <span class="st">"10 / 40"</span>, <span class="st">"40 / 10"</span>),</span>
-<span id="cb48-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="fu">c</span>(<span class="st">"pooled"</span>, <span class="st">"welch"</span>),</span>
-<span id="cb48-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">delta  =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">6</span>),</span>
-<span id="cb48-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
-<span id="cb48-6"><a aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb48-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(grid)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<span id="cb51-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">alloc  =</span> <span class="fu">c</span>(<span class="st">"25 / 25"</span>, <span class="st">"10 / 40"</span>, <span class="st">"40 / 10"</span>),</span>
+<span id="cb51-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">method =</span> <span class="fu">c</span>(<span class="st">"pooled"</span>, <span class="st">"welch"</span>),</span>
+<span id="cb51-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">delta  =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">6</span>),</span>
+<span id="cb51-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span></span>
+<span id="cb51-6"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb51-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(grid)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 12</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(grid, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(grid, <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    alloc method delta
 1 25 / 25 pooled     0
@@ -928,83 +881,40 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 </section>
-<section id="cache-the-run" class="slide level2 smaller">
-<h2>Cache the run</h2>
-<div style="font-size:0.88em">
-<table class="caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Level</th>
-<th>How</th>
-<th>Use when</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Chunk cache</td>
-<td><code>#\| cache: true</code></td>
-<td>Seconds to a minute. Needs <code>codetools</code></td>
-</tr>
-<tr class="even">
-<td>Results file</td>
-<td><code>saveRDS(res, "output/sim.rds")</code></td>
-<td>Minutes to hours</td>
-</tr>
-<tr class="odd">
-<td>Separate script</td>
-<td><code>01-run-sim.R</code> writes; the <code>.qmd</code> reads</td>
-<td>Long enough that it should never run on render</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="fragment">
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a aria-hidden="true" tabindex="-1"></a>sim_file <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"output"</span>, <span class="st">"sim-typeI.rds"</span>)</span>
-<span id="cb52-2"><a aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(sim_file)) {</span>
-<span id="cb52-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
-<span id="cb52-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">saveRDS</span>(<span class="fu">run_all</span>(grid, <span class="at">n_sim =</span> <span class="dv">10000</span>), sim_file)</span>
-<span id="cb52-5"><a aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb52-6"><a aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(sim_file)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
-<div class="fragment">
-<div class="callout callout-warning callout-style-simple">
-<div class="callout-body">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-content">
-<p>Save the <strong>seed and the parameter grid</strong> with the results. A cached object you cannot regenerate is not reproducible — it is just a file.</p>
-</div>
-</div>
-</div>
-</div>
+<section id="save-results-with-the-design" class="slide level2 smaller">
+<h2>Save results with the design</h2>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">results =</span> res, <span class="at">scenarios =</span> grid, <span class="at">seed =</span> <span class="dv">6301</span>,</span>
+<span id="cb55-2"><a aria-hidden="true" tabindex="-1"></a>               <span class="at">rng =</span> <span class="fu">RNGkind</span>(), <span class="at">session =</span> <span class="fu">sessionInfo</span>())</span>
+<span id="cb55-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">"output"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb55-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(bundle, <span class="st">"output/simulation.rds"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<ul>
+<li>A results file should identify the parameters and code version that produced it.</li>
+<li>Rerun when the generator, analysis, or scenario definition changes.</li>
+<li>A file’s existence is not evidence that it matches the current specification.</li>
+</ul>
+<p>For expensive studies, run a script once and let the report read the saved results.</p>
 </section>
 <section id="a-buggy-simulation-does-not-crash" class="slide level2 smaller">
 <h2>A buggy simulation does not crash</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a>simulate_bad <span class="ot">&lt;-</span> <span class="cf">function</span>(n_ctrl, n_trt, sd_ctrl, sd_trt, <span class="at">delta =</span> <span class="dv">0</span>) {</span>
-<span id="cb53-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">6301</span>)                       <span class="co"># &lt;- the bug</span></span>
-<span id="cb53-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
-<span id="cb53-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">arm =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"ctrl"</span>, <span class="st">"trt"</span>), <span class="fu">c</span>(n_ctrl, n_trt)),</span>
-<span id="cb53-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">y   =</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(n_ctrl, <span class="dv">0</span>, sd_ctrl), <span class="fu">rnorm</span>(n_trt, delta, sd_trt))</span>
-<span id="cb53-6"><a aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb53-7"><a aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb53-8"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb53-9"><a aria-hidden="true" tabindex="-1"></a>bad <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">t</span>(<span class="fu">replicate</span>(<span class="dv">500</span>, <span class="fu">analyse_trial</span>(<span class="fu">simulate_bad</span>(<span class="dv">25</span>, <span class="dv">25</span>, <span class="dv">12</span>, <span class="dv">4</span>)))))</span>
-<span id="cb53-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">reject =</span> <span class="fu">mean</span>(bad<span class="sc">$</span>p <span class="sc">&lt;</span> <span class="fl">0.05</span>), <span class="at">bias =</span> <span class="fu">mean</span>(bad<span class="sc">$</span>est), <span class="at">emp_se =</span> <span class="fu">sd</span>(bad<span class="sc">$</span>est))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a aria-hidden="true" tabindex="-1"></a>simulate_bad <span class="ot">&lt;-</span> <span class="cf">function</span>(n_ctrl, n_trt, sd_ctrl, sd_trt, <span class="at">delta =</span> <span class="dv">0</span>) {</span>
+<span id="cb56-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">6301</span>)                       <span class="co"># &lt;- the bug</span></span>
+<span id="cb56-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb56-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">arm =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"ctrl"</span>, <span class="st">"trt"</span>), <span class="fu">c</span>(n_ctrl, n_trt)),</span>
+<span id="cb56-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">y   =</span> <span class="fu">c</span>(<span class="fu">rnorm</span>(n_ctrl, <span class="dv">0</span>, sd_ctrl), <span class="fu">rnorm</span>(n_trt, delta, sd_trt))</span>
+<span id="cb56-6"><a aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb56-7"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb56-8"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-9"><a aria-hidden="true" tabindex="-1"></a>bad <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">t</span>(<span class="fu">replicate</span>(<span class="dv">500</span>, <span class="fu">analyse_trial</span>(<span class="fu">simulate_bad</span>(<span class="dv">25</span>, <span class="dv">25</span>, <span class="dv">12</span>, <span class="dv">4</span>)))))</span>
+<span id="cb56-10"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">reject =</span> <span class="fu">mean</span>(bad<span class="sc">$</span>p <span class="sc">&lt;</span> <span class="fl">0.05</span>), <span class="at">bias =</span> <span class="fu">mean</span>(bad<span class="sc">$</span>est), <span class="at">emp_se =</span> <span class="fu">sd</span>(bad<span class="sc">$</span>est))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  reject     bias   emp_se 
+<pre><code>  reject     bias   emp_se
 0.000000 1.082951 0.000000 </code></pre>
 </div>
 </div>
 <div class="fragment">
 <div class="smaller">
-<p>No error. No warning. A type I error of <strong>0</strong>, a bias of exactly zero, and a perfectly plausible-looking estimate — from 500 copies of the same dataset.</p>
+<p>No error or warning. The empirical SE is zero and the rejection rate is either zero or one. The reported bias is the error of a single repeated estimate, not necessarily zero.</p>
 </div>
 </div>
 </section>
@@ -1029,11 +939,11 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </tr>
 <tr class="even">
 <td><strong>The DGM</strong></td>
-<td>Simulate once at <span class="math inline">\(n = 10^6\)</span>; the empirical mean and SD must match the parameters</td>
+<td>Simulate once at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><msup><mn>10</mn><mn>6</mn></msup></mrow><annotation encoding="application/x-tex">n = 10^6</annotation></semantics></math>; the empirical mean and SD should be close to the parameters within simulation variation</td>
 </tr>
 <tr class="odd">
 <td><strong>The results object</strong></td>
-<td><code>nrow(res) == n_sim</code>, no <code>NA</code>, and <strong><code>sd(res$est) &gt; 0</code></strong></td>
+<td><code>nrow(res) == n_sim</code>, count failed/nonfinite rows; check variability where expected</td>
 </tr>
 <tr class="even">
 <td><strong>A known case</strong></td>
@@ -1042,20 +952,75 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </tbody>
 </table>
 </div>
-<div class="fragment">
+</section>
+<section id="check-a-known-data-generating-mechanism" class="slide level2 smaller">
+<h2>Check a known data-generating mechanism</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
-<span id="cb55-2"><a aria-hidden="true" tabindex="-1"></a>check <span class="ot">&lt;-</span> <span class="fu">simulate_trial</span>(<span class="fl">1e6</span>, <span class="fl">1e6</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">8</span>)</span>
-<span id="cb55-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(</span>
-<span id="cb55-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">abs</span>(<span class="fu">mean</span>(check<span class="sc">$</span>y[check<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"trt"</span>]) <span class="sc">-</span> <span class="dv">8</span>) <span class="sc">&lt;</span> <span class="fl">0.05</span>,</span>
-<span id="cb55-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">abs</span>(<span class="fu">sd</span>(check<span class="sc">$</span>y[check<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"ctrl"</span>]) <span class="sc">-</span> <span class="dv">12</span>) <span class="sc">&lt;</span> <span class="fl">0.05</span></span>
-<span id="cb55-6"><a aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb55-7"><a aria-hidden="true" tabindex="-1"></a><span class="st">"DGM checks passed"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
+<span id="cb58-2"><a aria-hidden="true" tabindex="-1"></a>check <span class="ot">&lt;-</span> <span class="fu">simulate_trial</span>(<span class="fl">1e6</span>, <span class="fl">1e6</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">8</span>)</span>
+<span id="cb58-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(</span>
+<span id="cb58-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">abs</span>(<span class="fu">mean</span>(check<span class="sc">$</span>y[check<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"trt"</span>]) <span class="sc">-</span> <span class="dv">8</span>) <span class="sc">&lt;</span> <span class="fl">0.05</span>,</span>
+<span id="cb58-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">abs</span>(<span class="fu">sd</span>(check<span class="sc">$</span>y[check<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"ctrl"</span>]) <span class="sc">-</span> <span class="dv">12</span>) <span class="sc">&lt;</span> <span class="fl">0.05</span></span>
+<span id="cb58-6"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb58-7"><a aria-hidden="true" tabindex="-1"></a><span class="st">"DGM checks passed"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "DGM checks passed"</code></pre>
 </div>
 </div>
+</section>
+<section id="keep-a-failed-replicate-visible" class="slide level2 smaller">
+<h2>Keep a failed replicate visible</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a aria-hidden="true" tabindex="-1"></a>analyse_checked <span class="ot">&lt;-</span> <span class="cf">function</span>(data, <span class="at">pooled =</span> <span class="cn">FALSE</span>) {</span>
+<span id="cb60-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">tryCatch</span>({</span>
+<span id="cb60-3"><a aria-hidden="true" tabindex="-1"></a>    value <span class="ot">&lt;-</span> <span class="fu">analyse_trial</span>(data, pooled)</span>
+<span id="cb60-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">any</span>(<span class="sc">!</span><span class="fu">is.finite</span>(value))) <span class="fu">stop</span>(<span class="st">"nonfinite result"</span>)</span>
+<span id="cb60-5"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">value =</span> value, <span class="at">error =</span> <span class="cn">NA_character_</span>)</span>
+<span id="cb60-6"><a aria-hidden="true" tabindex="-1"></a>  }, <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">list</span>(<span class="at">value =</span> <span class="cn">NULL</span>, <span class="at">error =</span> <span class="fu">conditionMessage</span>(e)))</span>
+<span id="cb60-7"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb60-8"><a aria-hidden="true" tabindex="-1"></a>bad_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">arm =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"ctrl"</span>, <span class="st">"trt"</span>), <span class="at">each =</span> <span class="dv">3</span>), <span class="at">y =</span> <span class="dv">1</span>)</span>
+<span id="cb60-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">analyse_checked</span>(bad_data)<span class="sc">$</span>error</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "data are essentially constant"</code></pre>
 </div>
+</div>
+<p>Retain the replicate ID, scenario, method, and reason. Warnings also need review; this wrapper catches errors, not warnings.</p>
+</section>
+<section id="failure-changes-the-denominator" class="slide level2 smaller">
+<h2>Failure changes the denominator</h2>
+<p>Suppose 100 attempts produce 90 valid intervals, of which 86 contain the truth.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Quantity</th>
+<th>Calculation</th>
+<th>Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Failure rate</td>
+<td>10 / 100</td>
+<td>Procedure did not return an interval</td>
+</tr>
+<tr class="even">
+<td>Coverage among successful fits</td>
+<td>86 / 90</td>
+<td>Conditional on success</td>
+</tr>
+<tr class="odd">
+<td>Successful coverage per attempt</td>
+<td>86 / 100</td>
+<td>Counts failure as unsuccessful coverage</td>
+</tr>
+</tbody>
+</table>
+<p>Report the failure rate and the chosen denominator. Silently applying <code>na.rm = TRUE</code> can hide poor performance in difficult samples.</p>
 </section></section>
 <section>
 <section id="performance-measures" class="title-slide slide level1 section-divider center">
@@ -1081,27 +1046,27 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <tbody>
 <tr class="odd">
 <td><strong>Bias</strong></td>
-<td><span class="math inline">\(\bar{\hat\theta} - \theta\)</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo accent="true">‾</mo></mover><mo>−</mo><mi>θ</mi></mrow><annotation encoding="application/x-tex">\bar{\hat\theta} - \theta</annotation></semantics></math></td>
 <td>Is the estimator systematically off?</td>
 </tr>
 <tr class="even">
 <td><strong>Empirical SE</strong></td>
-<td><span class="math inline">\(\mathrm{sd}(\hat\theta)\)</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">d</mi></mrow><mo stretchy="false" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathrm{sd}(\hat\theta)</annotation></semantics></math></td>
 <td>How variable is it, run to run?</td>
 </tr>
 <tr class="odd">
 <td><strong>Coverage</strong></td>
-<td><span class="math inline">\(\frac{1}{n_{\text{sim}}}\sum \mathbb{1}\{\hat\theta_{\text{lo}} \le \theta \le \hat\theta_{\text{hi}}\}\)</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><msub><mi>n</mi><mtext mathvariant="normal">sim</mtext></msub></mfrac><mo>∑</mo><mn>𝟙</mn><mo stretchy="false" form="prefix">{</mo><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">lo</mtext></msub><mo>≤</mo><mi>θ</mi><mo>≤</mo><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">hi</mtext></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\frac{1}{n_{\text{sim}}}\sum \mathbb{1}\{\hat\theta_{\text{lo}} \le \theta \le \hat\theta_{\text{hi}}\}</annotation></semantics></math></td>
 <td>Does the 95% CI cover 95% of the time?</td>
 </tr>
 <tr class="even">
 <td><strong>Type I error</strong></td>
-<td><span class="math inline">\(\mathrm{mean}(p &lt; \alpha)\)</span>, with <span class="math inline">\(\theta = 0\)</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">n</mi></mrow><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo>&lt;</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathrm{mean}(p &lt; \alpha)</annotation></semantics></math>, with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\theta = 0</annotation></semantics></math></td>
 <td>Does the test hold its size?</td>
 </tr>
 <tr class="odd">
 <td><strong>Power</strong></td>
-<td><span class="math inline">\(\mathrm{mean}(p &lt; \alpha)\)</span>, with <span class="math inline">\(\theta \ne 0\)</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">n</mi></mrow><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo>&lt;</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathrm{mean}(p &lt; \alpha)</annotation></semantics></math>, with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>≠</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\theta \ne 0</annotation></semantics></math></td>
 <td>Will the study detect a real effect?</td>
 </tr>
 </tbody>
@@ -1115,9 +1080,13 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </section>
 <section id="monte-carlo-error" class="slide level2 smaller">
 <h2>Monte Carlo error</h2>
-<p>Every number on the previous slide is <strong>itself an estimate</strong>, from <span class="math inline">\(n_{\text{sim}}\)</span> draws. It has a standard error.</p>
+<p>Every number on the previous slide is <strong>itself an estimate</strong>, from <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mtext mathvariant="normal">sim</mtext></msub><annotation encoding="application/x-tex">n_{\text{sim}}</annotation></semantics></math> draws. It has a standard error.</p>
 <div style="font-size:0.86em">
 <table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
 <thead>
 <tr class="header">
 <th>Quantity</th>
@@ -1127,27 +1096,27 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <tbody>
 <tr class="odd">
 <td>Bias</td>
-<td><span class="math inline">\(\mathrm{EmpSE}/\sqrt{n_{\text{sim}}}\)</span></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">E</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">S</mi><mi mathvariant="normal">E</mi></mrow><mi>/</mi><msqrt><msub><mi>n</mi><mtext mathvariant="normal">sim</mtext></msub></msqrt></mrow><annotation encoding="application/x-tex">\mathrm{EmpSE}/\sqrt{n_{\text{sim}}}</annotation></semantics></math></td>
 </tr>
 <tr class="even">
-<td>Empirical SE</td>
-<td><span class="math inline">\(\mathrm{EmpSE}/\sqrt{2(n_{\text{sim}}-1)}\)</span></td>
+<td>Empirical SE (approximately normal estimates)</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">E</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">S</mi><mi mathvariant="normal">E</mi></mrow><mi>/</mi><msqrt><mrow><mn>2</mn><mo stretchy="false" form="prefix">(</mo><msub><mi>n</mi><mtext mathvariant="normal">sim</mtext></msub><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msqrt></mrow><annotation encoding="application/x-tex">\mathrm{EmpSE}/\sqrt{2(n_{\text{sim}}-1)}</annotation></semantics></math></td>
 </tr>
 <tr class="odd">
-<td>A rejection rate <span class="math inline">\(\hat p\)</span></td>
-<td><span class="math inline">\(\sqrt{\hat p(1-\hat p)/n_{\text{sim}}}\)</span></td>
+<td>A rejection rate <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>p</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat p</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mrow><mover><mi>p</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mover><mi>p</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mi>/</mi><msub><mi>n</mi><mtext mathvariant="normal">sim</mtext></msub></mrow></msqrt><annotation encoding="application/x-tex">\sqrt{\hat p(1-\hat p)/n_{\text{sim}}}</annotation></semantics></math></td>
 </tr>
 </tbody>
 </table>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a aria-hidden="true" tabindex="-1"></a>p_hat <span class="ot">&lt;-</span> <span class="fl">0.052</span>; n_sim <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
-<span id="cb57-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sqrt</span>(p_hat <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_hat) <span class="sc">/</span> n_sim)      <span class="co"># MCSE</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a aria-hidden="true" tabindex="-1"></a>p_hat <span class="ot">&lt;-</span> <span class="fl">0.052</span>; n_sim <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb62-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">sqrt</span>(p_hat <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_hat) <span class="sc">/</span> n_sim)      <span class="co"># MCSE</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.007021111</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a aria-hidden="true" tabindex="-1"></a>p_hat <span class="sc">+</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.96</span>, <span class="fl">1.96</span>) <span class="sc">*</span> <span class="fu">sqrt</span>(p_hat <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_hat) <span class="sc">/</span> n_sim)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a aria-hidden="true" tabindex="-1"></a>p_hat <span class="sc">+</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.96</span>, <span class="fl">1.96</span>) <span class="sc">*</span> <span class="fu">sqrt</span>(p_hat <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_hat) <span class="sc">/</span> n_sim)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.03823862 0.06576138</code></pre>
 </div>
@@ -1155,20 +1124,95 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <div class="fragment">
 <div class="smaller">
-<p>At <span class="math inline">\(n_{\text{sim}} = 1000\)</span>, an observed 0.052 is consistent with anything from 0.038 to 0.066. <strong>That simulation cannot tell 5% from 6.5%.</strong></p>
+<p>At <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mtext mathvariant="normal">sim</mtext></msub><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">n_{\text{sim}} = 1000</annotation></semantics></math>, an observed 0.052 is consistent with anything from 0.038 to 0.066. <strong>That simulation cannot tell 5% from 6.5%.</strong></p>
 </div>
 </div>
 </section>
+<section id="sampling-se-and-monte-carlo-se" class="slide level2 smaller">
+<h2>Sampling SE and Monte Carlo SE</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Uncertainty</th>
+<th>What varies?</th>
+<th>What reduces it?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Sampling SE</td>
+<td>Estimates across new datasets</td>
+<td>More information in each dataset</td>
+</tr>
+<tr class="even">
+<td>Monte Carlo SE</td>
+<td>A performance summary across repeated simulation runs</td>
+<td>More simulation replicates</td>
+</tr>
+</tbody>
+</table>
+<p>Increasing the number of simulated datasets does not make an individual study estimate more precise. It makes our assessment of the method more precise.</p>
+</section>
+<section id="coverage-and-interval-width-in-code" class="slide level2 smaller">
+<h2>Coverage and interval width in code</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1402</span>)</span>
+<span id="cb66-2"><a aria-hidden="true" tabindex="-1"></a>check_ci <span class="ot">&lt;-</span> <span class="fu">run_scenario</span>(<span class="dv">1000</span>, <span class="dv">10</span>, <span class="dv">40</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">6</span>, <span class="at">pooled =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb66-3"><a aria-hidden="true" tabindex="-1"></a>covered <span class="ot">&lt;-</span> check_ci<span class="sc">$</span>lo <span class="sc">&lt;=</span> <span class="dv">6</span> <span class="sc">&amp;</span> <span class="dv">6</span> <span class="sc">&lt;=</span> check_ci<span class="sc">$</span>hi</span>
+<span id="cb66-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">bias =</span> <span class="fu">mean</span>(check_ci<span class="sc">$</span>est) <span class="sc">-</span> <span class="dv">6</span>,</span>
+<span id="cb66-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">empirical_se =</span> <span class="fu">sd</span>(check_ci<span class="sc">$</span>est), <span class="at">mean_model_se =</span> <span class="fu">mean</span>(check_ci<span class="sc">$</span>se),</span>
+<span id="cb66-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">coverage =</span> <span class="fu">mean</span>(covered), <span class="at">width =</span> <span class="fu">mean</span>(check_ci<span class="sc">$</span>hi <span class="sc">-</span> check_ci<span class="sc">$</span>lo),</span>
+<span id="cb66-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">coverage_mcse =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>(covered) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">mean</span>(covered)) <span class="sc">/</span> <span class="fu">nrow</span>(check_ci)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         bias  empirical_se mean_model_se      coverage         width
+  0.124394859   3.742722925   3.757382982   0.953000000  16.849626866
+coverage_mcse
+  0.006692608 </code></pre>
+</div>
+</div>
+<p>The truth is <strong>6</strong>, not the estimate from one simulated sample. Wide intervals may cover well while being too imprecise to be useful.</p>
+</section>
+<section id="bias-variance-and-rmse" class="slide level2 smaller">
+<h2>Bias, variance, and RMSE</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a aria-hidden="true" tabindex="-1"></a>error <span class="ot">&lt;-</span> check_ci<span class="sc">$</span>est <span class="sc">-</span> <span class="dv">6</span></span>
+<span id="cb68-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">bias =</span> <span class="fu">mean</span>(error), <span class="at">rmse =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>(error<span class="sc">^</span><span class="dv">2</span>)),</span>
+<span id="cb68-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">mcse_bias =</span> <span class="fu">sd</span>(error) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="fu">length</span>(error)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     bias      rmse mcse_bias
+0.1243949 3.7429188 0.1183553 </code></pre>
+</div>
+</div>
+<p>RMSE summarizes squared estimation error; coverage evaluates an interval procedure. They answer different questions. A small bias does not imply a calibrated interval.</p>
+</section>
+<section id="monte-carlo-uncertainty-at-the-boundary" class="slide level2 smaller">
+<h2>Monte Carlo uncertainty at the boundary</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">binom.test</span>(<span class="dv">0</span>, <span class="dv">1000</span>)<span class="sc">$</span>conf.int</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.000000000 0.003682084
+attr(,"conf.level")
+[1] 0.95</code></pre>
+</div>
+</div>
+<p>Zero rejections out of 1,000 does not establish a true rejection probability of zero. The plug-in MCSE formula gives zero here; a binomial interval exposes the remaining uncertainty.</p>
+<p>Use interval estimates near zero or one, and state the number of valid replicates.</p>
+</section>
 <section id="choosing-n_textsim-on-purpose" class="slide level2 smaller">
-<h2>Choosing <span class="math inline">\(n_{\text{sim}}\)</span> on purpose</h2>
-<p>Invert the formula. For a rejection rate near <span class="math inline">\(p\)</span>:</p>
-<p><span class="math display">\[n_{\text{sim}} = \frac{p(1-p)}{\text{MCSE}^2}\]</span></p>
+<h2>Choosing <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mtext mathvariant="normal">sim</mtext></msub><annotation encoding="application/x-tex">n_{\text{sim}}</annotation></semantics></math> on purpose</h2>
+<p>Invert the formula. For a rejection rate near <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mtext mathvariant="normal">sim</mtext></msub><mo>=</mo><mfrac><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo></mrow><msup><mtext mathvariant="normal">MCSE</mtext><mn>2</mn></msup></mfrac></mrow><annotation encoding="application/x-tex">n_{\text{sim}} = \frac{p(1-p)}{\text{MCSE}^2}</annotation></semantics></math></p>
 <div style="font-size:0.86em">
 <table class="caption-top">
 <thead>
 <tr class="header">
-<th>Target MCSE at <span class="math inline">\(p = 0.05\)</span></th>
-<th><span class="math inline">\(n_{\text{sim}}\)</span></th>
+<th>Target MCSE at <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">p = 0.05</annotation></semantics></math></th>
+<th><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mtext mathvariant="normal">sim</mtext></msub><annotation encoding="application/x-tex">n_{\text{sim}}</annotation></semantics></math></th>
 <th>Resolves</th>
 </tr>
 </thead>
@@ -1198,7 +1242,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 <div class="fragment">
 <div class="smaller">
-<p>For <strong>bias</strong>, <span class="math inline">\(n_{\text{sim}} = (\mathrm{EmpSE}/\text{target})^2\)</span>. With an empirical SE of 3.9 mmHg and a target of 0.1 mmHg, that is 1,521.</p>
+<p>For <strong>bias</strong>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mtext mathvariant="normal">sim</mtext></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">E</mi><mi mathvariant="normal">m</mi><mi mathvariant="normal">p</mi><mi mathvariant="normal">S</mi><mi mathvariant="normal">E</mi></mrow><mi>/</mi><mtext mathvariant="normal">target</mtext><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">n_{\text{sim}} = (\mathrm{EmpSE}/\text{target})^2</annotation></semantics></math>. With an empirical SE of 3.9 mmHg and a target of 0.1 mmHg, that is 1,521.</p>
 </div>
 </div>
 <div class="fragment">
@@ -1208,11 +1252,24 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <i class="callout-icon"></i>
 </div>
 <div class="callout-content">
-<p><strong>1000 is a habit, not a decision.</strong> State the difference you need to detect, then compute <span class="math inline">\(n_{\text{sim}}\)</span> — exactly as you would a sample size for a trial.</p>
+<p><strong>1000 is a habit, not a decision.</strong> State the difference you need to detect, then compute <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mtext mathvariant="normal">sim</mtext></msub><annotation encoding="application/x-tex">n_{\text{sim}}</annotation></semantics></math> — exactly as you would a sample size for a trial.</p>
 </div>
 </div>
 </div>
 </div>
+</section>
+<section id="plan-for-the-probability-you-will-estimate" class="slide level2 smaller">
+<h2>Plan for the probability you will estimate</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a aria-hidden="true" tabindex="-1"></a>target <span class="ot">&lt;-</span> <span class="fl">0.005</span></span>
+<span id="cb72-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ceiling</span>(<span class="fu">c</span>(<span class="at">near_null =</span> <span class="fl">0.05</span> <span class="sc">*</span> <span class="fl">0.95</span>, <span class="at">worst_case =</span> <span class="fl">0.25</span>) <span class="sc">/</span> target<span class="sc">^</span><span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> near_null worst_case
+      1900      10000 </code></pre>
+</div>
+</div>
+<p>The conservative bound uses <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mn>0.25</mn></mrow><annotation encoding="application/x-tex">p(1-p) \le 0.25</annotation></semantics></math> and covers every probability. A design sized for Type I error near 0.05 can give less precise power estimates.</p>
+<p>Choose the precision target before inspecting favorable results. Use a pilot to debug and estimate computational cost, then run the planned study.</p>
 </section></section>
 <section>
 <section id="type-i-error-and-power" class="title-slide slide level1 section-divider center">
@@ -1223,11 +1280,11 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <h2>The question, restated</h2>
 <p>Two arms. <strong>Different variances</strong> — 12 vs 4 mmHg. <strong>Different sizes</strong> — and it is the <em>combination</em> that does the damage.</p>
 <div class="smaller">
-<p>The pooled <em>t</em>-test assumes a common variance. It estimates one <span class="math inline">\(s_p\)</span> from both arms, weighting by degrees of freedom, and gets <span class="math inline">\(n_1 + n_2 - 2\)</span> df. Welch estimates each arm’s variance separately and adjusts the df downwards.</p>
+<p>The pooled <em>t</em>-test assumes a common variance. It estimates one <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mi>p</mi></msub><annotation encoding="application/x-tex">s_p</annotation></semantics></math> from both arms, weighting by degrees of freedom, and gets <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mn>1</mn></msub><mo>+</mo><msub><mi>n</mi><mn>2</mn></msub><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">n_1 + n_2 - 2</annotation></semantics></math> df. Welch estimates each arm’s variance separately and adjusts the df downwards.</p>
 </div>
 <div class="fragment">
 <div class="smaller">
-<p><code>t.test()</code> in R defaults to <code>var.equal = FALSE</code>. Most software does not, most textbooks teach the pooled version first, and most people tick the box that says “assume equal variances” because it sounds like the simpler model.</p>
+<p><code>t.test()</code> defaults to <code>var.equal = FALSE</code>. The pooled and Welch procedures use different standard-error formulas; neither corrects a wrong sampling unit or a biased dataset.</p>
 </div>
 </div>
 <div class="fragment">
@@ -1237,7 +1294,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <i class="callout-icon"></i>
 </div>
 <div class="callout-content">
-<p>Four scenarios, <span class="math inline">\(\delta = 0\)</span>, <span class="math inline">\(n_{\text{sim}} = 10{,}000\)</span>. If the test is behaving, every number should be 0.05 ± 0.0044.</p>
+<p>Four scenarios, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\delta = 0</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mtext mathvariant="normal">sim</mtext></msub><mo>=</mo><mn>10</mn><mo>,</mo><mn>000</mn></mrow><annotation encoding="application/x-tex">n_{\text{sim}} = 10{,}000</annotation></semantics></math>. If the test is behaving, an individual rejection estimate is typically within about 0.0044 of 0.05. This is an approximate simulation uncertainty range, not a guarantee for every scenario.</p>
 </div>
 </div>
 </div>
@@ -1246,23 +1303,23 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="run-it" class="slide level2 smaller">
 <h2>Run it</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a aria-hidden="true" tabindex="-1"></a>n_sim <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
-<span id="cb61-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
-<span id="cb61-3"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb61-4"><a aria-hidden="true" tabindex="-1"></a>scenarios <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb61-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">lab =</span> <span class="st">"25 / 25"</span>, <span class="at">nc =</span> <span class="dv">25</span>, <span class="at">nt =</span> <span class="dv">25</span>, <span class="at">pooled =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb61-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">lab =</span> <span class="st">"10 / 40"</span>, <span class="at">nc =</span> <span class="dv">10</span>, <span class="at">nt =</span> <span class="dv">40</span>, <span class="at">pooled =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb61-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">lab =</span> <span class="st">"40 / 10"</span>, <span class="at">nc =</span> <span class="dv">40</span>, <span class="at">nt =</span> <span class="dv">10</span>, <span class="at">pooled =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb61-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">lab =</span> <span class="st">"10 / 40"</span>, <span class="at">nc =</span> <span class="dv">10</span>, <span class="at">nt =</span> <span class="dv">40</span>, <span class="at">pooled =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb61-9"><a aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb61-10"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb61-11"><a aria-hidden="true" tabindex="-1"></a>type1 <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(scenarios, <span class="cf">function</span>(s) {</span>
-<span id="cb61-12"><a aria-hidden="true" tabindex="-1"></a>  r <span class="ot">&lt;-</span> <span class="fu">run_scenario</span>(n_sim, s<span class="sc">$</span>nc, s<span class="sc">$</span>nt, <span class="at">sd_ctrl =</span> <span class="dv">12</span>, <span class="at">sd_trt =</span> <span class="dv">4</span>,</span>
-<span id="cb61-13"><a aria-hidden="true" tabindex="-1"></a>                    <span class="at">delta =</span> <span class="dv">0</span>, <span class="at">pooled =</span> s<span class="sc">$</span>pooled)</span>
-<span id="cb61-14"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">alloc =</span> s<span class="sc">$</span>lab, <span class="at">method =</span> <span class="fu">ifelse</span>(s<span class="sc">$</span>pooled, <span class="st">"pooled"</span>, <span class="st">"Welch"</span>),</span>
-<span id="cb61-15"><a aria-hidden="true" tabindex="-1"></a>             <span class="at">reject =</span> <span class="fu">mean</span>(r<span class="sc">$</span>p <span class="sc">&lt;</span> <span class="fl">0.05</span>), <span class="at">bias =</span> <span class="fu">mean</span>(r<span class="sc">$</span>est), <span class="at">emp_se =</span> <span class="fu">sd</span>(r<span class="sc">$</span>est))</span>
-<span id="cb61-16"><a aria-hidden="true" tabindex="-1"></a>}))</span>
-<span id="cb61-17"><a aria-hidden="true" tabindex="-1"></a>type1<span class="sc">$</span>mcse <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(type1<span class="sc">$</span>reject <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> type1<span class="sc">$</span>reject) <span class="sc">/</span> n_sim)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a aria-hidden="true" tabindex="-1"></a>n_sim <span class="ot">&lt;-</span> <span class="dv">10000</span></span>
+<span id="cb74-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">6301</span>)</span>
+<span id="cb74-3"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-4"><a aria-hidden="true" tabindex="-1"></a>scenarios <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb74-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">lab =</span> <span class="st">"25 / 25"</span>, <span class="at">nc =</span> <span class="dv">25</span>, <span class="at">nt =</span> <span class="dv">25</span>, <span class="at">pooled =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb74-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">lab =</span> <span class="st">"10 / 40"</span>, <span class="at">nc =</span> <span class="dv">10</span>, <span class="at">nt =</span> <span class="dv">40</span>, <span class="at">pooled =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb74-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">lab =</span> <span class="st">"40 / 10"</span>, <span class="at">nc =</span> <span class="dv">40</span>, <span class="at">nt =</span> <span class="dv">10</span>, <span class="at">pooled =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb74-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">lab =</span> <span class="st">"10 / 40"</span>, <span class="at">nc =</span> <span class="dv">10</span>, <span class="at">nt =</span> <span class="dv">40</span>, <span class="at">pooled =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb74-9"><a aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb74-10"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-11"><a aria-hidden="true" tabindex="-1"></a>type1 <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">lapply</span>(scenarios, <span class="cf">function</span>(s) {</span>
+<span id="cb74-12"><a aria-hidden="true" tabindex="-1"></a>  r <span class="ot">&lt;-</span> <span class="fu">run_scenario</span>(n_sim, s<span class="sc">$</span>nc, s<span class="sc">$</span>nt, <span class="at">sd_ctrl =</span> <span class="dv">12</span>, <span class="at">sd_trt =</span> <span class="dv">4</span>,</span>
+<span id="cb74-13"><a aria-hidden="true" tabindex="-1"></a>                    <span class="at">delta =</span> <span class="dv">0</span>, <span class="at">pooled =</span> s<span class="sc">$</span>pooled)</span>
+<span id="cb74-14"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">alloc =</span> s<span class="sc">$</span>lab, <span class="at">method =</span> <span class="fu">ifelse</span>(s<span class="sc">$</span>pooled, <span class="st">"pooled"</span>, <span class="st">"Welch"</span>),</span>
+<span id="cb74-15"><a aria-hidden="true" tabindex="-1"></a>             <span class="at">reject =</span> <span class="fu">mean</span>(r<span class="sc">$</span>p <span class="sc">&lt;</span> <span class="fl">0.05</span>), <span class="at">bias =</span> <span class="fu">mean</span>(r<span class="sc">$</span>est), <span class="at">emp_se =</span> <span class="fu">sd</span>(r<span class="sc">$</span>est))</span>
+<span id="cb74-16"><a aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb74-17"><a aria-hidden="true" tabindex="-1"></a>type1<span class="sc">$</span>mcse <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(type1<span class="sc">$</span>reject <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> type1<span class="sc">$</span>reject) <span class="sc">/</span> n_sim)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="the-type-i-error-is-not-0.05" class="slide level2 smaller">
@@ -1318,7 +1375,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 <div class="smaller">
-<p><span class="math inline">\(\sigma_{\text{ctrl}} = 12\)</span>, <span class="math inline">\(\sigma_{\text{trt}} = 4\)</span>, <span class="math inline">\(\delta = 0\)</span>, <span class="math inline">\(n_{\text{sim}} = 10{,}000\)</span>. Nominal <span class="math inline">\(\alpha = 0.05\)</span>.</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mtext mathvariant="normal">ctrl</mtext></msub><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">\sigma_{\text{ctrl}} = 12</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mtext mathvariant="normal">trt</mtext></msub><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">\sigma_{\text{trt}} = 4</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>δ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\delta = 0</annotation></semantics></math>, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mtext mathvariant="normal">sim</mtext></msub><mo>=</mo><mn>10</mn><mo>,</mo><mn>000</mn></mrow><annotation encoding="application/x-tex">n_{\text{sim}} = 10{,}000</annotation></semantics></math>. Nominal <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">\alpha = 0.05</annotation></semantics></math>.</p>
 </div>
 <div class="fragment">
 <div class="smaller">
@@ -1330,40 +1387,24 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 </section>
-<section id="under-the-null-p-values-must-be-uniform" class="slide level2 smaller">
-<h2>Under the null, p-values must be uniform</h2>
+<section id="inspect-the-null-p-value-distribution" class="slide level2 smaller">
+<h2>Inspect the null p-value distribution</h2>
 
 <img data-src="slides_files/figure-revealjs/fig-pvals-1.png" width="912" class="r-stretch quarto-figure-center" id="fig-pvals"><p class="caption">
 Figure&nbsp;1: Null p-values, 10,000 replicates, n = 10 / 40, sd = 12 / 4.
 </p><div class="smaller">
-<p>The dashed line is what a correct test gives: 500 per bin. The pooled test piles up near zero — and the excess <em>is</em> the inflated type I error.</p>
+<p>For an exact continuous null p-value, the expected count is 500 per bin. Welch is approximate; discrete valid tests may be conservative rather than uniform. Excess near zero can reveal inflated Type I error.</p>
 </div>
 </section>
-<section id="welch-and-what-it-costs" class="slide level2 smaller">
-<h2>Welch, and what it costs</h2>
-<div class="smaller">
-<p>Welch does not pool. It uses <span class="math inline">\(\sqrt{s_1^2/n_1 + s_2^2/n_2}\)</span> and a Satterthwaite-approximated degrees of freedom, which is smaller — often much smaller — than <span class="math inline">\(n_1 + n_2 - 2\)</span>.</p>
-</div>
-<div class="columns">
-<div class="column" style="width:48%;">
-<h3 id="under-unequal-variances">Under unequal variances</h3>
-<p>Holds its size. <strong>0.0485</strong> against a nominal 0.05, with a Monte Carlo SE of 0.0021.</p>
-</div><div class="column" style="width:48%;">
-<h3 id="under-equal-variances">Under equal variances</h3>
-<p>Costs almost nothing. A percent or two of power in the worst case, and nothing at all in most.</p>
-</div></div>
-<div class="fragment">
-<div class="callout callout-important callout-style-simple">
-<div class="callout-body">
-<div class="callout-icon-container">
-<i class="callout-icon"></i>
-</div>
-<div class="callout-content">
-<p><code>var.equal = TRUE</code> is a <strong>choice you have to justify</strong>. R’s default is the safe one; use it unless you can say why the variances are equal.</p>
-</div>
-</div>
-</div>
-</div>
+<section id="interpret-the-method-comparison" class="slide level2 smaller">
+<h2>Interpret the method comparison</h2>
+<p>Welch uses <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msqrt><mrow><msubsup><mi>s</mi><mn>1</mn><mn>2</mn></msubsup><mi>/</mi><msub><mi>n</mi><mn>1</mn></msub><mo>+</mo><msubsup><mi>s</mi><mn>2</mn><mn>2</mn></msubsup><mi>/</mi><msub><mi>n</mi><mn>2</mn></msub></mrow></msqrt><annotation encoding="application/x-tex">\sqrt{s_1^2/n_1+s_2^2/n_2}</annotation></semantics></math> with approximate degrees of freedom.</p>
+<ul>
+<li>In this normal unequal-variance scenario, compare its rejection rate with 0.05 using the reported MCSE.</li>
+<li>The pooled test uses a common variance estimate and can be badly calibrated when the smaller group has the larger variance.</li>
+<li>This study has not yet measured the cost of Welch under equal variances.</li>
+</ul>
+<p>Add an equal-variance scenario before making a claim about that tradeoff.</p>
 </section>
 <section id="power-from-the-same-machinery" class="slide level2 smaller">
 <h2>Power, from the same machinery</h2>
@@ -1371,17 +1412,17 @@ Figure&nbsp;1: Null p-values, 10,000 replicates, n = 10 / 40, sd = 12 / 4.
 <img data-src="slides_files/figure-revealjs/fig-power-1.png" width="864" class="r-stretch quarto-figure-center" id="fig-power"><p class="caption">
 Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (trt).
 </p><div class="smaller">
-<p>Same DGM, same functions, one argument changed: <code>delta</code>. Fifty patients in every scenario — only the <strong>allocation</strong> differs.</p>
+<p>Same DGM, same functions, one argument changed: <code>delta</code>. Fifty patients in every scenario — only the <strong>allocation</strong> differs. Bars show approximate 95% Monte Carlo intervals from 2,000 replicates per scenario.</p>
 </div>
 </section>
 <section id="what-the-simulation-actually-told-us" class="slide level2 smaller">
 <h2>What the simulation actually told us</h2>
 <div class="smaller">
 <ul>
-<li>The pooled <em>t</em>-test’s <strong>type I error was 0.26</strong>, not 0.05, when the smaller arm had the larger variance.</li>
-<li>The <strong>estimate was unbiased throughout</strong>. Only the inference broke.</li>
-<li>Welch fixed it, at negligible cost.</li>
-<li>With unequal variances, <strong>allocate more patients to the noisier arm</strong>.</li>
+<li>The pooled test rejected far more than 5% of null datasets when the smaller arm had the larger variance.</li>
+<li>Bias estimates were small relative to their Monte Carlo uncertainty in these scenarios.</li>
+<li>Welch was better calibrated in the unequal-variance scenarios examined.</li>
+<li>With fixed total size and equal per-person costs, the illustrated allocations favor more observations in the noisier arm; real design constraints also matter.</li>
 </ul>
 </div>
 <div class="fragment">
@@ -1401,6 +1442,105 @@ Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (
 </div>
 </div>
 </div>
+</section></section>
+<section>
+<section id="scenario-sensitivity" class="title-slide slide level1 section-divider center">
+<h1>7 · Scenario sensitivity</h1>
+
+</section>
+<section id="a-grid-that-answers-a-question" class="slide level2 smaller">
+<h2>A grid that answers a question</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a aria-hidden="true" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">n_ctrl =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">30</span>), <span class="at">n_trt =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">30</span>),</span>
+<span id="cb75-2"><a aria-hidden="true" tabindex="-1"></a>                      <span class="at">delta =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">6</span>), <span class="at">dgm =</span> <span class="fu">c</span>(<span class="st">"normal"</span>, <span class="st">"skewed"</span>),</span>
+<span id="cb75-3"><a aria-hidden="true" tabindex="-1"></a>                      <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb75-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(design)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 16</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(design, <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  n_ctrl n_trt delta    dgm
+1     10    10     0 normal
+2     30    10     0 normal
+3     10    30     0 normal
+4     30    30     0 normal</code></pre>
+</div>
+</div>
+<p>Vary sample size, allocation, and distribution deliberately. Keep the estimand unchanged when comparing robustness across data-generating mechanisms.</p>
+</section>
+<section id="a-skewed-error-with-known-mean-and-sd" class="slide level2 smaller">
+<h2>A skewed error with known mean and SD</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a aria-hidden="true" tabindex="-1"></a>draw_error <span class="ot">&lt;-</span> <span class="cf">function</span>(n, target_sd, <span class="at">dgm =</span> <span class="st">"normal"</span>) {</span>
+<span id="cb79-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (dgm <span class="sc">==</span> <span class="st">"normal"</span>) <span class="fu">return</span>(<span class="fu">rnorm</span>(n, <span class="dv">0</span>, target_sd))</span>
+<span id="cb79-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (dgm <span class="sc">!=</span> <span class="st">"skewed"</span>) <span class="fu">stop</span>(<span class="st">"unknown dgm"</span>)</span>
+<span id="cb79-4"><a aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fl">0.7</span></span>
+<span id="cb79-5"><a aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> <span class="fu">exp</span>(a<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb79-6"><a aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">&lt;-</span> <span class="fu">sqrt</span>((<span class="fu">exp</span>(a<span class="sc">^</span><span class="dv">2</span>) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="fu">exp</span>(a<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb79-7"><a aria-hidden="true" tabindex="-1"></a>  target_sd <span class="sc">*</span> (<span class="fu">rlnorm</span>(n, <span class="dv">0</span>, a) <span class="sc">-</span> mu) <span class="sc">/</span> sigma</span>
+<span id="cb79-8"><a aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Subtract the <strong>theoretical</strong> log-normal mean and divide by its theoretical SD. Centering every generated sample by its own mean would remove sampling variation.</p>
+</section>
+<section id="a-second-generator-using-the-same-interface" class="slide level2 smaller">
+<h2>A second generator using the same interface</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a aria-hidden="true" tabindex="-1"></a>simulate_dgm <span class="ot">&lt;-</span> <span class="cf">function</span>(n_ctrl, n_trt, sd_ctrl, sd_trt,</span>
+<span id="cb80-2"><a aria-hidden="true" tabindex="-1"></a>                         <span class="at">delta =</span> <span class="dv">0</span>, <span class="at">dgm =</span> <span class="st">"normal"</span>) {</span>
+<span id="cb80-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">arm =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"ctrl"</span>, <span class="st">"trt"</span>), <span class="fu">c</span>(n_ctrl, n_trt)),</span>
+<span id="cb80-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">c</span>(<span class="fu">draw_error</span>(n_ctrl, sd_ctrl, dgm),</span>
+<span id="cb80-5"><a aria-hidden="true" tabindex="-1"></a>          delta <span class="sc">+</span> <span class="fu">draw_error</span>(n_trt, sd_trt, dgm)))</span>
+<span id="cb80-6"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb80-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1403</span>)</span>
+<span id="cb80-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">simulate_dgm</span>(<span class="dv">10</span>, <span class="dv">40</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="st">"skewed"</span>), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   arm          y
+1 ctrl -10.683638
+2 ctrl  15.386841
+3 ctrl  -5.293769</code></pre>
+</div>
+</div>
+<p><code>analyse_trial()</code> stays unchanged. The true treatment-minus-control mean difference remains <code>delta</code> in both mechanisms.</p>
+</section>
+<section id="plot-uncertainty-with-the-scenario-results" class="slide level2 smaller">
+<h2>Plot uncertainty with the scenario results</h2>
+
+<img data-src="slides_files/figure-revealjs/unnamed-chunk-13-1.png" width="864" class="r-stretch"><p>Bars show approximate Monte Carlo intervals, not intervals from an individual trial.</p>
+</section>
+<section id="practice-audit-a-simulation-claim" class="slide level2 smaller">
+<h2>Practice: audit a simulation claim</h2>
+<p>“The new method has 95% coverage: 950 of 1,000 successful fits covered. Another 200 fits failed. We stopped when coverage first reached 95%.”</p>
+<p>Identify the denominator problem, the stopping problem, and the evidence needed before comparing this method with another procedure.</p>
+</section>
+<section id="practice-interpretation" class="slide level2 smaller">
+<h2>Practice: interpretation</h2>
+<ul>
+<li>There were 1,200 attempts: failure rate is 200 / 1,200.</li>
+<li>95% is coverage <strong>conditional on successful fitting</strong>.</li>
+<li>Successful coverage per attempt is 950 / 1,200 if failures count as unsuccessful.</li>
+<li>Stopping on a desired result selects the reported estimate.</li>
+<li>Predefine replication precision and report both failures and Monte Carlo uncertainty.</li>
+</ul>
+</section>
+<section id="lab-route-and-exit-check" class="slide level2 smaller">
+<h2>Lab route and exit check</h2>
+<ol type="1">
+<li>Write ADEMP; generate and inspect one dataset.</li>
+<li>Compare both tests on the same dataset, then repeat under null and alternative.</li>
+<li>Summarize bias, SE, coverage, rejection, width, and failures.</li>
+<li>Add a skewed scenario and report the limits of the comparison.</li>
+</ol>
+<p><strong>Explain:</strong> Why can a method have small bias but poor coverage? Why does increasing replication not fix a wrong generator?</p>
+</section>
+<section id="references" class="slide level2 smaller">
+<h2>References</h2>
+<ul>
+<li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC6492164/">Morris, White and Crowther (2019): simulation design and ADEMP</a></li>
+<li><a href="https://stat.ethz.ch/R-manual/R-devel/library/base/html/Random.html">R random-number generation</a></li>
+<li><a href="https://stat.ethz.ch/R-manual/R-devel/library/base/html/sample.html">R sampling</a></li>
+<li><a href="https://stat.ethz.ch/R-manual/R-devel/library/stats/html/t.test.html">R two-sample t tests</a></li>
+</ul>
 </section>
 <section id="summary" class="slide level2 smaller">
 <h2>Summary</h2>
@@ -1432,12 +1572,11 @@ Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (
   <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
   <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
-  
+
 
   <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
   <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
   <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
-  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
   <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
 
   <script>
@@ -1454,7 +1593,7 @@ Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (
 'jumpToSlide': true,
 'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
 'smaller': false,
- 
+
         // Display controls in the bottom right corner
         controls: false,
 
@@ -1605,34 +1744,16 @@ Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (
         // Factor of the display size that should remain empty around the content
         margin: 0.1,
 
-        math: {
-          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
-          config: 'TeX-AMS_HTML-full',
-          tex2jax: {
-            inlineMath: [['\\(','\\)']],
-            displayMath: [['\\[','\\]']],
-            balanceBraces: true,
-            processEscapes: false,
-            processRefs: true,
-            processEnvironments: true,
-            preview: 'TeX',
-            skipTags: ['script','noscript','style','textarea','pre','code'],
-            ignoreClass: 'tex2jax_ignore',
-            processClass: 'tex2jax_process'
-          },
-        },
-
         // reveal.js plugins
         plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
 
-          RevealMath,
           RevealNotes,
           RevealSearch,
           RevealZoom
         ]
       });
     </script>
-    
+
 
     <script>
 
@@ -1656,13 +1777,13 @@ Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (
 
         }
 
-    
+
 
         function fireSlideChanged(previousSlide, currentSlide) {
 
           fireSlideEnter();
 
-    
+
 
           // dispatch for shiny
 
@@ -1684,7 +1805,7 @@ Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (
 
         }
 
-    
+
 
         // hookup for slidy
 
@@ -1700,13 +1821,13 @@ Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (
 
         }
 
-    
+
 
       })();
 
     </script>
 
-    
+
 
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -1716,7 +1837,7 @@ Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (
         });
         const isCodeAnnotation = (el) => {
           for (const clz of el.classList) {
-            if (clz.startsWith('code-annotation-')) {                     
+            if (clz.startsWith('code-annotation-')) {
               return true;
             }
           }
@@ -1736,11 +1857,11 @@ Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (
             button.setAttribute("data-bs-toggle", "tooltip");
             button.setAttribute("data-bs-placement", "left");
             button.setAttribute("data-bs-title", "Copied!");
-            tooltip = new bootstrap.Tooltip(button, 
-              { trigger: "manual", 
+            tooltip = new bootstrap.Tooltip(button,
+              { trigger: "manual",
                 customClass: "code-copy-button-tooltip",
                 offset: [0, -8]});
-            tooltip.show();    
+            tooltip.show();
           }
           setTimeout(function() {
             if (tooltip) {
@@ -1819,7 +1940,7 @@ Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (
           }
             config['offset'] = [0,0];
             config['maxWidth'] = 700;
-          window.tippy(el, config); 
+          window.tippy(el, config);
         }
         const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
         for (var i=0; i<noterefs.length; i++) {
@@ -1876,6 +1997,6 @@ Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (
         }
       });
       </script>
-    
+
 
 </body></html>

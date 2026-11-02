@@ -28,7 +28,7 @@
     ul.task-list{list-style: none;}
     ul.task-list li input[type="checkbox"] {
       width: 0.8em;
-      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */
       vertical-align: middle;
     }
     /* CSS for syntax highlighting */
@@ -129,12 +129,12 @@
     }
     .reveal .footnotes ol {
       counter-reset: ol;
-      list-style-type: none; 
+      list-style-type: none;
       margin-left: 0;
     }
     .reveal .footnotes ol li:before {
       counter-increment: ol;
-      content: counter(ol) ". "; 
+      content: counter(ol) ". ";
     }
     .reveal .footnotes ol li > p:first-child {
       display: inline-block;
@@ -176,19 +176,19 @@
     .reveal .slide > img.r-stretch.quarto-figure-center {
       display: block;
       margin-left: auto;
-      margin-right: auto; 
+      margin-right: auto;
     }
     .reveal .slide > img.stretch.quarto-figure-left,
     .reveal .slide > img.r-stretch.quarto-figure-left  {
       display: block;
       margin-left: 0;
-      margin-right: auto; 
+      margin-right: auto;
     }
     .reveal .slide > img.stretch.quarto-figure-right,
     .reveal .slide > img.r-stretch.quarto-figure-right  {
       display: block;
       margin-left: auto;
-      margin-right: 0; 
+      margin-right: 0;
     }
   </style>
   <script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
@@ -206,7 +206,7 @@
 <div class="quarto-title-authors">
 <div class="quarto-title-author">
 <div class="quarto-title-author-name">
-Department of Biostatistics, Vanderbilt University Medical Center 
+Department of Biostatistics, Vanderbilt University Medical Center
 </div>
 </div>
 </div>
@@ -268,53 +268,40 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <section id="roadmap-for-today" class="slide level2 smaller">
 <h2>Roadmap for today</h2>
 <table class="caption-top">
-<colgroup>
-<col style="width: 6%">
-<col style="width: 64%">
-<col style="width: 30%">
-</colgroup>
 <thead>
 <tr class="header">
 <th></th>
 <th>Block</th>
-<th>Minutes</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td>1</td>
 <td>Inspect a file and make a first import</td>
-<td>12</td>
 </tr>
 <tr class="even">
 <td>2</td>
 <td>Missing codes and simple checks</td>
-<td>10</td>
 </tr>
 <tr class="odd">
 <td>3</td>
 <td>Worksheet examples: titles, tables, and headers</td>
-<td>25</td>
 </tr>
 <tr class="even">
 <td>4</td>
 <td>Excel, compressed files, and large CSV files</td>
-<td>12</td>
 </tr>
 <tr class="odd">
 <td>5</td>
 <td>Save objects and record data checksums</td>
-<td>10</td>
 </tr>
 <tr class="even">
 <td>6</td>
 <td>Read and check dates</td>
-<td>16</td>
 </tr>
 <tr class="odd">
 <td>7</td>
 <td>Practice and summary</td>
-<td>5</td>
 </tr>
 </tbody>
 </table>
@@ -485,14 +472,14 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <span id="cb7-2"><a aria-hidden="true" tabindex="-1"></a>                  <span class="at">na.strings =</span> <span class="fu">c</span>(<span class="st">"NA"</span>, <span class="st">""</span>, <span class="st">"-99"</span>, <span class="st">"999"</span>))</span>
 <span id="cb7-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(clean<span class="sc">$</span>wt)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's
   51.30   78.22   83.95   84.15   90.67  120.20       4 </code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(clean))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>      id      arm      sex       wt    sbp12    creat  visit_0 visit_12 
-       0        0        2        4        2        3        0        0 
- dob_ser 
+<pre><code>      id      arm      sex       wt    sbp12    creat  visit_0 visit_12
+       0        0        2        4        2        3        0        0
+ dob_ser
        0 </code></pre>
 </div>
 </div>
@@ -532,19 +519,19 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(clean[, <span class="fu">c</span>(<span class="st">"wt"</span>, <span class="st">"sbp12"</span>)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>       wt             sbp12      
- Min.   : 51.30   Min.   : 99.0  
- 1st Qu.: 78.22   1st Qu.:133.0  
- Median : 83.95   Median :142.5  
- Mean   : 84.15   Mean   :141.3  
- 3rd Qu.: 90.67   3rd Qu.:151.0  
- Max.   :120.20   Max.   :184.0  
+<pre><code>       wt             sbp12
+ Min.   : 51.30   Min.   : 99.0
+ 1st Qu.: 78.22   1st Qu.:133.0
+ Median : 83.95   Median :142.5
+ Mean   : 84.15   Mean   :141.3
+ 3rd Qu.: 90.67   3rd Qu.:151.0
+ Max.   :120.20   Max.   :184.0
  NA's   :4        NA's   :2      </code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(clean<span class="sc">$</span>sex, <span class="at">useNA =</span> <span class="st">"ifany"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-   F    M &lt;NA&gt; 
+   F    M &lt;NA&gt;
   31   27    2 </code></pre>
 </div>
 </div>
@@ -752,7 +739,9 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 <span id="cb40-4"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; -- Column specification ------------------------------------</span></span>
 <span id="cb40-5"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; chr (6): id, arm, sex, creat, visit_0, visit_12</span></span>
 <span id="cb40-6"><a aria-hidden="true" tabindex="-1"></a><span class="co">#&gt; dbl (3): wt, sbp12, dob_ser</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="fragment">
+</section>
+<section id="declare-column-types-and-missing-value-codes" class="slide level2 smaller">
+<h2>Declare column types and missing-value codes</h2>
 <div class="smaller">
 <p>That message is the <strong>best thing about it</strong> — the parser tells you what it decided, every time. Then you replace the guess with a contract:</p>
 </div>
@@ -765,7 +754,6 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># the base R way</span></span>
 <span id="cb42-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">read.csv</span>(<span class="st">"data/trial_export.csv"</span>, <span class="at">colClasses =</span> <span class="fu">c</span>(<span class="at">id =</span> <span class="st">"character"</span>),</span>
 <span id="cb42-3"><a aria-hidden="true" tabindex="-1"></a>         <span class="at">na.strings =</span> <span class="fu">c</span>(<span class="st">""</span>, <span class="st">"NA"</span>, <span class="st">"-99"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</div>
 </section>
 <section id="compressed-csv-files-.csv.gz" class="slide level2 smaller">
 <h2>Compressed CSV files: <code>.csv.gz</code></h2>
@@ -978,7 +966,9 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 <pre><code>[1] "2024-03-04"</code></pre>
 </div>
 </div>
-<div class="fragment">
+</section>
+<section id="date-format-codes-describe-the-input" class="slide level2 smaller">
+<h2>Date-format codes describe the input</h2>
 <div style="font-size:0.82em">
 <table class="caption-top">
 <thead>
@@ -1016,7 +1006,6 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 </tr>
 </tbody>
 </table>
-</div>
 </div>
 <div class="fragment">
 <p><code>%b</code> and <code>%B</code> are <strong>locale-dependent</strong>. A French export gives you <code>mars</code>, and your parse returns <code>NA</code>.</p>
@@ -1101,7 +1090,7 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">as.numeric</span>(d12 <span class="sc">-</span> d0))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's
   78.00   81.00   83.00   83.11   85.00   90.00       3 </code></pre>
 </div>
 </div>
@@ -1198,6 +1187,27 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 <td>guessed</td>
 <td>You know what the types should be. Block 1</td>
 </tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="reference-file-layout-and-text-handling" class="slide level2 smaller">
+<h2>Reference: file layout and text handling</h2>
+<div style="font-size:0.80em">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Argument</th>
+<th>Default</th>
+<th>Set it when</th>
+</tr>
+</thead>
+<tbody>
 <tr class="odd">
 <td><code>skip</code></td>
 <td><code>0</code></td>
@@ -1412,6 +1422,27 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 <td><code>check.names</code> mangled it</td>
 <td><code>names(df)</code> right after import</td>
 </tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="reference-dates-encoding-and-extra-rows" class="slide level2 smaller">
+<h2>Reference: dates, encoding, and extra rows</h2>
+<div style="font-size:0.78em">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Symptom</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
 <tr class="odd">
 <td>Dates all <code>NA</code></td>
 <td><code>format</code> does not match the file</td>
@@ -1463,7 +1494,7 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
   <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
   <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
   <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
-  
+
 
   <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
   <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
@@ -1485,7 +1516,7 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 'jumpToSlide': true,
 'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
 'smaller': false,
- 
+
         // Display controls in the bottom right corner
         controls: false,
 
@@ -1663,7 +1694,7 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
         ]
       });
     </script>
-    
+
 
     <script>
 
@@ -1687,13 +1718,13 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 
         }
 
-    
+
 
         function fireSlideChanged(previousSlide, currentSlide) {
 
           fireSlideEnter();
 
-    
+
 
           // dispatch for shiny
 
@@ -1715,7 +1746,7 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 
         }
 
-    
+
 
         // hookup for slidy
 
@@ -1731,13 +1762,13 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
 
         }
 
-    
+
 
       })();
 
     </script>
 
-    
+
 
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -1747,7 +1778,7 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
         });
         const isCodeAnnotation = (el) => {
           for (const clz of el.classList) {
-            if (clz.startsWith('code-annotation-')) {                     
+            if (clz.startsWith('code-annotation-')) {
               return true;
             }
           }
@@ -1767,11 +1798,11 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
             button.setAttribute("data-bs-toggle", "tooltip");
             button.setAttribute("data-bs-placement", "left");
             button.setAttribute("data-bs-title", "Copied!");
-            tooltip = new bootstrap.Tooltip(button, 
-              { trigger: "manual", 
+            tooltip = new bootstrap.Tooltip(button,
+              { trigger: "manual",
                 customClass: "code-copy-button-tooltip",
                 offset: [0, -8]});
-            tooltip.show();    
+            tooltip.show();
           }
           setTimeout(function() {
             if (tooltip) {
@@ -1850,7 +1881,7 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
           }
             config['offset'] = [0,0];
             config['maxWidth'] = 700;
-          window.tippy(el, config); 
+          window.tippy(el, config);
         }
         const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
         for (var i=0; i<noterefs.length; i++) {
@@ -1907,6 +1938,6 @@ Patient ID,Weight (kg),SBP @ 12wk,% change</code></pre>
         }
       });
       </script>
-    
+
 
 </body></html>
