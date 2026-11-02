@@ -83,15 +83,14 @@ quality rather than end-of-project clerical work.
 
 ## Roadmap for today
 
-| | Block | Minutes |
-|---|---|---|
-| 1 | RStudio workbench and `.R` scripts | 20 |
-| 2 | R Markdown documents and knitr options | 25 |
-| 3 | What Quarto adds or changes | 15 |
-| 4 | Reproducible projects, paths, and the Duke case | 20 |
-| 5 | Clean-session rendering and summary | 10 |
+|  | Block |
+| --- | --- |
+| 1 | RStudio workbench and `.R` scripts |
+| 2 | R Markdown documents and knitr options |
+| 3 | What Quarto adds or changes |
+| 4 | Reproducible projects, paths, and the Duke case |
+| 5 | Clean-session rendering and summary |
 
-: {tbl-colwidths="[6,64,30]"}
 
 . . .
 
@@ -265,16 +264,14 @@ output: html_document
 
 The report contains **prose** and computed results.
 
-```{r summary, echo=FALSE}
+```{{r summary, echo=FALSE}}
 clinic <- read.csv("data/clinic_summary.csv")
 mean(clinic$age)
 ```
 ````
 
 ::: {.smaller}
-Three layers: **YAML** says what to create; **Markdown** explains the analysis;
-an **R chunk** performs the computation. `rmarkdown`, `knitr`, and Pandoc turn
-the source into the report.
+**YAML** configures the output; **Markdown** explains; **R chunks** compute.
 :::
 
 
@@ -337,7 +334,7 @@ Markdown is plain text. It remains readable even before the document is knitted.
 ## Anatomy of an R Markdown code chunk {.smaller}
 
 ````markdown
-```{r age-summary, echo=FALSE, warning=FALSE}
+```{{r age-summary, echo=FALSE, warning=FALSE}}
 mean_age <- mean(clinic$age, na.rm = TRUE)
 mean_age
 ```
@@ -399,7 +396,7 @@ understand it, and then decide whether suppression is appropriate.
 ## A setup chunk establishes document-wide defaults {.smaller}
 
 ````markdown
-```{r rmd-setup-example, include=FALSE}
+```{{r rmd-setup-example, include=FALSE}}
 knitr::opts_chunk$set(
   echo = TRUE,
   message = FALSE,
@@ -509,7 +506,7 @@ flowchart LR
   style P fill:#CFAE70,stroke:#8a7448,color:#fff
 ```
 
-. . .
+## What rendering requires {.smaller}
 
 ::: {.smaller}
 Two things follow from this picture, and both matter:
@@ -533,7 +530,7 @@ format: html
 
 ## Baseline characteristics            ← 2. Prose: markdown
 
-Mean baseline SBP was `r round(mean(trial$sbp_0), 1)` mmHg.
+Mean baseline SBP was `r knitr::inline_expr("round(mean(trial$sbp_0), 1)")` mmHg.
 
 ```{{r}}                               ← 3. Code chunk: executed
 #| label: fig-sbp
@@ -568,6 +565,8 @@ execute:
 ---
 ```
 
+## Read the YAML options {.smaller}
+
 ::: {.smaller}
 | Key | Does |
 |---|---|
@@ -596,7 +595,7 @@ boxplot(
 )
 ```
 
-. . .
+## Read the chunk options {.smaller}
 
 ::: {.smaller}
 - Options go **inside** the chunk, on `#|` lines, at the top. Not in the header.
@@ -620,8 +619,6 @@ chunk header: ```` ```{r fig-sbp, echo=TRUE} ````.
 | `include: false` | Run it, show nothing | Setup chunks — `library()` calls, data loading |
 | `warning: false`<br>`message: false` | Suppress those streams | Tidy output — **after** you have read them once |
 | `error: true` | Keep rendering despite an error | Deliberately demonstrating a failure |
-| `fig-width`, `fig-height` | Figure size in inches | Always, for anything published |
-| `cache: true` | Reuse results unless the chunk changes | An expensive step |
 :::
 
 . . .
@@ -630,6 +627,13 @@ chunk header: ```` ```{r fig-sbp, echo=TRUE} ````.
 `warning: false` is for a *finished* document. Suppressing warnings you have never
 read is how you ship a bug.
 :::
+
+## Figure size and caching {.smaller}
+
+| Option | Effect | Use when |
+|---|---|---|
+| `fig-width`, `fig-height` | Figure size in inches | Always, for anything published |
+| `cache: true` | Reuse results unless the chunk changes | An expensive step |
 
 
 ## Inline code {.smaller}
@@ -696,6 +700,11 @@ baseline <- do.call(rbind, lapply(split(trial, trial$arm), function(d) {
   )
 }))
 row.names(baseline) <- NULL
+```
+
+## Display the computed table {.smaller}
+
+```{r}
 knitr::kable(baseline)
 ```
 

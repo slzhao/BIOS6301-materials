@@ -1,11 +1,10 @@
 ---
-title: "Selected Practical Topics in R"
-subtitle: "Current focus: Strings and Regular Expressions · BIOS 6301"
+title: "Practical Statistical Computing"
+subtitle: "BIOS 6301 · Session 16 · Introduction to Statistical Computing"
 author: "Department of Biostatistics, Vanderbilt University Medical Center"
-date: "Session 16"
-date-format: "[Session 16]"
 format:
   revealjs:
+    html-math-method: mathml
     theme: simple
     css: ../../slides.css
     slide-number: c/t
@@ -16,7 +15,7 @@ format:
     fig-align: center
     code-line-numbers: false
     highlight-style: github
-    footer: "BIOS 6301 · Session 16 · Selected Practical Topics in R"
+    footer: "BIOS 6301 · Session 16 · Practical Statistical Computing"
     navigation-mode: linear
 execute:
   enabled: true
@@ -29,677 +28,693 @@ execute:
 ```{r}
 #| label: setup
 #| include: false
-library(dplyr)
-library(knitr)
-options(width = 76)
-
-# Synthetic teaching data for BIOS 6301. Not real patients.
+# Synthetic teaching participants; no real patient records.
 set.seed(6301)
-n <- 60
-trial <- data.frame(
-  id        = sprintf("P%03d", 1:n),
-  arm       = rep(c("Placebo", "Treatment"), each = n / 2),
-  site      = sample(1:4, n, replace = TRUE),
-  age       = round(rnorm(n, 61, 9)),
-  sex       = sample(c("F", "M"), n, replace = TRUE),
-  weight_kg = round(rnorm(n, 82, 15), 1),
-  sbp_0     = round(rnorm(n, 148, 14)),
-  stringsAsFactors = FALSE
-)
-trial$sbp_12 <- round(trial$sbp_0 -
-  ifelse(trial$arm == "Treatment", rnorm(n, 14, 8), rnorm(n, 3, 8)))
-
-# ---------------------------------------------------------------------------
-# Added for this session: the four free-text columns as they arrive from the
-# EHR extract. Nothing here is a number yet. What is deliberately broken:
-#   dose_raw    drug name, dose, unit and frequency in one field; inconsistent
-#               spacing and case; one row with no number at all
-#   icd_raw     ICD-10 codes with and without the decimal point, mixed case,
-#               leading whitespace, and one row that is a word not a code
-#   mrn_raw     the same MRN written four ways, with and without zero padding
-#   comorb_raw  free-text comorbidities, mixed separators, synonyms, one
-#               negation ("no HTN") and one substring trap ("mild asthma")
-# ---------------------------------------------------------------------------
-dose_pool <- c(
-  "10 mg BID", "2.5mg daily", " 20 MG bid ", "lisinopril 10 mg PO QD",
-  "5mg q.d.", "Amlodipine 2.5 mg BID", "40 mg  daily", "one tablet daily",
-  "12.5 mg QHS", "100mcg daily", "10 mg  bid", "HCTZ 25 mg daily"
-)
-icd_pool <- c("I10", "E11.9", "i10", "E119", " I10 ", "Z79.899", "N18.3",
-              "HTN", "I10.", "e11.9")
-mrn_pool <- c("MRN 0012345", "12345", "mrn-0012345", "0012345", "MRN#12345",
-              "MRN 0098761", "98761", "0098761")
-comorb_pool <- c("HTN; T2DM", "hypertension, CKD stage 3", "HTN | DM2 | CKD",
-                 "mild asthma; HTN", "NIDDM; htn", "no HTN; T2DM",
-                 "prior MI; HTN", "none", "HTN;T2DM;CKD")
-
-trial$dose_raw   <- sample(dose_pool,   n, replace = TRUE)
-trial$icd_raw    <- sample(icd_pool,    n, replace = TRUE)
-trial$mrn_raw    <- sample(mrn_pool,    n, replace = TRUE)
-trial$comorb_raw <- sample(comorb_pool, n, replace = TRUE)
-
-# Short vectors for the live demos, so slide output stays readable.
-dose   <- c("10 mg BID", "2.5mg daily", " 20 MG bid ",
-            "lisinopril 10 mg PO QD", "5mg q.d.", "one tablet daily")
-icd    <- c("I10", "E11.9", "i10", "E119", " I10 ", "Z79.899", "HTN")
-mrn    <- c("MRN 0012345", "12345", "mrn-0012345", "0012345", "MRN#12345")
-comorb <- c("HTN; T2DM", "hypertension, CKD stage 3", "HTN | DM2 | CKD",
-            "mild asthma; HTN", "prior MI; HTN", "no HTN; T2DM", "none")
+n <- 80
+trial <- data.frame(id = sprintf("P%03d", seq_len(n)),
+  arm = factor(rep(c("Control", "Treatment"), each = n / 2)),
+  age = round(rnorm(n, 60, 9)), sbp_0 = rnorm(n, 145, 12))
+trial$sbp_12 <- 25 + .8 * trial$sbp_0 + .1 * (trial$age - 60) -
+  7 * (trial$arm == "Treatment") + rnorm(n, 0, 7)
+trial$response <- rbinom(n, 1, plogis(-.5 + .8 * (trial$arm == "Treatment") -
+                                     .025 * (trial$sbp_0 - 145)))
+trial$sbp_0[c(5, 29, 61)] <- NA_real_
 ```
 
-## Where we are {.smaller}
+## The statistical computing sequence {.smaller}
 
-| Course arc | Sessions | |
-|---|---:|---|
-| Setup and workflow | 0–2 |  |
-| Data foundations | 3–8 |  |
-| Modern tools | 9–10 |  |
-| R programming | 11–13 |  |
-| **Statistical computing** | **14–16** | **← today** |
-
-Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
-
-
-## What you will be able to do {.smaller}
-
-::: {.smaller}
-[1]{.objective-num} **Use** the seven `stringr` verbs, and recognise their base R
-equivalents in inherited code.
-
-[2]{.objective-num} **Explain** the double-backslash problem and write patterns
-that survive it.
-
-[3]{.objective-num} **Build** a regex from character classes, quantifiers,
-anchors, groups, and alternation.
-
-[4]{.objective-num} **Predict** greedy versus lazy matching, and pull values out
-with capture groups.
-
-[5]{.objective-num} **Extract** structured values — dose, ICD-10, MRN — from
-clinical free text.
-
-[6]{.objective-num} **Test** a pattern against known-bad cases before trusting
-it.
-
-[7]{.objective-num} **Package** a cleaning rule as a validated function applied
-across columns.
-:::
-
-
-## Roadmap for today
-
-| | Block | Minutes |
+| Session | Question | Main product |
 |---|---|---|
-| 1 | Text is data, and it arrives broken | 8 |
-| 2 | Seven verbs, two dialects | 18 |
-| 3 | Escaping and the double backslash | 8 |
-| 4 | Regex proper | 28 |
-| 5 | Clinical free text, end to end | 16 |
-| 6 | Testing a pattern, and making it a function | 8 |
-| 7 | Practice and summary | 4 |
+| 14 · Simulation | How does a method behave when the truth is known? | A checked simulation study |
+| 15 · Resampling | What can repeated use of observed data tell us? | Uncertainty and held-out performance |
+| 16 · Practical analysis | How do we fit, inspect, and deliver an analysis? | Models, numerical checks, and an auditable handoff |
 
-: {tbl-colwidths="[6,64,30]"}
+This session applies the programming tools from Sessions 11–13 to new statistical tasks.
 
-. . .
+## What is new today {.smaller}
 
-**This is the most practice-dependent session in the course.** Nobody has ever
-learned regex from slides. Today is vocabulary; the lab is where it becomes a
-skill.
-
-
-# 1 · Text is data, and it arrives broken {.section-divider}
-
-## The column that will not be a number {.smaller}
-
-Six rows of a real-shaped `dose` field from an EHR extract:
-
-```{r}
-#| label: dose-show
-dose
-```
-
-. . .
-
-```{r}
-#| label: dose-numeric
-#| warning: true
-as.numeric(dose)
-```
-
-. . .
-
-::: {.callout-important appearance="simple"}
-The dose is in there. It is just wrapped in a drug name, a unit, a frequency, and
-somebody's spacebar.
-:::
-
-
-## Two dialects, one job {.smaller}
-
-::: {style="font-size:0.84em"}
-| Task | `stringr` | Base R |
-|---|---|---|
-| Is the pattern there? | `str_detect(x, p)` | `grepl(p, x)` |
-| Which elements? | `str_which(x, p)` | `grep(p, x)` |
-| Keep the matches | `str_subset(x, p)` | `grep(p, x, value = TRUE)` |
-| Pull the match out | `str_extract(x, p)` | `regmatches(x, regexpr(p, x))` |
-| Replace the first | `str_replace(x, p, r)` | `sub(p, r, x)` |
-| Replace all | `str_replace_all(x, p, r)` | `gsub(p, r, x)` |
-| Split on a pattern | `str_split(x, p)` | `strsplit(x, p)` |
-| Characters by position | `str_sub(x, 1, 3)` | `substr(x, 1, 3)` |
-| Strip outer whitespace | `str_trim(x)` | `trimws(x)` |
-| Pad to a fixed width | `str_pad(x, 7, pad = "0")` | `formatC(x, width = 7, flag = "0")` |
-| How long is it? | `str_length(x)` | `nchar(x)` |
-| Glue pieces together | `str_c(a, b)` | `paste0(a, b)` |
-:::
-
-
-# 2 · Seven verbs, two dialects {.section-divider}
-
-## Detect: is the pattern there? {.smaller}
-
-```r
-# stringr
-str_detect(dose, "mg")
-str_subset(dose, "BID")
-```
-
-```{r}
-#| label: detect
-# the base R way
-grepl("mg", dose)
-grep("BID", dose, ignore.case = TRUE, value = TRUE)
-```
-
-. . .
-
-::: {.smaller}
-`grepl()` returns a **logical vector the same length as the input** — so it goes
-straight into `subset()`, `filter()`, or `[`. `grep()` returns positions, or the
-matching values with `value = TRUE`.
-:::
-
-
-## Extract: pull the match out {.smaller}
-
-```r
-# stringr
-str_extract(dose, "[0-9.]+")
-```
-
-```{r}
-#| label: extract-bad
-# the base R way, and it has a trap
-m <- regexpr("[0-9.]+", dose)
-regmatches(dose, m)
-```
-
-. . .
-
-::: {.callout-warning appearance="simple"}
-Six strings in, **five** out. `regmatches()` drops non-matches instead of
-returning `NA`, so the result no longer lines up with your data frame.
-:::
-
-```{r}
-#| label: extract-good
-out <- rep(NA_character_, length(dose))
-out[m > 0] <- regmatches(dose, m)
-as.numeric(out)
-```
-
-
-## Replace: first, or all {.smaller}
-
-```r
-# stringr
-str_replace(dose, " +", " ")       # first run of spaces only
-str_replace_all(dose, " +", " ")   # every run
-```
-
-```{r}
-#| label: replace
-# the base R way
-sub(" +", " ", dose)
-gsub(" +", " ", dose)
-```
-
-. . .
-
-::: {.smaller}
-`sub()` is `str_replace()`. `gsub()` is `str_replace_all()`. The **`g` is for
-global**, and forgetting it is the most common string bug in R.
-:::
-
-
-## Split: one field into many {.smaller}
-
-```r
-# stringr
-str_split(comorb, " *[;,|] *")
-```
-
-```{r}
-#| label: split
-# the base R way — note what comes back
-parts <- strsplit(comorb, " *[;,|] *")
-parts[1:3]
-lengths(parts)
-```
-
-
-## Slice, trim, pad {.smaller}
-
-```r
-# stringr
-str_sub(icd, 1, 1)                  # the ICD-10 chapter letter
-str_trim(icd)
-str_pad(c("12345", "7"), 7, pad = "0")
-```
-
-```{r}
-#| label: slice
-# the base R way
-substr(icd, 1, 1)
-trimws(icd)
-sprintf("%07d", as.integer(c("12345", "7")))
-```
-
-. . .
-
-::: {.callout-note appearance="simple"}
-`formatC(x, width = 7, flag = "0")` pads with **spaces** when `x` is character.
-`sprintf("%07d", ...)` on an integer is the reliable base idiom.
-:::
-
-
-# 3 · Escaping and the double backslash {.section-divider}
-
-## The double-backslash problem {.smaller}
-
-The regex for "a digit" is `\d`. But R will not let you type that.
-
-```{r}
-#| label: backslash
-#| error: true
-p <- "\d+"
-```
-
-. . .
-
-```{r}
-#| label: backslash2
-p <- "\\d+"
-p            # what R stores, shown as source
-cat(p)       # what the regex engine actually receives
-nchar(p)
-```
-
-
-## What has to be escaped {.smaller}
-
-::: {style="font-size:0.86em"}
-| You want to match | Write in R | Because |
-|---|---|---|
-| any digit | `"\\d"` | `\d` is a regex class |
-| whitespace | `"\\s"` | `\s` is a regex class |
-| a word character | `"\\w"` | letters, digits, `_` |
-| a literal dot | `"\\."` | bare `.` means *any character* |
-| a literal `(` | `"\\("` | bare `(` opens a group |
-| a literal `[` | `"\\["` | bare `[` opens a class |
-| a literal backslash | `"\\\\"` | two layers, two doublings |
-:::
-
-. . .
-
-```{r}
-#| label: dot
-c(grepl(".", "no dot here"),
-  grepl("\\.", "no dot here"),
-  grepl(".", "no dot here", fixed = TRUE))
-```
-
-
-## Raw strings {.smaller}
-
-R 4.0 added a syntax that turns off the backslash doubling entirely.
-
-```{r}
-#| label: raw
-r"(\d+\s*mg)"          # a raw string: what you see is what R stores
-grepl(r"(\d+)", dose)
-```
-
-. . .
-
-::: {.smaller}
-`r"(...)"` — the delimiter is `r"(` and `)"`. If your pattern contains `)"`, use
-`r"[...]"` or `r"{...}"` instead.
-:::
-
-. . .
-
-::: {.callout-tip appearance="simple"}
-Copy a pattern from regex101 into `r"( )"` and it works unchanged. That is the
-whole reason to know this exists.
-:::
-
-
-# 4 · Regex proper {.section-divider}
-
-## A pattern is a description of a set of strings {.smaller}
-
-Read this out loud, left to right:
-
-```r
-"^[A-Z][0-9]{2}(\\.[0-9]{1,4})?$"
-```
-
-::: {style="font-size:0.9em"}
-| Piece | Means |
+| Already developed | Today's extension |
 |---|---|
-| `^` | start of the string — nothing before this |
-| `[A-Z]` | exactly one capital letter |
-| `[0-9]{2}` | exactly two digits |
-| `(...)` | a group, so the `?` applies to the whole thing |
-| `\\.` | a literal dot |
-| `[0-9]{1,4}` | one to four digits |
-| `?` | the group is optional |
-| `$` | end of the string — nothing after this |
-:::
+| Import, joins, strings, dates (5–7) | Capture structured identifiers and audit rejected records |
+| Functions and checks (11–12) | Inspect fitted objects and verify numerical solutions |
+| Simulation and resampling (14–15) | Connect fitted models to predictions and computational objectives |
+| Projects and Git (1–2) | Record package versions and deliver an analysis bundle |
 
-. . .
+Basic text cleaning, Git operations, and loop syntax remain prerequisites rather than repeated blocks.
 
-That is a valid ICD-10 code: **`I10`**, **`E11.9`**, **`Z79.899`**.
+## Learning goals {.smaller}
 
+- Translate a model formula into an analysis dataset and design matrix.
+- Extract model results and make predictions on the intended scale.
+- Distinguish mean-response intervals, prediction intervals, and held-out error.
+- Use one-dimensional optimization, root finding, and integration with checks.
+- Parse a narrow identifier grammar while retaining missing and invalid records.
+- Preserve the computing environment and provenance of a finished analysis.
 
-## Character classes {.smaller}
+## Session outline {.smaller}
 
-::: {style="font-size:0.86em"}
-| Class | Matches | Note |
+| Block | Content |
+|---|---|
+| 1 | A statistical analysis workflow |
+| 2 | Formulas and fitted model objects |
+| 3 | Prediction and diagnostics |
+| 4 | Binary outcomes with `glm()` |
+| 5 | Numerical optimization, roots, and integration |
+| 6 | Structured text and validation |
+| 7 | Reproducible handoff and synthesis |
+
+# 1 · An analysis workflow {.section-divider}
+
+## One synthetic study {.smaller}
+
+```{r}
+head(trial[, c("id", "arm", "sbp_0", "sbp_12", "response")], 4)
+```
+
+One row represents one participant. Baseline and 12-week SBP are continuous;
+`response` is a separately generated binary teaching outcome.
+
+All data are synthetic. The examples teach computing interfaces, not a clinical analysis recommendation.
+
+## Define the target before fitting {.smaller}
+
+| Task | Target | Computing evidence |
 |---|---|---|
-| `[abc]` | one of `a`, `b`, `c` | |
-| `[a-z]` `[A-Z]` `[0-9]` | a range | |
-| `[^0-9]` | anything **except** a digit | `^` inside `[ ]` means "not" |
-| `\\d` `\\w` `\\s` | digit · word character · whitespace | |
-| `\\D` `\\W` `\\S` | the negations | capital = "not" |
-| `.` | any single character | except newline |
-| `[[:alpha:]]` `[[:punct:]]` | POSIX classes | portable, verbose |
-:::
+| Adjusted mean comparison | Model coefficient for treatment at specified covariates | Formula, sample, contrast, interval |
+| Predict 12-week SBP | Outcome for a new participant | Predictor availability and held-out error |
+| Model a binary response | Probability of `response = 1` | Outcome coding and prediction scale |
 
-. . .
+These tasks can use similar functions while answering different questions.
+
+## Make the analysis population explicit {.smaller}
 
 ```{r}
-#| label: classes
-gsub("[^0-9]", "", mrn)      # keep only the digits
+vars <- c("id", "arm", "sbp_0", "age", "sbp_12", "response")
+keep <- complete.cases(trial[, vars])
+analysis <- trial[keep, vars]
+c(available = nrow(trial), analysed = nrow(analysis), excluded = sum(!keep))
+trial$id[!keep]
+stopifnot(!anyDuplicated(analysis$id))
 ```
 
+Complete-case filtering is explicit here for teaching. It changes the population
+being analysed and may introduce bias; it is not a universal missing-data strategy.
 
-## Quantifiers {.smaller}
+## A checkable analysis contract {.smaller}
 
-::: {style="font-size:0.86em"}
-| Quantifier | Means | Example |
+- **Input:** one row per participant; specified units and factor levels.
+- **Sample:** record exclusions and reasons, retaining identifiers.
+- **Fit:** a stated formula and fitting procedure.
+- **Output:** estimates or predictions with their target and uncertainty.
+- **Evidence:** diagnostic checks, held-out evaluation when relevant, and provenance.
+
+An error-free `lm()` call establishes only that the computation completed.
+
+# 2 · Formulas and model objects {.section-divider}
+
+## Read a model formula {.smaller}
+
+```{r}
+f <- sbp_12 ~ sbp_0 + age + arm
+f
+```
+
+The response is left of `~`; the terms on the right specify predictors.
+An intercept is included by default. In formulas, `+` adds model terms rather
+than adding the columns numerically.
+
+Use `data = analysis` so the intended source of variables is clear.
+
+## Formula operators {.smaller}
+
+| Formula fragment | Model terms |
+|---|---|
+| `x + z` | Main effects of x and z |
+| `x * z` | `x + z + x:z` |
+| `x:z` | Interaction term |
+| `x + I(x^2)` | Linear and literal squared x terms |
+| `x - 1` | Remove the intercept |
+
+The formula `^` has special term-expansion meaning. Use `I()` when ordinary
+arithmetic is intended. Include interactions because the scientific question
+requires them, not simply because the syntax is available.
+
+## Factors determine the comparison {.smaller}
+
+```{r}
+analysis$arm <- factor(analysis$arm, levels = c("Control", "Treatment"))
+levels(analysis$arm)
+contrasts(analysis$arm)
+```
+
+With the treatment contrasts used here, Control is the reference.
+`armTreatment` represents the Treatment-versus-Control coefficient conditional
+on the other terms in this additive model.
+
+Changing the reference changes coefficient interpretation, not the fitted values.
+
+## Inspect the design matrix {.smaller}
+
+```{r}
+X <- model.matrix(f, data = analysis)
+head(X, 4)
+c(rows = nrow(X), columns = ncol(X), rank = qr(X)$rank)
+```
+
+Factors become numeric contrast columns. Collinear columns can make coefficients
+unidentifiable even when the formula looks reasonable.
+
+## Fit and inspect the object {.smaller}
+
+```{r}
+fit <- lm(f, data = analysis, na.action = na.fail)
+class(fit)
+c(n = nobs(fit), residual_df = df.residual(fit))
+coef(fit)
+```
+
+`fit` is a structured R object, not the printed coefficient table.
+`na.fail` prevents the model from silently dropping additional rows after we
+have defined the analysis sample.
+
+## Extract results with model methods {.smaller}
+
+```{r}
+coef(summary(fit))
+```
+
+| Function | Result |
+|---|---|
+| `coef(fit)` | Coefficient estimates |
+| `confint(fit)` | Model-based coefficient intervals |
+| `fitted(fit)` / `residuals(fit)` | Fitted values / residuals |
+| `model.frame(fit)` | Variables and rows used for fitting |
+
+Prefer documented methods to copying numbers out of Console output.
+
+## Build a result table {.smaller}
+
+```{r}
+ci <- confint(fit)
+results <- data.frame(term = names(coef(fit)),
+  estimate = unname(coef(fit)), lower = ci[, 1], upper = ci[, 2],
+  row.names = NULL)
+results
+```
+
+State the outcome's units, reference category, sample size, and adjustment terms.
+An adjusted coefficient is not automatically a causal effect.
+
+## Verify rows and fitted values {.smaller}
+
+```{r}
+stopifnot(nobs(fit) == nrow(analysis),
+  nrow(model.frame(fit)) == nrow(analysis),
+  isTRUE(all.equal(as.numeric(X %*% coef(fit)), as.numeric(fitted(fit)))))
+```
+
+This independently checks the link between the matrix, coefficients, and fitted
+values. It does not establish that the model assumptions are appropriate.
+
+## Practice: a silent sample change {.smaller}
+
+A report says “80 participants.” The fitted object reports 77 observations.
+The analyst used the default missing-value handling in `lm()`.
+
+Which variables and identifiers should be checked? Which denominator belongs
+beside the reported coefficient table?
+
+## Practice: inspect the fitted sample {.smaller}
+
+Compare the required variables, the complete-case indicator, `nobs(fit)`, and
+`model.frame(fit)`. Record the excluded IDs and the missing fields.
+
+Report the sample actually used by the model. For comparisons between models,
+also check whether different formulas cause different rows to be included.
+
+# 3 · Prediction and diagnostics {.section-divider}
+
+## Construct prediction data deliberately {.smaller}
+
+```{r}
+new_people <- data.frame(sbp_0 = c(140, 155), age = c(55, 65),
+  arm = factor(c("Control", "Treatment"), levels = levels(analysis$arm)))
+predict(fit, newdata = new_people)
+```
+
+Match predictor names, units, and factor levels. Do not substitute `fitted(fit)`
+for predictions on new rows; fitted values describe the training observations.
+
+## Mean-response and prediction intervals {.smaller}
+
+```{r}
+mean_ci <- predict(fit, new_people, interval = "confidence")
+person_pi <- predict(fit, new_people, interval = "prediction")
+round(cbind(mean_ci, prediction_lower = person_pi[, "lwr"],
+                     prediction_upper = person_pi[, "upr"]), 2)
+```
+
+The confidence interval concerns the conditional **mean** response.
+The prediction interval concerns an **individual** future response and also
+includes residual variation. Both depend on the model's assumptions.
+
+## Unsupported predictions {.smaller}
+
+- A new factor level may prevent prediction.
+- Extrapolation can return a number even far outside the training data.
+- A response-derived predictor may be unavailable at deployment.
+- A narrow model-based interval does not measure every source of uncertainty.
+
+```{r}
+range(analysis$sbp_0)
+range(new_people$sbp_0)
+```
+
+Inspect prediction inputs before interpreting outputs.
+
+## Residuals versus fitted values {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 3.8
+plot(fitted(fit), residuals(fit), pch = 19, col = "#8a7448",
+     xlab = "Fitted 12-week SBP", ylab = "Residual (mmHg)")
+abline(h = 0, lty = 2, col = "grey40")
+```
+
+Look for curvature, changing spread, and unusual observations. A pattern suggests
+follow-up questions; absence of a visible pattern is not proof of adequacy.
+
+## Quantile and influence diagnostics {.smaller}
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 3.6
+par(mfrow = c(1, 2))
+qqnorm(residuals(fit), pch = 19, cex = .6, main = "Residual quantiles")
+qqline(residuals(fit))
+plot(cooks.distance(fit), type = "h", ylab = "Cook's distance",
+     xlab = "Analysis row", main = "Influence")
+par(mfrow = c(1, 1))
+```
+
+Investigate flagged records and model sensitivity. Do not delete a participant
+only because a diagnostic is large.
+
+## Preserve identifiers in diagnostics {.smaller}
+
+```{r}
+diagnostics <- data.frame(id = analysis$id, fitted = fitted(fit),
+  residual = residuals(fit), cook = cooks.distance(fit))
+head(diagnostics[order(diagnostics$cook, decreasing = TRUE), ], 3)
+```
+
+Row numbers can change after filtering or sorting. An ID makes a diagnostic
+traceable to its original record.
+
+## Diagnostics and validation differ {.smaller}
+
+| Evidence | Question |
+|---|---|
+| Residual plots and influence | Where might the fitted model be inadequate or sensitive? |
+| Cross-validation from Session 15 | How well does the fitting procedure predict held-out observations? |
+| External evaluation | Does performance transfer to the target setting? |
+
+Good training fit is not a substitute for held-out evaluation.
+
+# 4 · Binary outcomes {.section-divider}
+
+## A binomial model in R {.smaller}
+
+```{r}
+table(analysis$response)
+binary_fit <- glm(response ~ sbp_0 + arm,
+  family = binomial(), data = analysis, na.action = na.fail)
+coef(binary_fit)
+```
+
+Here `response` is numeric 0/1 and the target event is explicitly `response = 1`.
+The default binomial link is logit; coefficients are on the log-odds scale.
+
+## Link scale and response scale {.smaller}
+
+```{r}
+eta <- predict(binary_fit, newdata = new_people, type = "link")
+prob <- predict(binary_fit, newdata = new_people, type = "response")
+data.frame(log_odds = eta, probability = prob)
+stopifnot(isTRUE(all.equal(unname(plogis(eta)), unname(prob))),
+          all(prob >= 0 & prob <= 1))
+```
+
+Omitting `type` returns link-scale predictions for this GLM. Always label the scale.
+
+## Coefficients and probabilities {.smaller}
+
+```{r}
+c(log_odds_coefficient = coef(binary_fit)["armTreatment"],
+  conditional_odds_ratio = exp(coef(binary_fit)["armTreatment"]))
+```
+
+Exponentiating a logit coefficient gives a conditional odds ratio for that term,
+not a risk ratio or probability difference. Predicted probabilities depend on
+the other covariates as well.
+
+Statistical interpretation requires the model specification and study design.
+
+## Inspect fitting problems {.smaller}
+
+```{r}
+c(converged = binary_fit$converged,
+  finite_coefficients = all(is.finite(coef(binary_fit))))
+range(fitted(binary_fit))
+```
+
+Warnings, very large coefficients, or probabilities near 0 and 1 can require
+investigation, including sparse cells or separation. A convergence flag alone
+does not establish reliable inference.
+
+Use methods guidance for a remedy; do not suppress warnings until the output looks clean.
+
+# 5 · Numerical computation {.section-divider}
+
+## Three numerical tasks {.smaller}
+
+| Task | R function | Result to check |
 |---|---|---|
-| `*` | zero or more | `"mg *"` |
-| `+` | one or more | `"[0-9]+"` |
-| `?` | zero or one | `"\\.?"` |
-| `{n}` | exactly *n* | `"[0-9]{2}"` |
-| `{n,}` | *n* or more | `"[0-9]{3,}"` |
-| `{n,m}` | between *n* and *m* | `"[0-9]{1,4}"` |
-:::
+| Minimize or maximize a scalar function on an interval | `optimize()` | Location, objective, and boundaries |
+| Find a zero of a continuous function | `uniroot()` | Root, residual, and bracket |
+| Integrate a function over a range | `integrate()` | Value, reported numerical error, and known checks |
 
-. . .
+Statistical software performs such calculations internally. A transparent
+one-dimensional example makes the computational contract visible.
 
-```{r}
-#| label: quant
-v <- c("E11", "E11.9", "E11.90", "E1", "")
-rbind(strict  = grepl("^[A-Z][0-9]{2}$", v),
-      relaxed = grepl("^[A-Z][0-9]{2}\\.?[0-9]*$", v))
-```
-
-
-## Anchors and boundaries {.smaller}
+## Write a negative log-likelihood {.smaller}
 
 ```{r}
-#| label: anchors
-# unanchored: "is it in there anywhere?"
-grepl("[0-9]{3}", c("P001", "site 1004 visit", "P01"))
-# anchored: "is that the whole string?"
-grepl("^P[0-9]{3}$", c("P001", "site 1004 visit", "P01"))
+counts <- c(0, 1, 2, 1, 4, 3, 2, 0, 5, 2)
+poisson_nll <- function(lambda, y) {
+  if (length(lambda) != 1L || !is.finite(lambda) || lambda <= 0)
+    return(Inf)
+  -sum(dpois(y, lambda = lambda, log = TRUE))
+}
+poisson_nll(2, counts)
 ```
 
-. . .
+For independent Poisson counts, log-probabilities add. The negative sign makes
+maximum likelihood a minimization problem. These counts share the same exposure.
 
-`\\b` is a **word boundary** — the edge between a word character and anything
-else.
+## Inspect the objective {.smaller}
 
 ```{r}
-#| label: boundary
-rbind(loose = grepl("MI", comorb, ignore.case = TRUE),
-      tight = grepl("\\bMI\\b", comorb, ignore.case = TRUE))
+#| echo: false
+#| fig-width: 9
+#| fig-height: 3.7
+grid <- seq(.1, 6, length.out = 150)
+plot(grid, vapply(grid, poisson_nll, numeric(1), y = counts), type = "l",
+     xlab = "Poisson mean", ylab = "Negative log-likelihood", lwd = 2)
+abline(v = mean(counts), lty = 2, col = "#8a7448")
 ```
 
+A plot can reveal a wrong sign, a poor search interval, or multiple minima.
+It complements numerical checks; it does not prove the global solution.
 
-## Alternation and groups {.smaller}
-
-`|` means **or**. Parentheses control what it applies to.
+## Optimize and verify a known answer {.smaller}
 
 ```{r}
-#| label: alternation
-grepl("BID|TID|daily", dose, ignore.case = TRUE)
+opt <- optimize(poisson_nll, interval = c(.001, 10), y = counts)
+c(numerical = opt$minimum, analytic = mean(counts), objective = opt$objective)
+stopifnot(abs(opt$minimum - mean(counts)) < 1e-3)
 ```
 
-. . .
+For these Poisson observations, the maximum-likelihood mean is the sample mean.
+Agreement checks this implementation against a result available independently.
+
+## Boundaries and tolerances {.smaller}
 
 ```{r}
-#| label: grouping
-# the parentheses matter
-v <- c("HTN", "HTN x", "x hypertension")
-rbind(grouped   = grepl("^(HTN|hypertension)$", v),
-      ungrouped = grepl("^HTN|hypertension$",   v))
+narrow <- optimize(poisson_nll, interval = c(.001, 1), y = counts)
+c(wrong_search_result = narrow$minimum, known_solution = mean(counts))
 ```
 
-. . .
+The algorithm searches the interval supplied. A result near a boundary requires
+checking the interval and the parameter space.
 
-::: {.callout-warning appearance="simple"}
-`^HTN|hypertension$` means *"starts with HTN"* **or** *"ends with
-hypertension"* — almost never what was intended.
-:::
+If every count is zero, the Poisson optimum is the boundary `lambda = 0`;
+the positive-only objective above needs a separate boundary rule.
 
-
-## Capture groups {.smaller}
-
-Parentheses do a second job: they **remember** what they matched.
+## Root finding as an inverse calculation {.smaller}
 
 ```{r}
-#| label: capture
-m <- regexec("([0-9.]+) *(mg|mcg)\\b", dose, ignore.case = TRUE)
-regmatches(dose, m)[1:3]
+target <- function(z) pnorm(z) - .975
+c(left = target(0), right = target(4))
+root <- uniroot(target, interval = c(0, 4), tol = 1e-8)
+c(root = root$root, residual = target(root$root), reference = qnorm(.975))
 ```
 
-. . .
+For a continuous function, opposite endpoint signs bracket at least one root.
+Check the equation at the returned value, not only the convergence message.
 
-::: {.smaller}
-Element 1 of each result is the whole match; elements 2 and 3 are the two
-groups. The `stringr` equivalent is `str_match(dose, ...)`, which returns a
-matrix — one column per group — and keeps non-matches as `NA`.
-:::
-
-
-## The card to keep {.smaller}
-
-::: {style="font-size:0.78em"}
-| | | | |
-|---|---|---|---|
-| `^` | start | `\\d` | digit |
-| `$` | end | `\\w` | word character |
-| `.` | any character | `\\s` | whitespace |
-| `*` | 0 or more | `\\b` | word boundary |
-| `+` | 1 or more | `[abc]` | one of these |
-| `?` | 0 or 1 | `[^abc]` | none of these |
-| `{n,m}` | between n and m | `(...)` | group and capture |
-| `*?` `+?` | lazy versions | `(?:...)` | group only |
-| <code>&#124;</code> | or | `\\1` | backreference |
-:::
-
-. . .
-
-::: {.callout-tip appearance="simple"}
-Nine rows. That is the whole language for everything you will do this year.
-:::
-
-
-# 5 · Clinical free text, end to end {.section-divider}
-
-## Five steps, every time {.smaller}
-
-```{mermaid}
-%%| echo: false
-%%| fig-width: 10
-flowchart LR
-  A["<b>1 · Look</b><br/>table() the<br/>raw values"] --> B["<b>2 · Normalise</b><br/>case, whitespace,<br/>separators"]
-  B --> C["<b>3 · Extract</b><br/>pattern with<br/>capture groups"]
-  C --> D["<b>4 · Convert</b><br/>to number,<br/>factor, date"]
-  D --> E["<b>5 · Validate</b><br/>count the NAs<br/>you created"]
-  style A fill:#f4efe4,stroke:#CFAE70
-  style B fill:#f4efe4,stroke:#CFAE70
-  style D fill:#f4efe4,stroke:#CFAE70
-  style C fill:#CFAE70,stroke:#8a7448,color:#fff
-  style E fill:#CFAE70,stroke:#8a7448,color:#fff
-```
-
-. . .
-
-::: {.smaller}
-Step 1 is the one people skip, and step 5 is the one that catches the mistake
-step 1 would have prevented.
-:::
-
-
-## Dose strings {.smaller}
+## Numerical integration {.smaller}
 
 ```{r}
-#| label: dose-look
-sort(table(trial$dose_raw), decreasing = TRUE)[1:6]
+area <- integrate(dnorm, lower = -1.96, upper = 1.96)
+c(numerical = area$value, reported_error = area$abs.error,
+  cdf_difference = pnorm(1.96) - pnorm(-1.96))
 ```
 
-. . .
+The integrand must accept a vector of inputs and return corresponding values.
+The reported error concerns numerical approximation, not sampling uncertainty.
+
+## Practice: classify the failure {.smaller}
+
+1. A likelihood optimizer returns the upper limit of a narrow search interval.
+2. A root finder receives endpoints where the function has the same sign.
+3. Increasing simulation replicates does not change a mistaken likelihood formula.
+
+For each, identify what should be inspected before increasing iteration limits.
+
+## Practice: check the mathematical contract {.smaller}
+
+1. Plot the objective, inspect the parameter space, and expand a justified interval.
+2. Check continuity, the equation, and a bracket containing a sign change.
+3. Validate the formula against a known case; more repetition cannot repair it.
+
+Numerical tolerance, Monte Carlo error, and sampling uncertainty describe different problems.
+
+# 6 · Structured text {.section-divider}
+
+## A narrow identifier grammar {.smaller}
 
 ```{r}
-#| label: dose-extract
-d <- tolower(trimws(gsub(" +", " ", trial$dose_raw)))     # normalise
-m <- regexec("([0-9.]+) ?mg\\b", d)                       # extract
-mg <- vapply(regmatches(d, m),
-             function(p) if (length(p)) as.numeric(p[2]) else NA_real_,
-             numeric(1))
-c(n = length(mg), missing = sum(is.na(mg)), median = median(mg, na.rm = TRUE))
+specimen_raw <- c(" P001-W00 ", "P010-W12", "P020-W99", "P999-W04",
+                  "junkP003-W12", "P004-W4", NA, "P005-W12")
+specimen_raw
 ```
 
+The specification is `P` + three digits + `-W` + two digits.
+Permitted visits are 0, 4, 12, and 26, and the participant must exist in the registry.
 
-## ICD-10 codes {.smaller}
+Shape, allowed values, and registry membership are separate checks.
+
+## Anchors and capture groups {.smaller}
 
 ```{r}
-#| label: icd
-icd
-norm  <- sub("\\.$", "", toupper(trimws(icd)))    # normalise
-valid <- grepl("^[A-Z][0-9][0-9A-Z](\\.[0-9A-Z]{1,4})?$", norm)
-data.frame(raw = icd, norm, valid)
+pattern <- "^(P[0-9]{3})-W([0-9]{2})$"
+normalized <- toupper(trimws(specimen_raw))
+stringr::str_match(normalized, pattern)
 ```
 
-. . .
+`^` and `$` require the complete string to match. Parentheses capture the
+participant ID and visit. The returned matrix preserves one row per input,
+including missing values and nonmatches.
 
-::: {.smaller}
-`E119` fails — and it should. Some extracts drop the decimal point, and
-**`E119` is not a code**; it is `E11.9` with information removed.
-:::
+## Escaping and literal punctuation {.smaller}
 
+```{r}
+x <- c("report.csv", "reportXcsv")
+data.frame(x, loose = grepl(".csv$", x),
+  literal_dot = grepl("\\.csv$", x),
+  raw_string = grepl(r"(\.csv$)", x))
+```
 
-## What a regex is bad at {.smaller}
+R string parsing and regex parsing are separate layers. A raw string removes
+R's backslash doubling; it does not remove the regex engine's special syntax.
+Use literal matching when no pattern language is needed.
 
-::: {.smaller}
-| Problem | Why regex is wrong | Use instead |
-|---|---|---|
-| Nested or paired structure | It cannot count depth | A parser |
-| Dates in mixed formats | The hard part is *meaning*, not shape | `lubridate` — session 5 |
-| "Not X" in a clinical note | Negation is language, not syntax | A human, or clinical NLP |
-| A fixed, known string | Slower and can misfire | `==`, `%in%`, `fixed = TRUE` |
-| A fixed-width field | Position is simpler and safer | `substr()` |
-:::
+## Preserve rows in base R extraction {.smaller}
 
-. . .
+```{r}
+parts <- regmatches(normalized, regexec(pattern, normalized))
+id_base <- vapply(parts, function(z)
+  if (length(z) == 3L) z[2] else NA_character_, character(1))
+id_stringr <- stringr::str_match(normalized, pattern)[, 2]
+stopifnot(identical(unname(id_base), unname(id_stringr)))
+```
 
-::: {.callout-note appearance="simple"}
-Every row here is a case where the regex **appears to work** on your data and
-fails on somebody else's.
-:::
+A failed match is retained as missing. Do not drop nonmatches and then attach
+the shorter result to the original data by position.
 
+## An auditable parser {.smaller}
 
-# 6 · Testing a pattern, and making it a function {.section-divider}
+```{r}
+parse_specimen <- function(x, known_ids) {
+  stopifnot(is.character(x), is.character(known_ids))
+  clean <- toupper(trimws(x))
+  m <- stringr::str_match(clean, "^(P[0-9]{3})-W([0-9]{2})$")
+  id <- m[, 2]; week <- as.integer(m[, 3])
+  status <- ifelse(is.na(x), "missing", ifelse(is.na(id), "bad format",
+    ifelse(!id %in% known_ids, "unknown ID",
+      ifelse(!week %in% c(0L, 4L, 12L, 26L), "invalid visit", "ok"))))
+  data.frame(raw = x, normalized = clean, id, week, status)
+}
+```
 
-## Never trust a pattern you have not tried to break {.smaller}
+The first failing rule supplies `status`; the raw value remains available for review.
+
+## Test near misses and semantic failures {.smaller}
+
+```{r}
+parsed <- parse_specimen(specimen_raw, trial$id)
+expected <- c("ok", "ok", "invalid visit", "unknown ID",
+              "bad format", "bad format", "missing", "ok")
+stopifnot(nrow(parsed) == length(specimen_raw),
+          identical(parsed$status, expected))
+parsed[, c("raw", "id", "week", "status")]
+```
+
+`P020-W99` has the right shape but an invalid visit. A regex alone cannot verify
+the study protocol or registry membership.
+
+## Review before joining {.smaller}
+
+```{r}
+table(parsed$status, useNA = "ifany")
+accepted <- parsed[parsed$status == "ok", ]
+review <- parsed[parsed$status != "ok", ]
+stopifnot(nrow(accepted) + nrow(review) == nrow(parsed))
+```
+
+Check uniqueness of the intended key before joining. Multiple specimens at the
+same participant-visit may be legitimate; determine whether a specimen ID is also needed.
+
+## Keep pattern matching within its scope {.smaller}
+
+- A valid-looking identifier is not evidence of a valid study record.
+- A text mention is not equivalent to a confirmed condition or medication use.
+- Clinical negation and ambiguous instructions need domain-aware review.
+- Date strings need date parsing and calendar validation, already introduced earlier.
+
+Use a documented grammar for structured text. Keep uncertain records visible.
+
+# 7 · Reproducible handoff {.section-divider}
+
+## Record what produced the result {.smaller}
+
+```{r}
+analysis_bundle <- list(
+  formula = formula(fit), analysed_ids = analysis$id,
+  excluded_ids = trial$id[!keep], coefficients = results,
+  seed = 6301, rng = RNGkind(), session = sessionInfo())
+names(analysis_bundle)
+```
+
+Also record the input version, analysis-code revision, and missing-data policy.
+In this teaching example the generator and seed define the synthetic input.
+
+## Save objects and plain tables {.smaller}
 
 ```r
-# stringr: highlights every match, in the Viewer
-str_view(dose, "[0-9.]+ ?mg")
+dir.create("output", showWarnings = FALSE)
+saveRDS(analysis_bundle, "output/analysis-bundle.rds")
+write.csv(results, "output/coefficients.csv", row.names = FALSE)
+write.csv(review, "output/specimen-review.csv", row.names = FALSE)
+writeLines(capture.output(sessionInfo()), "output/session-info.txt")
 ```
 
-. . .
+RDS preserves R structure; CSV supports inspection in other tools.
+The report explains the result. The source and input specification make it reproducible.
 
-::: {.smaller}
-- **regex101.com** — paste the pattern and the strings; it explains every token
-  and shows what each group captured. Set the flavour to **PCRE**.
-- Build the pattern against a vector that contains **the cases that should
-  fail**, not only the ones that should pass.
-:::
+## Package versions are part of the environment {.smaller}
 
-. . .
+`sessionInfo()` records the active R session but does not recreate its packages.
+`renv` adds a project library and a lockfile describing package dependencies.
 
-::: {.callout-important appearance="simple"}
-A pattern tested only on strings that match is not tested.
-:::
-
-
-## The test-case habit {.smaller}
-
-```{r}
-#| label: fn
-# Return the milligram dose from a free-text prescription string, or NA.
-extract_dose_mg <- function(x) {
-  stopifnot(is.character(x))
-  x <- tolower(trimws(gsub(" +", " ", x)))
-  m <- regexec("([0-9.]+) ?mg\\b", x)
-  vapply(regmatches(x, m),
-         function(p) if (length(p)) as.numeric(p[2]) else NA_real_,
-         numeric(1))
-}
-
-stopifnot(
-  identical(extract_dose_mg("10 mg BID"),        10),
-  identical(extract_dose_mg("2.5mg daily"),      2.5),
-  identical(extract_dose_mg("one tablet daily"), NA_real_),
-  identical(extract_dose_mg("100mcg daily"),     NA_real_)
-)
+```r
+# Optional: run interactively in a dedicated project, not during report rendering.
+renv::init()
+# After confirming the project works:
+renv::snapshot()
+# In a clone with the committed lockfile:
+renv::restore()
 ```
 
+These commands are a setup workflow, not required execution in today's lab.
 
-## Flexible practical block {.smaller}
+## What to version and what to document {.smaller}
 
-Reserve the final 15–20 minutes for one recurring need identified during the course—for example, a difficult factor, date, import, help-page, or package-use problem.
+| Keep in project history | Document separately |
+|---|---|
+| Analysis source and input specification | Data access and permitted storage |
+| `renv.lock`, activation files, and settings | Required R version and system dependencies |
+| Tests and a concise README | How to regenerate expensive results |
 
-::: {.question}
-What small R problem has cost several students time, and can we reduce it to one reproducible example?
-:::
+Follow renv's generated ignore rules; do not commit its installed package library.
+A lockfile records dependencies, not the data, operating system, or complete machine.
 
+## A reproducible delivery check {.smaller}
+
+1. Open a clean R session in the documented project environment.
+2. Obtain the specified input and run the analysis from the documented entry point.
+3. Confirm sample counts, key uniqueness, coefficient names, and prediction checks.
+4. Render the report and inspect tables and figures.
+5. Confirm that the outputs identify their input, code, and environment versions.
+
+Use a colleague's rerun to test the instructions, not only your current workspace.
+
+## Integrated lab {.smaller}
+
+| Task | Evidence to produce |
+|---|---|
+| Fit and inspect an adjusted model | Analysis counts, coefficient table, and diagnostics |
+| Predict continuous and binary outcomes | Correct scales, intervals, and input checks |
+| Verify numerical calculations | Known-answer comparisons and boundary discussion |
+| Parse structured specimen IDs | Field tests and a review queue |
+| Prepare the handoff | Saved outputs and an environment record |
+
+Each task uses an interface introduced in the corresponding lecture block.
+
+## Course synthesis {.smaller}
+
+| Earlier work | Evidence in a finished analysis |
+|---|---|
+| Workflow and version control | A rerunnable project with identifiable inputs and code |
+| Data handling and visualization | A checked analysis population and interpretable figures |
+| Programming and debugging | Functions with explicit contracts and meaningful checks |
+| Simulation and resampling | Uncertainty and performance evaluated against the right target |
+| Today's practical tools | Inspectable models, verified numerical results, and traceable outputs |
+
+## Exit check {.smaller}
+
+Explain each discrepancy before accepting the result:
+
+- The model sample is smaller than the report's denominator.
+- A binomial prediction is negative because it is on the link scale.
+- An optimizer returns a boundary because the interval excludes the solution.
+- A specimen ID matches the pattern but is absent from the registry.
+- The report runs locally but its package environment is undocumented.
+
+## References {.smaller}
+
+- [R linear models](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/lm.html) and [prediction intervals](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/predict.lm.html)
+- [R GLM prediction scales](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/predict.glm.html)
+- [One-dimensional optimization](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/optimize.html), [root finding](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/uniroot.html), and [integration](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/integrate.html)
+- [stringr regular expressions](https://stringr.tidyverse.org/articles/regular-expressions.html)
+- [renv project environments](https://pkgs.rstudio.com/renv/articles/renv.html)
 
 ## Summary {.smaller}
 
-- Start with literal string operations; add regex only when the rule is patterned.
-- R string escaping and regex escaping are separate layers.
-- Anchors distinguish finding a pattern from validating a complete value.
-- Test near misses and missing values, not only examples that should match.
-- Turn a validated pattern into reusable, documented code.
-
-. . .
-
-**Next connection:** Use the remaining class time for the practical R issue selected from student needs.
-
+Specify the target and sample, inspect the fitted object, and label prediction
+scales. Check numerical results against the equation or a known answer. Preserve
+uncertain text records and document the environment behind the final outputs.

@@ -1,11 +1,10 @@
 ---
 title: "Resampling Methods"
-subtitle: "BIOS 6301 · Introduction to Statistical Computing"
+subtitle: "BIOS 6301 · Session 15 · Introduction to Statistical Computing"
 author: "Department of Biostatistics, Vanderbilt University Medical Center"
-date: "Session 15"
-date-format: "[Session 15]"
 format:
   revealjs:
+    html-math-method: mathml
     theme: simple
     css: ../../slides.css
     slide-number: c/t
@@ -67,91 +66,49 @@ theme_set(theme_minimal(base_size = 15))
 gold <- "#CFAE70"
 ```
 
-## Where we are {.smaller}
+## The statistical computing sequence {.smaller}
 
-| Course arc | Sessions | |
-|---|---:|---|
-| Setup and workflow | 0–2 |  |
-| Data foundations | 3–8 |  |
-| Modern tools | 9–10 |  |
-| R programming | 11–13 |  |
-| **Statistical computing** | **14–16** | **← today** |
-
-Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
-
-
-## What you will be able to do {.smaller}
-
-::: {.smaller}
-[1]{.objective-num} **Explain** what sampling *with* and *without* replacement
-each estimate, and why one line of code separates them.
-
-[2]{.objective-num} **Write** a bootstrap by hand — resample, recompute, collect
-— and report a bootstrap standard error.
-
-[3]{.objective-num} **Construct** percentile and basic bootstrap intervals, and
-say what each assumes.
-
-[4]{.objective-num} **Name** four situations where the bootstrap fails, and
-recognise one from its output.
-
-[5]{.objective-num} **Build** a permutation null distribution, and compute a
-*p*-value that is never exactly zero.
-
-[6]{.objective-num} **Choose** the correct resampling unit for clustered or
-longitudinal data — and show what goes wrong when you do not.
-:::
-
-
-## Roadmap for today {.smaller}
-
-| | Block | Minutes |
+| Session | Question | Main product |
 |---|---|---|
-| 1 | One argument apart | 10 |
-| 2 | The bootstrap, by hand | 25 |
-| 3 | When the bootstrap fails | 10 |
-| 4 | Permutation and exchangeability | 20 |
-| 5 | **Choosing the resampling unit** | 20 |
-| 6 | Cross-validation, and closing the course | 15 |
+| 14 · Simulation | How does a method behave when the truth is known? | A checked simulation study |
+| 15 · Resampling | What can repeated use of observed data tell us? | Uncertainty and held-out performance |
+| 16 · Practical analysis | How do we fit, inspect, and deliver an analysis? | Models, numerical checks, and an auditable handoff |
 
-: {tbl-colwidths="[6,64,30]"}
+Functions, validation, and iteration from Sessions 11–13 support all three.
 
-. . .
+## Learning goals {.smaller}
 
-**Block 5 is the one to protect.** If the room is running slow, compress block 3
-and the `boot` pointers — not block 5.
+- Match bootstrap, permutation, and cross-validation to their targets.
+- Compute bootstrap SE, bias, and intervals; assess stability and limitations.
+- State an exchangeability or randomization argument before permuting.
+- Preserve participants, pairs, or clusters in resampling and validation.
+- Generate held-out predictions with preprocessing fitted inside each training fold.
+- Separate model selection from final performance evaluation.
 
+## Session outline {.smaller}
 
-# 1 · One argument apart {.section-divider}
+| Block | Content |
+|---|---|
+| 1 | Three resampling targets |
+| 2 | Bootstrap estimates and intervals |
+| 3 | Bootstrap limitations and stability |
+| 4 | Permutation tests and exchangeability |
+| 5 | Participants, clusters, and pairs |
+| 6 | Cross-validation and preprocessing |
+| 7 | Model comparison, validation design, and lab |
 
-## The whole session, in one table {.smaller}
+# 1 · Resampling targets {.section-divider}
 
-| | Resample | Target |
+## Three resampling targets {.smaller}
+
+| Method | Repeated operation | Target |
 |---|---|---|
-| **Bootstrap** | *with* replacement, from the observed data | the **sampling distribution** of a statistic |
-| **Permutation** | *without* replacement — a reshuffle of labels | the **null distribution** under exchangeability |
+| Bootstrap | Sample observational units with replacement | Sampling uncertainty of an estimate |
+| Permutation | Reassign labels under a valid null scheme | Null reference distribution of a statistic |
+| Cross-validation | Fit on training data; predict held-out data | Performance on new observations |
 
-: {tbl-colwidths="[18,44,38]"}
-
-. . .
-
-Which decides, for the rest of your career, which one you reach for:
-
-::: {.smaller}
-| You want | Use | You get |
-|---|---|---|
-| A standard error | Bootstrap | `sd()` of the resampled statistics |
-| A confidence interval | Bootstrap | quantiles, or a reflection of them |
-| A *p*-value | Permutation | how often chance beats what you saw |
-:::
-
-. . .
-
-::: {.callout-important appearance="simple"}
-The bootstrap answers **"how variable is my estimate?"**
-Permutation answers **"could chance alone have produced this?"**
-:::
-
+Replacement alone does not determine validity. Specify the target, the unit,
+and which relationships the repeated operation must preserve.
 
 ## The same line of code, twice {.smaller}
 
@@ -167,17 +124,16 @@ sample(sbp)                   # permutation: same values, new order
 . . .
 
 ::: {.smaller}
-- **With replacement** the multiset changes — that is what generates variability
-  between resamples.
-- **Without replacement** the multiset is identical every time. Only the *pairing*
-  with something else — a label, an arm, a time — changes.
+- **With replacement:** values may repeat or be omitted.
+- **Without replacement:** same values, new order. This changes their pairing
+  with labels, arms, or times.
 :::
 
 . . .
 
 ::: {.callout-note appearance="simple"}
-`sample(x)` with no other arguments is a permutation of `x`. You have been
-writing permutations since Session 14 without calling them that.
+For `length(x) > 1`, `sample(x)` permutes the values.
+To sample positions in code, prefer `sample.int(length(x))`.
 :::
 
 
@@ -261,7 +217,7 @@ it wrong 2000 times.
 :::
 
 
-## The bootstrap, in three lines {.smaller}
+## Bootstrap within treatment arms {.smaller}
 
 ```{r}
 #| label: boot-med
@@ -269,7 +225,9 @@ set.seed(14)
 B <- 2000
 
 boot_med <- replicate(B, {
-  idx <- sample(nrow(trial), replace = TRUE)   # 60 row numbers, with repeats
+  groups <- split(seq_len(nrow(trial)), trial$arm)
+  idx <- unlist(lapply(groups, function(i)
+    i[sample.int(length(i), length(i), replace = TRUE)]))
   med_diff(trial[idx, ])
 })
 
@@ -277,13 +235,14 @@ str(boot_med)
 head(round(boot_med, 1))
 ```
 
-. . .
+## The same within-arm bootstrap with dplyr {.smaller}
 
 ::: {.smaller}
 ::: {.callout-note appearance="simple" title="The tidyverse way — same thing"}
 ```r
-purrr::map_dbl(1:B, \(i) med_diff(dplyr::slice_sample(trial, prop = 1,
-                                                      replace = TRUE)))
+purrr::map_dbl(seq_len(B), \(i) med_diff(
+  trial |> dplyr::group_by(arm) |>
+    dplyr::slice_sample(prop = 1, replace = TRUE) |> dplyr::ungroup()))
 ```
 :::
 :::
@@ -332,37 +291,24 @@ mean(boot_med) - obs_med    # bootstrap estimate of bias
 . . .
 
 ::: {.smaller}
-A small bias estimate is reassuring. A large one is a signal to stop and think —
-not a licence to subtract it, which usually inflates variance more than it
-removes bias.
+This is bias relative to the empirical distribution of the observed sample. It is not the true bias measured against a known population parameter in Session 14.
 :::
 
 
 ## Percentile and basic intervals {.smaller}
 
 ```{r}
-#| label: boot-ci
-perc <- quantile(boot_med, c(0.025, 0.975))              # percentile
-basic <- 2 * obs_med - quantile(boot_med, c(0.975, 0.025))  # basic
-rbind(percentile = perc, basic = unname(basic))
+perc <- quantile(boot_med, c(.025, .975))
+basic <- 2 * obs_med - quantile(boot_med, c(.975, .025))
+rbind(percentile = unname(perc), basic = unname(basic))
 ```
 
-. . .
+- **Percentile:** use quantiles of the bootstrap estimates directly.
+- **Basic:** reflect those quantiles around the observed estimate.
+- Both rely on a suitable bootstrap approximation; neither automatically has
+  95% coverage in small, biased, or irregular problems.
 
-::: {.smaller}
-| Interval | Rule | Assumes |
-|---|---|---|
-| **Percentile** | the 2.5th and 97.5th percentiles of the resamples | the bootstrap distribution is roughly the sampling distribution |
-| **Basic** | reflect those percentiles through the observed value | the *shape* is right, the *centre* may be off |
-:::
-
-. . .
-
-::: {.callout-warning appearance="simple"}
-Here they disagree — the basic interval reaches across zero and the percentile
-interval does not. That disagreement is **information**, not a nuisance.
-:::
-
+Compare endpoints and assumptions. Do not choose whichever interval gives a preferred conclusion.
 
 ## Check it where you know the answer {.smaller}
 
@@ -376,8 +322,18 @@ mean_diff <- function(data) {
     mean(data$sbp_12[data$arm == "Placebo"])
 }
 
+```
+
+## Compare the bootstrap and Welch standard errors {.smaller}
+
+```{r}
+#| label: boot-vs-t-compare
 set.seed(17)
-boot_mean <- replicate(B, mean_diff(trial[sample(nrow(trial), replace = TRUE), ]))
+boot_mean <- replicate(B, {
+  groups <- split(seq_len(nrow(trial)), trial$arm)
+  i <- unlist(lapply(groups, function(j) j[sample.int(length(j), replace = TRUE)]))
+  mean_diff(trial[i, ])
+})
 
 c(boot_se = sd(boot_mean),
   welch_se = t.test(sbp_12 ~ arm, data = trial)$stderr)
@@ -386,57 +342,50 @@ c(boot_se = sd(boot_mean),
 . . .
 
 ::: {.smaller}
-Two decimal places apart. Now go back and believe the median result, which has no
-formula to check against.
+Agreement for the mean is a useful code check. It does not establish that a bootstrap interval for a different statistic has correct coverage.
 :::
 
 
-## How many resamples? {.smaller}
+## Bootstrap stability {.smaller}
 
-More resamples do **not** improve the estimate. They reduce the *Monte Carlo
-noise* in your report of it.
-
-::: {.smaller}
-| Purpose | *B* | Why |
-|---|---|---|
-| Standard error | 1,000–2,000 | The SD stabilises quickly |
-| Confidence interval | ≥ 10,000 | Tail quantiles are estimated from the tail |
-| A number going in a paper | 10,000+ | It must not change on re-render |
-:::
-
-. . .
+More resamples reduce computational variation; they do not add participants
+or repair an inappropriate bootstrap scheme.
 
 ```{r}
-#| label: mc-check
-boot_se_once <- function(b) {
-  sd(replicate(b, med_diff(trial[sample(nrow(trial), replace = TRUE), ])))
+boot_interval <- function(seed, B = 1000) {
+  set.seed(seed)
+  groups <- split(seq_len(nrow(trial)), trial$arm)
+  ans <- replicate(B, {
+    i <- unlist(lapply(groups, function(j)
+      j[sample.int(length(j), replace = TRUE)]))
+    med_diff(trial[i, ])
+  })
+  unname(quantile(ans, c(.025, .975)))
 }
-
-set.seed(101)
-round(replicate(6, boot_se_once(500)), 3)   # six runs, same data, B = 500
 ```
 
+## Compare interval endpoints across seeds {.smaller}
+
+```{r}
+#| label: bootstrap-stability-runs
+t(vapply(1501:1503, boot_interval, numeric(2)))
+```
+
+Check endpoints across documented seeds and larger `B`; keep all runs, not the best-looking one.
 
 # 3 · When the bootstrap fails {.section-divider}
 
-## Four ways it breaks {.smaller}
+## Limits of the ordinary bootstrap {.smaller}
 
-::: {style="font-size:0.9em"}
-| Situation | What goes wrong | Symptom |
-|---|---|---|
-| **Small *n*** | The empirical distribution is a poor stand-in; only *n^n^* distinct resamples exist | Chunky, lumpy bootstrap distribution |
-| **Extremes** — max, min, range | The extreme of a resample is drawn from a handful of values | A distribution with visible spikes |
-| **Heavy tails** — infinite variance | There is no sampling distribution to estimate | Intervals that grow with *B*; wild resamples |
-| **Dependence** — clustered, longitudinal, time series | Resampling rows destroys the dependence you needed to keep | Standard errors that are **too small**, confidently |
-:::
+| Situation | Why extra resamples do not solve it |
+|---|---|
+| Very small samples | The empirical distribution may poorly represent the population |
+| Extremes or boundary parameters | The ordinary bootstrap approximation can fail |
+| Heavy tails | Usual finite-variance approximations may fail even though a sampling distribution exists |
+| Dependent rows | Independent row resampling destroys the study's dependence |
 
-. . .
-
-::: {.callout-warning appearance="simple"}
-Only the last one is silent. The other three announce themselves in a histogram
-you should have plotted anyway.
-:::
-
+A smooth histogram is not proof of validity. Simulation in a relevant known-truth
+setting can evaluate coverage; the sampling design determines the resampling unit.
 
 ## The maximum, bootstrapped {.smaller}
 
@@ -453,7 +402,7 @@ mean(boot_max == max(trial$sbp_0))      # how often the resample max is THE max
 
 ::: {.smaller}
 The resampled maximum can never exceed the observed maximum, and it equals it
-whenever the largest patient is drawn at all — probability
+when a unique largest observed value is drawn at all — probability
 1 − (1 − 1/*n*)^*n*^ ≈ 0.63.
 :::
 
@@ -461,7 +410,7 @@ whenever the largest patient is drawn at all — probability
 
 ::: {.callout-important appearance="simple"}
 The bootstrap distribution of a maximum is a spike at the observed value with a
-short left tail. It is not a sampling distribution. **No amount of *B* fixes it.**
+short left tail. It can be a poor approximation to sampling a new maximum from the population. **Increasing B cannot fix that mismatch.**
 :::
 
 
@@ -484,38 +433,23 @@ bootstraps(trial, times = 1000)
 
 ::: {.smaller}
 `boot.ci()` gives you **BCa** intervals — bias-corrected and accelerated — which
-adjust for both the bias and the skewness we saw two slides ago. That is the
-single best reason to use the package rather than your own loop.
+adjust interval endpoints using bias correction and an acceleration term. They still require a suitable resampling scheme and regularity conditions; they do not repair dependence or an unrepresentative sample.
 :::
 
 
-# 4 · Permutation and exchangeability {.section-divider}
+# 4 · Permutation tests {.section-divider}
 
-## The logic {.smaller}
+## The null and the reassignment rule {.smaller}
 
-**Null hypothesis:** the treatment label carries no information about the outcome.
+In a completely randomized trial with fixed arm sizes, a randomization test of
+the **sharp null of no effect for any participant** holds outcomes fixed and
+reassigns treatment according to the actual randomization scheme.
 
-. . .
+For independent observational samples, unrestricted label permutation instead
+needs exchangeability under the null, such as identical group distributions.
 
-If that is true, then each patient's outcome would have been the same whichever
-label they received. The labels are **exchangeable** — any reassignment of the 30
-Treatment labels among the 60 patients was equally likely.
-
-. . .
-
-::: {.smaller}
-So: reassign them, thousands of times, and each time compute the statistic. That
-set of numbers is the **null distribution** — not assumed, not looked up in a
-table, but constructed from your own data.
-:::
-
-. . .
-
-::: {.callout-important appearance="simple"}
-In a randomised trial this is not a modelling assumption. It is a description of
-what the randomisation actually did.
-:::
-
+Equal means alone do not guarantee exchangeability when variances differ.
+Blocked or paired randomization requires restricted reassignment.
 
 ## Shuffle the labels {.smaller}
 
@@ -537,9 +471,7 @@ c(observed = obs_mean, perm_mean = mean(perm_stat), perm_sd = sd(perm_stat))
 . . .
 
 ::: {.smaller}
-Note what is **not** shuffled: `sbp_12` never moves. Only its label does. Shuffling
-both, or shuffling the outcome instead, gives the same answer here — and stops
-being equivalent the moment you have a covariate.
+Note what is **not** shuffled: `sbp_12` never moves. Only its label does. Jointly reordering outcome-label rows changes nothing. Breaking their pairing creates the reference distribution; the reassignment rule must match the design.
 :::
 
 
@@ -554,7 +486,7 @@ being equivalent the moment you have a covariate.
 ggplot(data.frame(stat = perm_stat), aes(stat)) +
   geom_histogram(bins = 40, fill = "grey78", colour = "white") +
   geom_vline(xintercept = obs_mean, colour = "#8a4b1f", linewidth = 1.2) +
-  annotate("text", x = obs_mean, y = Inf, label = "observed  ", hjust = 1,
+  annotate("text", x = obs_mean, y = Inf, label = "  observed", hjust = 0,
            vjust = 1.6, size = 4.5, colour = "#8a4b1f") +
   labs(x = "Mean difference in SBP at 12 weeks (mmHg)", y = "Permutations")
 ```
@@ -618,46 +550,52 @@ count.
 . . .
 
 ::: {.callout-warning appearance="simple"}
-Report `p < 0.001`, or increase *P*. Never `p = 0`.
+With P = 999 and no sampled statistic as extreme, report the adjusted Monte Carlo p-value 0.001 and its limited resolution. Increase P if finer resolution is needed; do not report p = 0.
 :::
 
 
-## What permutation does not give you {.smaller}
+## Interpret a permutation result {.smaller}
 
-::: columns
-::: {.column width="49%"}
-### It gives
+- A p-value measures incompatibility with the specified null and reassignment scheme.
+- It does not by itself quantify the effect or remove confounding.
+- Report the observed mean difference alongside the test result.
+- This class computes tests; confidence intervals by inverting suitable tests
+  are a further method, not an impossibility.
 
-- A valid *p*-value with no distributional assumption
-- Exact validity when the randomisation was real
-- Freedom to use any statistic you like
-:::
+For an observational comparison, do not interpret a significant label-permutation
+result as evidence of a causal treatment effect.
 
-::: {.column width="49%"}
-### It does not give
+## Monte Carlo p-value uncertainty {.smaller}
 
-- A confidence interval
-- An effect size
-- Protection against confounding
-- A test of "equal means" specifically
-:::
-:::
+```{r}
+extreme <- sum(abs(perm_stat) >= abs(obs_mean))
+c(adjusted_p = (extreme + 1) / (P + 1),
+  min_reportable = 1 / (P + 1))
+binom.test(extreme, P)$conf.int
+```
 
-. . .
+The interval describes the tail probability estimated by independent random
+permutations conditional on the observed data. It is not a confidence interval
+for the treatment effect. Exact enumeration has no Monte Carlo sampling error.
 
-::: {.smaller}
-The last one is subtle. The null being tested is that the two label groups have
-the **same distribution**. A significant result may be a difference in spread or
-shape, not in centre.
-:::
+## Practice: which reassignment is allowed? {.smaller}
 
-. . .
+Treatment was randomized separately within each site. A student permutes all
+treatment labels across the pooled dataset.
 
-::: {.callout-note appearance="simple"}
-Which is why the two halves of today go together: permutation for the *p*-value,
-bootstrap for the interval.
-:::
+What design feature has been lost? What must remain fixed?
 
+## Practice: preserve the assignment mechanism {.smaller}
+
+```r
+shuffled <- trial$arm
+for (i in split(seq_len(nrow(trial)), trial$site)) {
+  shuffled[i] <- trial$arm[i][sample.int(length(i))]
+}
+```
+
+Within-site assignment counts stay fixed. Use this rule only when it represents
+the actual randomization; an arbitrary blocking variable does not establish validity.
 
 # 5 · Choosing the resampling unit {.section-divider}
 
@@ -669,7 +607,7 @@ head(trial_long, 7)
 c(rows = nrow(trial_long), patients = length(unique(trial_long$id)))
 ```
 
-. . .
+## Define the statistic for repeated visits {.smaller}
 
 ```{r}
 #| label: long-obs
@@ -736,8 +674,7 @@ c(row_se = sd(boot_row), cluster_se = sd(boot_clu),
 . . .
 
 ::: {.smaller}
-The honest standard error is **1.7 times** the naive one. Every interval built on
-the naive number is 40% too narrow.
+Compare the two estimated SEs. With strong within-person dependence, independent row resampling understates uncertainty in this example.
 :::
 
 
@@ -768,32 +705,20 @@ Same data, same estimate, same statistic function. Only the **unit** changed.
 :::
 
 
-## Why: how much is a visit worth? {.smaller}
+## Dependence limits information {.smaller}
+
+The teaching generator uses a participant intercept with SD 12 and visit noise
+with SD 4. Within each arm, its known correlation is:
 
 ```{r}
-#| label: icc
-between <- var(tapply(trial_long$sbp, trial_long$id, mean))
-within  <- mean(tapply(trial_long$sbp, trial_long$id, var))
-icc <- between / (between + within)
-c(icc = icc, design_effect = 1 + (3 - 1) * icc, inflation = sqrt(1 + 2 * icc))
+rho <- 12^2 / (12^2 + 4^2)
+c(rho = rho, design_effect = 1 + (3 - 1) * rho,
+  approximate_se_inflation = sqrt(1 + 2 * rho))
 ```
 
-. . .
-
-::: {.smaller}
-With an intra-class correlation near 0.9, three visits carry barely more
-information than one. The **design effect** 1 + (*m* − 1)ρ says how many
-independent observations your *n* × *m* rows are actually worth — and its square
-root is exactly the factor the cluster bootstrap recovered.
-:::
-
-. . .
-
-::: {.callout-note appearance="simple"}
-The bootstrap found that number without being told the formula. That is the point
-of the method.
-:::
-
+For equally sized clusters with this correlation structure, the design effect
+explains why three correlated visits are not three independent participants.
+This calculation uses the generator's parameters, not a fitted ICC estimate.
 
 ## Permuting at the wrong level, too {.smaller}
 
@@ -808,8 +733,15 @@ p_rows <- replicate(999, {
   s <- sample(trial_long$arm)                    # shuffles visits, not patients
   mean(trial_long$sbp[s == "Treatment"]) - mean(trial_long$sbp[s == "Placebo"])
 })
+```
+
+## Permute patient assignments, then carry them to visits {.smaller}
+
+```{r}
+#| label: perm-patient-unit
 p_pats <- replicate(999, {
-  s <- rep(sample(arm_by_id), each = 3)          # shuffles patients (rows sorted by id)
+  assigned <- sample(arm_by_id)
+  s <- assigned[match(trial_long$id, ids)]      # join by ID, not row order
   mean(trial_long$sbp[s == "Treatment"]) - mean(trial_long$sbp[s == "Placebo"])
 })
 
@@ -818,66 +750,281 @@ c(p_row_unit = (sum(abs(p_rows) >= abs(obs_long)) + 1) / 1000,
 ```
 
 ::: {.smaller}
-An order of magnitude apart. **Randomisation happened to patients**, so the
+Compare the results and their resolution. **Randomisation happened to patients**, so the
 permutation must too.
 :::
 
 
-## The rule {.smaller}
+## The resampling unit {.smaller}
 
-::: {.callout-important}
-## Resample the unit that was independently sampled — the unit that was randomised.
-:::
-
-. . .
-
-::: {style="font-size:0.92em"}
-| Design | Rows | Resample |
+| Design | Bootstrap or validation unit | Permutation restriction |
 |---|---|---|
-| Simple random sample | Patients | Patients |
-| Repeated measures | Patient-visits | **Patients** |
-| Cluster-randomised trial | Patients | **Clinics** |
-| Multi-site trial, site-stratified | Patients | Patients, **within site** |
-| Matched pairs / crossover | Observations | **Pairs** |
-| Time series | Time points | **Blocks** of consecutive points |
-:::
+| Independent participants | Participant | Allowed participant assignments |
+| Repeated visits | Participant with all visits | Keep one treatment per participant |
+| Cluster randomized | Clinic or other randomized cluster | Reassign at cluster level |
+| Matched pairs | Pair | Swap labels within pairs when justified |
+| Time series | Dependence-preserving blocks or temporal splits | Requires a justified dependence model |
 
-. . .
-
-::: {.smaller}
-Before you write `sample()`, answer one question in prose: *what did this study
-draw at random?*
-:::
+Sampling, randomization, and prediction targets can imply different rules.
+State the rule before using `sample()`.
 
 
-# 6 · Cross-validation, and closing the course {.section-divider}
+# 6 · Cross-validation {.section-divider}
 
-## The same idea, aimed at prediction {.smaller}
+## Prediction requires held-out outcomes {.smaller}
 
-Fitting and evaluating on the same data is the statistical equivalent of marking
-your own homework.
+The target is error for new participants from a stated population, using
+predictors available when the prediction will be made.
+
+Training error evaluates data already used to fit the model. Cross-validation
+instead repeats fitting on training folds and predicting an assessment fold.
+
+We will predict 12-week SBP from baseline variables. A week-12 derived variable
+would be unavailable at baseline, even if it greatly improved the reported score.
+
+## The model interface for this exercise {.smaller}
 
 ```{r}
-#| label: cv
-set.seed(55)
-noise <- as.data.frame(matrix(rnorm(n * 12), nrow = n))   # 12 pure-noise predictors
-names(noise) <- sprintf("z%02d", 1:12)
-d <- cbind(trial[, c("sbp_12", "sbp_0", "age", "weight_kg")], noise)
-
-fit <- lm(sbp_12 ~ ., data = d)
-rmse_in <- sqrt(mean(residuals(fit)^2))
-
-set.seed(56)
-fold <- sample(rep(1:5, length.out = n))
-pred <- numeric(n)
-for (k in 1:5) {
-  m <- lm(sbp_12 ~ ., data = d[fold != k, ])
-  pred[fold == k] <- predict(m, newdata = d[fold == k, ])
-}
-
-round(c(in_sample_rmse = rmse_in, cv_rmse = sqrt(mean((d$sbp_12 - pred)^2))), 2)
+cv_data <- trial[, c("id", "arm", "age", "sbp_0", "sbp_12")]
+fit_demo <- lm(sbp_12 ~ sbp_0 + age + arm, data = cv_data)
+head(predict(fit_demo, newdata = cv_data), 3)
 ```
 
+`lm(response ~ predictors, data = ...)` fits a linear regression.
+`predict(fit, newdata = ...)` applies its learned coefficients.
+These predictions are in-sample; Session 16 examines model objects in detail.
+
+## Assign and inspect folds {.smaller}
+
+```{r}
+set.seed(1550)
+fold <- sample(rep(1:5, length.out = nrow(cv_data)))
+table(fold, cv_data$arm)
+stopifnot(length(fold) == nrow(cv_data), all(fold %in% 1:5))
+```
+
+Every participant belongs to one assessment fold and appears in training for
+the other four fits. Balanced counts do not alone establish representative folds.
+
+## One training and assessment split {.smaller}
+
+```{r}
+k <- 1
+train <- cv_data[fold != k, ]
+assess <- cv_data[fold == k, ]
+stopifnot(length(intersect(train$id, assess$id)) == 0L)
+fit <- lm(sbp_12 ~ sbp_0 + age + arm, data = train)
+head(data.frame(id = assess$id, observed = assess$sbp_12,
+                prediction = predict(fit, newdata = assess)), 3)
+```
+
+The assessment outcomes are used for scoring, not fitting.
+
+## A complete set of held-out predictions {.smaller}
+
+```{r}
+prediction <- rep(NA_real_, nrow(cv_data))
+seen <- integer(nrow(cv_data))
+for (k in sort(unique(fold))) {
+  test <- fold == k
+  fit <- lm(sbp_12 ~ sbp_0 + age + arm, data = cv_data[!test, ])
+  prediction[test] <- predict(fit, newdata = cv_data[test, ])
+  seen[test] <- seen[test] + 1L
+}
+stopifnot(all(seen == 1L), all(is.finite(prediction)))
+```
+
+Preallocate with `NA`, not zero, so an unfilled prediction is detectable.
+
+## Score each participant once {.smaller}
+
+```{r}
+loss <- (cv_data$sbp_12 - prediction)^2
+c(cv_rmse = sqrt(mean(loss)),
+  training_rmse = sqrt(mean(residuals(fit_demo)^2)))
+tapply(loss, fold, mean)
+```
+
+RMSE has the outcome's units. Aggregate participant losses before taking the
+square root. An unweighted average of fold RMSEs is generally a different quantity.
+
+## Missing predictors require a learned rule {.smaller}
+
+```{r}
+cv_missing <- cv_data
+cv_missing$sbp_0[c(2, 8, 17, 32, 46, 55)] <- NA_real_
+train <- cv_missing[fold != 1, ]
+assess <- cv_missing[fold == 1, ]
+replacement <- mean(train$sbp_0, na.rm = TRUE)
+train$sbp_0[is.na(train$sbp_0)] <- replacement
+assess$sbp_0[is.na(assess$sbp_0)] <- replacement
+```
+
+Learn the replacement from training rows; apply the same value to assessment rows.
+Mean imputation is a teaching example, not a general recommendation for missing data.
+
+## Preprocessing belongs inside the loop {.smaller}
+
+```{r}
+cv_predict <- function(data, fold) {
+  pred <- rep(NA_real_, nrow(data))
+  for (k in sort(unique(fold))) {
+    test <- fold == k
+    train <- data[!test, ]; assess <- data[test, ]
+    m <- mean(train$sbp_0, na.rm = TRUE)
+    if (!is.finite(m)) stop("training baseline entirely missing")
+    train$sbp_0[is.na(train$sbp_0)] <- m
+    assess$sbp_0[is.na(assess$sbp_0)] <- m
+    fit <- lm(sbp_12 ~ sbp_0 + age + arm, data = train)
+    pred[test] <- predict(fit, newdata = assess)
+  }
+  pred
+}
+```
+
+The same principle applies to scaling, feature selection, and tuning.
+
+## Verify the prediction contract {.smaller}
+
+```{r}
+held_out <- cv_predict(cv_missing, fold)
+stopifnot(length(held_out) == nrow(cv_missing),
+          all(is.finite(held_out)))
+sqrt(mean((cv_missing$sbp_12 - held_out)^2))
+```
+
+Also inspect training group sizes and factor levels. A predictor level never
+seen during training needs a declared handling strategy, not a silent recode.
+
+## A deliberately leaky version {.smaller}
+
+```{r}
+leaky_data <- cv_missing
+global_mean <- mean(leaky_data$sbp_0, na.rm = TRUE)
+leaky_data$sbp_0[is.na(leaky_data$sbp_0)] <- global_mean
+leaky_prediction <- cv_predict(leaky_data, fold)
+c(valid = sqrt(mean((cv_missing$sbp_12 - held_out)^2)),
+  leaky = sqrt(mean((cv_missing$sbp_12 - leaky_prediction)^2)))
+```
+
+The assessment covariates influenced the imputation rule. The scores may be
+close, and leakage need not improve every realization. Validity follows the
+information flow, not which score happens to be smaller.
+
+## Diagnose leakage before comparing scores {.smaller}
+
+| Step | Valid location |
+|---|---|
+| Fixed, prespecified unit conversion | Can be applied to all rows |
+| Mean imputation or scaling estimated from data | Training fold |
+| Choose features using outcome associations | Training fold, with selection validated |
+| Select a model or tuning parameter | Inner validation, separate from final evaluation |
+| Compute RMSE | Held-out outcomes after predictions are fixed |
+
+A fixed rule is different from a rule estimated using assessment data.
+
+# 7 · Validation design {.section-divider}
+
+## Compare with a simple benchmark {.smaller}
+
+```{r}
+baseline_prediction <- rep(NA_real_, nrow(cv_data))
+for (k in sort(unique(fold))) {
+  baseline_prediction[fold == k] <- mean(cv_data$sbp_12[fold != k])
+}
+c(training_mean_benchmark =
+    sqrt(mean((cv_data$sbp_12 - baseline_prediction)^2)),
+  regression = sqrt(mean((cv_data$sbp_12 - prediction)^2)))
+```
+
+Use the same folds for each candidate. More predictors need not improve prediction.
+
+## Stratified folds {.smaller}
+
+```{r}
+make_folds <- function(arm, k = 5) {
+  fold <- integer(length(arm))
+  for (i in split(seq_along(arm), arm)) {
+    fold[i] <- sample(rep(seq_len(k), length.out = length(i)))
+  }
+  fold
+}
+```
+
+## Inspect the stratified fold composition {.smaller}
+
+```{r}
+#| label: stratified-fold-table
+set.seed(1551)
+table(make_folds(cv_data$arm), cv_data$arm)
+```
+
+Stratification can stabilize composition. It does not repair dependence or
+make a rare category large enough for every fold.
+
+## Repeated cross-validation {.smaller}
+
+```{r}
+cv_rmse_once <- function(seed) {
+  set.seed(seed)
+  f <- make_folds(cv_missing$arm)
+  p <- cv_predict(cv_missing, f)
+  sqrt(mean((cv_missing$sbp_12 - p)^2))
+}
+scores <- vapply(1561:1570, cv_rmse_once, numeric(1))
+summary(scores)
+```
+
+Repeated splits describe sensitivity to fold assignment on this dataset.
+They are not independent new studies; do not treat their SD as a sampling SE
+or their range as a population confidence interval.
+
+## Grouped and temporal validation {.smaller}
+
+| Deployment question | Appropriate split idea |
+|---|---|
+| Predict a new participant | Keep all visits of a participant together |
+| Predict at a new clinic | Hold out clinics |
+| Predict future outcomes | Train on earlier observations; assess later observations |
+
+```r
+ids <- unique(trial_long$id)
+id_fold <- sample(rep(1:5, length.out = length(ids)))
+row_fold <- id_fold[match(trial_long$id, ids)]
+```
+
+Random row folds answer the wrong question if the same participant appears on both sides.
+
+## Selection and final evaluation {.smaller}
+
+Trying many models and reporting the lowest CV error uses the evaluation data
+to make a selection. The selected score can be optimistic.
+
+Use a prespecified candidate, an untouched test set, or nested cross-validation:
+
+1. An outer split reserves data for evaluation.
+2. Inner training splits choose features and tuning parameters.
+3. Refit the selected procedure on outer training data; predict outer assessment data.
+
+After evaluation, a final model can be fitted to the intended full training set.
+
+## Lab route and exit check {.smaller}
+
+1. Bootstrap a treatment-minus-control mean difference within arms.
+2. Compare Monte Carlo and exact permutation calculations.
+3. Build checked folds and held-out predictions with fold-specific imputation.
+4. Compare valid and leaky preprocessing, then repeat the fold assignment.
+5. State how the procedure changes for repeated visits or a new clinic.
+
+**Explain:** Which uncertainty shrinks with more bootstrap draws?
+What makes a prediction held out?
+
+## References {.smaller}
+
+- [R bootstrap implementation](https://stat.ethz.ch/R-manual/R-devel/library/boot/html/boot.html)
+- [R bootstrap confidence intervals](https://stat.ethz.ch/R-manual/R-devel/library/boot/html/boot.ci.html)
+- [rsample V-fold cross-validation](https://rsample.tidymodels.org/reference/vfold_cv.html)
+- [rsample grouped V-fold cross-validation](https://rsample.tidymodels.org/reference/group_vfold_cv.html)
 
 ## Summary {.smaller}
 
@@ -889,5 +1036,4 @@ round(c(in_sample_rmse = rmse_in, cv_rmse = sqrt(mean((d$sbp_12 - pred)^2))), 2)
 
 . . .
 
-**Next connection:** Session 16 reserves time for strings, regular expressions, and practical needs observed during the course.
-
+**Next connection:** Session 16 develops model inspection and prediction, numerical methods, validated text extraction, and reproducible handoffs.

@@ -70,45 +70,36 @@ Today's deck develops one part of the current arc; later-session tools are named
 ## What you will be able to do {.smaller}
 
 ::: {.smaller}
-[1]{.objective-num} **Describe** what R is used for, inspect the current R
-session, and find authoritative help without leaving RStudio.
+[1]{.objective-num} Describe R's uses, inspect the session, and find help.
 
-[2]{.objective-num} **Name** the four atomic vector types and inspect any object
-with `class()`, `typeof()`, and `str()`.
+[2]{.objective-num} Inspect atomic types with `class()`, `typeof()`, and `str()`.
 
-[3]{.objective-num} **Distinguish** `NA`, `NaN`, `Inf`, and `NULL`, and predict
-how each propagates.
+[3]{.objective-num} Distinguish `NA`, `NaN`, `Inf`, and `NULL`.
 
-[4]{.objective-num} **Predict** the type of a coerced vector, and explain how one
-stray `"NA"` turns a numeric column into text.
+[4]{.objective-num} Predict how one text value changes a numeric vector.
 
-[5]{.objective-num} **Subset** a vector by position, negation, logical condition,
-and name — and say what `x[NA]` returns.
+[5]{.objective-num} Subset by position, negation, condition, and name.
 
-[6]{.objective-num} **Recognise** recycling, including the case where it produces
-a wrong answer silently.
+[6]{.objective-num} Recognise recycling, including silent wrong answers.
 
-[7]{.objective-num} **Write** a vectorized conditional with `ifelse()`, and
-explain why it is not `if`.
+[7]{.objective-num} Write an elementwise conditional with `ifelse()`.
 
-[8]{.objective-num} **Diagnose** a sentinel value such as `-99` before it reaches
-a mean.
+[8]{.objective-num} Detect sentinel values before computing a mean.
 :::
 
 
 ## Roadmap for today
 
-| | Block | Minutes |
-|---|---|---|
-| 0 | R as a computing environment | 12 |
-| 1 | Everything is a vector | 12 |
-| 2 | `NA`, `NaN`, `Inf` — three kinds of nothing | 10 |
-| 3 | **Coercion**, and the silent wrong answer | 18 |
-| 4 | Names and indexing | 20 |
-| 5 | **Recycling** | 8 |
-| 6 | Vectorized conditionals: `ifelse()` | 10 |
+|  | Block |
+| --- | --- |
+| 0 | R as a computing environment |
+| 1 | Everything is a vector |
+| 2 | `NA`, `NaN`, `Inf` — three kinds of nothing |
+| 3 | **Coercion**, and the silent wrong answer |
+| 4 | Names and indexing |
+| 5 | **Recycling** |
+| 6 | Vectorized conditionals: `ifelse()` |
 
-: {tbl-colwidths="[6,64,30]"}
 
 . . .
 
@@ -349,7 +340,7 @@ str(creat_raw)
 | `NULL` | **Nothing at all** — length zero, not a value | An empty result | `is.null()` |
 :::
 
-. . .
+## Special values in calculations {.smaller}
 
 ```{r}
 #| label: nothings
@@ -483,7 +474,7 @@ str(creat_raw)
 creat_raw[c(7, 12)]
 ```
 
-. . .
+## Two failures from a text column {.smaller}
 
 ```{r}
 #| label: bites-mean
@@ -600,7 +591,7 @@ names(sbp)
 sbp["P003"]
 ```
 
-. . .
+## Look up several names—or a missing name {.smaller}
 
 ```{r}
 #| label: names2

@@ -1,62 +1,27 @@
 ---
 title: "Session 15 guided lab"
-subtitle: "Use the correct resampling world"
+subtitle: "Bootstrap, permutation, and validation"
 ---
 
-Choose one format and copy either `starter/resampling-lab.Rmd` or
-`starter/resampling-lab.qmd` to `work/session15/`. Knit the `.Rmd` file or Render
-the `.qmd` file.
+Work in **BIOS6301-mywork.Rproj**. Copy one starter from the separate course
+clone into `work/session15/`: [Quarto](starter/resampling-lab.qmd) or
+[R Markdown](starter/resampling-lab.Rmd). Keep the course originals unchanged.
 
-::: {.callout-note}
-**Suggested use:** Tasks 1–7 are the core resampling route. Additional practice
-examines Monte Carlo stability, an exact small-sample permutation distribution,
-repeated folds, and stratification. The instructor may stop after any complete
-comparison; remaining tasks can be completed independently.
-:::
+## Learning goals
 
-Work in **BIOS6301-mywork.Rproj**. Paths under `work/` below belong to your
-personal repository. Copy starters from the separate `BIOS6301-materials` clone,
-leaving the course originals unchanged.
+Match each resampling method to its target and design, implement held-out predictions, and diagnose leakage.
 
-## Tasks
+## Tasks following the lecture outline
 
-1. Estimate the treated-control mean difference and a participant-level bootstrap
-   percentile interval.
-2. Perform a two-sided permutation test with an adjusted Monte Carlo p-value.
-3. Report the number of resamples and Monte Carlo uncertainty/precision evidence.
-4. Build five reproducible folds for a simple prediction problem.
-5. Fit preprocessing and the model using training data only; calculate held-out
-   squared error for every participant.
-6. Create one deliberately leaky CV version, compare it with the valid version,
-   and explain why the leaky estimate is not acceptable even if similar here.
-7. For a repeated-measures extension, state the correct resampling/splitting unit.
-
-## Additional practice: assess resampling stability
-
-1. Report bootstrap bias and bootstrap SE in addition to the percentile
-   interval. Compare the bootstrap SE with an ordinary model-based SE.
-2. Repeat the bootstrap with three documented seeds. Compare the interval
-   endpoints and explain why they are not identical.
-3. On a small balanced subset, enumerate every possible treatment assignment
-   and calculate the exact two-sided permutation p-value.
-4. For the full dataset, estimate the permutation p-value at several increasing
-   resample counts and report the corresponding Monte Carlo SE.
-5. Construct stratified five-fold assignments. Verify that every participant
-   appears in exactly one assessment fold and inspect arm counts by fold.
-6. Repeat cross-validation under at least 10 fold-assignment seeds and summarize
-   the distribution of RMSE rather than reporting only one favorable split.
-7. Across the same seeds, compare valid fold-specific preprocessing with a
-   deliberately global, leaky version. Explain the result even if the two RMSEs
-   happen to be very similar.
-8. Create a decision table connecting bootstrap, permutation, and
-   cross-validation to their target, resampling unit, and main validity check.
-
-### Independent-practice check
-
-Keep seeds and resampling units explicit. In cross-validation, verify that every
-participant contributes exactly one held-out prediction per repetition.
+1. **Bootstrap within arms** — Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap bias, SE, percentile and basic intervals, and compare the SE with Welch. Repeat interval endpoints with three seeds.
+2. **Monte Carlo and exact permutation** — For a completely randomized design under the sharp null, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution and binomial tail-probability interval. Enumerate all 70 assignments for four participants per arm.
+3. **Choose resampling units** — Use trial_long to compare row and participant bootstraps. Preserve all visits when sampling participants and retain duplicated sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the rules.
+4. **Construct checked folds** — Create five folds stratified by arm. Verify one fold label per participant and disjoint training/assessment IDs. Set baseline values at rows 2, 8, 17, 32, 46, and 55 to missing for the next tasks.
+5. **Preprocess within training folds** — Implement cv_predict(data, fold) using the lecture model sbp_12 ~ sbp_0 + age + arm. Learn baseline imputation from training rows only. Store one finite prediction per participant, calculate RMSE, and compare with a training-mean benchmark.
+6. **Audit leakage and fold sensitivity** — Compare with deliberately global imputation using the same folds. Repeat valid CV under ten seeds; report all scores and explain why their variation is not a sampling confidence interval. State the split rule for a new-participant versus new-clinic prediction target.
 
 ## Exit evidence
 
-Render all three analyses with explicit resampling units, assumptions, seeds,
-validation checks, and a short comparison of their scientific targets.
+Submit the source and rendered report with the requested results, checks,
+interpretation, and AI-use disclosure. Every result must identify its analysis
+sample or resampling unit. Use synthetic data supplied in the starter.

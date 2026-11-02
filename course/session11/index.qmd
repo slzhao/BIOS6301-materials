@@ -1,15 +1,68 @@
 ---
-title: "Session 11 · Control flow and functions"
-subtitle: "Turn repeated analysis steps into tested interfaces"
+title: "Session 11 · Conditions and Functions"
 ---
 
-## Learning goals
+## How Sessions 11–13 fit together
 
-Write clear conditions and loops, preallocate outputs, create functions with
-sensible arguments, and refactor copy-pasted code into one reusable definition.
+| Session | Responsibility | Lab output |
+|---|---|---|
+| [11 · Functions](../session11/index.qmd) | Define one operation and its contract | Validated summary and paired-change helpers |
+| [12 · Reliability](../session12/index.qmd) | Diagnose failures and preserve repairs | Reprex, repaired functions, regression checks |
+| [13 · Iteration](../session13/index.qmd) | Repeat checked operations and compare implementations | Named results with equivalence and performance evidence |
+
+These sessions complete the core R programming sequence. Later statistical
+and topic-specific sessions build on these tools. Each lab includes its own
+synthetic inputs and supplied prerequisites, so it can run in a fresh session.
+
+## Session outline and content
+
+### 1. Conditions
+
+Begin with unequal-length paired measurements: R can silently recycle values
+and produce incorrect changes. Use `if` to check whether calculation may proceed, then
+repair a vector condition using `ifelse()` for row labels or `any()`/`all()` for
+a group decision. Treat missing and empty conditions separately before practice.
+
+### 2. Why functions?
+
+Identify duplicated calculations and state inputs, options, outputs, and edge cases.
+
+### 3. Function basics
+
+Read an existing function call: package namespace, function name, parameters,
+supplied arguments, and return value. Connect these to Usage, Arguments, and
+Value in its help page. Build a summary from a checked calculation, identify
+required inputs and options, trace a call, and check changed inputs. Extend the
+helper with an observed count, missing count, and explicit missing-data policy.
+Choose the return shape to suit the caller.
+
+### 4. Scope
+
+Replace hidden global dependencies with explicit arguments.
+
+### 5. Validation
+
+Use guard clauses and enforce the safe-mean and scalar-center contracts. Trace
+the first exit for invalid, all-missing, empty, and ordinary inputs.
+
+### 6. Data-frame functions
+
+Check columns and distinguish quoted-name extraction from bare-name dplyr interfaces.
+
+### 7. Refactoring and reuse
+
+Compose paired-change helpers and compare against hand-built and original results.
+Save reusable definitions in R scripts, load them with `source()`, and verify
+the report in a fresh session.
+
+### 8. Exit check
+
+Explain the contract and the evidence that intended behavior was preserved.
 
 ## Materials
 
 - [Slides](slides.qmd)
 - [Guided lab](lab.qmd)
-- Lab starter—choose one: `starter/functions-lab.Rmd` or `starter/functions-lab.qmd`
+- Starter: [Quarto](starter/functions-lab.qmd) or [R Markdown](starter/functions-lab.Rmd)
+
+- Reusable helper example: [R/centre-values.R](starter/R/centre-values.R)

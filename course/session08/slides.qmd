@@ -195,7 +195,7 @@ Use `?plot.default` and `?par` to look up options as needed.
 
 ## Which participant has lower follow-up SBP? {#question-identity .lecture-question}
 
-[60 SECONDS · THINK, THEN VOTE]{.question-time}
+[THINK, THEN VOTE]{.question-time}
 
 The scatterplot has **baseline SBP on x** and **week-12 SBP on y**.
 
@@ -294,7 +294,7 @@ approximate number of bins. A pattern should not depend on one convenient choice
 
 ## Different bins, different participants? {#question-bins .lecture-question}
 
-[60 SECONDS · THINK, THEN COMPARE]{.question-time}
+[THINK, THEN COMPARE]{.question-time}
 
 The previous slide showed the same baseline SBP values in **5-mmHg** and **20-mmHg** bins.
 
@@ -467,7 +467,7 @@ par(mfrow = c(1, 1))
 . . .
 
 ::: {.smaller}
-Four columns, one screen, five seconds. You are not making a figure — you are
+Four columns on one screen. You are not making a figure — you are
 **checking that the file is what you think it is**. `crp` is right-skewed and
 you now know it before you fit anything.
 :::
@@ -543,7 +543,7 @@ We will add these after the basic plot answers the scientific question.
 
 ## What will this code draw? {#question-empty .lecture-question}
 
-[60 SECONDS · THINK, THEN VOTE]{.question-time}
+[THINK, THEN VOTE]{.question-time}
 
 ```r
 ggplot(trial, aes(sbp_0, sbp_12))
@@ -621,7 +621,7 @@ p_scatter + labs(x = "Baseline SBP (mmHg)",
 
 ## Will these points be blue? {#question-color .lecture-question}
 
-[60 SECONDS · THINK, THEN VOTE]{.question-time}
+[THINK, THEN VOTE]{.question-time}
 
 ```r
 ggplot(trial, aes(sbp_0, sbp_12)) +
@@ -1112,6 +1112,8 @@ ggplot(trial, aes(sbp_0)) +
 :::
 :::
 
+## Choose the distribution summary deliberately {.smaller}
+
 ::: {.smaller}
 `binwidth = 8` uses 8-mmHg bins. `bins = 30` asks for a number of bins.
 Either choice needs checking: try alternatives and see whether the pattern persists.
@@ -1171,7 +1173,7 @@ already drew. Two marks for one observation is a real error, not a style choice.
 
 ## Sixty participants, fewer visible dots? {#question-overlap .lecture-question}
 
-[60 SECONDS · THINK, THEN VOTE]{.question-time}
+[THINK, THEN VOTE]{.question-time}
 
 Our scatterplot contains **60 participants**.
 
@@ -1261,7 +1263,7 @@ The raw data and summary layers have different observation units.
 
 ## What do these error bars tell us? {#question-intervals .lecture-question}
 
-[60 SECONDS · THINK, THEN VOTE]{.question-time}
+[THINK, THEN VOTE]{.question-time}
 
 A caption says: **“Mean week-12 SBP with a 95% confidence interval for each arm mean.”**
 
@@ -1377,7 +1379,7 @@ Session 7's wide-to-long reshape makes these plots easier to specify.
 
 ## Did reshaping triple our study? {#question-visits .lecture-question}
 
-[75 SECONDS · THINK, THEN COMPARE]{.question-time}
+[THINK, THEN COMPARE]{.question-time}
 
 There are **60 participants** and **three visits per participant**: weeks 0, 6, and 12.
 
@@ -1507,7 +1509,7 @@ within a panel, but **the same vertical position can represent different values*
 
 ## Which facet scale fits the question? {#question-facets .lecture-question}
 
-[60 SECONDS · CHOOSE AND EXPLAIN]{.question-time}
+[CHOOSE AND EXPLAIN]{.question-time}
 
 “Is week 12 SBP generally higher at one site than another?”
 
@@ -1680,7 +1682,7 @@ occupy less space. Tick labels still show CRP, not `log10(CRP)`.
 
 ## Will these give the same boxplot? {#question-zoom .lecture-question}
 
-[60 SECONDS · PREDICT, THEN DISCUSS]{.question-time}
+[PREDICT, THEN DISCUSS]{.question-time}
 
 ```r
 p_box <- ggplot(trial, aes(arm, sbp_12)) + geom_boxplot()
@@ -1865,7 +1867,7 @@ increases. A midpoint needs a scientific meaning, not just visual symmetry.
 
 ## What survives a grayscale printout? {#question-accessibility .lecture-question}
 
-[60 SECONDS · CHOOSE A REPAIR]{.question-time}
+[CHOOSE A REPAIR]{.question-time}
 
 A scatterplot uses **color alone** to identify treatment arms. Some readers
 cannot distinguish those hues, and a grayscale printout loses the distinction.
@@ -1931,7 +1933,7 @@ p_bad <- ggplot(by_arm, aes(arm, mean_sbp, fill = arm)) +
 p_bad
 ```
 
-**Think for 20 seconds, then compare with a neighbor.** Name two specific
+**Think, then compare with a neighbor.** Name two specific
 problems and explain the impression each could create.
 
 
@@ -1995,7 +1997,7 @@ ggplot(trial, aes(arm, sbp_12)) +
 
 ## Does every y-axis need to start at zero? {#question-zero .lecture-question}
 
-[60 SECONDS · COMPARE ENCODINGS]{.question-time}
+[COMPARE ENCODINGS]{.question-time}
 
 The revised SBP plot has a y-axis above zero. Is that necessarily misleading?
 
@@ -2101,7 +2103,7 @@ alignment.
 
 ## Can your revision answer these questions? {#question-review .lecture-question}
 
-[60 SECONDS · READ AS A NEW VIEWER]{.question-time}
+[READ AS A NEW VIEWER]{.question-time}
 
 1. What does one mark represent?
 2. Which groups and measurement are being compared?
@@ -2155,7 +2157,7 @@ p_final
 
 ## Same code, different-sized figures? {#question-export .lecture-question}
 
-[60 SECONDS · THINK, THEN VOTE]{.question-time}
+[THINK, THEN VOTE]{.question-time}
 
 Two collaborators run:
 
@@ -2187,6 +2189,8 @@ ggsave(
   bg       = "white"
 )
 ```
+
+## Why explicit export settings matter {.smaller}
 
 ::: {.smaller}
 | Argument | Leave it out and you get |

@@ -1,65 +1,74 @@
 ---
-title: "Session 12 guided lab"
-subtitle: "Repair and protect a risk-ratio function"
+title: "Session 12 guided lab · Diagnose and protect functions"
 ---
 
-::: {.callout-note}
-**Suggested use:** tasks 1–7 are the core debugging route. Additional practice
-uses a second broken statistical function so students repeat reproduction,
-localization, repair, and regression testing independently.
-:::
+Work in **BIOS6301-mywork.Rproj**. Copy the starter from the separate
+BIOS6301-materials clone into `work/session12/` in your personal repository.
+Choose [Quarto](starter/debugging-lab.qmd) or [R Markdown](starter/debugging-lab.Rmd).
+Render or Knit your copy. All supplied inputs are synthetic.
 
-Choose one format and copy either `starter/debugging-lab.Rmd` or
-`starter/debugging-lab.qmd` to `work/session12/`. Knit the `.Rmd` file or Render
-the `.qmd` file.
+## Connection to Session 11
 
-Work in **BIOS6301-mywork.Rproj**. Paths under `work/` below belong to your
-personal repository. Copy starters from the separate `BIOS6301-materials` clone,
-leaving the course originals unchanged.
+Keep the same `safe_mean()` contract: numeric vector; missing values ignored;
+one numeric result; numeric `NA` for empty or all-missing input; errors for
+nonnumeric input, matrices, or infinity. The task is to diagnose and repair
+broken implementations, then preserve the fix. No new statistical estimator is required.
 
-## Tasks
+## 1. What the machine is telling you
 
-1. Reproduce every supplied failure before editing the function.
-2. Use the error message, `traceback()`, and intermediate objects to identify each
-   broken assumption.
-3. Repair the calculation without silently dropping observations.
-4. Add checks for type, length, missingness policy, and a zero denominator.
-5. Add at least four compact tests: ordinary, missing, boundary, and invalid input.
-6. Replace one fragile equality check with a tolerance-aware comparison.
-7. Write a five-line synthetic reprex of the original failure.
+Run the three supplied failures and record their symptoms:
 
-## Additional practice: debug a confidence interval
+- `mean(c("2", "4"))` warns and returns `NA`.
+- The nested `report_change()` call reaches `sum()` with character input and errors.
+- `broken_mean(c(2, NA, 4))` returns a plausible wrong result without an error.
 
-Start with this deliberately fragile function:
+Explain which symptom requires inspection of values rather than only a call stack.
 
-```r
-mean_ci <- function(x, level = 0.95) {
-  estimate <- mean(x, na.rm = TRUE)
-  se <- sd(x, na.rm = TRUE) / sqrt(length(x))
-  estimate + c(-1, 1) * qnorm(1 - (1 - level) / 2) * se
-}
-```
+## 2. Isolate a minimal failure
 
-1. Reproduce its behavior for complete data, partially missing data, one observed
-   value, all-missing data, character input, and invalid confidence levels.
-2. Identify separately the denominator bug, distributional assumption, undefined
-   cases, and missing validation.
-3. Repair the function using observed `n` and a t critical value. Return a named
-   object containing estimate, lower, upper, and observed `n`.
-4. Decide which inputs should error, return missing, or warn. Explain those choices
-   before implementing them.
-5. Add regression tests for every original failure and a tolerance-aware test
-   against a hand calculation.
-6. Use `tryCatch()` once to convert an expected invalid-input error into a compact
-   test result without suppressing unexpected errors globally.
-7. Create a minimal reprex containing only the function, one failing input, and
-   the expected behavior.
+Reduce the nested error to one string and one calculation. State expected and
+actual behavior. Keep the original failing functions for the interactive inspection.
+Use synthetic data in the reprex; it must run without a file or global workspace.
 
-### Independent-practice check
+## 3. Inspect calls and local state
 
-For partially missing data, the interval must use the number of observed values.
-For fewer than two observed values, the function must not report a finite interval.
+Run the failing call directly in the console, then `traceback()`. Use
+`debugonce(pooled_mean)` and inspect `str(x)` in the paused function. Quit with
+`Q`. Record where the error surfaced and where the invalid type entered.
+
+Do not run the debugger or `browser()` in the rendered report. The starter marks
+this demonstration as nonexecuting code. Captured errors in `tryCatch()` do not
+provide the same ordinary console traceback as an uncaught error.
+
+## 4. Repair and protect the contract
+
+1. Hand-calculate the observed mean of `c(2, NA, 4)` and identify the denominator error.
+2. Replace `broken_mean()` with `safe_mean()` following the inherited contract.
+3. Check ordinary, partially missing, all-missing, empty, one-value, and `NaN` inputs.
+4. Add expected-error checks for character input, a matrix, and infinity.
+5. Show that the original broken function fails the regression example while the repair passes.
+
+## 5. Numerical reliability
+
+Compare `(0.1 + 0.2) == 0.3` with `isTRUE(all.equal(0.1 + 0.2, 0.3))`.
+Use tolerance-aware comparisons for computed means, and exact checks for labels,
+types, and empty shapes. Explain why `all.equal()` must be wrapped before use in `if`.
+Inspect the supplied overflow and underflow examples, and explain how a double
+or a sum of logs changes the computation. Do not infer a statistical model from them.
+
+## 6. Capture expected errors and document the repair
+
+Repair `broken_change()` so paired inputs must be numeric vectors of equal length
+and contain no infinity. Return the numeric differences. Empty paired inputs are
+valid. Use `tryCatch()` to assert the intended error for unequal lengths and
+check the valid pair still returns `c(-2, 1)`. Patient order remains a precondition.
+
+Write a compact reprex of one original failure and a short diagnosis. Include
+the corrected function, expected result, and regression check. Explain why
+globally suppressing warnings or converting every error to `NA` would hide evidence.
 
 ## Exit evidence
 
-Render the original symptoms, diagnosis, repaired function, tests, and reprex.
+Submit the rendered symptoms, diagnosis, repaired helpers, checks, console
+inspection notes, and reprex. `testthat` is optional; base R checks are sufficient.
+Session 13 will use the checked operations across multiple inputs.

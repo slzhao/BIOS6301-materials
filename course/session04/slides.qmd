@@ -104,16 +104,15 @@ a single number from it.
 
 ## Roadmap for today
 
-| | Block | Minutes |
-|---|---|---|
-| 1 | Four containers: matrix, list, data frame | 20 |
-| 2 | Factors, and the catastrophe | 15 |
-| 3 | Indexing a data frame: `[`, `[[`, `$` | 20 |
-| 4 | Three base verbs: `subset`, `transform`, `order` | 15 |
-| 5 | Split–apply–combine: `tapply`, `aggregate` | 15 |
-| 6 | Inspection discipline | 5 |
+|  | Block |
+| --- | --- |
+| 1 | Four containers: matrix, list, data frame |
+| 2 | Factors, and the catastrophe |
+| 3 | Indexing a data frame: `[`, `[[`, `$` |
+| 4 | Three base verbs: `subset`, `transform`, `order` |
+| 5 | Split–apply–combine: `tapply`, `aggregate` |
+| 6 | Inspection discipline |
 
-: {tbl-colwidths="[6,64,30]"}
 
 . . .
 
@@ -310,6 +309,12 @@ arm_treatment_ref <- relevel(arm, ref = "Treatment")
 
 levels(arm)
 levels(arm_treatment_ref)
+```
+
+## Compare labels and integer codes {.smaller}
+
+```{r}
+#| label: factor-codes-compare
 show_rows <- c(1, 31)  # one patient from each arm
 data.frame(
   before = as.character(arm[show_rows]),
@@ -333,10 +338,8 @@ model reference.
 ```{r}
 #| label: factor-complete-order
 new_order <- c("life-threatening", "severe", "moderate", "mild")
-grade_reordered <- factor(
-  as.character(trial$grade),
-  levels = new_order
-)
+grade_reordered <- factor(as.character(trial$grade),
+                          levels = new_order)
 
 levels(trial$grade)
 levels(grade_reordered)
@@ -384,7 +387,7 @@ intentionally mean to **rename** categories.
 
 ```{r}
 #| label: dose-before-factor
-head(trial[trial$arm == "Treatment", c("id", "arm", "dose_mg")], 8)
+head(trial[trial$arm == "Treatment", c("id", "arm", "dose_mg")], 4)
 str(trial$dose_mg)
 sort(unique(trial$dose_mg))
 ```
@@ -503,6 +506,8 @@ Three hand you a **vector**. The fourth hands you a **one-column data frame** �
 :::
 
 . . .
+
+## Why the returned type matters {.smaller}
 
 ```{r}
 #| label: four-ways-cost
@@ -760,6 +765,12 @@ bp_by_arm <- split(trial$sbp_12, trial$arm)
 names(bp_by_arm)
 length(bp_by_arm$Placebo)
 length(bp_by_arm$Treatment)
+```
+
+## Inspect the grouped vectors {.smaller}
+
+```{r}
+#| label: split-inspect-groups
 head(bp_by_arm$Placebo, 4)
 head(bp_by_arm$Treatment, 4)
 ```
@@ -805,7 +816,7 @@ sum(is.na(trial$sbp_12))
 tapply(trial$sbp_12, trial$arm, mean, na.rm = TRUE)
 ```
 
-. . .
+## Missing values in grouped summaries {.smaller}
 
 First document the three missing outcomes; then calculate the observed-value mean
 for each arm. What happens if `na.rm = TRUE` is omitted?
@@ -820,7 +831,7 @@ tapply(trial$sbp_12, trial$arm, mean)
 Each arm contains at least one missing value, so its mean is `NA`. This is a
 diagnostic result, not a software failure.
 
-. . .
+## Read the arguments to `tapply()` {.smaller}
 
 ::: {.smaller}
 `tapply(X, INDEX, FUN, ...)`

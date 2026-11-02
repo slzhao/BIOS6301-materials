@@ -1,15 +1,47 @@
 ---
-title: "Session 12 · Debugging and numerical reliability"
-subtitle: "Find failures, enforce contracts, and respect finite precision"
+title: "Session 12 · Debugging and Reliable Code"
 ---
 
-## Learning goals
+## How Sessions 11–13 fit together
 
-Read an error from the inside out, isolate a minimal failing example, inspect the
-call stack, add defensive checks, and compare floating-point values safely.
+| Session | Responsibility | Lab output |
+|---|---|---|
+| [11 · Functions](../session11/index.qmd) | Define one operation and its contract | Validated summary and paired-change helpers |
+| [12 · Reliability](../session12/index.qmd) | Diagnose failures and preserve repairs | Reprex, repaired functions, regression checks |
+| [13 · Iteration](../session13/index.qmd) | Repeat checked operations and compare implementations | Named results with equivalence and performance evidence |
+
+These sessions complete the core R programming sequence. Later statistical
+and topic-specific sessions build on these tools. Each lab includes its own
+synthetic inputs and supplied prerequisites, so it can run in a fresh session.
+
+## Session outline and content
+
+### 1. What the machine is telling you
+
+Distinguish errors, warnings, and messages; recognize silent wrong results.
+
+### 2. Isolating a minimal failing example
+
+Reduce code and synthetic input while preserving a failure.
+
+### 3. Inspecting calls and local state
+
+Use traceback(), debugonce(), and browser() interactively; keep debugging pauses out of rendered reports.
+
+### 4. Assertions and regression checks
+
+Repair the observed-mean denominator and preserve the full Session 11 contract.
+
+### 5. Numerical reliability
+
+Use tolerance-aware comparisons; recognize integer overflow and floating-point underflow.
+
+### 6. Habits and evidence
+
+Diagnose warnings, capture expected errors, protect paired inputs, and write a self-contained reprex.
 
 ## Materials
 
 - [Slides](slides.qmd)
 - [Guided lab](lab.qmd)
-- Lab starter—choose one: `starter/debugging-lab.Rmd` or `starter/debugging-lab.qmd`
+- Starter: [Quarto](starter/debugging-lab.qmd) or [R Markdown](starter/debugging-lab.Rmd)

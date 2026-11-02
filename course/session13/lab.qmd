@@ -1,58 +1,85 @@
 ---
-title: "Session 13 guided lab"
-subtitle: "Apply one summary across many simulated datasets"
+title: "Session 13 guided lab · Repeat checked operations"
 ---
 
-Choose one format and copy either `starter/iteration-lab.Rmd` or
-`starter/iteration-lab.qmd` to `work/session13/`. Knit the `.Rmd` file or Render
-the `.qmd` file.
+Work in **BIOS6301-mywork.Rproj**. Copy the starter from the separate
+BIOS6301-materials clone into `work/session13/` in your personal repository.
+Choose [Quarto](starter/iteration-lab.qmd) or [R Markdown](starter/iteration-lab.Rmd).
+Render or Knit your copy. All supplied inputs are synthetic.
 
-::: {.callout-note}
-**Suggested use:** Tasks 1–7 are the core iteration route. Additional practice
-compares row-wise work, lists of unequal objects, multiple arguments, contract
-failures, and measurement. The instructor may select a subset during lab; any
-remaining tasks are suitable for independent practice.
-:::
+## 1. Start with a checked operation
 
-Work in **BIOS6301-mywork.Rproj**. Paths under `work/` below belong to your
-personal repository. Copy starters from the separate `BIOS6301-materials` clone,
-leaving the course originals unchanged.
+The starter supplies the Session 11 helpers, following the contract protected in
+Session 12, and the same marker table. Run the supplied checks before iterating.
+`one_summary(x)` must return a numeric vector named `n`, `mean`, and `sd`.
+Use observed n; return numeric `NA` for the mean with no observations and for
+SD with fewer than two observations. Reject invalid input through `safe_mean()`.
 
-## Tasks
+## 2. Loops and allocation
 
-1. Write `one_summary()` for one numeric vector and test it independently.
-2. Apply it across columns with a preallocated loop.
-3. Apply it with `vapply()` and verify equal names, types, and values.
-4. Optional: apply it with `purrr::map_dbl()`.
-5. Demonstrate why `apply()` is risky after adding a character column.
-6. Compare a growing loop with a preallocated loop on a larger input using
-   `system.time()`; verify equivalent output first.
-7. Recommend one implementation based on contract, readability, and evidence.
+Build a matrix with three rows and one column per marker. Preallocate it with
+row names `n`, `mean`, `sd` and marker column names. Fill it using
+`seq_along(markers)` and `markers[[j]]`. Preserve a 3-by-0 matrix for zero columns.
+First practice the simpler scalar case with one `safe_mean()` result per column.
 
-## Additional practice: choose an iteration tool deliberately
+## 3. Vectorized operations
 
-1. Generate a numeric matrix and calculate its row means twice: first with a
-   correctly preallocated loop and then with a vectorized base R function.
-2. Create a named list containing numeric vectors of unequal lengths. Use both
-   `lapply()` and `vapply()` to calculate one mean per element.
-3. Replace one list element with a character vector. Record how `lapply()` and
-   `vapply()` reveal the broken input contract differently.
-4. Store paired vectors of scenario means and standard deviations. Use
-   `Map()` or `mapply()` to generate one simulated sample per scenario.
-5. Reproduce the same simulated samples with a loop. Control the random-number
-   stream so that you can verify equality before comparing the implementations.
-6. On a larger matrix, compare a loop, `apply()`, and `rowMeans()` across at
-   least five timing repetitions. Check numerical equivalence first.
-7. Record the size of the input and outputs with `object.size()`. Explain why
-   “fastest” alone is not a sufficient recommendation.
-8. Make a short decision table: task shape, output contract, recommended tool,
-   and one tool you would avoid for that task.
+For the supplied numeric matrix, compute one row mean using each of a
+preallocated loop, `apply(..., 1, mean)`, and `rowMeans()`.
+Use the same missing-value rule in all three. Verify numerical equivalence before
+measuring. Add a character ID column to a copy, inspect `as.matrix()`, and explain
+why the mixed data frame is not a safe input for numeric matrix summaries.
 
-### Independent-practice check
+## 4. Lists and typed outputs
 
-Your recommendation should separate semantic guarantees from speed. Include
-the equality checks that justify every timing comparison.
+1. Apply `one_summary()` with `lapply()` and `vapply()` using
+   `c(n = 0, mean = 0, sd = 0)` as the template. Compare against the loop's
+   values, names, types, and dimensions.
+2. Check ordinary, all-missing, one-observation, and zero-column cases.
+3. Replace a marker with a character vector. Show that the helper rejects it.
+   Explain why an output template alone cannot detect every invalid input.
+4. Use a named list of unequal-length numeric vectors with `lapply()` and
+   `vapply(..., safe_mean, numeric(1))`. Different input lengths do not imply
+   different output lengths when the operation returns one mean.
+
+## 5. Base R and optional purrr
+
+Use `Map(change_summary, baseline_columns, followup_columns)` for the two supplied
+paired lists. Check list lengths and matching names before mapping, then compare
+with a preallocated list filled by a loop. Each helper checks its paired vectors.
+
+Optional equivalents: `map(markers, one_summary)` returns a list;
+`map_dbl(markers, safe_mean)` returns one number per marker. `map_dbl()` cannot
+hold all three statistics from `one_summary()` in one element. For paired
+lists, compare `map2()` with `Map()`.
+
+## 6. Choose and combine results
+
+Create one data-frame row per marker, including the marker name and three
+statistics. Collect the rows in a preallocated list and bind once. State the
+zero-column output schema explicitly. Explain when an ordinary loop is clearer
+than an independent mapping, especially when the next step uses the previous state.
+
+## 7. Verify and measure
+
+Compare the supplied growing and preallocated square-root loops on the same
+input, checking equality first. Warm up both implementations and record at least
+five repetitions with `system.time()`. Do the same for the row-summary implementations.
+Report input dimensions, R version, repetition count, and observed variation.
+A zero elapsed time can be below timer resolution; do not claim infinite speedup.
+
+Record `object.size()` for the input and final outputs. Explain that these are
+stored object-size estimates, not peak memory measurements. Recommend a solution
+using correctness, output shape, readability, and your actual measurements.
 
 ## Exit evidence
 
-Include all implementations, equality checks, timing context, and recommendation.
+Submit the checked helpers, iteration results, empty/invalid cases, equivalence
+checks, timing context, and recommendation. No hypothesis tests, confidence
+intervals, or simulation study design are required in this programming lab.
+
+## Optional bounded-loop practice
+
+Starting at `x = 1`, repeatedly divide by two until `x < 0.01`, with an explicit
+maximum iteration count. Record whether the threshold or iteration limit ended
+the loop. Explain why the next input depends on the previous output.

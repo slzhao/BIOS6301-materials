@@ -82,6 +82,17 @@ theme_set(theme_minimal(base_size = 15))
 Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
 
 
+## The R programming sequence {.smaller}
+
+| Session | Main question | What you produce |
+|---|---|---|
+| **11 · Functions** | How do I express one operation clearly? | Functions with explicit contracts |
+| **12 · Reliability** | How do I diagnose and prevent wrong results? | A repaired function and regression checks |
+| **13 · Iteration** | How do I repeat a correct operation? | Named results, checked implementations, measured performance |
+
+The same numeric summaries and paired-change examples connect all three labs.
+Statistical methods in later sessions use these programming tools.
+
 ## What you will be able to do {.smaller}
 
 ::: {.smaller}
@@ -109,21 +120,20 @@ right fix.
 
 ## Roadmap for today
 
-| | Block | Minutes |
-|---|---|---|
-| 1 | What the machine is telling you | 12 |
-| 2 | Isolating a minimal failing example | 18 |
-| 3 | `traceback()`, `browser()`, `debug()` | 22 |
-| 4 | Fail fast: assertions and small tests | 14 |
-| 5 | Floating point | 20 |
-| 6 | `suppressWarnings()`, naming, and the reprex | 12 |
+|  | Block |
+| --- | --- |
+| 1 | What the machine is telling you |
+| 2 | Isolating a minimal failing example |
+| 3 | `traceback()`, `browser()`, `debug()` |
+| 4 | Fail fast: assertions and small tests |
+| 5 | Floating point |
+| 6 | `suppressWarnings()`, naming, and the reprex |
 
-: {tbl-colwidths="[6,64,30]"}
 
 . . .
 
-**In lab this week** you fix five genuinely broken functions — one for each way
-code goes wrong.
+**In the lab** you diagnose a nested type error, repair a missing-value denominator,
+protect paired-change inputs, and preserve the fixes with regression checks.
 
 
 # 1 · What the machine is telling you {.section-divider}
@@ -139,8 +149,7 @@ Error in sum(x) :
   invalid 'type' (character) of argument
 ```
 
-**Loud.** You know instantly. The location is roughly right. The worst case is
-that you lose an hour.
+**Loud.** You know instantly. The location is roughly right. Inspect the message and the input that triggered it.
 :::
 
 ::: {.column width="48%"}
@@ -165,7 +174,7 @@ is a nuisance; the second column is how analyses get retracted.
 
 ## The three conditions {.smaller}
 
-R has exactly three, and they differ in **what happens next**:
+Three common condition classes differ in **what happens next**:
 
 ```{r}
 #| label: three-conditions
@@ -182,7 +191,7 @@ check_dose <- function(mg) {
 check_dose(c(10, 120, -5))
 ```
 
-. . .
+## Choose the condition by what happens next {.smaller}
 
 ::: {.smaller}
 | Condition | Execution | Goes to | Use it for |
@@ -305,7 +314,7 @@ mean_change(site_3[1:3, ])          # 3 rows  — still fails
 mean_change(site_3[1, ])            # 1 row   — still fails
 ```
 
-. . .
+## Remove wrappers and inspect the failing value {.smaller}
 
 ```{r}
 #| label: cut-data-2
@@ -377,11 +386,24 @@ commits is what makes it possible.
 . . .
 
 ::: {.callout-important appearance="simple"}
-The minimal example you end up with is not a by-product. It is the **test** you
-add so the bug cannot come back, and the **reprex** you post if you still need
-help.
+Keep the minimal example as a **regression test**. If you still need help,
+include it in a **reprex** with the actual output and your expected behavior.
 :::
 
+
+## Practice: shrink a failure {.smaller}
+
+```r
+pooled_mean <- function(x) sum(x) / length(x)
+summarise_change <- function(x) pooled_mean(x)
+mean_change <- function(data) summarise_change(data$change)
+d <- data.frame(change = c("-2", "1", "0"))
+mean_change(d)
+```
+
+Reduce this to one value and one calculation that still fails. State the input
+type the calculation expected. Keep the original example for the next block's
+interactive `traceback()` and `debugonce()` demonstration.
 
 # 3 · `traceback()`, `browser()`, `debug()` {.section-divider}
 
@@ -403,15 +425,16 @@ Error in sum(x) : invalid 'type' (character) of argument
 . . .
 
 ::: {.smaller}
-**Read it from the bottom up.** Line 1 is what *you* typed. Line 3 is the last
-thing R was doing. The bug is somewhere on the way down.
+**Read from the original call toward the failing call.** Line 1 is what you
+typed; line 3 is the nested call closest to the error. Inspect the inputs along that path.
 :::
 
 . . .
 
 ::: {.callout-warning appearance="simple"}
 `traceback()` shows the *most recent* error only, and only after a real error at
-the console. It has nothing to say inside a rendering document.
+the console. Errors caught by knitr or `tryCatch()` do not update the usual console traceback.
+Reproduce the call interactively for this demonstration.
 :::
 
 
@@ -518,10 +541,12 @@ The heavy tool. On **any** error, R offers you every frame in the stack and drop
 you into the one you choose:
 
 ```r
-options(error = recover)
-
+old <- options(error = recover)
 mean_change(site_3)
+# Restore after inspecting: options(old)
 ```
+
+## Choose a frame and inspect its objects {.smaller}
 
 ```
 Error in sum(x) : invalid 'type' (character) of argument
@@ -534,14 +559,15 @@ Enter a frame number, or 0 to exit
 
 Selection: 2
 Called from: summarise_change(data$change)
-Browse[1]> str(data$change)
+Browse[1]> str(x)
  chr [1:11] "-2" "-14" "-25" ...
 ```
 
 . . .
 
 ::: {.smaller}
-Turn it off with `options(error = NULL)`. **Never set it in a script or a `.qmd`.**
+Save the previous setting with `old <- options(error = recover)` and restore it
+with `options(old)` afterward. **Never set it in a script or a `.qmd`.**
 :::
 
 
@@ -569,35 +595,41 @@ is no shame in them.
 
 # 4 · Fail fast, fail loud {.section-divider}
 
-## Fail fast, fail loud {.smaller}
-
-Session 11 gave you guard clauses. The argument is worth restating in this
-session's terms:
-
-::: {.smaller}
-- A function that **stops** costs you ten minutes.
-- A function that returns a **plausible wrong number** costs you a paper.
-:::
-
-. . .
+## Repair the operation from Session 11 {.smaller}
 
 ```{r}
-#| label: fail-fast
-#| error: true
-# Responder rate: percentage of patients with a fall of at least 10 mmHg.
-responder_rate <- function(change) {
-  stopifnot(is.numeric(change))
-  if (length(change) > 0 && all(is.na(change))) {
-    stop("change is entirely missing", call. = FALSE)
-  }
-
-  n_obs <- sum(!is.na(change))
-  100 * sum(change <= -10, na.rm = TRUE) / n_obs
+#| label: broken-mean
+broken_mean <- function(x) {
+  sum(x, na.rm = TRUE) / length(x)
 }
-
-responder_rate(as.character(trial$change))
+broken_mean(c(2, NA, 4))
 ```
 
+The result is `2`. The intended mean of observed values is `3`.
+The numerator removed missing values; the denominator counted them.
+
+**Diagnose before editing:** write the contract and the expected answer.
+This is a silent logic error, so a traceback alone cannot find it.
+
+## Repair and preserve the missing-value policy {.smaller}
+
+```{r}
+#| label: safe-mean-repair
+safe_mean <- function(x) {
+  if (!is.numeric(x) || !is.null(dim(x))) {
+    stop("x must be a numeric vector", call. = FALSE)
+  }
+  if (any(is.infinite(x))) {
+    stop("x must not contain infinite values", call. = FALSE)
+  }
+  if (all(is.na(x))) return(NA_real_)
+  mean(x, na.rm = TRUE)
+}
+safe_mean(c(2, NA, 4))
+```
+
+Keep Session 11's contract: one numeric answer; numeric `NA` for empty or
+all-missing input; an error for invalid types, dimensions, or infinity.
 
 ## `stopifnot()` outside a function {.smaller}
 
@@ -630,63 +662,41 @@ this one is **checked every time the document renders**.
 
 ## Make the check permanent {.smaller}
 
-You already built a minimal failing example. **Do not throw it away.**
-
 ```{r}
 #| label: assertion-tests
-# Known answers, worked out by hand, checked on every render.
 stopifnot(
-  "empty input gives NaN, not an error" =
-    is.nan(responder_rate(numeric(0))),
-  "a single responder gives 100" =
-    responder_rate(-12) == 100,
-  "a single non-responder gives 0" =
-    responder_rate(-2) == 0,
-  "missing values are excluded from the denominator" =
-    responder_rate(c(-12, NA)) == 100
+  identical(safe_mean(c(2, NA, 4)), 3),
+  identical(safe_mean(numeric(0)), NA_real_),
+  identical(safe_mean(rep(NA_real_, 2)), NA_real_),
+  identical(safe_mean(5), 5)
 )
 cat("all checks passed\n")
 ```
 
-. . .
+The first check reproduces the bug. The other checks protect the rest of the
+contract. A repair should not break previously valid cases.
 
-::: {.smaller}
-Four lines, and the fourth is the one the lab's broken version fails. A test is
-just **an example with a known answer**, written down.
-:::
-
+**Practice:** add a case with two missing observations and a case containing `NaN`.
 
 ## `testthat`, in one slide {.smaller}
 
-When the project is big enough to want real tests:
-
 ```r
 library(testthat)
-
-test_that("responder_rate handles missingness", {
-  expect_equal(responder_rate(-12), 100)
-  expect_equal(responder_rate(c(-12, NA)), 100)
-  expect_error(responder_rate("a"), "is.numeric")
-  expect_true(is.nan(responder_rate(numeric(0))))
+test_that("safe_mean follows its input/output contract", {
+  expect_equal(safe_mean(c(2, NA, 4)), 3)
+  expect_identical(safe_mean(numeric(0)), NA_real_)
+  expect_error(safe_mean("4"), "numeric vector")
 })
 ```
 
-. . .
-
-::: {.smaller}
-| | Does |
+| Check | What it establishes |
 |---|---|
-| `expect_equal(x, y)` | Equal **within tolerance** — the right choice for numbers |
-| `expect_identical(x, y)` | Exactly equal, type included |
-| `expect_error(f(), "text")` | The call fails, with a message matching `"text"` |
-| `expect_warning()`, `expect_true()` | As they read |
-:::
+| `expect_equal()` | Numerical agreement within tolerance |
+| `expect_identical()` | Exact agreement, including type |
+| `expect_error()` | A failure with the intended message |
 
-::: {.callout-note appearance="simple"}
-Not installed on the course machines and not required here. Use
-`stopifnot()` — the idea is identical, and it is what the previous slide runs.
-:::
-
+`testthat` is an optional extension. The lab uses base R assertions and
+`tryCatch()` so it can run without another package.
 
 # 5 · Floating point {.section-divider}
 
@@ -731,7 +741,7 @@ In base 2, **one tenth** needs infinitely many digits:
 . . .
 
 ::: {.smaller}
-A double gets 53 bits for the value. So R stores the closest 53-bit truncation,
+A double gets 53 bits for the value. So R stores the nearest representable value at that precision,
 which is off by about 1 part in 10^16^.
 :::
 
@@ -801,14 +811,13 @@ all.equal(1, 2)          # NOT FALSE — a character description
 . . .
 
 ::: {.callout-important appearance="simple"}
-`all.equal()` returns `TRUE` **or a description of the difference**. A non-empty
-string is truthy enough to break an `if`. Always wrap it: `isTRUE(all.equal(x, y))`.
+`all.equal()` returns `TRUE` **or a description of the difference**. A description is a character vector, not a logical condition; using it in `if` errors. Always wrap it: `isTRUE(all.equal(x, y))`.
 :::
 
-. . .
+## Choose an explicit numerical tolerance {.smaller}
 
 ::: {.smaller}
-Or compare by hand, when you know the scale you care about:
+Compare by hand when you know the scale you care about:
 
 ```{r}
 #| label: fp-tolerance
@@ -829,9 +838,8 @@ which(schedule == 0.3)                 # integer(0) — no such step
 
 ```{r}
 #| label: fp-accumulate
-# Session 13's loop, accumulating a total dose.
-total <- 0
-for (i in 1:10) total <- total + 0.1
+# Repeated addition can accumulate rounding error.
+total <- 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1 + 0.1
 total == 1
 print(total, digits = 18)
 ```
@@ -866,7 +874,7 @@ x + 1L
 
 ```{r}
 #| label: fp-overflow-double
-x + 1        # a double: no overflow, but no longer exact either
+x + 1        # a double: 2147483648 is still exactly representable
 ```
 
 . . .
@@ -898,9 +906,9 @@ sum(dnorm(big, 148, 14, log = TRUE))   # the same quantity, computed properly
 . . .
 
 ::: {.smaller}
-The true value is about 10^-705^. The smallest positive double is about
-10^-308^, so the product **underflows to exactly zero** — and `log(0)` is `-Inf`.
-Summing logs never leaves the representable range.
+This product is too small to represent, so it **underflows to zero** and
+`log(0)` is `-Inf`. Positive subnormal doubles reach about 5 × 10^-324^.
+Summing the log densities stays finite in this example.
 :::
 
 
@@ -921,36 +929,20 @@ Summing logs never leaves the representable range.
 
 # 6 · Habits that prevent debugging {.section-divider}
 
-## `suppressWarnings()` {.smaller}
+## Diagnose a warning before suppressing it {.smaller}
 
 ```{r}
 #| label: suppress
 #| warning: true
-creat <- suppressWarnings(as.numeric(trial_raw$creat_raw))
-mean(creat, na.rm = TRUE)
+creat <- as.numeric(trial_raw$creat_raw)
+trial_raw$creat_raw[is.na(creat)]
 ```
 
-. . .
+`"NA"` is a documented missing marker. `"<0.30"` is a below-detection-limit
+record that needs an explicit analysis policy. Coercion cannot choose that policy.
 
-::: {.smaller}
-This runs cleanly, produces a number, and has **silently deleted a real
-measurement**. The warning was the only thing standing between you and that
-result.
-:::
-
-. . .
-
-::: {.smaller}
-It has exactly one legitimate use: a warning you have **read, diagnosed, and
-decided is not a problem** — with a comment saying so.
-
-```r
-# Sites 1-4 only; `site` is a factor with an unused level 5 from the CRF,
-# which as.integer() warns about. Checked: no patient has site 5.
-site_num <- suppressWarnings(as.integer(as.character(trial$site)))
-```
-:::
-
+`suppressWarnings()` only hides the warning. It does not recover a measurement,
+validate an input, or repair a denominator. Investigate the affected values first.
 
 ## Names and comments that debug for you {.smaller}
 
@@ -975,11 +967,61 @@ mean_dose_mg <- mean_weight_kg * 0.1
 . . .
 
 ::: {.smaller}
-The second version cannot have a unit bug hiding in it, because the units are in
-the names. The comment answers the question a reader would otherwise have to ask
+Unit-bearing names make unit mistakes easier to notice; they do not verify conversions. The comment answers the question a reader would otherwise have to ask
 you — and **"why 0.1" is not answerable from the code**.
 :::
 
+
+## Capture an expected failure with `tryCatch()` {.smaller}
+
+```{r}
+#| label: expected-error
+failure <- tryCatch(
+  { safe_mean("4"); NULL },
+  error = function(e) conditionMessage(e)
+)
+stopifnot(is.character(failure),
+          grepl("numeric vector", failure, fixed = TRUE))
+failure
+```
+
+The test passes only when the call fails for the expected reason. A handler
+receives the error object as `e`. Do not replace all analysis errors with `NA`.
+
+## Practice: protect paired observations {.smaller}
+
+```r
+broken_change <- function(baseline, followup) {
+  followup - baseline
+}
+broken_change(c(10, 20), 8)
+```
+
+1. Predict the result and explain the silent recycling.
+2. Add a length check before subtraction.
+3. Use `tryCatch()` to verify the invalid call fails.
+4. Check the valid pair `c(10, 20)` and `c(8, 21)` still returns `c(-2, 1)`.
+
+## Paired-input repair and evidence {.smaller}
+
+```{r}
+#| label: paired-repair
+paired_change <- function(baseline, followup) {
+  stopifnot(is.numeric(baseline), is.numeric(followup),
+            is.null(dim(baseline)), is.null(dim(followup)))
+  if (length(baseline) != length(followup)) {
+    stop("paired inputs must have equal lengths", call. = FALSE)
+  }
+  if (any(is.infinite(baseline)) || any(is.infinite(followup))) {
+    stop("paired inputs must not contain infinity", call. = FALSE)
+  }
+  followup - baseline
+}
+stopifnot(identical(paired_change(c(10, 20), c(8, 21)), c(-2, 1)))
+```
+
+Equal length is necessary. Matching patients and row order is still a separate
+precondition inherited from Session 11.
 
 ## How to write a reprex {.smaller}
 
@@ -993,7 +1035,7 @@ A **rep**roducible **ex**ample. Four requirements, and they are not negotiable:
 4. **The actual output** — the real error text, copied, not described.
 :::
 
-. . .
+## A complete reproducible example {.smaller}
 
 ```r
 library(dplyr)
@@ -1015,6 +1057,28 @@ one.
 :::
 
 
+## Lab route and exit check {.smaller}
+
+| Lab task | Lecture connection |
+|---|---|
+| Nested character-input failure | Conditions, minimal example, call stack |
+| Incorrect observed mean | Contract, denominator, regression check |
+| Unequal paired inputs | Validation before arithmetic |
+| Floating-point comparison | `isTRUE(all.equal(...))` |
+| Renderable evidence | Expected errors and a self-contained reprex |
+
+**Exit check:** explain why a function can run without an error and still need
+repair. Give one ordinary, one boundary, and one invalid input for `safe_mean()`.
+
+## Reference and continuing practice {.smaller}
+
+- [R numerical characteristics](https://stat.ethz.ch/R-manual/R-devel/library/base/html/zMachine.html)
+- [R approximate equality](https://stat.ethz.ch/R-manual/R-devel/library/base/html/all.equal.html)
+- [Guided debugging lab](lab.qmd)
+
+Keep the repaired helpers and regression checks together. Session 13 changes
+how often the operation is called, while retaining the checked behavior.
+
 ## Summary {.smaller}
 
 - Reproduce the failure before editing the code.
@@ -1026,4 +1090,3 @@ one.
 . . .
 
 **Next connection:** Session 13 asks how to repeat a correct operation clearly and efficiently.
-

@@ -148,17 +148,16 @@ answer rather than an error.
 
 ## Roadmap for today {.smaller}
 
-| | Block | Minutes |
-|---|---|---|
-| 1 | Inspect a file and make a first import | 12 |
-| 2 | Missing codes and simple checks | 10 |
-| 3 | Worksheet examples: titles, tables, and headers | 25 |
-| 4 | Excel, compressed files, and large CSV files | 12 |
-| 5 | Save objects and record data checksums | 10 |
-| 6 | Read and check dates | 16 |
-| 7 | Practice and summary | 5 |
+|  | Block |
+| --- | --- |
+| 1 | Inspect a file and make a first import |
+| 2 | Missing codes and simple checks |
+| 3 | Worksheet examples: titles, tables, and headers |
+| 4 | Excel, compressed files, and large CSV files |
+| 5 | Save objects and record data checksums |
+| 6 | Read and check dates |
+| 7 | Practice and summary |
 
-: {tbl-colwidths="[6,64,30]"}
 
 . . .
 
@@ -520,7 +519,7 @@ d <- read_csv("data/trial_export.csv")
 #> dbl (3): wt, sbp12, dob_ser
 ```
 
-. . .
+## Declare column types and missing-value codes {.smaller}
 
 ::: {.smaller}
 That message is the **best thing about it** — the parser tells you what it
@@ -706,7 +705,7 @@ as.Date("04-Mar-2024", format = "%d-%b-%Y")
 as.Date("Mar 4, 2024", format = "%b %d, %Y")
 ```
 
-. . .
+## Date-format codes describe the input {.smaller}
 
 ::: {style="font-size:0.82em"}
 | Code | Means | Matches |
@@ -836,6 +835,13 @@ is the only record of **why** those codes and not others.
 | `dec` | `"."` | A European export uses a decimal comma → `","` |
 | `na.strings` | `"NA"` | **Almost always.** Block 2 |
 | `colClasses` | guessed | You know what the types should be. Block 1 |
+:::
+
+## Reference: file layout and text handling {.smaller}
+
+::: {style="font-size:0.80em"}
+| Argument | Default | Set it when |
+|---|---|---|
 | `skip` | `0` | Metadata lines sit above the header |
 | `nrows` | `-1` | Peeking at a large file, or a junk footer |
 | `check.names` | `TRUE` | You want the original column names → `FALSE` |
@@ -981,6 +987,13 @@ reader can see it. That is the real gain, not the typing.
 | Mean is implausible; `min` is `-99` | Sentinel value | `na.strings = c("NA", "-99")` |
 | `table()` shows a nameless category | Empty fields, not `NA` | Add `""` to `na.strings` |
 | Column name not found | `check.names` mangled it | `names(df)` right after import |
+:::
+
+## Reference: dates, encoding, and extra rows {.smaller}
+
+::: {style="font-size:0.78em"}
+| Symptom | Cause | Fix |
+|---|---|---|
 | Dates all `NA` | `format` does not match the file | `readLines()`, then match it exactly |
 | Dates *partly* `NA` | Two formats, or day-first read month-first | Two passes; check `range()` |
 | A column of five-digit integers | Excel serial dates | `as.Date(x, origin = "1899-12-30")` |

@@ -77,14 +77,25 @@ theme_set(theme_minimal(base_size = 15))
 Today's deck develops one part of the current arc; later-session tools are named only when they clarify where this idea will be used.
 
 
+## The R programming sequence {.smaller}
+
+| Session | Main question | What you produce |
+|---|---|---|
+| **11 · Functions** | How do I express one operation clearly? | Functions with explicit contracts |
+| **12 · Reliability** | How do I diagnose and prevent wrong results? | A repaired function and regression checks |
+| **13 · Iteration** | How do I repeat a correct operation? | Named results, checked implementations, measured performance |
+
+The same numeric summaries and paired-change examples connect all three labs.
+Statistical methods in later sessions use these programming tools.
+
 ## What you will be able to do {.smaller}
 
 ::: {.smaller}
 [1]{.objective-num} **Distinguish** `if` from `ifelse()` and say which one a
 given problem needs.
 
-[2]{.objective-num} **Write** a function with arguments, defaults, and a return
-value.
+[2]{.objective-num} **Read** a function's help page and **write** a function with
+explicit inputs and a return value.
 
 [3]{.objective-num} **Explain** where R looks for a name, and why a function that
 reads a global variable is not reproducible.
@@ -95,32 +106,284 @@ clauses.
 [5]{.objective-num} **Write** a function that takes a data frame and a column
 name.
 
-[6]{.objective-num} **Refactor** a copy-pasted script into functions and verify
-the output is unchanged.
+[6]{.objective-num} **Refactor** a copy-pasted script into functions, and verify the intended output is unchanged.
 :::
 
 
-## Roadmap for today
+## Session outline {.smaller}
 
-| | Block | Minutes |
+| Section | Focus |
+| --- | --- |
+| 1. Conditions | Why branching is needed; scalar, vector, missing, and empty conditions |
+| 2. Why functions? | Repeated code and an input/output contract |
+| 3. Function basics | Read an interface; build, trace, and extend a summary function |
+| 4. Scope | Local names and hidden global dependencies |
+| 5. Validation | Guard clauses and predictable edge cases |
+| 6. Data-frame functions | Fixed, bare, and quoted column names |
+| 7. Refactoring and reuse | Compose helpers, compare results, and load saved functions |
+| 8. Exit check | Explain and apply the contract |
+
+The section numbers below follow this outline.
+
+# 1 · Conditions {.section-divider}
+
+## A calculation can run and still be wrong {.smaller #a-report-needs-a-decision}
+
+A script receives four baseline readings but only two follow-up readings.
+It should flag the mismatch before calculating paired changes.
+
+```{r}
+#| label: condition-motivation
+baseline <- c(150, 140, 160, 155)
+followup <- c(138, 132)
+followup - baseline
+```
+
+| Situation | What the script should do |
+|---|---|
+| Different numbers of readings | Flag the mismatch and skip the calculation |
+| Equal numbers of already matched readings | Calculate follow-up minus baseline |
+
+R reused the two follow-up values and returned **four changes without a warning**.
+We need one decision about whether the calculation should run at all.
+
+
+## What `if` does {.smaller}
+
+`if` chooses which block of code runs. Its condition must give **one nonmissing
+logical value**: `TRUE` or `FALSE`.
+
+```r
+if (condition) {
+  # Run this block when the condition is TRUE.
+} else {
+  # Run this block when the condition is FALSE.
+}
+```
+
+Use it when the next action depends on the current inputs: calculate paired
+changes or report an input problem. Only the chosen branch runs.
+
+## Check the inputs before calculating {.smaller #use-if-for-the-report-decision}
+
+```{r}
+#| label: if-report
+if (length(followup) != length(baseline)) {
+  "Check the input: baseline and follow-up counts differ"
+} else {
+  followup - baseline
+}
+```
+
+The comparison of lengths gives **one `TRUE` or `FALSE`**. Here it is `TRUE`,
+so R returns the message and does not run the subtraction in `else`.
+
+Equal lengths are necessary; the readings must also belong to the same people
+in the same order. This check cannot establish that alignment.
+
+## More than two cases: `else if` {.smaller}
+
+```{r}
+#| label: if-basic
+n_missing <- sum(is.na(trial_raw$sbp_12))
+if (n_missing == 0) {
+  "No outcomes are missing"
+} else if (n_missing == 1) {
+  "One outcome is missing"
+} else {
+  "Multiple outcomes are missing"
+}
+```
+
+Conditions are checked in order; the first matching branch runs. The final `else`
+handles the remaining case. Keep `} else {` together and use braces for each block.
+
+## A vector is not one decision {.smaller}
+
+```{r}
+#| label: if-error
+#| error: true
+if (trial$sbp_0 > 140) "above cutoff" else "at or below cutoff"
+```
+
+```{r}
+#| label: condition-length
+head(trial$sbp_0 > 140)
+length(trial$sbp_0 > 140)
+```
+
+There is one comparison per participant, but `if` requires one decision.
+The repair depends on the intended question: **one label per participant**, or
+**one answer about the whole group**? The cutoff is only a coding example.
+
+## One label per participant: `ifelse()` {.smaller}
+
+```{r}
+#| label: ifelse-repair
+above <- trial$sbp_0 > 140
+labels <- ifelse(above, "above cutoff", "at or below cutoff")
+head(data.frame(sbp = trial$sbp_0, above, label = labels))
+length(labels)
+```
+
+`ifelse()` makes an elementwise choice: one comparison and one returned label
+per participant. This is the vectorized conditional introduced in Session 3.
+
+It repairs the preceding code **if the goal is a label for every row**.
+
+## One group decision: `any()` or `all()` {.smaller}
+
+```{r}
+#| label: reduce-conditions
+c(at_least_one = any(above), every_participant = all(above))
+
+if (any(above)) {
+  "At least one participant is above the cutoff"
+} else {
+  "No participant is above the cutoff"
+}
+
+if (all(above)) "Everyone is above" else "Not everyone is above"
+```
+
+`any()` and `all()` reduce the vector to one logical value, suitable for `if`.
+They answer different group questions; neither produces a label for every row.
+The measurements in this example are complete.
+
+## Match the tool to the question {.smaller}
+
+| Intended result | Tool |
+|---|---|
+| One action based on a single condition | `if (...) ... else ...` |
+| One label for each value | `ifelse(test, yes, no)` |
+| One action if at least one value meets a rule | `if (any(test)) ...` |
+| One action if every value meets a rule | `if (all(test)) ...` |
+
+An `if` expression can also supply a value for assignment:
+
+```{r}
+#| label: if-value
+label <- if (n_missing > 0) "missing outcomes present" else "no missing outcomes"
+label
+```
+
+## A missing condition is a separate problem {.smaller}
+
+```{r}
+#| label: if-error-2
+#| error: true
+sbp <- NA_real_
+if (sbp > 140) "above cutoff" else "at or below cutoff"
+```
+
+The condition has length one, but its value is unknown. Handle that case explicitly:
+
+```{r}
+#| label: if-missing-repair
+if (is.na(sbp)) {
+  "measurement missing"
+} else if (sbp > 140) {
+  "above cutoff"
+} else {
+  "at or below cutoff"
+}
+```
+
+`NA` is not `FALSE`; missing measurements need a stated reporting rule.
+
+## Missing values in a group decision {.smaller}
+
+```{r}
+#| label: observed-group-decision
+x <- c(120, NA, 155)
+c(observed = sum(!is.na(x)),
+  any_observed_above = any(x > 140, na.rm = TRUE),
+  all_observed_above = all(x > 140, na.rm = TRUE))
+```
+
+`na.rm = TRUE` changes the question to the **observed** measurements. It does not
+show what the missing measurements would have been.
+
+Without removal, a missing comparison can leave `any()` or `all()` unresolved.
+Report the observed count alongside a result that excludes missing values.
+
+## An empty condition is a separate problem {.smaller}
+
+```{r}
+#| label: if-error-3
+#| error: true
+sbp <- numeric(0)  # No values remain after filtering; this is not the number 0.
+if (sbp > 140) "above cutoff"
+```
+
+Check availability before asking a question that requires observed data:
+
+```{r}
+#| label: if-empty-repair
+if (sum(!is.na(sbp)) == 0) {
+  "No observed measurements"
+} else if (any(sbp > 140, na.rm = TRUE)) {
+  "At least one observed measurement is above the cutoff"
+} else {
+  "No observed measurement is above the cutoff"
+}
+```
+
+`all(logical(0))` is `TRUE` and `any(logical(0))` is `FALSE`.
+Neither establishes that measurements were available.
+
+## Scalar and elementwise operators {.smaller}
+
+| Need | Operators | Example |
 |---|---|---|
-| 1 | The block you have written four times | 8 |
-| 2 | `if` is control flow, not `ifelse()` | 12 |
-| 3 | Writing functions | 25 |
-| 4 | Lexical scoping, and globals | 12 |
-| 5 | Input validation | 12 |
-| 6 | Functions that take data frames | 10 |
-| 7 | Refactoring a script, and house style | 12 |
+| Combine checks for each value | `&`, <code>&#124;</code> | `!is.na(x) & x > 140` |
+| Combine single decisions | `&&`, <code>&#124;&#124;</code> | `length(x) > 0 && all(is.finite(x))` |
 
-: {tbl-colwidths="[6,64,30]"}
+```{r}
+#| label: short-circuit
+candidate <- NA_real_
+is.numeric(candidate) && length(candidate) == 1 &&
+  !is.na(candidate) && candidate > 0
+```
 
-. . .
+`&&` stops when the left check is false. Put shape and missingness checks
+before a comparison that assumes one observed value.
 
-**In lab this week** you refactor a working but repetitive script. Today is the
-material you need for it.
+## Practice 1: choose and repair {.smaller}
 
+For each task, choose a vectorized conditional or one `if` decision.
 
-# 1 · The block you have written four times {.section-divider}
+1. Label every change as `"decrease"`, `"no decrease"`, or `"missing"`.
+2. Stop if a required column is absent.
+3. Report whether **any observed** change is negative.
+
+Repair this code for task 3:
+
+```r
+change <- c(-2, NA, 1, 0)
+if (change < 0) "a decrease was observed"
+```
+
+## Practice 1: discussion {.smaller}
+
+```{r}
+#| label: condition-answer
+change <- c(-2, NA, 1, 0)
+ifelse(is.na(change), "missing",
+       ifelse(change < 0, "decrease", "no decrease"))
+
+if (any(change < 0, na.rm = TRUE)) {
+  "a decrease was observed"
+} else {
+  "no observed decrease"
+}
+```
+
+Tasks 2 and 3 each need one decision. Task 1 needs one label per value.
+An all-missing input supports **no observed decrease**, not **no decrease**.
+
+# 2 · Why functions? {.section-divider}
+
 
 ## Look at what you have been doing {.smaller}
 
@@ -150,19 +413,19 @@ Four blocks. **One name differs.**
 ## What copy-paste actually costs {.smaller}
 
 ::: {style="font-size:0.88em"}
-| Cost | What it looks like in a week |
+| Cost | What repeated copies make harder |
 |---|---|
 | **Reading** | A reader has to diff four blocks to find the one word that differs |
-| **Changing** | The data gains missing values. You need `na.rm = TRUE` in four places, and you will find three |
+| **Changing** | If missing values arrive, update the missing-value policy in every copy; overlooking one gives inconsistent summaries |
 | **Naming** | The block has no name, so you cannot say what it does, reuse it, or check it |
-| **Divergence** | One copy already rounds to two digits and the others do not. Nobody decided that |
+| **Divergence** | If one copy later adds `round(..., digits = 2)` and the others do not, the reporting rules diverge |
 :::
 
 . . .
 
 ::: {.callout-important appearance="simple"}
-Duplication is not an aesthetic problem. It is the mechanism by which two parts of
-one analysis come to disagree.
+The preceding code does not round any results. Rounding is an example of a
+future change that must be kept consistent across copies.
 :::
 
 . . .
@@ -174,121 +437,245 @@ summarise_by_arm(trial, sbp_0)
 ```
 
 
-# 2 · `if` is control flow, not `ifelse()` {.section-divider}
+## A contract before code {.smaller}
 
-## Closing a loop from session 3 {.smaller}
+For a reusable summary, decide what the caller can rely on.
 
-::: {style="font-size:0.9em"}
-| | `ifelse(test, yes, no)` | `if (cond) ... else ...` |
+| Part | Decision |
+|---|---|
+| Input | A numeric vector, possibly containing missing values |
+| Options | Rounding precision and whether to remove missing values |
+| Output | Named values with a documented meaning for `n` |
+| Edge cases | What happens with no observations or the wrong input type? |
+
+**Quick discussion:** should `n` count all rows or observed measurements?
+What label would make that choice clear?
+
+# 3 · Function basics {.section-divider}
+
+## Read the parts of a function call {.smaller}
+
+Before writing a function, read the interface of one you already use.
+
+```{r}
+#| label: function-interface
+median_result <- stats::median(x = c(120, NA, 140), na.rm = TRUE)
+median_result
+```
+
+| Part | Meaning in this call |
+|---|---|
+| `stats::` | Select the function from the **stats package namespace** |
+| `median` | Function name |
+| `x = c(120, NA, 140)` | Supply the data argument |
+| `na.rm = TRUE` | Supply an option controlling missing values |
+| Returned value: `130` | The result, saved in `median_result` by `<-` |
+
+
+## Package namespaces identify which function {.smaller}
+
+A **namespace** holds a package's objects and keeps its names separate from
+those in other packages. `package::function` selects an exported function.
+
+| Explicit name | Purpose |
+|---|---|
+| `stats::median()` | Compute a median |
+| `dplyr::filter()` | Select rows of a data frame |
+| `stats::filter()` | Filter a time series, for example with a moving average |
+
+- The package must be installed. `::` loads its namespace as needed.
+- You do **not** need to call `library()` first.
+- An explicit package name avoids confusion when packages share a function name.
+
+
+## Parameters define the interface; arguments fill it {.smaller}
+
+**Parameters**, or formal arguments, are the names in the definition.
+The help page's **Usage** section shows them and their defaults:
+
+```r
+median(x, na.rm = FALSE, ...)
+```
+
+| Parameter | Meaning | Argument in our call |
 |---|---|---|
-| Is a | **vectorized function** | **control-flow keyword** |
-| Test length | Any — one answer per element | **Exactly one** `TRUE` or `FALSE` |
-| Returns | A vector as long as `test` | Whatever the chosen branch returns |
-| Used for | Deriving a variable from a column | Choosing what a *script* does |
-| Taught in | Session 3 | **Today** |
-:::
+| `x` | Data to summarize; no default | `c(120, NA, 140)` |
+| `na.rm` | Remove missing values? Default: `FALSE` | `TRUE` |
+| `...` | Further arguments for methods; unused by the default method | None supplied |
+
+The **Arguments** section explains accepted inputs. Omitting `na.rm` uses
+`FALSE`; supplying `na.rm = TRUE` overrides that default.
+
+
+## The return value is an object you can use {.smaller}
+
+Our call returned one numeric value, `130`. We saved it in `median_result`.
+The help page's **Value** section describes the result's type and length.
+
+```{r}
+#| label: function-interface-value
+typeof(median_result)
+length(median_result)
+median_result + 10
+```
+
+**Returning** makes an object available to the caller. **Printing** displays it.
+Assignment stores the result without automatically printing it.
+
+
+## Read the help page as a function contract {.smaller}
+
+```r
+help("median", package = "stats")
+# Alternatively: ?stats::median
+```
+
+| Help section | Question it answers |
+|---|---|
+| **Description** | What does this function do? |
+| **Usage** | How do I call it? Which defaults apply? |
+| **Arguments** | What does each input mean and accept? |
+| **Value** | What object comes back? What happens in edge cases? |
+| **Details** | Which additional rules or methods matter? |
+| **Examples / See Also** | How is it used? Which related functions may help? |
+
+Section names vary: some pages describe the return value under **Details**.
+
+
+## Check the contract before running the code {.smaller}
+
+Use **Usage**, **Arguments**, and **Value** in `?stats::median` to predict:
+
+- Which call removes the missing value?
+- Does an empty input return an empty vector or one missing value?
 
 . . .
 
-::: {.callout-note appearance="simple"}
-**`ifelse()` derives a variable. `if` decides what the program does.**
-:::
+```{r}
+#| label: function-help-check
+stats::median(c(120, NA, 140))
+stats::median(c(120, NA, 140), na.rm = TRUE)
+stats::median(numeric(0), na.rm = TRUE)
+```
+
+The results are `NA`, `130`, and `NA`, each of length one.
+Now give your own function an equally clear input/output contract.
 
 
-## `if`, `else if`, `else` {.smaller}
+## Start with a calculation you can check {.smaller}
 
-`if` takes **one** `TRUE` or `FALSE` and picks a branch.
+For three measurements, work out the answer before writing a function:
+`n = 3`, mean `130`, and sample SD `10`.
 
 ```{r}
-#| label: if-basic
-n_missing <- sum(is.na(trial_raw$sbp_12))
+#| label: summary-reference
+example_sbp <- c(120, 130, 140)
+summary_reference <- c(n = length(example_sbp),
+                       mean = mean(example_sbp), sd = sd(example_sbp))
+summary_reference
+```
 
-if (n_missing == 0) {
-  "complete outcome data"
-} else if (n_missing < 5) {
-  "a few missing — a complete-case summary is defensible"
-} else {
-  "too much missing outcome data to summarise naively"
+The calculation is already useful. The next step is to make it work for a
+different numeric vector without editing its body.
+
+
+## Decide which parts belong in the interface {.smaller}
+
+| Choice | Our decision | Reason |
+|---|---|---|
+| Which measurements? | Required parameter `x` | The caller must choose the data |
+| How much rounding? | Optional `digits = 1` | A common display choice, with an override |
+| What comes back? | Named numeric vector: `n`, `mean`, `sd` | All three results are numeric |
+| Which inputs initially? | Complete numeric vectors with at least two values | Establish a simple working version first |
+
+Replace **every** use of `example_sbp` in the calculation with `x`.
+Do not give `x` a default that silently selects a dataset from your workspace.
+
+
+## Your first function, from your own code {.smaller}
+
+First extract the numeric summary used inside each repeated block. Grouping
+will return in Section 6; this helper summarizes one numeric vector.
+
+```{r}
+#| label: first-function
+# Return n, mean, and SD of a numeric vector, rounded.
+sbp_summary <- function(x, digits = 1) {
+  result <- c(n = length(x), mean = mean(x), sd = sd(x))
+  round(result, digits)
 }
+
+```
+
+## Check the original case, then change the input {.smaller}
+
+```{r}
+#| label: summary-check-build
+identical(sbp_summary(example_sbp), summary_reference)
+```
+
+Predict what changes when every measurement increases by 10.
+
+. . .
+
+```{r}
+#| label: summary-check-shift
+rbind(original = sbp_summary(example_sbp),
+      shifted = sbp_summary(example_sbp + 10))
+```
+
+The mean increases by 10; the count and SD stay the same.
+
+Matching one example is necessary. Changing the input checks whether the
+function actually uses the argument you give it.
+
+## A function wrapper can still use the wrong data {.smaller}
+
+Which calculations below ignore the supplied `x`?
+
+```{r}
+#| label: summary-hardcoded
+bad_summary <- function(x) {
+  c(n = length(x), mean = mean(example_sbp), sd = sd(example_sbp))
+}
+```
+
+. . .
+
+```{r}
+#| label: summary-hardcoded-calls
+rbind(first = bad_summary(c(10, 20, 30)),
+      second = bad_summary(c(100, 200, 300)))
+```
+
+. . .
+
+Only the count uses `x`. The mean and SD still read the external vector.
+Repair both references; expect means of `20` and `200` after the repair.
+
+
+## Call the same function with different inputs {.smaller}
+
+```{r}
+#| label: first-function-calls
+sbp_summary(trial$sbp_0)
+sbp_summary(trial$sbp_12)
+sbp_summary(trial$weight_kg, digits = 2)
 ```
 
 . . .
 
 ::: {.smaller}
-- The condition is a **single** logical value. Here, `n_missing == 0`.
-- `else` must sit on the same line as the closing `}`, or R decides the `if` has
-  ended.
-- Braces are optional for one-line bodies. Use them anyway.
+Three calls, one definition. Here we deliberately add a `digits` argument and
+round the reported summaries; the earlier duplicated code did not round them.
 :::
 
 
-## The error you will actually hit {.smaller}
-
-```{r}
-#| label: if-error
-#| error: true
-if (trial$sbp_0 > 140) "high" else "normal"
-```
-
-. . .
-
-`trial$sbp_0` has length `r nrow(trial)`. `if` wanted length **one**.
-
-. . .
-
-Two neighbours worth recognising:
-
-```{r}
-#| label: if-error-2
-#| error: true
-if (NA > 1) "yes" else "no"
-```
-
-```{r}
-#| label: if-error-3
-#| error: true
-sbp <- numeric(0)          # a filter that matched nobody
-if (sbp > 140) "high"
-```
-
-
-## Which one do I want? {.smaller}
-
-::: {style="font-size:0.92em"}
-| The question you are asking | The tool |
-|---|---|
-| "What value does **each patient** get?" | `ifelse()`, `if_else()`, `case_when()` |
-| "What should **this script** do next?" | `if` / `else if` / `else` |
-:::
-
-. . .
-
-And `if` is an expression, so it returns a value:
-
-```{r}
-#| label: if-value
-label <- if (n_missing > 0) "complete-case" else "all randomised"
-label
-```
-
-. . .
-
-::: {.callout-tip appearance="simple"}
-If the answer has one value per row, it is not a job for `if`. Not ever.
-:::
-
-
-# 3 · Writing functions {.section-divider}
-
-## A function is three things {.smaller}
+## Inside an R function object {.smaller #a-function-is-three-things}
 
 ```{r}
 #| label: anatomy
 #| results: hold
-sbp_summary <- function(x, digits = 1) {
-  round(c(n = length(x), mean = mean(x), sd = sd(x)), digits)
-}
-
 formals(sbp_summary)
 body(sbp_summary)
 environment(sbp_summary)
@@ -301,28 +688,41 @@ not define itself.
 :::
 
 
-## Your first function, from your own code {.smaller}
+## Trace one function call {.smaller}
 
-The duplicated block, in one place:
-
-```{r}
-#| label: first-function
-# Return n, mean, and SD of a numeric vector, rounded.
-sbp_summary <- function(x, digits = 1) {
-  round(c(n = length(x), mean = mean(x), sd = sd(x)), digits)
-}
-
-sbp_summary(trial$sbp_0)
-sbp_summary(trial$sbp_12)
-sbp_summary(trial$weight_kg, digits = 2)
+```r
+sbp_summary(c(120, 130, 140), digits = 1)
 ```
 
-. . .
+1. Bind `x` to the supplied vector and `digits` to `1` for this call.
+2. Evaluate the function body using those local arguments.
+3. Create local `result`: `n = 3`, `mean = 130`, and `sd = 10`.
+4. Evaluate `round(result, digits)` and return that last expression.
 
-::: {.smaller}
-Three calls, one definition. The **name** now says what the block does, which the
-block itself never did.
-:::
+## Inspect the returned answer {.smaller}
+
+```{r}
+#| label: trace-call
+answer <- sbp_summary(c(120, 130, 140), digits = 1)
+answer
+answer["mean"]
+```
+
+Defining the function stores the recipe. Calling it runs the recipe.
+
+## Missing data requires an explicit design decision {.smaller}
+
+Suppose the new input is `c(120, NA, 140)`. What should `n` mean?
+
+| Policy | Observed count | Reported mean | Reported SD |
+|---|---:|---:|---:|
+| Keep missingness in the calculation | 2 | `NA` | `NA` |
+| Summarize the observed measurements | 2 | 130 | About 14.1 |
+
+We will define `n` as the **observed count** and add `na_rm = TRUE` as the
+default. The caller can choose `FALSE` to preserve missingness in mean and SD.
+
+The count and the missing-data rule are separate decisions. State both.
 
 
 ## Arguments and defaults {.smaller}
@@ -338,6 +738,12 @@ sbp_summary <- function(x, digits = 1, na_rm = TRUE) {
   ), digits)
 }
 
+```
+
+## Use or override a default {.smaller}
+
+```{r}
+#| label: defaults-calls
 sbp_summary(trial_raw$sbp_12)
 sbp_summary(trial_raw$sbp_12, na_rm = FALSE)
 ```
@@ -400,25 +806,160 @@ Use `return()` for an **early exit**. For the value at the end, let it fall out.
 :::
 
 
+## Choose a return shape for the next step {.smaller}
+
+| Return shape | Useful when | Caller extracts a result with |
+|---|---|---|
+| One number | The next step needs only one statistic | Use the result directly |
+| Named numeric vector | Several results share a numeric type | `answer["mean"]` |
+| Named list | Results need different types or structures | `answer$mean` |
+
+Our `sbp_summary()` returns a named numeric vector. A future report might also
+need a text status or a table; that would justify a list.
+
+Choose and document the shape before writing downstream code. Changing it
+later can break callers even if the numbers are unchanged.
+
+`c(mean = 130, status = "ok")` makes both entries character.
+A list can retain the numeric mean and a character status separately.
+
+## Return several results in one list {.smaller #return-several-pieces-in-one-object}
+
+A function returns **one object**. That object can be a list containing several
+named results. Here we want the observed count, missing count, and observed mean.
+
+```{r}
+#| label: list-result
+describe_measurements <- function(x) {
+  list(n_observed = sum(!is.na(x)),
+       n_missing = sum(is.na(x)),
+       mean = mean(x, na.rm = TRUE))
+}
+```
+
+`list(...)` is the last expression, so the function returns the whole list.
+It does not return only the last component, `mean`.
+
+## Use the returned components {.smaller}
+
+```{r}
+#| label: list-components
+#| results: hide
+description <- describe_measurements(c(120, NA, 140))
+description$n_observed
+description$n_missing
+description$mean
+```
+
+| Component | Value | Meaning |
+|---|---:|---|
+| `n_observed` | 2 | Two measurements are available |
+| `n_missing` | 1 | One measurement is missing |
+| `mean` | 130 | Mean of 120 and 140; the missing value is excluded |
+
+`description` holds the list; `$` selects a named component. Section 5 adds the
+policy for empty or entirely missing input.
+
+## Practice 2: write a function {.smaller}
+
+Write `centre_values(x, centre = 0)`.
+
+- Return each element of `x` minus `centre`.
+- Keep the same length and preserve missing positions.
+- Make the result available for assignment to an object.
+
+Predict before running:
+
+```r
+centre_values(c(10, NA, 14))
+centre_values(c(10, NA, 14), centre = 12)
+```
+
+Then name one input your first version does not validate yet.
+
+**Extend the task:** calculate the observed mean of `c(10, NA, 14)`, pass it
+as `centre`, and predict the centered values. Keep the one-number contract.
+
+## Practice 2: answer and contract {.smaller}
+
+```{r}
+#| label: centre-answer
+centre_values <- function(x, centre = 0) {
+  x - centre
+}
+centre_values(c(10, NA, 14))
+centre_values(c(10, NA, 14), centre = 12)
+```
+
+**Contract:** numeric vector in, numeric vector of the same length out;
+`centre` should be one finite number. Section 5 adds the checks.
+
+If `centre` has length two, R may recycle it. An interface should reject
+that input when only one center is intended.
+
+## Practice 2 extension: compute, then pass an argument {.smaller}
+
+```{r}
+#| label: centre-computed-reference
+measurements <- c(10, NA, 14)
+reference <- mean(measurements, na.rm = TRUE)
+centered <- centre_values(measurements, centre = reference)
+centered
+sum(centered, na.rm = TRUE)
+```
+
+The result is `c(-2, NA, 2)`. The observed centered values sum to zero.
+The function still accepts one scalar center; the caller decides how to obtain it.
+
+## Extend the summary for a new reporting requirement {.smaller}
+
+A collaborator needs the missing count as well. Write
+`sbp_summary_missing(x, digits = 1, na_rm = TRUE)`.
+
+- Return a named numeric vector: `n`, `n_missing`, `mean`, `sd`.
+- Keep `n` as the observed count and preserve the existing missing-data option.
+- For `c(120, NA, 140)`, expect `c(2, 1, 130, 14.1)` with those names.
+- Assume numeric input with at least two observed values for this first draft.
+
+Which lines of the existing helper change? Which interface choices stay the same?
+Write your version before revealing the answer.
+
+## Extend the output without changing its type {.smaller}
+
+```{r}
+#| label: summary-missing-extension
+sbp_summary_missing <- function(x, digits = 1, na_rm = TRUE) {
+  counts <- c(n = sum(!is.na(x)), n_missing = sum(is.na(x)))
+  estimates <- c(mean = mean(x, na.rm = na_rm),
+                 sd = sd(x, na.rm = na_rm))
+  c(counts, round(estimates, digits))
+}
+sbp_summary_missing(c(120, NA, 140))
+```
+
+Counts are kept separate from rounding the estimates. The additional component
+changes the length, so tell callers; access by name is clearer than position.
+
+
 ## What happens inside stays inside {.smaller}
 
 ```{r}
 #| label: locals
 centre_sbp <- function(x) {
-  offset <- mean(x)      # local: created on the call, destroyed after
+  offset <- mean(x)      # local to this call
   x - offset
 }
 
 centred <- centre_sbp(trial$sbp_0)
 round(head(centred, 4), 1)
-exists("offset")
+exists("offset", envir = .GlobalEnv, inherits = FALSE)
 ```
 
 . . .
 
 ::: {.smaller}
-Every call gets a **fresh environment**. Locals cannot leak into your workspace,
-and two calls cannot interfere with each other.
+Every call gets a **fresh evaluation environment**. Ordinary local assignments
+do not change objects in the global workspace.
 :::
 
 . . .
@@ -429,7 +970,7 @@ it in inherited code. Do not write it.
 :::
 
 
-## `...` and `invisible()` {.smaller}
+## Forward additional arguments with `...` {.smaller}
 
 `...` collects arguments you did not name and passes them on:
 
@@ -441,7 +982,7 @@ mean_sbp(trial_raw$sbp_12)
 mean_sbp(trial_raw$sbp_12, na.rm = TRUE)
 ```
 
-. . .
+## Return a value without automatically printing it {.smaller}
 
 `invisible()` returns a value without printing it:
 
@@ -458,7 +999,8 @@ n_rows
 ```
 
 
-# 4 · Lexical scoping, and globals {.section-divider}
+# 4 · Scope {.section-divider}
+
 
 ## Where R looks for a name {.smaller}
 
@@ -512,18 +1054,22 @@ This is the honest failure. It is annoying, and it tells you immediately.
 :::
 
 
-## The global that is stale {.smaller}
+## A hidden input changes the answer {.smaller #the-global-that-is-stale}
+
+This version reads `threshold` from outside the function. It looks up that
+variable **each time it is called**; it does not keep its original value.
 
 ```{r}
 #| label: scope-silent
 threshold <- 140
+is_high <- function(sbp) sbp > threshold
 sum(is_high(trial$sbp_0))
 ```
 
 . . .
 
-Fifty lines further down the document, somebody — possibly you, last Tuesday —
-writes:
+A sensitivity analysis changes the external variable. The same call now uses
+that new value:
 
 ```{r}
 #| label: scope-silent-2
@@ -534,7 +1080,8 @@ sum(is_high(trial$sbp_0))
 . . .
 
 ::: {.callout-important appearance="simple"}
-No error. No warning. A different number, and the function looks untouched.
+The data and function definition are unchanged. The answer changes because
+`threshold` is a hidden input: the first call uses 140 and the second uses 160.
 :::
 
 
@@ -567,7 +1114,38 @@ reassignment fifty lines away.
 :::
 
 
-# 5 · Input validation {.section-divider}
+## Practice 3: find the hidden input {.smaller}
+
+```r
+reference_mean <- 130
+adjust <- function(x) x - reference_mean
+first <- adjust(c(120, 140))
+reference_mean <- 150
+second <- adjust(c(120, 140))
+```
+
+1. Predict `first` and `second`.
+2. Rewrite `adjust()` so the reference value is a required argument.
+3. Explain why restarting R exposes only some global-dependency problems.
+
+## Practice 3: explicit inputs {.smaller}
+
+```{r}
+#| label: scope-practice-answer
+adjust <- function(x, reference_mean) {
+  x - reference_mean
+}
+adjust(c(120, 140), reference_mean = 130)
+adjust(c(120, 140), reference_mean = 150)
+```
+
+Original results: `c(-10, 10)` and `c(-30, -10)`.
+
+A restart removes a missing global, producing an error. A script that
+recreates and later changes that global can still run with the wrong value.
+
+# 5 · Validation {.section-divider}
+
 
 ## Fail loudly, or be wrong quietly {.smaller}
 
@@ -600,23 +1178,23 @@ plausible wrong answer.
 ```{r}
 #| label: stopifnot-demo
 #| error: true
-sbp_summary <- function(x, digits = 1) {
+checked_mean <- function(x, digits = 1) {
   stopifnot(is.numeric(x), length(x) > 0, digits >= 0)
 
-  round(c(n = sum(!is.na(x)), mean = mean(x, na.rm = TRUE)), digits)
+  round(mean(x, na.rm = TRUE), digits)
 }
 
-sbp_summary(trial$arm)
+checked_mean(trial$arm)
 ```
 
-. . .
+## Give failed checks a useful message {.smaller}
 
 Name the checks and you choose the message:
 
 ```{r}
 #| label: stopifnot-named
 #| error: true
-sbp_summary <- function(x, digits = 1) {
+checked_mean <- function(x, digits = 1) {
   stopifnot(
     "x must be a numeric vector" = is.numeric(x),
     "digits must not be negative" = digits >= 0
@@ -624,7 +1202,7 @@ sbp_summary <- function(x, digits = 1) {
   round(mean(x, na.rm = TRUE), digits)
 }
 
-sbp_summary(trial$arm)
+checked_mean(trial$arm)
 ```
 
 
@@ -667,7 +1245,8 @@ unindented and the failure cases visible.
 . . .
 
 ::: {.smaller}
-Do not re-check what R already checks. `mean("a")` errors on its own.
+`mean("a")` warns and returns `NA`; it does not stop. Validate numeric input
+when a missing result would hide a data-type error.
 :::
 
 . . .
@@ -678,7 +1257,109 @@ Two or three checks is usually right.
 :::
 
 
-# 6 · Functions that take data frames {.section-divider}
+## Specify the edge cases {.smaller}
+
+Our `safe_mean()` contract accepts numeric vectors with finite values or `NA`/`NaN`.
+It returns **one numeric value** and ignores missing observations.
+
+| Input | Required behavior |
+|---|---|
+| `c(2, 4, NA)` | Return `3` |
+| `numeric(0)` | Return `NA_real_` |
+| `c(NA_real_, NA_real_)` | Return `NA_real_` |
+| `"4"`, a matrix, or a data frame | Stop with a useful message |
+| `c(2, Inf)` | Stop because infinity is outside this contract |
+
+`NA_real_` explicitly creates numeric missingness. `c(NA, NA)` is logical,
+so use typed missing values when constructing a numeric teaching column.
+
+## Build `safe_mean()` with guard clauses {.smaller}
+
+```{r}
+#| label: safe-mean
+safe_mean <- function(x) {
+  if (!is.numeric(x) || !is.null(dim(x))) {
+    stop("x must be a numeric vector", call. = FALSE)
+  }
+  if (any(is.infinite(x))) {
+    stop("x must not contain infinite values", call. = FALSE)
+  }
+  if (all(is.na(x))) return(NA_real_)
+  mean(x, na.rm = TRUE)
+}
+safe_mean(c(2, 4, NA))
+safe_mean(numeric(0))
+```
+
+The empty case also exits because `all(logical(0))` is `TRUE`.
+
+## Trace the branch that ends the call {.smaller}
+
+Follow `safe_mean()` from top to bottom. Stop tracing when a guard exits.
+
+| Input | First exit | Result | Does `mean()` run? |
+|---|---|---|---|
+| `"4"` | Type guard: `stop()` | Error | No |
+| `c(2, Inf)` | Infinite-value guard: `stop()` | Error | No |
+| `c(NA_real_, NA_real_)` | `return(NA_real_)` | One numeric `NA` | No |
+| `c(2, NA, 4)` | Last expression | `3` | Yes |
+
+For `numeric(0)`, the first two guards pass and `all(is.na(x))` is `TRUE`.
+The early return supplies one numeric `NA`, not an empty vector.
+
+## Explain why the shorter version changes the contract {.smaller}
+
+```{r}
+#| label: mean-shortcut
+mean_shortcut <- function(x) mean(x, na.rm = TRUE)
+mean_shortcut(numeric(0))
+safe_mean(numeric(0))
+```
+
+Both run. The first returns `NaN`; our helper returns `NA_real_` by design.
+
+Ask which behavior a report expects, and document it. A shorter implementation
+is useful only if it preserves the intended input and output rules.
+
+## Practice 4: choose the checks {.smaller}
+
+Complete the contract for `centre_values(x, centre)`.
+
+```r
+centre_values <- function(x, centre = 0) {
+  stopifnot(
+    "x must be a numeric vector" = is.numeric(x) && is.null(dim(x)),
+    "centre must be one finite number" = # your condition
+  )
+  x - centre
+}
+```
+
+Reject `centre = c(1, 2)`, `NA`, `Inf`, and `"2"`. In what order should
+the checks run so each later check can safely assume the earlier ones passed?
+
+## Practice 4: answer and checks {.smaller}
+
+```{r}
+#| label: validate-centre
+centre_values <- function(x, centre = 0) {
+  stopifnot(
+    "x must be a numeric vector" = is.numeric(x) && is.null(dim(x)),
+    "centre must be one finite number" =
+      is.numeric(centre) && length(centre) == 1 &&
+      is.null(dim(centre)) && is.finite(centre)
+  )
+  x - centre
+}
+stopifnot(identical(centre_values(c(1, NA, 3), centre = 2),
+                    c(-1, NA, 1)))
+```
+
+Validate the type, then the length, then the value. An expected failure is
+also evidence that the interface works; try `centre_values(1:3, centre = NA)`.
+
+# 6 · Data-frame functions {.section-divider}
+
 
 ## Data argument first {.smaller}
 
@@ -686,8 +1367,7 @@ When the column names are fixed, nothing special is needed:
 
 ```{r}
 #| label: df-function
-# Add change from baseline. Fails if the two SBP columns are absent, because
-# mutate() would otherwise create a column full of nothing useful.
+# Add change from baseline; check the required columns before computing.
 add_change <- function(data) {
   stopifnot(is.data.frame(data),
             all(c("sbp_0", "sbp_12") %in% names(data)))
@@ -705,7 +1385,7 @@ trial_raw |> add_change() |> summarise(mean_change = mean(change, na.rm = TRUE))
 :::
 
 
-## The wrinkle: `{{ var }}` {.smaller}
+## Pass a bare column name with double braces {.smaller}
 
 When the **column itself** is the argument, dplyr needs to be told:
 
@@ -720,6 +1400,12 @@ summarise_by_arm <- function(data, outcome) {
     )
 }
 
+```
+
+## Call the column-aware helper {.smaller}
+
+```{r}
+#| label: tidyeval-calls
 summarise_by_arm(trial_raw, sbp_12)
 summarise_by_arm(trial_raw, weight_kg)
 ```
@@ -732,7 +1418,7 @@ tapply(trial_raw$sbp_12, trial_raw$arm, mean, na.rm = TRUE)
 :::
 
 
-## Without `{{ }}`: two failures {.smaller}
+## Without double braces: two failures {.smaller}
 
 ```{r}
 #| label: tidyeval-fail
@@ -744,7 +1430,7 @@ bad_summary <- function(data, outcome) {
 bad_summary(trial, sbp_0)
 ```
 
-. . .
+## A stray global can produce a plausible wrong answer {.smaller}
 
 Now the same call, with a stray object in the workspace:
 
@@ -761,38 +1447,58 @@ rm(sbp_0)
 ```
 
 
-# 7 · Refactoring, and house style {.section-divider}
+## A quoted column name with base R {.smaller}
+
+```{r}
+#| label: string-column
+summarise_column <- function(data, column) {
+  stopifnot(is.data.frame(data), is.character(column),
+            length(column) == 1, !is.na(column),
+            column %in% names(data))
+  safe_mean(data[[column]])
+}
+summarise_column(trial_raw, "sbp_12")
+```
+
+`data[[column]]` looks up the value of `column`. `data$column` looks for a
+column literally named `column`.
+
+Use <code>&#123;&#123; outcome &#125;&#125;</code> for a bare-name dplyr interface and `[[column]]` for a
+quoted-name base R interface. State which interface the function expects.
+
+# 7 · Refactoring and reuse {.section-divider #refactoring}
+
 
 ## Before: the script we all wrote {.smaller}
 
 ```r
 # baseline
-tab_0 <- trial |> group_by(arm) |>
+tab_0 <- trial_raw |> group_by(arm) |>
   summarise(n = n(), mean = round(mean(sbp_0), 1), sd = round(sd(sbp_0), 1))
 
 # 12 weeks
-tab_12 <- trial |> group_by(arm) |>
+tab_12 <- trial_raw |> group_by(arm) |>
   summarise(n = n(), mean = round(mean(sbp_12), 1), sd = round(sd(sbp_12), 1))
 
-# change — and this one has NAs, so it needs na.rm
-tab_ch <- trial |> group_by(arm) |>
+# change — use the extract with missing outcomes
+tab_ch <- trial_raw |> group_by(arm) |>
   summarise(n = n(), mean = round(mean(change, na.rm = TRUE), 1),
             sd = round(sd(change), 1))     # <- na.rm missing here
 
-ggplot(trial, aes(arm, sbp_0)) + geom_boxplot() + labs(y = "SBP baseline")
-ggplot(trial, aes(arm, sbp_12)) + geom_boxplot() + labs(y = "SBP 12 wk")
-ggplot(trial, aes(arm, change)) + geom_boxplot() + labs(y = "Change")
+ggplot(trial_raw, aes(arm, sbp_0)) + geom_boxplot() + labs(y = "SBP baseline")
+ggplot(trial_raw, aes(arm, sbp_12)) + geom_boxplot() + labs(y = "SBP 12 wk")
+ggplot(trial_raw, aes(arm, change)) + geom_boxplot() + labs(y = "Change")
 ```
 
 . . .
 
 ::: {.smaller}
-Six blocks, two shapes, **one bug** — and `n` is wrong in the third block for the
-same reason.
+Six blocks, two shapes, **inconsistent missing-value rules**.
+`n = n()` counts rows, including rows missing the outcome.
 :::
 
 
-## After: three functions {.smaller}
+## After: the summary helper {.smaller}
 
 ```{r}
 #| label: refactor
@@ -810,6 +1516,12 @@ summarise_by_arm <- function(data, outcome, digits = 1) {
     )
 }
 
+```
+
+## After: the plotting helper {.smaller}
+
+```{r}
+#| label: refactor-plot-helper
 # One boxplot of an outcome by arm, labelled for a clinical reader.
 plot_by_arm <- function(data, outcome, y_label) {
   ggplot(data, aes(arm, {{ outcome }}, fill = arm)) +
@@ -824,7 +1536,8 @@ summarise_by_arm(trial_raw, change)
 
 ## Verify the refactor {.smaller}
 
-A refactor that changes the output is not a refactor. **Check.**
+A refactor preserves intended behavior. Fix a known bug separately, then
+compare the function with that corrected reference. **Check.**
 
 ```{r}
 #| label: verify
@@ -840,13 +1553,135 @@ identical(old, new)
 all.equal(old, new)
 ```
 
-. . .
+## Interpret the comparison {.smaller}
 
 ::: {.smaller}
-`identical()` is exact and unforgiving. `all.equal()` tolerates floating-point
-difference — which is why it is the right one for numbers. Both in session 12.
+`identical()` checks exact equality. `all.equal()` returns `TRUE` or a description
+of differences. Use `isTRUE(all.equal(old, new))` for a logical check.
 :::
 
+
+## Compose two functions for paired measurements {.smaller}
+
+```{r}
+#| label: classify-change
+classify_change <- function(change) {
+  stopifnot(is.numeric(change), is.null(dim(change)))
+  out <- rep("missing", length(change))
+  observed <- !is.na(change)
+  out[observed & change < 0] <- "decrease"
+  out[observed & change >= 0] <- "no decrease"
+  out
+}
+classify_change(c(-2, 1, NA, 0))
+```
+
+This returns a character vector even for zero rows. It describes the sign
+of change, not whether a change is clinically meaningful.
+
+## A reusable paired-change calculation {.smaller}
+
+```{r}
+#| label: change-summary
+change_summary <- function(baseline, followup) {
+  stopifnot(is.numeric(baseline), is.null(dim(baseline)),
+            is.numeric(followup), is.null(dim(followup)),
+            length(baseline) == length(followup),
+            !any(is.infinite(baseline)), !any(is.infinite(followup)))
+  change <- followup - baseline
+  data.frame(change = change, category = classify_change(change))
+}
+change_summary(c(10, 8, NA, 12), c(8, 9, 7, 12))
+```
+
+**Precondition:** the two vectors refer to the same people in the same order.
+Equal lengths do not establish patient alignment; join by ID first when needed.
+
+## Practice 5: verify the refactor {.smaller}
+
+Before replacing the repeated code, write down the expected table.
+
+```r
+baseline <- c(10, 8, NA, 12)
+followup <- c(8, 9, 7, 12)
+expected <- data.frame(
+  change = c(-2, 1, NA, 0),
+  category = c("decrease", "no decrease", "missing", "no decrease")
+)
+```
+
+1. Compare `change_summary(baseline, followup)` with `expected`.
+2. Try two empty numeric vectors. What are the output column types?
+3. Try unequal lengths. Why should recycling be an error here?
+
+## Practice 5: evidence before replacement {.smaller}
+
+```{r}
+#| label: refactor-evidence
+expected <- data.frame(
+  change = c(-2, 1, NA, 0),
+  category = c("decrease", "no decrease", "missing", "no decrease")
+)
+stopifnot(isTRUE(all.equal(
+  change_summary(c(10, 8, NA, 12), c(8, 9, 7, 12)), expected
+)))
+str(change_summary(numeric(0), numeric(0)))
+```
+
+Keep the corrected reference until the comparison passes. A bug correction
+may change results; record that change separately from reorganizing the code.
+
+## Save a helper separately from the analysis {.smaller}
+
+Keep reusable definitions in an `.R` file and analysis calls in your report:
+
+```text
+work/session11/
+  functions-lab.qmd       # or functions-lab.Rmd
+  R/
+    centre-values.R
+    functions.R          # your other completed helpers
+```
+
+The supplied `R/centre-values.R` contains the validated `centre_values()`.
+It defines the function; it does not load data or run an analysis.
+
+**Editing the file does not update a function already in memory.**
+Save it, then source it again or render the report again.
+
+## Load the saved definition, then call it {.smaller}
+
+In the saved report, with paths relative to its folder:
+
+```r
+source("R/centre-values.R")
+centre_values(c(10, NA, 14), centre = 12)
+# [1] -2 NA  2
+```
+
+In the Console, use the path from your personal project root:
+
+```r
+source(here::here("work", "session11", "R", "centre-values.R"))
+```
+
+`source()` executes the file's R expressions. The function definition binds its
+name; the later call supplies data and returns centered values.
+
+
+## Reuse should survive a fresh session {.smaller}
+
+1. Copy the supplied `R` folder beside your report.
+2. Put your other completed helpers in `R/functions.R`.
+3. Add both `source()` calls to the report before the first function call.
+4. Remove duplicate definitions from the report after checking equivalence.
+5. Restart R and render the report using its saved source.
+
+If a function is missing, inspect the source path and execution order.
+If an old result persists, check which file or later definition replaced it.
+
+**Evidence:** the fresh render reproduces the expected values and checks
+without manually running definitions in the Console first.
 
 ## House style for functions {.smaller}
 
@@ -856,7 +1691,7 @@ difference — which is why it is the right one for numbers. Both in session 12.
 | **Verbs for functions, nouns for objects** | `summarise_by_arm()`, not `arm_summary()` |
 | **`snake_case`, no exceptions** | `plot_by_arm`, not `plotByArm` |
 | **One job per function** | If the name needs "and", it is two functions |
-| **About 30 lines** | Longer means it is doing more than one thing |
+| **Keep it focused** | A long function is a reason to review its responsibilities |
 | **Data argument first** | So it pipes |
 | **Validate inputs** | Two or three checks, at the top |
 | **One line above saying what it does** | What it takes, what it returns |
@@ -870,6 +1705,29 @@ All of this is in `style-guide.md`, §7. **Code quality is graded on it.**
 :::
 
 
+# 8 · Exit check {.section-divider}
+
+
+## Explain, predict, and choose {.smaller}
+
+1. Why does `if (c(TRUE, FALSE)) ...` fail? What tool produces one label per row?
+2. What should `safe_mean(c(NA_real_, NA_real_))` return under today's contract?
+3. Why can a function's answer change when its definition has not changed?
+4. How does a quoted column name differ from a bare column argument?
+5. What evidence should you collect before deleting the original repeated code?
+
+Write one sentence describing the input and output of `change_summary()`.
+
+## Reference and next practice {.smaller}
+
+- [Guided lab](lab.qmd): complete the five practice blocks and the integrated refactor.
+- [R control flow reference](https://stat.ethz.ch/R-manual/R-devel/library/base/html/Control.html)
+- [R function definition reference](https://stat.ethz.ch/R-manual/R-devel/library/base/html/function.html)
+- [Programming with dplyr](https://dplyr.tidyverse.org/articles/programming.html)
+
+Session 12 develops debugging and systematic tests. Session 13 applies
+these functions to loops, functionals, vectorization, and performance comparisons.
+
 ## Summary {.smaller}
 
 - `if` controls one decision; vectorized conditionals classify many values.
@@ -880,5 +1738,4 @@ All of this is in `style-guide.md`, §7. **Code quality is graded on it.**
 
 . . .
 
-**Next connection:** Session 12 applies these interfaces to debugging and reliable code.
-
+**Next connection:** Session 12 diagnoses broken versions of these helpers and turns each repair into a regression check.

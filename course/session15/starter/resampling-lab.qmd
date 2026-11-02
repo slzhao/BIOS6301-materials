@@ -1,42 +1,124 @@
 ---
-title: "Session 15 lab: resampling"
-date: now
-date-format: "YYYY-MM-DD HH:mm:ss Z"
+title: "Session 15 lab: Bootstrap, permutation, and validation"
 format: html
 ---
 
+## How to use this starter
+
+The setup runs as supplied. Exercise chunks are disabled with `eval=FALSE` so the
+unfinished starter can render. Replace each TODO, remove that option, and render
+again. A successful render of the untouched starter is not completion.
+
+## Supplied synthetic data and helpers
+
 ```{r}
+library(ggplot2)
+library(knitr)
+
+# Synthetic teaching data for BIOS 6301. Not real patients.
 set.seed(6301)
-n_per_arm <- 25
-study <- data.frame(
-  id = sprintf("P%03d", 1:(2 * n_per_arm)),
-  arm = rep(c("control", "treated"), each = n_per_arm),
-  age = round(rnorm(2 * n_per_arm, 55, 11)),
-  baseline = rnorm(2 * n_per_arm, 5, 1)
+n <- 60
+trial <- data.frame(
+  id        = sprintf("P%03d", 1:n),
+  arm       = rep(c("Placebo", "Treatment"), each = n / 2),
+  site      = sample(1:4, n, replace = TRUE),
+  age       = round(rnorm(n, 61, 9)),
+  sex       = sample(c("F", "M"), n, replace = TRUE),
+  weight_kg = round(rnorm(n, 82, 15), 1),
+  sbp_0     = round(rnorm(n, 148, 14)),
+  stringsAsFactors = FALSE
 )
-study$outcome <- 1 + 0.04 * study$age + 0.5 * study$baseline +
-  ifelse(study$arm == "treated", -0.7, 0) + rnorm(nrow(study), 0, 1)
+trial$sbp_12 <- round(trial$sbp_0 -
+  ifelse(trial$arm == "Treatment", rnorm(n, 14, 8), rnorm(n, 3, 8)))
+
+# Repeated-measures version of the same cohort, for the resampling-unit demo:
+# three visits per patient, a large patient-level random intercept (SD 12) and
+# small within-patient noise (SD 4). Nothing is "broken" here — the data are
+# simply clustered, which is what makes the row bootstrap wrong.
+set.seed(2024)
+patient_effect <- rnorm(n, 0, 12)
+trial_long <- data.frame(
+  id   = rep(trial$id, each = 3),
+  arm  = rep(trial$arm, each = 3),
+  week = rep(c(4, 8, 12), times = n),
+  stringsAsFactors = FALSE
+)
+trial_long$sbp <- round(140 + rep(patient_effect, each = 3) +
+  ifelse(trial_long$arm == "Treatment", -10, 0) + rnorm(n * 3, 0, 4))
+
+theme_set(theme_minimal(base_size = 15))
+gold <- "#CFAE70"
+
+mean_diff <- function(data) {
+  mean(data$sbp_12[data$arm == "Treatment"]) -
+    mean(data$sbp_12[data$arm == "Placebo"])
+}
 ```
 
-## 1. Bootstrap interval
+## 1. Bootstrap within arms
 
-```{r}
-# Resample participants within arm and store mean differences.
+Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap bias, SE, percentile and basic intervals, and compare the SE with Welch. Repeat interval endpoints with three seeds.
+
+```{r, eval=FALSE}
+observed <- mean_diff(trial)
+# TODO: write a within-arm bootstrap and compare interval endpoints.
 ```
 
-## 2. Permutation test
+Interpret the result and state its limitations.
 
-```{r}
-# Shuffle labels under the null and calculate an adjusted two-sided p-value.
+## 2. Monte Carlo and exact permutation
+
+For a completely randomized design under the sharp null, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution and binomial tail-probability interval. Enumerate all 70 assignments for four participants per arm.
+
+```{r, eval=FALSE}
+# TODO: keep outcomes fixed, shuffle labels, and compare absolute statistics.
+# Exact enumeration includes the observed assignment; no +1 correction is needed there.
 ```
 
-## 3. Five-fold cross-validation
+Interpret the result and state its limitations.
 
-```{r}
-# Predict outcome from age and baseline. Standardize within each training fold.
+## 3. Choose resampling units
+
+Use trial_long to compare row and participant bootstraps. Preserve all visits when sampling participants and retain duplicated sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the rules.
+
+```{r, eval=FALSE}
+# TODO: split row indices by ID and index sampled IDs with replacement.
 ```
 
-## 4. Targets and assumptions
+Interpret the result and state its limitations.
 
-Explain what each procedure estimates and identify the resampling unit for a
-participant with repeated visits.
+## 4. Construct checked folds
+
+Create five folds stratified by arm. Verify one fold label per participant and disjoint training/assessment IDs. Set baseline values at rows 2, 8, 17, 32, 46, and 55 to missing for the next tasks.
+
+```{r, eval=FALSE}
+# TODO: create cv_missing and make_folds(), then inspect counts.
+```
+
+Interpret the result and state its limitations.
+
+## 5. Preprocess within training folds
+
+Implement cv_predict(data, fold) using the lecture model sbp_12 ~ sbp_0 + age + arm. Learn baseline imputation from training rows only. Store one finite prediction per participant, calculate RMSE, and compare with a training-mean benchmark.
+
+```{r, eval=FALSE}
+cv_predict <- function(data, fold) {
+  # TODO: preallocate predictions; fit imputation and regression inside each fold.
+}
+```
+
+Interpret the result and state its limitations.
+
+## 6. Audit leakage and fold sensitivity
+
+Compare with deliberately global imputation using the same folds. Repeat valid CV under ten seeds; report all scores and explain why their variation is not a sampling confidence interval. State the split rule for a new-participant versus new-clinic prediction target.
+
+```{r, eval=FALSE}
+# TODO: compare valid and leaky data flow; repeat the fold assignment.
+```
+
+Interpret the result and state its limitations.
+
+## AI-use disclosure
+
+AI use: None. Replace this line if assistance was used.

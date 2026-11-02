@@ -140,18 +140,18 @@ These packages work together inside the same `mutate()` and pipe workflows.
 
 ## The main teaching route {.smaller}
 
-| Minutes | Topic |
-|---:|---|
-| 0–5 | Recap and package roles |
-| 5–30 | Basic joins and checks |
-| 30–50 | tidyr and basic pivots |
-| 50–65 | stringr |
-| 65–75 | forcats |
-| 75–85 | lubridate |
-| 85–90 | Connected example and summary |
+| Topic |
+| --- |
+| Recap and package roles |
+| Basic joins and checks |
+| tidyr and basic pivots |
+| stringr |
+| forcats |
+| lubridate |
+| Connected example and summary |
 
 Optional blocks follow the related join or pivot introduction.
-Use their skip links to stay on the 90-minute main route.
+Use their skip links to follow the main route.
 
 
 # Joining tables {.section-divider}
@@ -514,7 +514,7 @@ trial_labs <- left_join(trial, labs, by = "id")
 nrow(trial_labs)
 ```
 
-. . .
+## Optional: Inspect the new patient-visit rows {.smaller}
 
 `60 × 2 = 120`, predicted before running it.
 
@@ -710,7 +710,7 @@ merge(trial, site_lookup,
 | `anti_join(x, y, by = "k")` | `x[!(x$k %in% y$k), ]` | 15 |
 :::
 
-. . .
+## Optional: Verify the join row counts {.smaller}
 
 ```{r}
 #| label: merge-counts
@@ -1161,6 +1161,8 @@ repeat_readings |>
               values_from = marker)
 ```
 
+## Optional: Decide how duplicate cells should be handled {.smaller}
+
 The output contains a list column because both values need somewhere to go.
 Using `values_fn = mean` would impose an averaging rule.
 Use that rule only when the analysis calls for it.
@@ -1180,7 +1182,7 @@ sbp_long <- reshape(wide3,
 dim(sbp_long)
 ```
 
-. . .
+## Optional: Reshape back to wide form {.smaller}
 
 ```{r}
 #| label: base-reshape-back

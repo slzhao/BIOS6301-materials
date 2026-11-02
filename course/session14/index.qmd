@@ -1,16 +1,26 @@
 ---
-title: "Session 14 · Random generation and simulation"
-subtitle: "Design a Monte Carlo experiment before writing the loop"
+title: "Session 14 · Random numbers and simulation"
 ---
 
-## Learning goals
+## The statistical computing sequence
 
-Use R's distribution functions, control random-number generation, define a
-simulation with the ADEMP framework, estimate Type I error or power, and quantify
-Monte Carlo uncertainty.
+| Session | Focus |
+|---|---|
+| 14 | Known-truth simulation: design, performance, failures, and Monte Carlo uncertainty |
+| 15 | Resampling observed data: uncertainty, null tests, and held-out prediction |
+| 16 | Practical analysis: fitted models, numerical methods, structured text, and handoff |
+
+## Outline and applied practice
+
+1. **Specify ADEMP** — Use independent control and treatment groups with SDs 12 and 4. Compare sizes 10/40 and 30/40, differences 0 and 6, and normal versus skewed errors. Both tests target treatment minus control. State the performance measures before running the study.
+2. **Inspect one replicate** — Generate one dataset and compare Welch and pooled results on that same dataset. Verify the estimate direction, result names, and interval ordering. Exercise a failed constant-outcome sample.
+3. **Retain each method and replicate** — Implement run_study(s, B) for one scenario row. Retain replicate, method, scenario values, numeric results, and an error message. Both methods must use the same generated dataset in each replicate.
+4. **Plan precision and run scenarios** — Use a target worst-case MCSE of 0.016 for a probability. Calculate the required replication count using 0.25 / target^2, then use at least that many replicates. Seed once before the complete grid.
+5. **Summarize performance and failures** — For each scenario and method report attempts, failures, bias, empirical SE, mean model SE, RMSE, coverage, mean width, rejection rate, and MCSE for bias, coverage, and rejection. Label quantities conditional on success.
+6. **Interpret sensitivity** — Compare null calibration, power, interval coverage, and failure counts across allocation and distribution. Draw one comparison with Monte Carlo uncertainty. Explain why a skewed error is centered using population quantities rather than its sample mean.
 
 ## Materials
 
-- [Slides](slides.qmd)
+- [Lecture slides](slides.qmd)
 - [Guided lab](lab.qmd)
-- Lab starter—choose one: `starter/simulation-lab.Rmd` or `starter/simulation-lab.qmd`
+- Starter: [Quarto](starter/simulation-lab.qmd) or [R Markdown](starter/simulation-lab.Rmd)

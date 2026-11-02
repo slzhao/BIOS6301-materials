@@ -1,40 +1,125 @@
 ---
-title: "Session 13 lab: iteration"
-date: now
-date-format: "YYYY-MM-DD HH:mm:ss Z"
+title: "Session 13 programming lab"
 format: html
 ---
 
+## Supplied inputs and checked prerequisites
+
+The helpers below are provided so this lab runs independently. Inspect their
+contracts, then use them without changing their missing-value behavior.
+
 ```{r}
-set.seed(6301)
-simulated <- as.data.frame(replicate(12, rnorm(200, mean = 0.25)))
-names(simulated) <- paste0("sim", seq_along(simulated))
+markers <- data.frame(
+  marker_a = c(4.1, 5.2, NA, 6.0),
+  marker_b = c(12, 10, 9, 11),
+  marker_c = rep(NA_real_, 4)
+)
+
+safe_mean <- function(x) {
+  if (!is.numeric(x) || !is.null(dim(x))) {
+    stop("x must be a numeric vector", call. = FALSE)
+  }
+  if (any(is.infinite(x))) {
+    stop("x must not contain infinite values", call. = FALSE)
+  }
+  if (all(is.na(x))) return(NA_real_)
+  mean(x, na.rm = TRUE)
+}
+
+classify_change <- function(change) {
+  stopifnot(is.numeric(change), is.null(dim(change)))
+  out <- rep("missing", length(change))
+  observed <- !is.na(change)
+  out[observed & change < 0] <- "decrease"
+  out[observed & change >= 0] <- "no decrease"
+  out
+}
+
+change_summary <- function(baseline, followup) {
+  stopifnot(is.numeric(baseline), is.null(dim(baseline)),
+            is.numeric(followup), is.null(dim(followup)),
+            length(baseline) == length(followup),
+            !any(is.infinite(baseline)), !any(is.infinite(followup)))
+  change <- followup - baseline
+  data.frame(change = change, category = classify_change(change))
+}
+baseline_columns <- list(marker_a = c(10, 8, NA, 12), marker_b = c(4, 6, 8, NA))
+followup_columns <- list(marker_a = c(8, 9, 7, 12), marker_b = c(5, 4, 8, 9))
+row_input <- matrix(seq_len(24) / 10, nrow = 6)
+stopifnot(isTRUE(all.equal(safe_mean(markers$marker_a), 5.1)),
+          identical(safe_mean(markers$marker_c), NA_real_))
 ```
 
 ## 1. One operation
 
 ```{r}
 one_summary <- function(x) {
-  # Return named mean, SD, and proportion > 0.
+  # TODO: return c(n = ..., mean = ..., sd = ...), always length three.
+}
+# TODO: check ordinary, all-missing, and one-observation cases.
+```
+
+## 2. Preallocated loops
+
+```{r}
+# TODO: scalar safe_mean loop, then a three-row summary matrix.
+# TODO: preserve the matrix schema for a data frame with zero columns.
+```
+
+## 3. Numeric matrix operations
+
+```{r}
+# TODO: row means with a loop, apply(), and rowMeans(); check agreement.
+mixed <- data.frame(id = paste0("P", seq_len(nrow(row_input))), row_input)
+str(as.matrix(mixed))
+```
+
+## 4. Lists and templates
+
+```{r}
+template <- c(n = 0, mean = 0, sd = 0)
+# TODO: lapply() and vapply(); compare with the loop.
+unequal <- list(short = c(2, 4), longer = c(1, NA, 3, 5))
+# TODO: map safe_mean over unequal-length inputs.
+# TODO: demonstrate the character-input failure without stopping the render.
+```
+
+## 5. Paired iteration and optional purrr
+
+```{r}
+# TODO: check paired list lengths/names, use Map(), compare with a list loop.
+# Optional: map() for one_summary; map_dbl() for safe_mean; map2() for pairs.
+```
+
+## 6. Combine once
+
+```{r}
+# TODO: collect one row per marker in a list, then bind once.
+# TODO: define a typed zero-row result for zero columns.
+```
+
+## 7. Verify and measure
+
+```{r}
+growing <- function(x) {
+  out <- numeric(0)
+  for (i in seq_along(x)) out <- c(out, sqrt(x[i]))
+  out
+}
+preallocated <- function(x) {
+  out <- numeric(length(x))
+  for (i in seq_along(x)) out[i] <- sqrt(x[i])
+  out
 }
 ```
 
-## 2. Loop and functional
-
 ```{r}
-# Apply one_summary with a loop, then vapply or lapply.
+benchmark_input <- seq_len(5000)
+# TODO: equality, warm-up, five repeated timings, and object.size().
+# TODO: repeat measurement for the three row-summary implementations.
+R.version.string
 ```
 
-## 3. Coercion demonstration
+## Exit evidence
 
-```{r}
-# Add a character column and inspect as.matrix(simulated).
-```
-
-## 4. Measurement and recommendation
-
-```{r}
-# Compare growing and preallocated output on representative work.
-```
-
-Write your recommendation here.
+TODO: state the output contract, interpretation of timings, and recommendation.

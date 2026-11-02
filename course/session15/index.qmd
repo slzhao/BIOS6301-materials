@@ -1,18 +1,26 @@
 ---
-title: "Session 15 · Resampling"
-subtitle: "Bootstrap, permutation, and cross-validation logic"
+title: "Session 15 · Resampling and validation"
 ---
 
-## Learning goals
+## The statistical computing sequence
 
-Distinguish three resampling questions, implement a bootstrap confidence interval
-and permutation test by hand, construct leakage-free cross-validation folds, and
-quantify simulation uncertainty.
+| Session | Focus |
+|---|---|
+| 14 | Known-truth simulation: design, performance, failures, and Monte Carlo uncertainty |
+| 15 | Resampling observed data: uncertainty, null tests, and held-out prediction |
+| 16 | Practical analysis: fitted models, numerical methods, structured text, and handoff |
+
+## Outline and applied practice
+
+1. **Bootstrap within arms** — Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap bias, SE, percentile and basic intervals, and compare the SE with Welch. Repeat interval endpoints with three seeds.
+2. **Monte Carlo and exact permutation** — For a completely randomized design under the sharp null, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution and binomial tail-probability interval. Enumerate all 70 assignments for four participants per arm.
+3. **Choose resampling units** — Use trial_long to compare row and participant bootstraps. Preserve all visits when sampling participants and retain duplicated sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the rules.
+4. **Construct checked folds** — Create five folds stratified by arm. Verify one fold label per participant and disjoint training/assessment IDs. Set baseline values at rows 2, 8, 17, 32, 46, and 55 to missing for the next tasks.
+5. **Preprocess within training folds** — Implement cv_predict(data, fold) using the lecture model sbp_12 ~ sbp_0 + age + arm. Learn baseline imputation from training rows only. Store one finite prediction per participant, calculate RMSE, and compare with a training-mean benchmark.
+6. **Audit leakage and fold sensitivity** — Compare with deliberately global imputation using the same folds. Repeat valid CV under ten seeds; report all scores and explain why their variation is not a sampling confidence interval. State the split rule for a new-participant versus new-clinic prediction target.
 
 ## Materials
 
-- [Slides](slides.qmd)
+- [Lecture slides](slides.qmd)
 - [Guided lab](lab.qmd)
-- Lab starter—choose one: `starter/resampling-lab.Rmd` or `starter/resampling-lab.qmd`
-
-This is a second statistical-computing class, not a final-project workshop.
+- Starter: [Quarto](starter/resampling-lab.qmd) or [R Markdown](starter/resampling-lab.Rmd)
