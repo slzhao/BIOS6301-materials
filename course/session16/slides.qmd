@@ -1,5 +1,5 @@
 ---
-title: "Practical Statistical Computing"
+title: "Models, Prediction, and Validation"
 subtitle: "BIOS 6301 · Session 16 · Introduction to Statistical Computing"
 author: "Department of Biostatistics, Vanderbilt University Medical Center"
 format:
@@ -15,7 +15,7 @@ format:
     fig-align: center
     code-line-numbers: false
     highlight-style: github
-    footer: "BIOS 6301 · Session 16 · Practical Statistical Computing"
+    footer: "BIOS 6301 · Session 16 · Models, Prediction, and Validation"
     navigation-mode: linear
 execute:
   enabled: true
@@ -43,58 +43,34 @@ trial$sbp_0[c(5, 29, 61)] <- NA_real_
 
 ## The statistical computing sequence {.smaller}
 
-| Session | Question | Main product |
-|---|---|---|
-| 14 · Simulation | How does a method behave when the truth is known? | A checked simulation study |
-| 15 · Resampling | What can repeated use of observed data tell us? | Uncertainty and held-out performance |
-| 16 · Practical analysis | How do we fit, inspect, and deliver an analysis? | Models, numerical checks, and an auditable handoff |
-
-This session applies the programming tools from Sessions 11–13 to new statistical tasks.
-
-## What is new today {.smaller}
-
-| Already developed | Today's extension |
+| Session | Focus |
 |---|---|
-| Import, joins, strings, dates (5–7) | Capture structured identifiers and audit rejected records |
-| Functions and checks (11–12) | Inspect fitted objects and verify numerical solutions |
-| Simulation and resampling (14–15) | Connect fitted models to predictions and computational objectives |
-| Projects and Git (1–2) | Record package versions and deliver an analysis bundle |
-
-Basic text cleaning, Git operations, and loop syntax remain prerequisites rather than repeated blocks.
+| 14 | Known-truth simulation: design, performance, failures, and Monte Carlo uncertainty |
+| 15 | Bootstrap uncertainty, permutation tests, and resampling units |
+| 16 | Fitted models, prediction, cross-validation, and reproducible handoff |
 
 ## Learning goals {.smaller}
 
-- Translate a model formula into an analysis dataset and design matrix.
-- Extract model results and make predictions on the intended scale.
-- Distinguish mean-response intervals, prediction intervals, and held-out error.
-- Use one-dimensional optimization, root finding, and integration with checks.
-- Parse a narrow identifier grammar while retaining missing and invalid records.
-- Preserve the computing environment and provenance of a finished analysis.
+- Define the analysis sample and inspect a fitted model.
+- Extract estimates and predict on new data.
+- Distinguish diagnostics from held-out predictive evaluation.
+- Fit preprocessing within each training fold and check predictions.
+- Deliver results with traceable inputs, code, and environment.
 
 ## Session outline {.smaller}
 
 | Block | Content |
 |---|---|
-| 1 | A statistical analysis workflow |
-| 2 | Formulas and fitted model objects |
-| 3 | Prediction and diagnostics |
-| 4 | Binary outcomes with `glm()` |
-| 5 | Numerical optimization, roots, and integration |
-| 6 | Structured text and validation |
-| 7 | Reproducible handoff and synthesis |
+| 1 | Analysis sample, formulas, and fitted objects |
+| 2 | Prediction and diagnostics |
+| 3 | Training folds, preprocessing, and held-out prediction |
+| 4 | Leakage, benchmarks, and validation design |
+| 5 | Reproducible handoff |
 
-# 1 · An analysis workflow {.section-divider}
+Optional binary prediction, numerical methods, and structured text are in the
+[supplement](supplement.qmd).
 
-## One synthetic study {.smaller}
-
-```{r}
-head(trial[, c("id", "arm", "sbp_0", "sbp_12", "response")], 4)
-```
-
-One row represents one participant. Baseline and 12-week SBP are continuous;
-`response` is a separately generated binary teaching outcome.
-
-All data are synthetic. The examples teach computing interfaces, not a clinical analysis recommendation.
+# 1 · Fit and inspect a model {.section-divider}
 
 ## Define the target before fitting {.smaller}
 
@@ -102,14 +78,13 @@ All data are synthetic. The examples teach computing interfaces, not a clinical 
 |---|---|---|
 | Adjusted mean comparison | Model coefficient for treatment at specified covariates | Formula, sample, contrast, interval |
 | Predict 12-week SBP | Outcome for a new participant | Predictor availability and held-out error |
-| Model a binary response | Probability of `response = 1` | Outcome coding and prediction scale |
 
 These tasks can use similar functions while answering different questions.
 
 ## Make the analysis population explicit {.smaller}
 
 ```{r}
-vars <- c("id", "arm", "sbp_0", "age", "sbp_12", "response")
+vars <- c("id", "arm", "sbp_0", "age", "sbp_12")
 keep <- complete.cases(trial[, vars])
 analysis <- trial[keep, vars]
 c(available = nrow(trial), analysed = nrow(analysis), excluded = sum(!keep))
@@ -119,18 +94,6 @@ stopifnot(!anyDuplicated(analysis$id))
 
 Complete-case filtering is explicit here for teaching. It changes the population
 being analysed and may introduce bias; it is not a universal missing-data strategy.
-
-## A checkable analysis contract {.smaller}
-
-- **Input:** one row per participant; specified units and factor levels.
-- **Sample:** record exclusions and reasons, retaining identifiers.
-- **Fit:** a stated formula and fitting procedure.
-- **Output:** estimates or predictions with their target and uncertainty.
-- **Evidence:** diagnostic checks, held-out evaluation when relevant, and provenance.
-
-An error-free `lm()` call establishes only that the computation completed.
-
-# 2 · Formulas and model objects {.section-divider}
 
 ## Read a model formula {.smaller}
 
@@ -144,20 +107,6 @@ An intercept is included by default. In formulas, `+` adds model terms rather
 than adding the columns numerically.
 
 Use `data = analysis` so the intended source of variables is clear.
-
-## Formula operators {.smaller}
-
-| Formula fragment | Model terms |
-|---|---|
-| `x + z` | Main effects of x and z |
-| `x * z` | `x + z + x:z` |
-| `x:z` | Interaction term |
-| `x + I(x^2)` | Linear and literal squared x terms |
-| `x - 1` | Remove the intercept |
-
-The formula `^` has special term-expansion meaning. Use `I()` when ordinary
-arithmetic is intended. Include interactions because the scientific question
-requires them, not simply because the syntax is available.
 
 ## Factors determine the comparison {.smaller}
 
@@ -252,7 +201,7 @@ Compare the required variables, the complete-case indicator, `nobs(fit)`, and
 Report the sample actually used by the model. For comparisons between models,
 also check whether different formulas cause different rows to be included.
 
-# 3 · Prediction and diagnostics {.section-divider}
+# 2 · Prediction and diagnostics {.section-divider}
 
 ## Construct prediction data deliberately {.smaller}
 
@@ -306,23 +255,6 @@ abline(h = 0, lty = 2, col = "grey40")
 Look for curvature, changing spread, and unusual observations. A pattern suggests
 follow-up questions; absence of a visible pattern is not proof of adequacy.
 
-## Quantile and influence diagnostics {.smaller}
-
-```{r}
-#| echo: false
-#| fig-width: 9
-#| fig-height: 3.6
-par(mfrow = c(1, 2))
-qqnorm(residuals(fit), pch = 19, cex = .6, main = "Residual quantiles")
-qqline(residuals(fit))
-plot(cooks.distance(fit), type = "h", ylab = "Cook's distance",
-     xlab = "Analysis row", main = "Influence")
-par(mfrow = c(1, 1))
-```
-
-Investigate flagged records and model sensitivity. Do not delete a participant
-only because a diagnostic is large.
-
 ## Preserve identifiers in diagnostics {.smaller}
 
 ```{r}
@@ -339,302 +271,244 @@ traceable to its original record.
 | Evidence | Question |
 |---|---|
 | Residual plots and influence | Where might the fitted model be inadequate or sensitive? |
-| Cross-validation from Session 15 | How well does the fitting procedure predict held-out observations? |
+| Cross-validation in the next block | How well does the fitting procedure predict held-out observations? |
 | External evaluation | Does performance transfer to the target setting? |
 
 Good training fit is not a substitute for held-out evaluation.
 
-# 4 · Binary outcomes {.section-divider}
+# 3 · Held-out prediction {.section-divider}
 
-## A binomial model in R {.smaller}
+## The prediction target {.smaller}
 
-```{r}
-table(analysis$response)
-binary_fit <- glm(response ~ sbp_0 + arm,
-  family = binomial(), data = analysis, na.action = na.fail)
-coef(binary_fit)
-```
+Predict 12-week SBP for a new participant from baseline variables.
+Assessment outcomes are reserved for scoring after predictions are fixed.
 
-Here `response` is numeric 0/1 and the target event is explicitly `response = 1`.
-The default binomial link is logit; coefficients are on the log-odds scale.
+The coefficient table used 77 complete cases. For prediction, return to all
+80 participants and learn an imputation rule within each training fold.
+These workflows use different samples and missing-data rules. Label both.
 
-## Link scale and response scale {.smaller}
+## Five folds stratified by arm {.smaller}
 
 ```{r}
-eta <- predict(binary_fit, newdata = new_people, type = "link")
-prob <- predict(binary_fit, newdata = new_people, type = "response")
-data.frame(log_odds = eta, probability = prob)
-stopifnot(isTRUE(all.equal(unname(plogis(eta)), unname(prob))),
-          all(prob >= 0 & prob <= 1))
-```
-
-Omitting `type` returns link-scale predictions for this GLM. Always label the scale.
-
-## Coefficients and probabilities {.smaller}
-
-```{r}
-c(log_odds_coefficient = coef(binary_fit)["armTreatment"],
-  conditional_odds_ratio = exp(coef(binary_fit)["armTreatment"]))
-```
-
-Exponentiating a logit coefficient gives a conditional odds ratio for that term,
-not a risk ratio or probability difference. Predicted probabilities depend on
-the other covariates as well.
-
-Statistical interpretation requires the model specification and study design.
-
-## Inspect fitting problems {.smaller}
-
-```{r}
-c(converged = binary_fit$converged,
-  finite_coefficients = all(is.finite(coef(binary_fit))))
-range(fitted(binary_fit))
-```
-
-Warnings, very large coefficients, or probabilities near 0 and 1 can require
-investigation, including sparse cells or separation. A convergence flag alone
-does not establish reliable inference.
-
-Use methods guidance for a remedy; do not suppress warnings until the output looks clean.
-
-# 5 · Numerical computation {.section-divider}
-
-## Three numerical tasks {.smaller}
-
-| Task | R function | Result to check |
-|---|---|---|
-| Minimize or maximize a scalar function on an interval | `optimize()` | Location, objective, and boundaries |
-| Find a zero of a continuous function | `uniroot()` | Root, residual, and bracket |
-| Integrate a function over a range | `integrate()` | Value, reported numerical error, and known checks |
-
-Statistical software performs such calculations internally. A transparent
-one-dimensional example makes the computational contract visible.
-
-## Write a negative log-likelihood {.smaller}
-
-```{r}
-counts <- c(0, 1, 2, 1, 4, 3, 2, 0, 5, 2)
-poisson_nll <- function(lambda, y) {
-  if (length(lambda) != 1L || !is.finite(lambda) || lambda <= 0)
-    return(Inf)
-  -sum(dpois(y, lambda = lambda, log = TRUE))
-}
-poisson_nll(2, counts)
-```
-
-For independent Poisson counts, log-probabilities add. The negative sign makes
-maximum likelihood a minimization problem. These counts share the same exposure.
-
-## Inspect the objective {.smaller}
-
-```{r}
-#| echo: false
-#| fig-width: 9
-#| fig-height: 3.7
-grid <- seq(.1, 6, length.out = 150)
-plot(grid, vapply(grid, poisson_nll, numeric(1), y = counts), type = "l",
-     xlab = "Poisson mean", ylab = "Negative log-likelihood", lwd = 2)
-abline(v = mean(counts), lty = 2, col = "#8a7448")
-```
-
-A plot can reveal a wrong sign, a poor search interval, or multiple minima.
-It complements numerical checks; it does not prove the global solution.
-
-## Optimize and verify a known answer {.smaller}
-
-```{r}
-opt <- optimize(poisson_nll, interval = c(.001, 10), y = counts)
-c(numerical = opt$minimum, analytic = mean(counts), objective = opt$objective)
-stopifnot(abs(opt$minimum - mean(counts)) < 1e-3)
-```
-
-For these Poisson observations, the maximum-likelihood mean is the sample mean.
-Agreement checks this implementation against a result available independently.
-
-## Boundaries and tolerances {.smaller}
-
-```{r}
-narrow <- optimize(poisson_nll, interval = c(.001, 1), y = counts)
-c(wrong_search_result = narrow$minimum, known_solution = mean(counts))
-```
-
-The algorithm searches the interval supplied. A result near a boundary requires
-checking the interval and the parameter space.
-
-If every count is zero, the Poisson optimum is the boundary `lambda = 0`;
-the positive-only objective above needs a separate boundary rule.
-
-## Root finding as an inverse calculation {.smaller}
-
-```{r}
-target <- function(z) pnorm(z) - .975
-c(left = target(0), right = target(4))
-root <- uniroot(target, interval = c(0, 4), tol = 1e-8)
-c(root = root$root, residual = target(root$root), reference = qnorm(.975))
-```
-
-For a continuous function, opposite endpoint signs bracket at least one root.
-Check the equation at the returned value, not only the convergence message.
-
-## Numerical integration {.smaller}
-
-```{r}
-area <- integrate(dnorm, lower = -1.96, upper = 1.96)
-c(numerical = area$value, reported_error = area$abs.error,
-  cdf_difference = pnorm(1.96) - pnorm(-1.96))
-```
-
-The integrand must accept a vector of inputs and return corresponding values.
-The reported error concerns numerical approximation, not sampling uncertainty.
-
-## Practice: classify the failure {.smaller}
-
-1. A likelihood optimizer returns the upper limit of a narrow search interval.
-2. A root finder receives endpoints where the function has the same sign.
-3. Increasing simulation replicates does not change a mistaken likelihood formula.
-
-For each, identify what should be inspected before increasing iteration limits.
-
-## Practice: check the mathematical contract {.smaller}
-
-1. Plot the objective, inspect the parameter space, and expand a justified interval.
-2. Check continuity, the equation, and a bracket containing a sign change.
-3. Validate the formula against a known case; more repetition cannot repair it.
-
-Numerical tolerance, Monte Carlo error, and sampling uncertainty describe different problems.
-
-# 6 · Structured text {.section-divider}
-
-## A narrow identifier grammar {.smaller}
-
-```{r}
-specimen_raw <- c(" P001-W00 ", "P010-W12", "P020-W99", "P999-W04",
-                  "junkP003-W12", "P004-W4", NA, "P005-W12")
-specimen_raw
-```
-
-The specification is `P` + three digits + `-W` + two digits.
-Permitted visits are 0, 4, 12, and 26, and the participant must exist in the registry.
-
-Shape, allowed values, and registry membership are separate checks.
-
-## Anchors and capture groups {.smaller}
-
-```{r}
-pattern <- "^(P[0-9]{3})-W([0-9]{2})$"
-normalized <- toupper(trimws(specimen_raw))
-stringr::str_match(normalized, pattern)
-```
-
-`^` and `$` require the complete string to match. Parentheses capture the
-participant ID and visit. The returned matrix preserves one row per input,
-including missing values and nonmatches.
-
-## Escaping and literal punctuation {.smaller}
-
-```{r}
-x <- c("report.csv", "reportXcsv")
-data.frame(x, loose = grepl(".csv$", x),
-  literal_dot = grepl("\\.csv$", x),
-  raw_string = grepl(r"(\.csv$)", x))
-```
-
-R string parsing and regex parsing are separate layers. A raw string removes
-R's backslash doubling; it does not remove the regex engine's special syntax.
-Use literal matching when no pattern language is needed.
-
-## Preserve rows in base R extraction {.smaller}
-
-```{r}
-parts <- regmatches(normalized, regexec(pattern, normalized))
-id_base <- vapply(parts, function(z)
-  if (length(z) == 3L) z[2] else NA_character_, character(1))
-id_stringr <- stringr::str_match(normalized, pattern)[, 2]
-stopifnot(identical(unname(id_base), unname(id_stringr)))
-```
-
-A failed match is retained as missing. Do not drop nonmatches and then attach
-the shorter result to the original data by position.
-
-## An auditable parser {.smaller}
-
-```{r}
-parse_specimen <- function(x, known_ids) {
-  stopifnot(is.character(x), is.character(known_ids))
-  clean <- toupper(trimws(x))
-  m <- stringr::str_match(clean, "^(P[0-9]{3})-W([0-9]{2})$")
-  id <- m[, 2]; week <- as.integer(m[, 3])
-  status <- ifelse(is.na(x), "missing", ifelse(is.na(id), "bad format",
-    ifelse(!id %in% known_ids, "unknown ID",
-      ifelse(!week %in% c(0L, 4L, 12L, 26L), "invalid visit", "ok"))))
-  data.frame(raw = x, normalized = clean, id, week, status)
+make_folds <- function(arm, k = 5L) {
+  stopifnot(!anyNA(arm), length(k) == 1L, k >= 2L,
+            k == as.integer(k), all(table(arm) >= k))
+  fold <- integer(length(arm))
+  for (i in split(seq_along(arm), arm))
+    fold[i] <- sample(rep(seq_len(k), length.out = length(i)))
+  fold
 }
 ```
 
-The first failing rule supplies `status`; the raw value remains available for review.
+Each participant appears in one assessment fold and four training folds.
+Stratification balances arm composition; it does not remove dependence.
 
-## Test near misses and semantic failures {.smaller}
-
-```{r}
-parsed <- parse_specimen(specimen_raw, trial$id)
-expected <- c("ok", "ok", "invalid visit", "unknown ID",
-              "bad format", "bad format", "missing", "ok")
-stopifnot(nrow(parsed) == length(specimen_raw),
-          identical(parsed$status, expected))
-parsed[, c("raw", "id", "week", "status")]
-```
-
-`P020-W99` has the right shape but an invalid visit. A regex alone cannot verify
-the study protocol or registry membership.
-
-## Review before joining {.smaller}
+## Inspect folds before fitting {.smaller}
 
 ```{r}
-table(parsed$status, useNA = "ifany")
-accepted <- parsed[parsed$status == "ok", ]
-review <- parsed[parsed$status != "ok", ]
-stopifnot(nrow(accepted) + nrow(review) == nrow(parsed))
+cv_data <- trial[, c("id", "arm", "age", "sbp_0", "sbp_12")]
+set.seed(1651)
+fold <- make_folds(cv_data$arm)
+stopifnot(!anyDuplicated(cv_data$id), length(fold) == nrow(cv_data),
+          setequal(unique(fold), 1:5), sum(is.na(cv_data$sbp_0)) == 3L)
+for (k in 1:5)
+  stopifnot(length(intersect(cv_data$id[fold == k],
+                            cv_data$id[fold != k])) == 0L)
+table(fold, cv_data$arm)
 ```
 
-Check uniqueness of the intended key before joining. Multiple specimens at the
-same participant-visit may be legitimate; determine whether a specimen ID is also needed.
+Keep IDs with rows so that disjointness can be checked directly.
 
-## Keep pattern matching within its scope {.smaller}
-
-- A valid-looking identifier is not evidence of a valid study record.
-- A text mention is not equivalent to a confirmed condition or medication use.
-- Clinical negation and ambiguous instructions need domain-aware review.
-- Date strings need date parsing and calendar validation, already introduced earlier.
-
-Use a documented grammar for structured text. Keep uncertain records visible.
-
-# 7 · Reproducible handoff {.section-divider}
-
-## Record what produced the result {.smaller}
+## One split: learn preprocessing from training rows {.smaller}
 
 ```{r}
-analysis_bundle <- list(
-  formula = formula(fit), analysed_ids = analysis$id,
-  excluded_ids = trial$id[!keep], coefficients = results,
-  seed = 6301, rng = RNGkind(), session = sessionInfo())
-names(analysis_bundle)
+train <- cv_data[fold != 1, ]
+assess <- cv_data[fold == 1, ]
+replacement <- mean(train$sbp_0, na.rm = TRUE)
+stopifnot(is.finite(replacement))
+train$sbp_0[is.na(train$sbp_0)] <- replacement
+assess$sbp_0[is.na(assess$sbp_0)] <- replacement
+fold_fit <- lm(sbp_12 ~ sbp_0 + age + arm,
+               data = train, na.action = na.fail)
+head(predict(fold_fit, newdata = assess), 3)
 ```
 
-Also record the input version, analysis-code revision, and missing-data policy.
-In this teaching example the generator and seed define the synthetic input.
+The same training mean fills missing values in training and assessment rows.
+Mean imputation illustrates information flow; it is not a general missing-data solution.
 
-## Save objects and plain tables {.smaller}
+## One prediction per participant {.smaller}
+
+Preallocate missing predictions and an assessment counter. Each fold fits its own model.
+
+```r
+pred <- rep(NA_real_, nrow(data))
+seen <- integer(nrow(data))
+for (k in sort(unique(fold))) {
+  test <- fold == k
+  # Learn preprocessing and fit using data[!test, ].
+  # Predict data[test, ] and write into pred[test].
+  seen[test] <- seen[test] + 1L
+}
+```
+
+Check that every counter is one and every prediction is finite.
+
+## A reusable prediction function {.smaller}
+
+The lab supplies the scaffold. These lines belong **inside** its fold loop:
+
+```r
+train <- data[!test, ]; assess <- data[test, ]
+m <- mean(train$sbp_0, na.rm = TRUE)
+if (!is.finite(m)) stop("training baseline entirely missing")
+train$sbp_0[is.na(train$sbp_0)] <- m
+assess$sbp_0[is.na(assess$sbp_0)] <- m
+fold_fit <- lm(sbp_12 ~ sbp_0 + age + arm,
+               data = train, na.action = na.fail)
+pred[test] <- predict(fold_fit, newdata = assess)
+```
+
+The function returns predictions in the original participant order.
+
+```{r}
+#| include: false
+cv_predict <- function(data, fold) {
+  stopifnot(!anyDuplicated(data$id), length(fold) == nrow(data),
+            !anyNA(fold), length(unique(fold)) >= 2L)
+  pred <- rep(NA_real_, nrow(data))
+  seen <- integer(nrow(data))
+  for (k in sort(unique(fold))) {
+    test <- fold == k
+    train <- data[!test, ]; assess <- data[test, ]
+    stopifnot(!any(train$id %in% assess$id))
+    m <- mean(train$sbp_0, na.rm = TRUE)
+    if (!is.finite(m)) stop("training baseline entirely missing")
+    train$sbp_0[is.na(train$sbp_0)] <- m
+    assess$sbp_0[is.na(assess$sbp_0)] <- m
+    fold_fit <- lm(sbp_12 ~ sbp_0 + age + arm,
+                   data = train, na.action = na.fail)
+    pred[test] <- predict(fold_fit, newdata = assess)
+    seen[test] <- seen[test] + 1L
+  }
+  stopifnot(all(seen == 1L), all(is.finite(pred)))
+  pred
+}
+```
+
+## Score predictions against a simple benchmark {.smaller}
+
+```{r}
+held_out <- cv_predict(cv_data, fold)
+benchmark <- rep(NA_real_, nrow(cv_data))
+for (k in sort(unique(fold)))
+  benchmark[fold == k] <- mean(cv_data$sbp_12[fold != k])
+rmse <- function(observed, predicted) {
+  stopifnot(length(observed) == length(predicted),
+            all(is.finite(observed)), all(is.finite(predicted)))
+  sqrt(mean((observed - predicted)^2))
+}
+scores <- c(model = rmse(cv_data$sbp_12, held_out),
+            benchmark = rmse(cv_data$sbp_12, benchmark))
+scores
+```
+
+Pool participant squared errors before taking the square root.
+Use identical folds for the model and the training-mean benchmark.
+
+# 4 · Leakage and validation design {.section-divider}
+
+## A deliberately leaky comparison {.smaller}
+
+```{r}
+leaky <- cv_data
+leaky$sbp_0[is.na(leaky$sbp_0)] <- mean(leaky$sbp_0, na.rm = TRUE)
+c(valid = scores[["model"]],
+  leaky = rmse(cv_data$sbp_12, cv_predict(leaky, fold)))
+```
+
+Global imputation lets assessment covariates influence the learned rule.
+Leakage need not improve the score in a particular sample. Audit information flow.
+
+## Diagnose leakage before comparing scores {.smaller}
+
+| Step | Valid location |
+|---|---|
+| Fixed, prespecified unit conversion | Can be applied to all rows |
+| Mean imputation or scaling estimated from data | Training fold |
+| Choose features using outcome associations | Training fold, with selection validated |
+| Select a model or tuning parameter | Inner validation, separate from final evaluation |
+| Compute RMSE | Held-out outcomes after predictions are fixed |
+
+A fixed rule is different from a rule estimated using assessment data.
+
+## Grouped and temporal validation {.smaller}
+
+| Deployment question | Appropriate split idea |
+|---|---|
+| Predict a new participant | Keep all visits of a participant together |
+| Predict at a new clinic | Hold out clinics |
+| Predict future outcomes | Train on earlier observations; assess later observations |
+
+Random row folds answer the wrong question if the same participant appears on both sides.
+
+## Selection and final evaluation {.smaller}
+
+Trying many models and reporting the lowest CV error uses the evaluation data
+to make a selection. The selected score can be optimistic.
+
+Use a prespecified candidate, an untouched test set, or nested cross-validation:
+
+1. An outer split reserves data for evaluation.
+2. Inner training splits choose features and tuning parameters.
+3. Refit the selected procedure on outer training data; predict outer assessment data.
+
+After evaluation, a final model can be fitted to the intended full training set.
+
+## Practice: find the information leak {.smaller}
+
+A student fills missing baseline values using all participants, chooses the
+best of 20 formulas by CV, and reports that formula's minimum CV error.
+
+Which steps used assessment information? Where should preprocessing happen?
+What evaluation data remain available after selecting the formula?
+
+## Practice: a valid evaluation plan {.smaller}
+
+- Estimate preprocessing within training data.
+- Prespecify the model for today's exercise.
+- For model selection, reserve untouched evaluation data or use nested CV.
+- For repeated visits, keep each participant entirely on one side of a split.
+- Repeating folds measures split sensitivity, not independent sampling uncertainty.
+
+# 5 · Reproducible handoff {.section-divider}
+
+## Record both analysis workflows {.smaller}
+
+```{r}
+predictions <- data.frame(id = cv_data$id, fold = fold,
+  observed = cv_data$sbp_12, prediction = held_out, benchmark = benchmark)
+analysis_bundle <- list(formula = formula(fit),
+  analysed_ids = analysis$id, excluded_ids = trial$id[!keep],
+  coefficients = results, predictions = predictions, rmse = scores,
+  input_seed = 6301, fold_seed = 1651, rng = RNGkind(),
+  missing_policy = "Complete-case descriptive fit; training-fold mean imputation for CV",
+  session = sessionInfo())
+```
+
+Document the input and code revision with the saved results.
+
+## Save inspectable outputs {.smaller}
 
 ```r
 dir.create("output", showWarnings = FALSE)
 saveRDS(analysis_bundle, "output/analysis-bundle.rds")
 write.csv(results, "output/coefficients.csv", row.names = FALSE)
-write.csv(review, "output/specimen-review.csv", row.names = FALSE)
+write.csv(predictions, "output/held-out-predictions.csv", row.names = FALSE)
 writeLines(capture.output(sessionInfo()), "output/session-info.txt")
 ```
 
-RDS preserves R structure; CSV supports inspection in other tools.
-The report explains the result. The source and input specification make it reproducible.
+Read the bundle back and check its IDs, coefficients, and predictions.
+The lab also saves RMSE and a README with the rerun instructions.
 
 ## Package versions are part of the environment {.smaller}
 
@@ -642,26 +516,15 @@ The report explains the result. The source and input specification make it repro
 `renv` adds a project library and a lockfile describing package dependencies.
 
 ```r
-# Optional: run interactively in a dedicated project, not during report rendering.
+# Optional: run interactively in a dedicated project, outside report rendering.
 renv::init()
-# After confirming the project works:
 renv::snapshot()
 # In a clone with the committed lockfile:
 renv::restore()
 ```
 
-These commands are a setup workflow, not required execution in today's lab.
-
-## What to version and what to document {.smaller}
-
-| Keep in project history | Document separately |
-|---|---|
-| Analysis source and input specification | Data access and permitted storage |
-| `renv.lock`, activation files, and settings | Required R version and system dependencies |
-| Tests and a concise README | How to regenerate expensive results |
-
-Follow renv's generated ignore rules; do not commit its installed package library.
-A lockfile records dependencies, not the data, operating system, or complete machine.
+These setup commands are optional. A lockfile records dependencies, while the
+README documents data access, the R version, and system requirements.
 
 ## A reproducible delivery check {.smaller}
 
@@ -673,48 +536,24 @@ A lockfile records dependencies, not the data, operating system, or complete mac
 
 Use a colleague's rerun to test the instructions, not only your current workspace.
 
-## Integrated lab {.smaller}
+## Lab route and exit check {.smaller}
 
-| Task | Evidence to produce |
-|---|---|
-| Fit and inspect an adjusted model | Analysis counts, coefficient table, and diagnostics |
-| Predict continuous and binary outcomes | Correct scales, intervals, and input checks |
-| Verify numerical calculations | Known-answer comparisons and boundary discussion |
-| Parse structured specimen IDs | Field tests and a review queue |
-| Prepare the handoff | Saved outputs and an environment record |
+Fit and inspect a model; predict new rows; complete the checked CV scaffold;
+compare with a benchmark; diagnose leakage; save a reproducible handoff.
 
-Each task uses an interface introduced in the corresponding lecture block.
+**Explain:** Why are there 77 rows in the coefficient analysis and 80 held-out
+predictions? Which rows learned each imputation value? How does an ID stay
+attached to its prediction?
 
-## Course synthesis {.smaller}
+## References and optional practice {.smaller}
 
-| Earlier work | Evidence in a finished analysis |
-|---|---|
-| Workflow and version control | A rerunnable project with identifiable inputs and code |
-| Data handling and visualization | A checked analysis population and interpretable figures |
-| Programming and debugging | Functions with explicit contracts and meaningful checks |
-| Simulation and resampling | Uncertainty and performance evaluated against the right target |
-| Today's practical tools | Inspectable models, verified numerical results, and traceable outputs |
-
-## Exit check {.smaller}
-
-Explain each discrepancy before accepting the result:
-
-- The model sample is smaller than the report's denominator.
-- A binomial prediction is negative because it is on the link scale.
-- An optimizer returns a boundary because the interval excludes the solution.
-- A specimen ID matches the pattern but is absent from the registry.
-- The report runs locally but its package environment is undocumented.
-
-## References {.smaller}
-
-- [R linear models](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/lm.html) and [prediction intervals](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/predict.lm.html)
-- [R GLM prediction scales](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/predict.glm.html)
-- [One-dimensional optimization](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/optimize.html), [root finding](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/uniroot.html), and [integration](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/integrate.html)
-- [stringr regular expressions](https://stringr.tidyverse.org/articles/regular-expressions.html)
-- [renv project environments](https://pkgs.rstudio.com/renv/articles/renv.html)
+- [R linear models](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/lm.html)
+- [R prediction intervals](https://stat.ethz.ch/R-manual/R-devel/library/stats/html/predict.lm.html)
+- [rsample V-fold validation](https://rsample.tidymodels.org/reference/vfold_cv.html)
+- [Optional binary prediction, numerical methods, and structured text](supplement.qmd)
 
 ## Summary {.smaller}
 
-Specify the target and sample, inspect the fitted object, and label prediction
-scales. Check numerical results against the equation or a known answer. Preserve
-uncertain text records and document the environment behind the final outputs.
+Define the sample, inspect the model, and label predictions. Fit preprocessing
+inside training folds, check held-out predictions, and retain the evidence
+needed to reproduce the result.

@@ -1,5 +1,5 @@
 ---
-title: "Session 15 lab: Bootstrap, permutation, and validation"
+title: "Session 15 lab: Bootstrap and permutation"
 format: html
 ---
 
@@ -66,9 +66,9 @@ observed <- mean_diff(trial)
 
 Interpret the result and state its limitations.
 
-## 2. Monte Carlo and exact permutation
+## 2. Permutation tests
 
-For a completely randomized design under the sharp null, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution and binomial tail-probability interval. Enumerate all 70 assignments for four participants per arm.
+For a completely randomized design under the sharp null, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution and binomial tail-probability interval. Inspect the supplied exact-enumeration demonstration below.
 
 ```{r, eval=FALSE}
 # TODO: keep outcomes fixed, shuffle labels, and compare absolute statistics.
@@ -77,44 +77,23 @@ For a completely randomized design under the sharp null, permute arm labels, ret
 
 Interpret the result and state its limitations.
 
+### Supplied exact-enumeration demonstration
+
+```{r}
+small <- trial[c(1:4, 31:34), ]
+assignment <- combn(8, 4)
+exact_stat <- apply(assignment, 2, function(i)
+  mean(small$sbp_12[i]) - mean(small$sbp_12[-i]))
+stopifnot(length(exact_stat) == 70L)
+mean(abs(exact_stat) >= abs(mean_diff(small)))
+```
+
 ## 3. Choose resampling units
 
 Use trial_long to compare row and participant bootstraps. Preserve all visits when sampling participants and retain duplicated sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the rules.
 
 ```{r, eval=FALSE}
 # TODO: split row indices by ID and index sampled IDs with replacement.
-```
-
-Interpret the result and state its limitations.
-
-## 4. Construct checked folds
-
-Create five folds stratified by arm. Verify one fold label per participant and disjoint training/assessment IDs. Set baseline values at rows 2, 8, 17, 32, 46, and 55 to missing for the next tasks.
-
-```{r, eval=FALSE}
-# TODO: create cv_missing and make_folds(), then inspect counts.
-```
-
-Interpret the result and state its limitations.
-
-## 5. Preprocess within training folds
-
-Implement cv_predict(data, fold) using the lecture model sbp_12 ~ sbp_0 + age + arm. Learn baseline imputation from training rows only. Store one finite prediction per participant, calculate RMSE, and compare with a training-mean benchmark.
-
-```{r, eval=FALSE}
-cv_predict <- function(data, fold) {
-  # TODO: preallocate predictions; fit imputation and regression inside each fold.
-}
-```
-
-Interpret the result and state its limitations.
-
-## 6. Audit leakage and fold sensitivity
-
-Compare with deliberately global imputation using the same folds. Repeat valid CV under ten seeds; report all scores and explain why their variation is not a sampling confidence interval. State the split rule for a new-participant versus new-clinic prediction target.
-
-```{r, eval=FALSE}
-# TODO: compare valid and leaky data flow; repeat the fold assignment.
 ```
 
 Interpret the result and state its limitations.

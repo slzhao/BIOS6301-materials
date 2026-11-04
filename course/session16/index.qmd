@@ -1,5 +1,5 @@
 ---
-title: "Session 16 · Practical statistical computing"
+title: "Session 16 · Models, prediction, and validation"
 ---
 
 ## The statistical computing sequence
@@ -7,20 +7,21 @@ title: "Session 16 · Practical statistical computing"
 | Session | Focus |
 |---|---|
 | 14 | Known-truth simulation: design, performance, failures, and Monte Carlo uncertainty |
-| 15 | Resampling observed data: uncertainty, null tests, and held-out prediction |
-| 16 | Practical analysis: fitted models, numerical methods, structured text, and handoff |
+| 15 | Bootstrap uncertainty, permutation tests, and resampling units |
+| 16 | Fitted models, prediction, cross-validation, and reproducible handoff |
 
 ## Outline and applied practice
 
-1. **Define and fit the analysis** — Use complete cases for the stated model variables, retaining excluded IDs. Fit sbp_12 ~ sbp_0 + age + arm with Control as reference and na.fail. Produce an estimate/interval table and verify the model matrix reproduces fitted values.
-2. **Predict and diagnose** — Predict for baseline SBP 140 and 155, ages 55 and 65, and Control and Treatment respectively. Compare mean-response confidence intervals with individual prediction intervals. Create an ID-linked diagnostic table and inspect residual and influence plots.
-3. **Check binary prediction scales** — Fit response ~ sbp_0 + arm with family = binomial(). Compare link and response predictions and verify plogis(link) equals the probability. Inspect convergence and finite coefficients; interpret the treatment coefficient scale.
-4. **Verify numerical methods** — For counts 0,1,2,1,4,3,2,0,5,2, minimize the Poisson negative log-likelihood and compare with the sample mean. Demonstrate an interval excluding that solution. Find the 0.975 standard-normal quantile by root finding and check a normal-probability integral.
-5. **Parse and audit specimen identifiers** — Implement the lecture grammar and its semantic checks. Retain all original strings. Test valid identifiers, bad format, an unknown participant, an invalid visit, missing documentation, and an empty string. Create accepted and review tables.
-6. **Prepare a reproducible handoff** — Save the result table, review queue, analysis bundle, and sessionInfo under a local output folder. Verify the saved bundle can be read back. Write a README paragraph describing input generation, sample exclusions, entry point, package requirements, and the optional role of renv.
+1. **Define and fit the analysis** — Specify the model sbp_12 ~ sbp_0 + age + arm. Define complete cases using those model variables, retain excluded IDs, and set Control as the reference. Fit with na.fail, extract an estimate/interval table, and check the analysis count. Inspect the supplied model-matrix check.
+2. **Predict and diagnose** — Construct new_people with baseline SBP 140 and 155, ages 55 and 65, and Control and Treatment respectively. Compare mean-response confidence intervals with individual prediction intervals. Create an ID-linked diagnostic table and inspect residual and influence plots.
+3. **Construct checked folds** — Return to all 80 participants in trial, including the three missing baseline values. Use the supplied make_folds() to create five folds stratified by arm. Check unique IDs, fold counts, and disjoint training/assessment IDs. Trace one split before repeating it.
+4. **Predict held-out participants** — Complete cv_predict(data, fold) using the scaffold. Within each fold, estimate baseline imputation from training rows only, fit the regression, and predict assessment rows. Preserve one finite prediction per participant. Compare pooled RMSE with a training-mean benchmark using identical folds.
+5. **Audit leakage and validation design** — Compare with deliberately global imputation using the same folds. Explain the information leak regardless of the direction of the RMSE difference. State how splits change for repeated visits, a new clinic, or future observations. Repeated-fold sensitivity is an optional extension.
+6. **Prepare a reproducible handoff** — Save the coefficient table, ID-linked held-out predictions and folds, RMSE comparison, analysis bundle, and sessionInfo. Verify the saved bundle can be read back. Document the separate complete-case model and imputed prediction workflow, seeds, inputs, and entry point.
 
 ## Materials
 
 - [Lecture slides](slides.qmd)
 - [Guided lab](lab.qmd)
 - Starter: [Quarto](starter/practical-lab.qmd) or [R Markdown](starter/practical-lab.Rmd)
+- [Optional supplements: binary prediction, numerical methods, and structured text](supplement.qmd)

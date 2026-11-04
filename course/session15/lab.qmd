@@ -1,27 +1,23 @@
 ---
 title: "Session 15 guided lab"
-subtitle: "Bootstrap, permutation, and validation"
+subtitle: "Bootstrap and permutation"
 ---
 
-Work in **BIOS6301-mywork.Rproj**. Copy one starter from the separate course
-clone into `work/session15/`: [Quarto](starter/resampling-lab.qmd) or
-[R Markdown](starter/resampling-lab.Rmd). Keep the course originals unchanged.
+Work in **BIOS6301-mywork.Rproj**. Copy the starter from the separate course clone
+into `work/session15/`: [Quarto](starter/resampling-lab.qmd) or [R Markdown](starter/resampling-lab.Rmd).
+All inputs are synthetic.
 
-## Learning goals
+## Tasks following the lecture
 
-Match each resampling method to its target and design, implement held-out predictions, and diagnose leakage.
+1. **Bootstrap within arms** — Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap bias, SE, percentile and basic intervals, and compare the SE with Welch. Repeat interval endpoints with three documented seeds.
+2. **Permutation tests** — Under the sharp null for the supplied completely randomized design, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution and a binomial interval for the Monte Carlo tail probability. Inspect the supplied demonstration of all 70 assignments for four participants per arm.
+3. **Choose resampling units** — Use trial_long to compare row and participant bootstraps. Preserve all visits and repeated copies of sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the resampling or reassignment rule.
 
-## Tasks following the lecture outline
+## In-class route and follow-up
 
-1. **Bootstrap within arms** — Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap bias, SE, percentile and basic intervals, and compare the SE with Welch. Repeat interval endpoints with three seeds.
-2. **Monte Carlo and exact permutation** — For a completely randomized design under the sharp null, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution and binomial tail-probability interval. Enumerate all 70 assignments for four participants per arm.
-3. **Choose resampling units** — Use trial_long to compare row and participant bootstraps. Preserve all visits when sampling participants and retain duplicated sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the rules.
-4. **Construct checked folds** — Create five folds stratified by arm. Verify one fold label per participant and disjoint training/assessment IDs. Set baseline values at rows 2, 8, 17, 32, 46, and 55 to missing for the next tasks.
-5. **Preprocess within training folds** — Implement cv_predict(data, fold) using the lecture model sbp_12 ~ sbp_0 + age + arm. Learn baseline imputation from training rows only. Store one finite prediction per participant, calculate RMSE, and compare with a training-mean benchmark.
-6. **Audit leakage and fold sensitivity** — Compare with deliberately global imputation using the same folds. Repeat valid CV under ten seeds; report all scores and explain why their variation is not a sampling confidence interval. State the split rule for a new-participant versus new-clinic prediction target.
+Build one bootstrap and one permutation calculation in class, then inspect the participant-resampling demonstration. Complete the seed-stability comparison and design explanations afterward. Exact enumeration code is supplied for inspection.
 
 ## Exit evidence
 
-Submit the source and rendered report with the requested results, checks,
-interpretation, and AI-use disclosure. Every result must identify its analysis
-sample or resampling unit. Use synthetic data supplied in the starter.
+Submit the source and rendered report with results, checks, interpretation, and
+an AI-use disclosure. Identify the analysis sample or resampling unit for each result.

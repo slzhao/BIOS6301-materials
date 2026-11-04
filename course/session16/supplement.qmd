@@ -1,0 +1,299 @@
+---
+title: "Session 16 optional supplements"
+format: html
+execute:
+  enabled: true
+---
+
+These independent extensions are outside the core two-hour class and required lab.
+Use them after the model and validation workflow. All inputs are synthetic.
+
+- Optional starter: [Quarto](starter/optional-lab.qmd) or [R Markdown](starter/optional-lab.Rmd).
+- [Return to the core session](index.qmd).
+
+## Setup
+
+```{r}
+# Synthetic teaching participants; no real patient records.
+set.seed(6301)
+n <- 80
+trial <- data.frame(id = sprintf("P%03d", seq_len(n)),
+  arm = factor(rep(c("Control", "Treatment"), each = n / 2)),
+  age = round(rnorm(n, 60, 9)), sbp_0 = rnorm(n, 145, 12))
+trial$sbp_12 <- 25 + .8 * trial$sbp_0 + .1 * (trial$age - 60) -
+  7 * (trial$arm == "Treatment") + rnorm(n, 0, 7)
+trial$response <- rbinom(n, 1, plogis(-.5 + .8 * (trial$arm == "Treatment") -
+                                     .025 * (trial$sbp_0 - 145)))
+trial$sbp_0[c(5, 29, 61)] <- NA_real_
+```
+
+```{r}
+vars <- c("id", "arm", "sbp_0", "age", "sbp_12", "response")
+analysis <- trial[complete.cases(trial[, vars]), vars]
+new_people <- data.frame(sbp_0 = c(140, 155), age = c(55, 65),
+  arm = factor(c("Control", "Treatment"), levels = levels(analysis$arm)))
+```
+
+# Binary outcomes
+
+## A binomial model in R
+
+```{r}
+table(analysis$response)
+binary_fit <- glm(response ~ sbp_0 + arm,
+  family = binomial(), data = analysis, na.action = na.fail)
+coef(binary_fit)
+```
+
+Here `response` is numeric 0/1 and the target event is explicitly `response = 1`.
+The default binomial link is logit; coefficients are on the log-odds scale.
+
+## Link scale and response scale
+
+```{r}
+eta <- predict(binary_fit, newdata = new_people, type = "link")
+prob <- predict(binary_fit, newdata = new_people, type = "response")
+data.frame(log_odds = eta, probability = prob)
+stopifnot(isTRUE(all.equal(unname(plogis(eta)), unname(prob))),
+          all(prob >= 0 & prob <= 1))
+```
+
+Omitting `type` returns link-scale predictions for this GLM. Always label the scale.
+
+## Coefficients and probabilities
+
+```{r}
+c(log_odds_coefficient = coef(binary_fit)["armTreatment"],
+  conditional_odds_ratio = exp(coef(binary_fit)["armTreatment"]))
+```
+
+Exponentiating a logit coefficient gives a conditional odds ratio for that term,
+not a risk ratio or probability difference. Predicted probabilities depend on
+the other covariates as well.
+
+Statistical interpretation requires the model specification and study design.
+
+## Inspect fitting problems
+
+```{r}
+c(converged = binary_fit$converged,
+  finite_coefficients = all(is.finite(coef(binary_fit))))
+range(fitted(binary_fit))
+```
+
+Warnings, very large coefficients, or probabilities near 0 and 1 can require
+investigation, including sparse cells or separation. A convergence flag alone
+does not establish reliable inference.
+
+Use methods guidance for a remedy; do not suppress warnings until the output looks clean.
+
+# Numerical computation
+
+## Three numerical tasks
+
+| Task | R function | Result to check |
+|---|---|---|
+| Minimize or maximize a scalar function on an interval | `optimize()` | Location, objective, and boundaries |
+| Find a zero of a continuous function | `uniroot()` | Root, residual, and bracket |
+| Integrate a function over a range | `integrate()` | Value, reported numerical error, and known checks |
+
+Statistical software performs such calculations internally. A transparent
+one-dimensional example makes the computational contract visible.
+
+## Write a negative log-likelihood
+
+```{r}
+counts <- c(0, 1, 2, 1, 4, 3, 2, 0, 5, 2)
+poisson_nll <- function(lambda, y) {
+  if (length(lambda) != 1L || !is.finite(lambda) || lambda <= 0)
+    return(Inf)
+  -sum(dpois(y, lambda = lambda, log = TRUE))
+}
+poisson_nll(2, counts)
+```
+
+For independent Poisson counts, log-probabilities add. The negative sign makes
+maximum likelihood a minimization problem. These counts share the same exposure.
+
+## Inspect the objective
+
+```{r}
+#| echo: false
+#| fig-width: 9
+#| fig-height: 3.7
+grid <- seq(.1, 6, length.out = 150)
+plot(grid, vapply(grid, poisson_nll, numeric(1), y = counts), type = "l",
+     xlab = "Poisson mean", ylab = "Negative log-likelihood", lwd = 2)
+abline(v = mean(counts), lty = 2, col = "#8a7448")
+```
+
+A plot can reveal a wrong sign, a poor search interval, or multiple minima.
+It complements numerical checks; it does not prove the global solution.
+
+## Optimize and verify a known answer
+
+```{r}
+opt <- optimize(poisson_nll, interval = c(.001, 10), y = counts)
+c(numerical = opt$minimum, analytic = mean(counts), objective = opt$objective)
+stopifnot(abs(opt$minimum - mean(counts)) < 1e-3)
+```
+
+For these Poisson observations, the maximum-likelihood mean is the sample mean.
+Agreement checks this implementation against a result available independently.
+
+## Boundaries and tolerances
+
+```{r}
+narrow <- optimize(poisson_nll, interval = c(.001, 1), y = counts)
+c(wrong_search_result = narrow$minimum, known_solution = mean(counts))
+```
+
+The algorithm searches the interval supplied. A result near a boundary requires
+checking the interval and the parameter space.
+
+If every count is zero, the Poisson optimum is the boundary `lambda = 0`;
+the positive-only objective above needs a separate boundary rule.
+
+## Root finding as an inverse calculation
+
+```{r}
+target <- function(z) pnorm(z) - .975
+c(left = target(0), right = target(4))
+root <- uniroot(target, interval = c(0, 4), tol = 1e-8)
+c(root = root$root, residual = target(root$root), reference = qnorm(.975))
+```
+
+For a continuous function, opposite endpoint signs bracket at least one root.
+Check the equation at the returned value, not only the convergence message.
+
+## Numerical integration
+
+```{r}
+area <- integrate(dnorm, lower = -1.96, upper = 1.96)
+c(numerical = area$value, reported_error = area$abs.error,
+  cdf_difference = pnorm(1.96) - pnorm(-1.96))
+```
+
+The integrand must accept a vector of inputs and return corresponding values.
+The reported error concerns numerical approximation, not sampling uncertainty.
+
+## Practice: classify the failure
+
+1. A likelihood optimizer returns the upper limit of a narrow search interval.
+2. A root finder receives endpoints where the function has the same sign.
+3. Increasing simulation replicates does not change a mistaken likelihood formula.
+
+For each, identify what should be inspected before increasing iteration limits.
+
+## Practice: check the mathematical contract
+
+1. Plot the objective, inspect the parameter space, and expand a justified interval.
+2. Check continuity, the equation, and a bracket containing a sign change.
+3. Validate the formula against a known case; more repetition cannot repair it.
+
+Numerical tolerance, Monte Carlo error, and sampling uncertainty describe different problems.
+
+# Structured text
+
+## A narrow identifier grammar
+
+```{r}
+specimen_raw <- c(" P001-W00 ", "P010-W12", "P020-W99", "P999-W04",
+                  "junkP003-W12", "P004-W4", NA, "P005-W12")
+specimen_raw
+```
+
+The specification is `P` + three digits + `-W` + two digits.
+Permitted visits are 0, 4, 12, and 26, and the participant must exist in the registry.
+
+Shape, allowed values, and registry membership are separate checks.
+
+## Anchors and capture groups
+
+```{r}
+pattern <- "^(P[0-9]{3})-W([0-9]{2})$"
+normalized <- toupper(trimws(specimen_raw))
+stringr::str_match(normalized, pattern)
+```
+
+`^` and `$` require the complete string to match. Parentheses capture the
+participant ID and visit. The returned matrix preserves one row per input,
+including missing values and nonmatches.
+
+## Escaping and literal punctuation
+
+```{r}
+x <- c("report.csv", "reportXcsv")
+data.frame(x, loose = grepl(".csv$", x),
+  literal_dot = grepl("\\.csv$", x),
+  raw_string = grepl(r"(\.csv$)", x))
+```
+
+R string parsing and regex parsing are separate layers. A raw string removes
+R's backslash doubling; it does not remove the regex engine's special syntax.
+Use literal matching when no pattern language is needed.
+
+## Preserve rows in base R extraction
+
+```{r}
+parts <- regmatches(normalized, regexec(pattern, normalized))
+id_base <- vapply(parts, function(z)
+  if (length(z) == 3L) z[2] else NA_character_, character(1))
+id_stringr <- stringr::str_match(normalized, pattern)[, 2]
+stopifnot(identical(unname(id_base), unname(id_stringr)))
+```
+
+A failed match is retained as missing. Do not drop nonmatches and then attach
+the shorter result to the original data by position.
+
+## An auditable parser
+
+```{r}
+parse_specimen <- function(x, known_ids) {
+  stopifnot(is.character(x), is.character(known_ids))
+  clean <- toupper(trimws(x))
+  m <- stringr::str_match(clean, "^(P[0-9]{3})-W([0-9]{2})$")
+  id <- m[, 2]; week <- as.integer(m[, 3])
+  status <- ifelse(is.na(x), "missing", ifelse(is.na(id), "bad format",
+    ifelse(!id %in% known_ids, "unknown ID",
+      ifelse(!week %in% c(0L, 4L, 12L, 26L), "invalid visit", "ok"))))
+  data.frame(raw = x, normalized = clean, id, week, status)
+}
+```
+
+The first failing rule supplies `status`; the raw value remains available for review.
+
+## Test near misses and semantic failures
+
+```{r}
+parsed <- parse_specimen(specimen_raw, trial$id)
+expected <- c("ok", "ok", "invalid visit", "unknown ID",
+              "bad format", "bad format", "missing", "ok")
+stopifnot(nrow(parsed) == length(specimen_raw),
+          identical(parsed$status, expected))
+parsed[, c("raw", "id", "week", "status")]
+```
+
+`P020-W99` has the right shape but an invalid visit. A regex alone cannot verify
+the study protocol or registry membership.
+
+## Review before joining
+
+```{r}
+table(parsed$status, useNA = "ifany")
+accepted <- parsed[parsed$status == "ok", ]
+review <- parsed[parsed$status != "ok", ]
+stopifnot(nrow(accepted) + nrow(review) == nrow(parsed))
+```
+
+Check uniqueness of the intended key before joining. Multiple specimens at the
+same participant-visit may be legitimate; determine whether a specimen ID is also needed.
+
+## Keep pattern matching within its scope
+
+- A valid-looking identifier is not evidence of a valid study record.
+- A text mention is not equivalent to a confirmed condition or medication use.
+- Clinical negation and ambiguous instructions need domain-aware review.
+- Date strings need date parsing and calendar validation, already introduced earlier.
+
+Use a documented grammar for structured text. Keep uncertain records visible.
