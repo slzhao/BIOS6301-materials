@@ -218,7 +218,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li>
     <a class="dropdown-item" href="../../course/session16/index.html">
- <span class="dropdown-text">16 · Practical computing</span></a>
+ <span class="dropdown-text">16 · Models and validation</span></a>
   </li>
     </ul>
   </li>
@@ -245,8 +245,8 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
 
   <ul>
-  <li><a href="#learning-goals" id="toc-learning-goals" class="nav-link active" data-scroll-target="#learning-goals">Learning goals</a></li>
-  <li><a href="#tasks-following-the-lecture-outline" id="toc-tasks-following-the-lecture-outline" class="nav-link" data-scroll-target="#tasks-following-the-lecture-outline">Tasks following the lecture outline</a></li>
+  <li><a href="#tasks-following-the-lecture" id="toc-tasks-following-the-lecture" class="nav-link active" data-scroll-target="#tasks-following-the-lecture">Tasks following the lecture</a></li>
+  <li><a href="#in-class-route-and-follow-up" id="toc-in-class-route-and-follow-up" class="nav-link" data-scroll-target="#in-class-route-and-follow-up">In-class route and follow-up</a></li>
   <li><a href="#exit-evidence" id="toc-exit-evidence" class="nav-link" data-scroll-target="#exit-evidence">Exit evidence</a></li>
   </ul>
 </nav>
@@ -257,7 +257,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Session 15 guided lab</h1>
-<p class="subtitle lead">Bootstrap, permutation, and validation</p>
+<p class="subtitle lead">Bootstrap and permutation</p>
 </div>
 
 
@@ -274,25 +274,22 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Work in <strong>BIOS6301-mywork.Rproj</strong>. Copy one starter from the separate course clone into <code>work/session15/</code>: <a href="starter/resampling-lab.qmd">Quarto</a> or <a href="starter/resampling-lab.Rmd">R Markdown</a>. Keep the course originals unchanged.</p>
-<section id="learning-goals" class="level2">
-<h2 class="anchored" data-anchor-id="learning-goals">Learning goals</h2>
-<p>Match each resampling method to its target and design, implement held-out predictions, and diagnose leakage.</p>
-</section>
-<section id="tasks-following-the-lecture-outline" class="level2">
-<h2 class="anchored" data-anchor-id="tasks-following-the-lecture-outline">Tasks following the lecture outline</h2>
+<p>Work in <strong>BIOS6301-mywork.Rproj</strong>. Copy the starter from the separate course clone into <code>work/session15/</code>: <a href="starter/resampling-lab.qmd">Quarto</a> or <a href="starter/resampling-lab.Rmd">R Markdown</a>. All inputs are synthetic.</p>
+<section id="tasks-following-the-lecture" class="level2">
+<h2 class="anchored" data-anchor-id="tasks-following-the-lecture">Tasks following the lecture</h2>
 <ol type="1">
-<li><strong>Bootstrap within arms</strong> — Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap bias, SE, percentile and basic intervals, and compare the SE with Welch. Repeat interval endpoints with three seeds.</li>
-<li><strong>Monte Carlo and exact permutation</strong> — For a completely randomized design under the sharp null, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution and binomial tail-probability interval. Enumerate all 70 assignments for four participants per arm.</li>
-<li><strong>Choose resampling units</strong> — Use trial_long to compare row and participant bootstraps. Preserve all visits when sampling participants and retain duplicated sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the rules.</li>
-<li><strong>Construct checked folds</strong> — Create five folds stratified by arm. Verify one fold label per participant and disjoint training/assessment IDs. Set baseline values at rows 2, 8, 17, 32, 46, and 55 to missing for the next tasks.</li>
-<li><strong>Preprocess within training folds</strong> — Implement cv_predict(data, fold) using the lecture model sbp_12 ~ sbp_0 + age + arm. Learn baseline imputation from training rows only. Store one finite prediction per participant, calculate RMSE, and compare with a training-mean benchmark.</li>
-<li><strong>Audit leakage and fold sensitivity</strong> — Compare with deliberately global imputation using the same folds. Repeat valid CV under ten seeds; report all scores and explain why their variation is not a sampling confidence interval. State the split rule for a new-participant versus new-clinic prediction target.</li>
+<li><strong>Bootstrap within arms</strong> — Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap bias, SE, percentile and basic intervals, and compare the SE with Welch. Repeat interval endpoints with three documented seeds.</li>
+<li><strong>Permutation tests</strong> — Under the sharp null for the supplied completely randomized design, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution and a binomial interval for the Monte Carlo tail probability. Inspect the supplied demonstration of all 70 assignments for four participants per arm.</li>
+<li><strong>Choose resampling units</strong> — Use trial_long to compare row and participant bootstraps. Preserve all visits and repeated copies of sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the resampling or reassignment rule.</li>
 </ol>
+</section>
+<section id="in-class-route-and-follow-up" class="level2">
+<h2 class="anchored" data-anchor-id="in-class-route-and-follow-up">In-class route and follow-up</h2>
+<p>Build one bootstrap and one permutation calculation in class, then inspect the participant-resampling demonstration. Complete the seed-stability comparison and design explanations afterward. Exact enumeration code is supplied for inspection.</p>
 </section>
 <section id="exit-evidence" class="level2">
 <h2 class="anchored" data-anchor-id="exit-evidence">Exit evidence</h2>
-<p>Submit the source and rendered report with the requested results, checks, interpretation, and AI-use disclosure. Every result must identify its analysis sample or resampling unit. Use synthetic data supplied in the starter.</p>
+<p>Submit the source and rendered report with results, checks, interpretation, and an AI-use disclosure. Identify the analysis sample or resampling unit for each result.</p>
 
 
 </section>

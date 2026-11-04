@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Session 16 · Practical statistical computing – BIOS6301 · Student Materials</title>
+<title>Session 16 · Models, prediction, and validation – BIOS6301 · Student Materials</title>
 <style>
 /* Default styles provided by pandoc.
 ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
@@ -218,7 +218,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li>
     <a class="dropdown-item" href="../../course/session16/index.html">
- <span class="dropdown-text">16 · Practical computing</span></a>
+ <span class="dropdown-text">16 · Models and validation</span></a>
   </li>
     </ul>
   </li>
@@ -256,7 +256,7 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Session 16 · Practical statistical computing</h1>
+<h1 class="title">Session 16 · Models, prediction, and validation</h1>
 </div>
 
 
@@ -293,11 +293,11 @@ ul.task-list li input[type="checkbox"] {
 </tr>
 <tr class="even">
 <td>15</td>
-<td>Resampling observed data: uncertainty, null tests, and held-out prediction</td>
+<td>Bootstrap uncertainty, permutation tests, and resampling units</td>
 </tr>
 <tr class="odd">
 <td>16</td>
-<td>Practical analysis: fitted models, numerical methods, structured text, and handoff</td>
+<td>Fitted models, prediction, cross-validation, and reproducible handoff</td>
 </tr>
 </tbody>
 </table>
@@ -305,12 +305,12 @@ ul.task-list li input[type="checkbox"] {
 <section id="outline-and-applied-practice" class="level2">
 <h2 class="anchored" data-anchor-id="outline-and-applied-practice">Outline and applied practice</h2>
 <ol type="1">
-<li><strong>Define and fit the analysis</strong> — Use complete cases for the stated model variables, retaining excluded IDs. Fit sbp_12 ~ sbp_0 + age + arm with Control as reference and na.fail. Produce an estimate/interval table and verify the model matrix reproduces fitted values.</li>
-<li><strong>Predict and diagnose</strong> — Predict for baseline SBP 140 and 155, ages 55 and 65, and Control and Treatment respectively. Compare mean-response confidence intervals with individual prediction intervals. Create an ID-linked diagnostic table and inspect residual and influence plots.</li>
-<li><strong>Check binary prediction scales</strong> — Fit response ~ sbp_0 + arm with family = binomial(). Compare link and response predictions and verify plogis(link) equals the probability. Inspect convergence and finite coefficients; interpret the treatment coefficient scale.</li>
-<li><strong>Verify numerical methods</strong> — For counts 0,1,2,1,4,3,2,0,5,2, minimize the Poisson negative log-likelihood and compare with the sample mean. Demonstrate an interval excluding that solution. Find the 0.975 standard-normal quantile by root finding and check a normal-probability integral.</li>
-<li><strong>Parse and audit specimen identifiers</strong> — Implement the lecture grammar and its semantic checks. Retain all original strings. Test valid identifiers, bad format, an unknown participant, an invalid visit, missing documentation, and an empty string. Create accepted and review tables.</li>
-<li><strong>Prepare a reproducible handoff</strong> — Save the result table, review queue, analysis bundle, and sessionInfo under a local output folder. Verify the saved bundle can be read back. Write a README paragraph describing input generation, sample exclusions, entry point, package requirements, and the optional role of renv.</li>
+<li><strong>Define and fit the analysis</strong> — Specify the model sbp_12 ~ sbp_0 + age + arm. Define complete cases using those model variables, retain excluded IDs, and set Control as the reference. Fit with na.fail, extract an estimate/interval table, and check the analysis count. Inspect the supplied model-matrix check.</li>
+<li><strong>Predict and diagnose</strong> — Construct new_people with baseline SBP 140 and 155, ages 55 and 65, and Control and Treatment respectively. Compare mean-response confidence intervals with individual prediction intervals. Create an ID-linked diagnostic table and inspect residual and influence plots.</li>
+<li><strong>Construct checked folds</strong> — Return to all 80 participants in trial, including the three missing baseline values. Use the supplied make_folds() to create five folds stratified by arm. Check unique IDs, fold counts, and disjoint training/assessment IDs. Trace one split before repeating it.</li>
+<li><strong>Predict held-out participants</strong> — Complete cv_predict(data, fold) using the scaffold. Within each fold, estimate baseline imputation from training rows only, fit the regression, and predict assessment rows. Preserve one finite prediction per participant. Compare pooled RMSE with a training-mean benchmark using identical folds.</li>
+<li><strong>Audit leakage and validation design</strong> — Compare with deliberately global imputation using the same folds. Explain the information leak regardless of the direction of the RMSE difference. State how splits change for repeated visits, a new clinic, or future observations. Repeated-fold sensitivity is an optional extension.</li>
+<li><strong>Prepare a reproducible handoff</strong> — Save the coefficient table, ID-linked held-out predictions and folds, RMSE comparison, analysis bundle, and sessionInfo. Verify the saved bundle can be read back. Document the separate complete-case model and imputed prediction workflow, seeds, inputs, and entry point.</li>
 </ol>
 </section>
 <section id="materials" class="level2">
@@ -319,6 +319,7 @@ ul.task-list li input[type="checkbox"] {
 <li><a href="../../course/session16/slides.html">Lecture slides</a></li>
 <li><a href="../../course/session16/lab.html">Guided lab</a></li>
 <li>Starter: <a href="starter/practical-lab.qmd">Quarto</a> or <a href="starter/practical-lab.Rmd">R Markdown</a></li>
+<li><a href="../../course/session16/supplement.html">Optional supplements: binary prediction, numerical methods, and structured text</a></li>
 </ul>
 
 

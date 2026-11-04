@@ -218,7 +218,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li>
     <a class="dropdown-item" href="../../course/session16/index.html">
- <span class="dropdown-text">16 · Practical computing</span></a>
+ <span class="dropdown-text">16 · Models and validation</span></a>
   </li>
     </ul>
   </li>
@@ -245,8 +245,8 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
 
   <ul>
-  <li><a href="#learning-goals" id="toc-learning-goals" class="nav-link active" data-scroll-target="#learning-goals">Learning goals</a></li>
-  <li><a href="#tasks-following-the-lecture-outline" id="toc-tasks-following-the-lecture-outline" class="nav-link" data-scroll-target="#tasks-following-the-lecture-outline">Tasks following the lecture outline</a></li>
+  <li><a href="#tasks-following-the-lecture" id="toc-tasks-following-the-lecture" class="nav-link active" data-scroll-target="#tasks-following-the-lecture">Tasks following the lecture</a></li>
+  <li><a href="#in-class-route-and-follow-up" id="toc-in-class-route-and-follow-up" class="nav-link" data-scroll-target="#in-class-route-and-follow-up">In-class route and follow-up</a></li>
   <li><a href="#exit-evidence" id="toc-exit-evidence" class="nav-link" data-scroll-target="#exit-evidence">Exit evidence</a></li>
   </ul>
 </nav>
@@ -257,7 +257,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Session 16 guided lab</h1>
-<p class="subtitle lead">Practical statistical computing</p>
+<p class="subtitle lead">Models, prediction, and validation</p>
 </div>
 
 
@@ -274,25 +274,25 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Work in <strong>BIOS6301-mywork.Rproj</strong>. Copy one starter from the separate course clone into <code>work/session16/</code>: <a href="starter/practical-lab.qmd">Quarto</a> or <a href="starter/practical-lab.Rmd">R Markdown</a>. Keep the course originals unchanged.</p>
-<section id="learning-goals" class="level2">
-<h2 class="anchored" data-anchor-id="learning-goals">Learning goals</h2>
-<p>Inspect fitted models, verify predictions and numerical calculations, parse structured identifiers, and create an auditable analysis handoff.</p>
-</section>
-<section id="tasks-following-the-lecture-outline" class="level2">
-<h2 class="anchored" data-anchor-id="tasks-following-the-lecture-outline">Tasks following the lecture outline</h2>
+<p>Work in <strong>BIOS6301-mywork.Rproj</strong>. Copy the starter from the separate course clone into <code>work/session16/</code>: <a href="starter/practical-lab.qmd">Quarto</a> or <a href="starter/practical-lab.Rmd">R Markdown</a>. All inputs are synthetic.</p>
+<section id="tasks-following-the-lecture" class="level2">
+<h2 class="anchored" data-anchor-id="tasks-following-the-lecture">Tasks following the lecture</h2>
 <ol type="1">
-<li><strong>Define and fit the analysis</strong> — Use complete cases for the stated model variables, retaining excluded IDs. Fit sbp_12 ~ sbp_0 + age + arm with Control as reference and na.fail. Produce an estimate/interval table and verify the model matrix reproduces fitted values.</li>
-<li><strong>Predict and diagnose</strong> — Predict for baseline SBP 140 and 155, ages 55 and 65, and Control and Treatment respectively. Compare mean-response confidence intervals with individual prediction intervals. Create an ID-linked diagnostic table and inspect residual and influence plots.</li>
-<li><strong>Check binary prediction scales</strong> — Fit response ~ sbp_0 + arm with family = binomial(). Compare link and response predictions and verify plogis(link) equals the probability. Inspect convergence and finite coefficients; interpret the treatment coefficient scale.</li>
-<li><strong>Verify numerical methods</strong> — For counts 0,1,2,1,4,3,2,0,5,2, minimize the Poisson negative log-likelihood and compare with the sample mean. Demonstrate an interval excluding that solution. Find the 0.975 standard-normal quantile by root finding and check a normal-probability integral.</li>
-<li><strong>Parse and audit specimen identifiers</strong> — Implement the lecture grammar and its semantic checks. Retain all original strings. Test valid identifiers, bad format, an unknown participant, an invalid visit, missing documentation, and an empty string. Create accepted and review tables.</li>
-<li><strong>Prepare a reproducible handoff</strong> — Save the result table, review queue, analysis bundle, and sessionInfo under a local output folder. Verify the saved bundle can be read back. Write a README paragraph describing input generation, sample exclusions, entry point, package requirements, and the optional role of renv.</li>
+<li><strong>Define and fit the analysis</strong> — Specify the model sbp_12 ~ sbp_0 + age + arm. Define complete cases using those model variables, retain excluded IDs, and set Control as the reference. Fit with na.fail, extract an estimate/interval table, and check the analysis count. Inspect the supplied model-matrix check.</li>
+<li><strong>Predict and diagnose</strong> — Construct new_people with baseline SBP 140 and 155, ages 55 and 65, and Control and Treatment respectively. Compare mean-response confidence intervals with individual prediction intervals. Create an ID-linked diagnostic table and inspect residual and influence plots.</li>
+<li><strong>Construct checked folds</strong> — Return to all 80 participants in trial, including the three missing baseline values. Use the supplied make_folds() to create five folds stratified by arm. Check unique IDs, fold counts, and disjoint training/assessment IDs. Trace one split before repeating it.</li>
+<li><strong>Predict held-out participants</strong> — Complete cv_predict(data, fold) using the scaffold. Within each fold, estimate baseline imputation from training rows only, fit the regression, and predict assessment rows. Preserve one finite prediction per participant. Compare pooled RMSE with a training-mean benchmark using identical folds.</li>
+<li><strong>Audit leakage and validation design</strong> — Compare with deliberately global imputation using the same folds. Explain the information leak regardless of the direction of the RMSE difference. State how splits change for repeated visits, a new clinic, or future observations. Repeated-fold sensitivity is an optional extension.</li>
+<li><strong>Prepare a reproducible handoff</strong> — Save the coefficient table, ID-linked held-out predictions and folds, RMSE comparison, analysis bundle, and sessionInfo. Verify the saved bundle can be read back. Document the separate complete-case model and imputed prediction workflow, seeds, inputs, and entry point.</li>
 </ol>
+</section>
+<section id="in-class-route-and-follow-up" class="level2">
+<h2 class="anchored" data-anchor-id="in-class-route-and-follow-up">In-class route and follow-up</h2>
+<p>Trace one model and one training/assessment split together. Complete the scaffolded CV loop and checks in class. Finish the leakage explanation and reproducible handoff afterward. Binary prediction, numerical methods, and text parsing are optional and are not required for this core lab.</p>
 </section>
 <section id="exit-evidence" class="level2">
 <h2 class="anchored" data-anchor-id="exit-evidence">Exit evidence</h2>
-<p>Submit the source and rendered report with the requested results, checks, interpretation, and AI-use disclosure. Every result must identify its analysis sample or resampling unit. Use synthetic data supplied in the starter.</p>
+<p>Submit the source and rendered report with results, checks, interpretation, and an AI-use disclosure. Identify the analysis sample or resampling unit for each result.</p>
 
 
 </section>
