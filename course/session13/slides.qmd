@@ -335,30 +335,62 @@ seq_along(sbp)             # the fix: length zero means zero iterations
 ```
 
 
-## `while`: when you do not know how many {.smaller}
+## `while`: repeat while a condition is true {.smaller}
 
-```{r}
-#| label: while-newton
-# Newton's method for sqrt(2): iterate until the step is small enough.
-x    <- 1
-iter <- 0
-
-while (abs(x^2 - 2) > 1e-10 && iter < 100) {
-  x    <- x - (x^2 - 2) / (2 * x)
-  iter <- iter + 1
+```r
+while (condition) {
+  # do one step
+  # update the values used by condition
 }
-
-c(root = x, iterations = iter)
 ```
 
-. . .
+1. Check `condition` **before** the first step.
+2. If `TRUE`, run the body and check the condition again.
+3. If `FALSE`, skip the body and continue after the loop.
 
-::: {.callout-warning appearance="simple"}
-**Always bound the loop.** `iter < 100` is not decoration — without it, a
-condition that never becomes false hangs your session with no error and no
-output.
-:::
+The condition must be one nonmissing logical value. The body may run **zero times**.
+Update the state so the condition can become false; otherwise the loop may never end.
 
+Use `for` to visit a supplied sequence. Use `while` when a condition determines
+whether another step is needed.
+
+## A bounded `while` loop, one step at a time {.smaller}
+
+**Goal:** start at 1 and halve the value until it is below 0.01.
+
+```{r}
+#| label: while-halving
+x <- 1
+iteration <- 0L
+max_iterations <- 100L
+while (x >= 0.01 && iteration < max_iterations) {
+  x <- x / 2
+  iteration <- iteration + 1L
+}
+c(value = x, iterations = iteration)
+```
+
+The values are `1 → 0.5 → 0.25 → ... → 0.0078125`: **seven updates**.
+`&&` requires both conditions to be true. The limit prevents endless iteration
+if the target is not reached.
+
+## Check why the loop stopped {.smaller}
+
+```{r}
+#| label: while-stop-reason
+reason <- if (x < 0.01) "threshold reached" else "iteration limit"
+reason
+```
+
+Stopping is not proof of success: the iteration limit may have ended the loop.
+
+**Predict, then rerun from the initialization:**
+
+- Change `max_iterations` to `3L`: what value and stopping reason do you get?
+- Start at `x <- 0.005`: how many times does the body run?
+- Remove `x <- x / 2`: does the safeguard still stop the loop?
+
+The next value depends on the previous value; this is a natural use of a loop.
 
 # 3 · What "vectorized" actually means {.section-divider}
 
@@ -997,6 +1029,7 @@ unequal-length results, and an update that depends on the previous step.
 
 ## References for programming practice {.smaller}
 
+- [R loop and control-flow syntax](https://stat.ethz.ch/R-manual/R-patched/library/base/html/Control.html)
 - [R: apply a function over a list](https://stat.ethz.ch/R-manual/R-devel/library/base/html/lapply.html)
 - [purrr mapping and scalar output contracts](https://purrr.tidyverse.org/reference/map.html)
 - [Combining mapped data frames](https://purrr.tidyverse.org/reference/map_dfr.html)
