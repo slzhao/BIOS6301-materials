@@ -18,9 +18,14 @@ broken_change <- function(baseline, followup) followup - baseline
 
 ## 1–2. Symptoms and minimal example
 
+The error handler below records the error message so the report can finish
+rendering. It does not repair the function. Run the uncaught call in the console
+for the traceback exercise in the next section.
+
 ```{r}
 mean(c("2", "4"))
-try(report_change(bad_data), silent = TRUE)
+tryCatch(report_change(bad_data),
+         error = function(e) conditionMessage(e))
 broken_mean(c(2, NA, 4))
 # TODO: record expected versus actual behavior and shrink the nested error.
 ```
