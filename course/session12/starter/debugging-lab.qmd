@@ -1,83 +1,70 @@
 ---
-title: "Session 12 programming lab"
-format: html
+title: "Session 12 guided lab: diagnose and repair"
+format:
+  html:
+    embed-resources: true
+execute:
+  enabled: true
 ---
 
-## Supplied failures
+## Supplied setup
 
-These functions are deliberately broken. Keep them as evidence.
 
 ```{r}
-pooled_mean <- function(x) sum(x) / length(x)
-summarise_change <- function(x) pooled_mean(x)
-report_change <- function(data) summarise_change(data$change)
-bad_data <- data.frame(change = c("-2", "1", "0"))
 broken_mean <- function(x) sum(x, na.rm = TRUE) / length(x)
-broken_change <- function(baseline, followup) followup - baseline
+x <- c(2, NA, 4)
 ```
 
-## 1–2. Symptoms and minimal example
+## 1. Recognize the symptom
 
-The error handler below records the error message so the report can finish
-rendering. It does not repair the function. Run the uncaught call in the console
-for the traceback exercise in the next section.
+Run the supplied examples. Identify the warning, the captured error, and the silent wrong answer. For `x`, calculate the expected mean by hand and explain the bug.
+
 
 ```{r}
 mean(c("2", "4"))
-tryCatch(report_change(bad_data),
-         error = function(e) conditionMessage(e))
-broken_mean(c(2, NA, 4))
-# TODO: record expected versus actual behavior and shrink the nested error.
+tryCatch(sum("2"), error = function(e) conditionMessage(e))
+broken_mean(x)
+# TODO: explain the three symptoms and the expected mean.
 ```
 
-## 3. Console-only inspection
 
-Run the lines below interactively, not while rendering. At the browser prompt,
-inspect `str(x)` and exit with `Q`. Then describe what you found.
+## 2. Repair one function
 
-```{r, eval=FALSE}
-report_change(bad_data)
-traceback()
-debugonce(pooled_mean)
-report_change(bad_data)
-```
+Complete the calculation in the supplied `safe_mean()` function; keep its checks unchanged. Compare the result for `x` with your hand calculation, then check `c(2, 4, 6)`. Show that the original function fails the missing-value example and the repair passes.
 
-## 4. Repair and regression checks
 
 ```{r}
 safe_mean <- function(x) {
-  # TODO: restore the complete Session 11 contract.
+  if (!is.numeric(x) || !is.null(dim(x))) stop("x must be a numeric vector")
+  if (any(is.infinite(x))) stop("x must not contain infinite values")
+  if (all(is.na(x))) return(NA_real_)
+  # TODO: replace the line below with the corrected calculation.
+  return(NA_real_)
 }
-# TODO: ordinary, partial, all-missing, empty, single-value, and NaN checks.
-# TODO: verify errors for character input, matrices, and infinity.
 ```
 
-## 5. Numerical reliability
+TODO: add the comparisons and explain the repaired denominator.
+
+## 3. Compare calculated numbers
+
+Run the two comparisons below. Explain why they differ and why `isTRUE(all.equal(...))` is useful when checking calculated numeric results.
+
 
 ```{r}
-0.1 + 0.2 == 0.3
+(0.1 + 0.2) == 0.3
 isTRUE(all.equal(0.1 + 0.2, 0.3))
-all.equal(1, 2)
-# Overflow in integer arithmetic; the double result is exact at this size.
-.Machine$integer.max + 1L
-.Machine$integer.max + 1
-# Avoid forming a product that underflows before taking its logarithm.
-log(prod(rep(0.01, 200)))
-sum(log(rep(0.01, 200)))
 ```
 
-## 6. Expected errors and paired inputs
+TODO: explain in one or two sentences.
 
-```{r}
-paired_change <- function(baseline, followup) {
-  # TODO: validate before subtracting; preserve empty input behavior.
-}
-# Example pattern: NULL means the call did not raise an error.
-# failure <- tryCatch({ paired_change(c(10, 20), 8); NULL },
-#                     error = function(e) conditionMessage(e))
-# TODO: assert the expected message and protect the valid c(-2, 1) result.
+## Optional: inspect in the Console
+
+Use `debugonce(broken_mean)` to inspect the input and denominator. Keep the debugger commands in an `eval=FALSE` chunk; run them manually in the Console.
+
+
+```{r, eval=FALSE}
+debugonce(broken_mean)
+broken_mean(x)
+# At the browser prompt, inspect x and length(x).
+# Type c to finish or Q to quit.
 ```
-
-## Exit evidence
-
-TODO: write the diagnosis, contract, console observations, and minimal reprex.

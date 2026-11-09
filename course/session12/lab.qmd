@@ -1,74 +1,28 @@
 ---
-title: "Session 12 guided lab · Diagnose and protect functions"
+title: "Session 12 guided lab: diagnose and repair"
 ---
 
-Work in **BIOS6301-mywork.Rproj**. Copy the starter from the separate
-BIOS6301-materials clone into `work/session12/` in your personal repository.
-Choose [Quarto](starter/debugging-lab.qmd) or [R Markdown](starter/debugging-lab.Rmd).
-Render or Knit your copy. All supplied inputs are synthetic.
+Work in **BIOS6301-mywork.Rproj**. Copy either the [Quarto starter](starter/debugging-lab.qmd)
+or [R Markdown starter](starter/debugging-lab.Rmd) into `work/session12/` in your personal repository.
+Choose one format. All inputs are synthetic and included. The starter renders as supplied;
+complete its TODOs and render again. Submit the source and matching HTML.
 
-## Connection to Session 11
+## 1. Recognize the symptom
 
-Keep the same `safe_mean()` contract: numeric vector; missing values ignored;
-one numeric result; numeric `NA` for empty or all-missing input; errors for
-nonnumeric input, matrices, or infinity. The task is to diagnose and repair
-broken implementations, then preserve the fix. No new statistical estimator is required.
+Run the supplied examples. Identify the warning, the captured error, and the silent wrong answer. For `x`, calculate the expected mean by hand and explain the bug.
 
-## 1. What the machine is telling you
+## 2. Repair one function
 
-Run the three supplied failures and record their symptoms:
+Complete the calculation in the supplied `safe_mean()` function; keep its checks unchanged. Compare the result for `x` with your hand calculation, then check `c(2, 4, 6)`. Show that the original function fails the missing-value example and the repair passes.
 
-- `mean(c("2", "4"))` warns and returns `NA`.
-- The nested `report_change()` call reaches `sum()` with character input and errors.
-- `broken_mean(c(2, NA, 4))` returns a plausible wrong result without an error.
+## 3. Compare calculated numbers
 
-Explain which symptom requires inspection of values rather than only a call stack.
+Run the two comparisons below. Explain why they differ and why `isTRUE(all.equal(...))` is useful when checking calculated numeric results.
 
-## 2. Isolate a minimal failure
+## Optional: inspect in the Console
 
-Reduce the nested error to one string and one calculation. State expected and
-actual behavior. Keep the original failing functions for the interactive inspection.
-Use synthetic data in the reprex; it must run without a file or global workspace.
+Use `debugonce(broken_mean)` to inspect the input and denominator. Keep the debugger commands in an `eval=FALSE` chunk; run them manually in the Console.
 
-## 3. Inspect calls and local state
+## Finish
 
-Run the failing call directly in the console, then `traceback()`. Use
-`debugonce(pooled_mean)` and inspect `str(x)` in the paused function. Quit with
-`Q`. Record where the error surfaced and where the invalid type entered.
-
-Do not run the debugger or `browser()` in the rendered report. The starter marks
-this demonstration as nonexecuting code. Captured errors in `tryCatch()` do not
-provide the same ordinary console traceback as an uncaught error.
-
-## 4. Repair and protect the contract
-
-1. Hand-calculate the observed mean of `c(2, NA, 4)` and identify the denominator error.
-2. Replace `broken_mean()` with `safe_mean()` following the inherited contract.
-3. Check ordinary, partially missing, all-missing, empty, one-value, and `NaN` inputs.
-4. Add expected-error checks for character input, a matrix, and infinity.
-5. Show that the original broken function fails the regression example while the repair passes.
-
-## 5. Numerical reliability
-
-Compare `(0.1 + 0.2) == 0.3` with `isTRUE(all.equal(0.1 + 0.2, 0.3))`.
-Use tolerance-aware comparisons for computed means, and exact checks for labels,
-types, and empty shapes. Explain why `all.equal()` must be wrapped before use in `if`.
-Inspect the supplied overflow and underflow examples, and explain how a double
-or a sum of logs changes the computation. Do not infer a statistical model from them.
-
-## 6. Capture expected errors and document the repair
-
-Repair `broken_change()` so paired inputs must be numeric vectors of equal length
-and contain no infinity. Return the numeric differences. Empty paired inputs are
-valid. Use `tryCatch()` to assert the intended error for unequal lengths and
-check the valid pair still returns `c(-2, 1)`. Patient order remains a precondition.
-
-Write a compact reprex of one original failure and a short diagnosis. Include
-the corrected function, expected result, and regression check. Explain why
-globally suppressing warnings or converting every error to `NA` would hide evidence.
-
-## Exit evidence
-
-Submit the rendered symptoms, diagnosis, repaired helpers, checks, console
-inspection notes, and reprex. `testthat` is optional; base R checks are sufficient.
-Session 13 will use the checked operations across multiple inputs.
+Restart R and render the saved report. Keep the code, requested results, and short explanations visible.

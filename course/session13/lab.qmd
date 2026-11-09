@@ -1,85 +1,32 @@
 ---
-title: "Session 13 guided lab · Repeat checked operations"
+title: "Session 13 guided lab: loops, apply, and timing"
 ---
 
-Work in **BIOS6301-mywork.Rproj**. Copy the starter from the separate
-BIOS6301-materials clone into `work/session13/` in your personal repository.
-Choose [Quarto](starter/iteration-lab.qmd) or [R Markdown](starter/iteration-lab.Rmd).
-Render or Knit your copy. All supplied inputs are synthetic.
+Work in **BIOS6301-mywork.Rproj**. Copy either the [Quarto starter](starter/iteration-lab.qmd)
+or [R Markdown starter](starter/iteration-lab.Rmd) into `work/session13/` in your personal repository.
+Choose one format. All inputs are synthetic and included. The starter renders as supplied;
+complete its TODOs and render again. Submit the source and matching HTML.
 
-## 1. Start with a checked operation
+## 1. Preallocated loop
 
-The starter supplies the Session 11 helpers, following the contract protected in
-Session 12, and the same marker table. Run the supplied checks before iterating.
-`one_summary(x)` must return a numeric vector named `n`, `mean`, and `sd`.
-Use observed n; return numeric `NA` for the mean with no observations and for
-SD with fewer than two observations. Reject invalid input through `safe_mean()`.
+Calculate one mean per marker using a preallocated numeric vector and a `for` loop with `seq_along()`. Name the results using the column names of `markers`.
 
-## 2. Loops and allocation
+## 2. apply and vectorization
 
-Build a matrix with three rows and one column per marker. Preallocate it with
-row names `n`, `mean`, `sd` and marker column names. Fill it using
-`seq_along(markers)` and `markers[[j]]`. Preserve a 3-by-0 matrix for zero columns.
-First practice the simpler scalar case with one `safe_mean()` result per column.
+Using `visits`, calculate one mean per participant with `apply()` and with `rowMeans()`. Compare their results using `isTRUE(all.equal(...))`. Explain which `MARGIN` selects rows.
 
-## 3. Vectorized operations
+## 3. Lists and typed output
 
-For the supplied numeric matrix, compute one row mean using each of a
-preallocated loop, `apply(..., 1, mean)`, and `rowMeans()`.
-Use the same missing-value rule in all three. Verify numerical equivalence before
-measuring. Add a character ID column to a copy, inspect `as.matrix()`, and explain
-why the mixed data frame is not a safe input for numeric matrix summaries.
+Repeat Part 1 using `lapply()` and `vapply(..., numeric(1))`. Inspect the output types and compare the `vapply()` result with your loop result. Explain why one result is a list and the other is a numeric vector.
 
-## 4. Lists and typed outputs
+## 4. Run one benchmark
 
-1. Apply `one_summary()` with `lapply()` and `vapply()` using
-   `c(n = 0, mean = 0, sd = 0)` as the template. Compare against the loop's
-   values, names, types, and dimensions.
-2. Check ordinary, all-missing, one-observation, and zero-column cases.
-3. Replace a marker with a character vector. Show that the helper rejects it.
-   Explain why an output template alone cannot detect every invalid input.
-4. Use a named list of unequal-length numeric vectors with `lapply()` and
-   `vapply(..., safe_mean, numeric(1))`. Different input lengths do not imply
-   different output lengths when the operation returns one mean.
+Run the supplied timing code. It compares a row loop, `apply()`, and `rowMeans()` after checking agreement and warming up. Report the input dimensions and which method has the smallest median time in your run. Explain why a displayed zero does not mean an operation takes no time. Recommend a method in one sentence.
 
-## 5. Base R and optional purrr
+## Optional: purrr
 
-Use `Map(change_summary, baseline_columns, followup_columns)` for the two supplied
-paired lists. Check list lengths and matching names before mapping, then compare
-with a preallocated list filled by a loop. Each helper checks its paired vectors.
+If purrr is installed, use `purrr::map_dbl(markers, mean)` and compare it with your `vapply()` result. No package installation is required for the core lab.
 
-Optional equivalents: `map(markers, one_summary)` returns a list;
-`map_dbl(markers, safe_mean)` returns one number per marker. `map_dbl()` cannot
-hold all three statistics from `one_summary()` in one element. For paired
-lists, compare `map2()` with `Map()`.
+## Finish
 
-## 6. Choose and combine results
-
-Create one data-frame row per marker, including the marker name and three
-statistics. Collect the rows in a preallocated list and bind once. State the
-zero-column output schema explicitly. Explain when an ordinary loop is clearer
-than an independent mapping, especially when the next step uses the previous state.
-
-## 7. Verify and measure
-
-Compare the supplied growing and preallocated square-root loops on the same
-input, checking equality first. Warm up both implementations and record at least
-five repetitions with `system.time()`. Do the same for the row-summary implementations.
-Report input dimensions, R version, repetition count, and observed variation.
-A zero elapsed time can be below timer resolution; do not claim infinite speedup.
-
-Record `object.size()` for the input and final outputs. Explain that these are
-stored object-size estimates, not peak memory measurements. Recommend a solution
-using correctness, output shape, readability, and your actual measurements.
-
-## Exit evidence
-
-Submit the checked helpers, iteration results, empty/invalid cases, equivalence
-checks, timing context, and recommendation. No hypothesis tests, confidence
-intervals, or simulation study design are required in this programming lab.
-
-## Optional bounded-loop practice
-
-Starting at `x = 1`, repeatedly divide by two until `x < 0.01`, with an explicit
-maximum iteration count. Record whether the threshold or iteration limit ended
-the loop. Explain why the next input depends on the previous output.
+Restart R and render the saved report. Keep the code, requested results, and short explanations visible.

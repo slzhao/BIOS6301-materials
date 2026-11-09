@@ -121,8 +121,8 @@ when `x` is empty.
 
 [3]{.objective-num} **Explain** what "vectorized" means, and why it is fast.
 
-[4]{.objective-num} **Choose** between `lapply()`, `sapply()`, `vapply()`,
-`apply()`, `mapply()`, and `tapply()`.
+[4]{.objective-num} **Choose** between `apply()`, `lapply()`, `sapply()`,
+`vapply()`, and `tapply()`.
 
 [5]{.objective-num} **Say** why `sapply()` is unsafe in code that matters, and
 write the `vapply()` that fixes it.
@@ -468,6 +468,65 @@ and has the missing-value behavior you need.
 
 # 4 · The apply family {.section-divider}
 
+## `apply()`: margins on a matrix {.smaller}
+
+::: columns
+::: {.column width="49%"}
+```{r}
+#| label: apply-rows
+# MARGIN = 1: one answer per ROW
+head(apply(sbp_mat, 1, max), 4)
+```
+:::
+
+::: {.column width="49%"}
+```{r}
+#| label: apply-cols
+# MARGIN = 2: one answer per COLUMN
+round(apply(sbp_mat, 2, mean), 1)
+```
+:::
+:::
+
+. . .
+
+::: {.smaller}
+`sbp_mat` is 60 × 3: one row per patient, one column per visit. **`MARGIN` is
+the dimension you keep.**
+:::
+
+. . .
+
+```r
+# and when the function is mean or sum, do not use apply() at all
+rowMeans(sbp_mat)  # one mean per patient
+colMeans(sbp_mat)  # one mean per visit
+```
+
+
+## `apply()` on a data frame: the coercion trap {.smaller}
+
+```{r}
+#| label: apply-coerce
+apply(trial[, c("id", "sbp_0", "sbp_12")], 1, max) |> head(4)
+```
+
+. . .
+
+::: {.smaller}
+Those are patient **IDs**, not blood pressures. `apply()` needs a matrix, so it
+called `as.matrix()` — and a matrix holds one type, so every number became
+`"P001"`-style text.
+:::
+
+. . .
+
+::: {.callout-warning appearance="simple"}
+Session 3's coercion rules, arriving through a new door. `apply()` on a data
+frame with any character column silently converts **everything** to character.
+:::
+
+
 ## `lapply()`: a list in, a list out {.smaller}
 
 ```{r}
@@ -581,8 +640,8 @@ summary_matrix <- vapply(markers, one_summary, template)
 summary_matrix
 ```
 
-One statistic per marker: use `numeric(1)` or `map_dbl()`.
-Three statistics per marker: use a length-three template or `map()`.
+One statistic per marker: use `numeric(1)`.
+Three statistics per marker: use a length-three template or `lapply()`.
 
 **Practice:** predict the dimensions for zero marker columns. Why would
 `vapply(markers, one_summary, numeric(1))` fail?
@@ -601,87 +660,6 @@ It does not validate inputs for the function you supply.
 
 `mean("not numeric")` warns and returns numeric `NA`. That result can satisfy
 a numeric output template, even though the input is wrong.
-
-## `apply()`: margins on a matrix {.smaller}
-
-::: columns
-::: {.column width="49%"}
-```{r}
-#| label: apply-rows
-# MARGIN = 1: one answer per ROW
-head(apply(sbp_mat, 1, max), 4)
-```
-:::
-
-::: {.column width="49%"}
-```{r}
-#| label: apply-cols
-# MARGIN = 2: one answer per COLUMN
-round(apply(sbp_mat, 2, mean), 1)
-```
-:::
-:::
-
-. . .
-
-::: {.smaller}
-`sbp_mat` is 60 × 3: one row per patient, one column per visit. **`MARGIN` is
-the dimension you keep.**
-:::
-
-. . .
-
-```r
-# and when the function is mean or sum, do not use apply() at all
-rowMeans(sbp_mat)  # one mean per patient
-colMeans(sbp_mat)  # one mean per visit
-```
-
-
-## `apply()` on a data frame: the coercion trap {.smaller}
-
-```{r}
-#| label: apply-coerce
-apply(trial[, c("id", "sbp_0", "sbp_12")], 1, max) |> head(4)
-```
-
-. . .
-
-::: {.smaller}
-Those are patient **IDs**, not blood pressures. `apply()` needs a matrix, so it
-called `as.matrix()` — and a matrix holds one type, so every number became
-`"P001"`-style text.
-:::
-
-. . .
-
-::: {.callout-warning appearance="simple"}
-Session 3's coercion rules, arriving through a new door. `apply()` on a data
-frame with any character column silently converts **everything** to character.
-:::
-
-
-## `mapply()` and `Map()`: two vectors at once {.smaller}
-
-When you need to walk **two** things in parallel:
-
-```{r}
-#| label: mapply-demo
-labels <- c("Baseline", "6 weeks", "12 weeks")
-
-mapply(
-  \(col, lab) sprintf("%s: %.1f mmHg", lab, mean(trial[[col]])),
-  outcomes, labels
-)
-```
-
-. . .
-
-::: {.smaller}
-`Map()` is the same thing without simplification — it is to `mapply()` what
-`lapply()` is to `sapply()`, and it is the safer default.
-:::
-
 
 ## `tapply()`: split, apply, combine {.smaller}
 
@@ -714,19 +692,35 @@ trial |> group_by(arm) |> summarise(mean = mean(sbp_12))
 ::: {style="font-size:0.82em"}
 | Function | Input | Output | Use it |
 |---|---|---|---|
+| `apply(m, MARGIN, f)` | array or matrix | simplified array, vector, or list | Rows or columns of a matrix |
 | `lapply(x, f)` | vector or list | **always a list** | The safe default |
 | `sapply(x, f)` | vector or list | vector, matrix, *or list* | Console only |
 | `vapply(x, f, FUN.VALUE)` | vector or list | the shape you declared | **In scripts** |
-| `apply(m, MARGIN, f)` | array or matrix | simplified array, vector, or list | Rows or columns of a matrix |
-| `mapply(f, x, y)` | two or more vectors | simplified, like `sapply()` | Parallel iteration |
-| `Map(f, x, y)` | two or more vectors | always a list | Parallel, safely |
 | `tapply(x, g, f)` | vector + grouping | vector or matrix | Grouped summary |
-| `Reduce(f, x)` | vector or list | one value | Combining, cumulatively |
-| `Filter(f, x)` | vector or list | a subset | Keeping what matches |
 :::
 
 
 # 5 · Head to head: base and `purrr` {.section-divider}
+
+## Meet the `purrr` package {.smaller}
+
+`purrr` is a tidyverse package for applying a function repeatedly to elements
+of a vector or list. It offers a consistent interface and named output types.
+
+```r
+# Install once in the Console if needed:
+install.packages("purrr")
+
+# Load in each new R session:
+library(purrr)
+```
+
+- `map(x, f)` applies `f` to each element of `x` and returns a list.
+- `map_dbl(x, f)` returns one number per element as a double vector.
+- Put the data first and the function second, as in `lapply(x, f)`.
+
+Next, compare the same calculation using base R and `purrr`.
+
 
 ## Base R and `purrr` list mappings {.smaller}
 
@@ -821,28 +815,6 @@ purrr::map_dbl(trial[outcomes], \(x) round(mean(x), digits = 1))
 
 The wrapper receives one column and returns one number. If it returns several
 statistics, choose a list or a matrix template instead.
-
-## `map2()`, `pmap()`, and the rest {.smaller}
-
-::: {style="font-size:0.86em"}
-| Job | base R | `purrr` |
-|---|---|---|
-| Two vectors in parallel | `mapply(f, x, y)` / `Map(f, x, y)` | `map2(x, y, f)` |
-| Many vectors in parallel | `mapply(f, x, y, z)` | `pmap(list(x, y, z), f)` |
-| Side effects only — plots, files | `for` / `invisible(lapply())` | `walk(x, f)` |
-| Element and its name | `mapply(f, x, names(x))` | `imap(x, f)` |
-| Keep what matches | `Filter(f, x)` | `keep(x, f)` |
-| Combine cumulatively | `Reduce(f, x)` | `reduce(x, f)` |
-| Fail softly, keep going | `try()` inside the function | `possibly(f, NA)` |
-:::
-
-. . .
-
-::: {.smaller}
-For `map()`, data comes first and the function second. `map2()` takes two
-inputs before the function. Check each signature; base R also varies by function.
-:::
-
 
 ## The same job, twice {.smaller}
 
@@ -1018,14 +990,13 @@ and measured time. State when you would reconsider the choice.
 
 | Task | Required evidence |
 |---|---|
-| Loop, list, and typed summary | Same names, shape, and values |
-| Empty and malformed inputs | Stable empty result; informative failure |
-| Matrix row summaries | Numeric matrix; matching missingness rules |
-| Paired iteration | Matched input lengths and meaningful names |
-| Performance comparison | Equivalence before repeated measurements |
+| Preallocated loop | One named mean per marker |
+| Matrix apply and rowMeans | Matching participant means |
+| lapply and vapply | Explain list versus numeric output |
+| One supplied benchmark | Interpret repeated timings |
 
-**Exit check:** choose a tool for a scalar result, a three-statistic result,
-unequal-length results, and an update that depends on the previous step.
+**Exit check:** choose a tool for a scalar result, a list of results, and a
+step that depends on the previous output. Optional: repeat with purrr.
 
 ## References for programming practice {.smaller}
 

@@ -1,0 +1,147 @@
+---
+title: "Homework 3: Programming a 12-Week Weight-Management Report"
+---
+
+## Grading summary
+
+
+| Part | Points |
+|:--|--:|
+| 1. Participant functions | 20 |
+| 2. One classification bug | 10 |
+| 3. Clinic iteration | 35 |
+| 4. Vectorization and timing | 30 |
+| 5. Reproducibility | 5 |
+| Total | 100 |
+
+## Student instructions and data
+
+Use `weight_followup.csv`, a synthetic dataset of 200 adults enrolled at five clinics. Each row is one participant. Clinics have different enrollment counts. Eight participants have no week-12 weight because they missed follow-up; all other fields are complete and valid. These data are for programming and descriptive reporting, not for establishing program effectiveness.
+
+**Data file:** [Download weight_followup.csv](weight_followup.csv)  
+**Reference MD5:** `7858756792f2988f969072865b95558f`
+
+Keep the supplied CSV unchanged.
+
+| Variable | Meaning |
+|:--|:--|
+| `id` | Unique participant ID |
+| `clinic` | Clinic A–E |
+| `age` | Age in years |
+| `sex` | Recorded sex |
+| `height_cm` | Baseline height in centimeters |
+| `weight_baseline_kg` | Baseline weight in kilograms |
+| `weight_week12_kg` | Week-12 weight in kilograms |
+| `sessions_attended` | Number of sessions attended, 0–12 |
+
+Keep full precision in calculations; round only displayed results. Include code and short explanations in one R Markdown or Quarto report. You may assume inputs use the documented units and are correctly paired. Extensive validation is not required.
+
+### Supplied import code
+
+```r
+dat <- read.csv("weight_followup.csv", stringsAsFactors = FALSE)
+knitr::kable(head(dat), caption = "First six synthetic participants")
+```
+
+The extra demographic and attendance fields make this a realistic study table; the assignment does not require using every column.
+
+## Part 1. Participant functions — 20 points
+
+### Question 1.1. BMI function — 6 points
+
+Write `calculate_bmi(weight_kg, height_cm)`. Convert centimeters to meters inside the function and calculate weight divided by squared height in meters. Use the function to add baseline and week-12 BMI columns. Return unrounded values.
+
+Show some hand calculations of BMI and compare them with your function results to make sure they agree.
+
+### Question 1.2. Percentage change — 6 points
+
+Write one function, `percent_change(baseline, followup)`, to calculate the percentage change at follow-up compared with baseline. Use this function to create percentage changes in BMI and weight. Compare the two using `==` and `isTRUE(all.equal(...))`. Explain what you find.
+
+### Question 1.3. Combine functions with a target parameter — 8 points
+
+The following helper is supplied. It identifies a decrease of at least `target` percent:
+
+```r
+meets_target <- function(pct_change, target = 5) {
+  return(pct_change <= -target)
+}
+```
+
+Write `evaluate_target(baseline, followup, target = 5)` by combining `percent_change()` and `meets_target()`.
+
+Use it to create `met_5pct` and `met_10pct` from the weight columns. What would happen if you omitted `target = target` when calling the helper inside `evaluate_target()`?
+
+## Part 2. One classification bug — 10 points
+
+### Question 2.1. Diagnose, repair, and check
+
+A colleague writes:
+
+```r
+met_target_bug <- function(pct_change, target = 5) {
+  return(abs(pct_change) >= target)
+}
+```
+
+Run the function on `c(-7, -5, -2, 6)`. Explain what is wrong, fix it, and show the corrected results.
+
+Optional: use `debugonce(met_target_bug)` in the Console to inspect the calculation. Keep debugger commands in an `eval=FALSE` chunk so they do not interrupt rendering.
+
+## Part 3. Clinic iteration — 35 points
+
+### Supplied setup
+
+Run this supplied code to keep participants with observed follow-up measurements for Parts 3 and 4.
+
+```r
+followup <- dat[!is.na(dat$weight_week12_kg), ]
+```
+
+### Question 3.2. Clinic function and preallocated loop — 17 points
+
+Write `clinic_summary(x)` that takes one clinic's follow-up data and returns one data-frame row containing the clinic name, participant count, mean baseline BMI, mean percentage weight change, and percentage meeting the 5% target. Use `split()` to divide `followup` by clinic. Call your function for each clinic using a preallocated list and a `for` loop, then combine the rows into one report.
+
+### Question 3.3. Reuse with lapply — 8 points
+
+Use `lapply()` with your `clinic_summary()` function from Q3.2 to create the clinic report. Compare the report produced by the loop in Q3.2 with the report produced by `lapply()` here, after aligning their rows and columns. Explain the benefit of reusing the same function in both approaches.
+
+### Question 3.4. Explore several targets — 10 points
+
+Use iteration to calculate the percentage meeting 3%, 5%, 7%, and 10% weight-loss targets in each clinic. Produce a numeric matrix with clinics as rows and targets as columns. Label both dimensions. Check that percentages never increase as the target becomes stricter, and explain the check.
+
+## Part 4. Vectorization and timing — 30 points
+
+### Question 4.1. Four implementations — 12 points
+
+For each participant in `followup`, calculate additional kilograms needed to reach a 7% loss from baseline. Calculate `weight_week12_kg - 0.93 * weight_baseline_kg`, and replace negative results with zero. For example, a participant starting at 100 kg has a target of 93 kg: at 95 kg they need 2 kg more loss; at 90 kg they need zero.
+
+**(a) Loop — 3 points.** Write `additional_loop(baseline, week12)`. Preallocate a numeric result vector, use a `for` loop to calculate each participant's result, and use `if` to return zero when no additional loss is needed.
+
+**(b) vapply — 3 points.** Write `additional_vapply(baseline, week12)` to perform the same calculation using `vapply()` over participant indices, returning one number per participant.
+
+**(c) Vectorization — 3 points.** Write `additional_vectorized(baseline, week12)` using `pmax()` or `ifelse()` to calculate all participants' results at once. Explain why `max()` applied to the entire difference vector would not give one result per participant.
+
+
+**(d) apply — 3 points.** Write `additional_apply(baseline, week12)`. Combine the two numeric vectors into a matrix and use `apply()` to calculate one result per row. Explain your choice of `MARGIN`.
+
+Apply all four functions to the follow-up data and save their results.
+
+### Question 4.2. Compare the results — 6 points
+
+Confirm that the four implementations give the same results. Compare the loop result with each other result using both `==` and `isTRUE(all.equal(...))`. Explain why tolerance-aware comparison is generally preferable for calculated numeric values, even if exact equality works here.
+
+### Question 4.3. Benchmark at a useful scale — 8 points
+
+Repeat the complete follow-up rows 5,000 times. Warm up all implementations, then time each at least five times using `system.time()`. Include output allocation but exclude data generation and printing. Report row count, median and range of elapsed times, and R version. Explain why replicated rows increase computational work but not the number of independent participants.
+
+### Question 4.4. Recommendation — 4 points
+
+Recommend an implementation based on correctness, readability, and your measurements. Explain why performance differences may matter little for the original 200 participants.
+
+## Part 5. Reproducibility — 5 points
+
+### Question 5.1. Submission
+
+Submit one completed `.Rmd` or `.qmd`, its matching self-contained HTML, and the supplied unchanged CSV through your private course GitHub repository. Include `sessionInfo()` and verify that the saved report renders after restarting R. Keep code and requested results visible.
+
+Use `tools::md5sum()` to calculate the MD5 of the CSV you used. Show the filename and calculated MD5 in your report.
