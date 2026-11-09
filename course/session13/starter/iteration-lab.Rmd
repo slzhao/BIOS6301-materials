@@ -1,138 +1,91 @@
 ---
-title: "Session 13 programming lab"
-output: html_document
+title: "Session 13 guided lab: loops, apply, and timing"
+output:
+  html_document:
+    self_contained: true
 ---
 
-## Supplied inputs and checked prerequisites
+## Supplied setup
 
-The helpers below are provided so this lab runs independently. Inspect their
-contracts, then use them without changing their missing-value behavior.
 
 ```{r}
+set.seed(6313)
 markers <- data.frame(
-  marker_a = c(4.1, 5.2, NA, 6.0),
-  marker_b = c(12, 10, 9, 11),
-  marker_c = rep(NA_real_, 4)
+  marker_a = round(rnorm(30, 5, 1), 2),
+  marker_b = round(rnorm(30, 12, 2), 2),
+  marker_c = round(rnorm(30, 8, 1.5), 2)
 )
+# A separate numeric matrix: rows are participants, columns are repeated visits.
+visits <- matrix(round(rnorm(90, 125, 10), 1), nrow = 30, ncol = 3)
+colnames(visits) <- c("baseline", "week6", "week12")
+```
 
-safe_mean <- function(x) {
-  if (!is.numeric(x) || !is.null(dim(x))) {
-    stop("x must be a numeric vector", call. = FALSE)
+## 1. Preallocated loop
+
+Calculate one mean per marker using a preallocated numeric vector and a `for` loop with `seq_along()`. Name the results using the column names of `markers`.
+
+
+```{r}
+# TODO: preallocate, name, and fill the vector of marker means.
+```
+
+
+## 2. apply and vectorization
+
+Using `visits`, calculate one mean per participant with `apply()` and with `rowMeans()`. Compare their results using `isTRUE(all.equal(...))`. Explain which `MARGIN` selects rows.
+
+
+```{r}
+# TODO: row means using apply() and rowMeans(), then compare.
+```
+
+
+## 3. Lists and typed output
+
+Repeat Part 1 using `lapply()` and `vapply(..., numeric(1))`. Inspect the output types and compare the `vapply()` result with your loop result. Explain why one result is a list and the other is a numeric vector.
+
+
+```{r}
+# TODO: lapply(), vapply(), str(), and one comparison with the loop.
+```
+
+
+## 4. Run one benchmark
+
+Run the supplied timing code. It compares a row loop, `apply()`, and `rowMeans()` after checking agreement and warming up. Report the input dimensions and which method has the smallest median time in your run. Explain why a displayed zero does not mean an operation takes no time. Recommend a method in one sentence.
+
+
+```{r}
+row_loop <- function(x) {
+  out <- numeric(nrow(x))
+  for (i in seq_len(nrow(x))) out[i] <- mean(x[i, ])
+  return(out)
+}
+row_apply <- function(x) apply(x, 1, mean)
+benchmark_input <- matrix(rep(as.vector(visits), 1000), ncol = 3)
+methods <- list(loop = row_loop, apply = row_apply, vectorized = rowMeans)
+stopifnot(isTRUE(all.equal(row_loop(benchmark_input), rowMeans(benchmark_input))),
+          isTRUE(all.equal(row_apply(benchmark_input), rowMeans(benchmark_input))))
+for (fun in methods) invisible(fun(benchmark_input))
+timings <- matrix(NA_real_, 5, 3, dimnames = list(NULL, names(methods)))
+for (k in seq_len(nrow(timings))) {
+  for (j in seq_along(methods)) {
+    timings[k, j] <- system.time(methods[[j]](benchmark_input))[["elapsed"]]
   }
-  if (any(is.infinite(x))) {
-    stop("x must not contain infinite values", call. = FALSE)
-  }
-  if (all(is.na(x))) return(NA_real_)
-  mean(x, na.rm = TRUE)
 }
-
-classify_change <- function(change) {
-  stopifnot(is.numeric(change), is.null(dim(change)))
-  out <- rep("missing", length(change))
-  observed <- !is.na(change)
-  out[observed & change < 0] <- "decrease"
-  out[observed & change >= 0] <- "no decrease"
-  out
-}
-
-change_summary <- function(baseline, followup) {
-  stopifnot(is.numeric(baseline), is.null(dim(baseline)),
-            is.numeric(followup), is.null(dim(followup)),
-            length(baseline) == length(followup),
-            !any(is.infinite(baseline)), !any(is.infinite(followup)))
-  change <- followup - baseline
-  data.frame(change = change, category = classify_change(change))
-}
-baseline_columns <- list(marker_a = c(10, 8, NA, 12), marker_b = c(4, 6, 8, NA))
-followup_columns <- list(marker_a = c(8, 9, 7, 12), marker_b = c(5, 4, 8, 9))
-row_input <- matrix(seq_len(24) / 10, nrow = 6)
-stopifnot(isTRUE(all.equal(safe_mean(markers$marker_a), 5.1)),
-          identical(safe_mean(markers$marker_c), NA_real_))
-```
-
-## 1. One operation
-
-```{r}
-one_summary <- function(x) {
-  # TODO: return c(n = ..., mean = ..., sd = ...), always length three.
-}
-# TODO: check ordinary, all-missing, and one-observation cases.
-```
-
-## 2. Preallocated loops
-
-```{r}
-# TODO: scalar safe_mean loop, then a three-row summary matrix.
-# TODO: preserve the matrix schema for a data frame with zero columns.
-```
-
-## 3. Numeric matrix operations
-
-```{r}
-# TODO: row means with a loop, apply(), and rowMeans(); check agreement.
-mixed <- data.frame(id = paste0("P", seq_len(nrow(row_input))), row_input)
-str(as.matrix(mixed))
-```
-
-## 4. Lists and templates
-
-```{r}
-template <- c(n = 0, mean = 0, sd = 0)
-# TODO: lapply() and vapply(); compare with the loop.
-unequal <- list(short = c(2, 4), longer = c(1, NA, 3, 5))
-# TODO: map safe_mean over unequal-length inputs.
-# TODO: demonstrate the character-input failure without stopping the render.
-```
-
-## 5. Paired iteration and optional purrr
-
-```{r}
-# TODO: check paired list lengths/names, use Map(), compare with a list loop.
-# Optional: map() for one_summary; map_dbl() for safe_mean; map2() for pairs.
-```
-
-## 6. Combine once
-
-```{r}
-# TODO: collect one row per marker in a list, then bind once.
-# TODO: define a typed zero-row result for zero columns.
-```
-
-## 7. Verify and measure
-
-```{r}
-growing <- function(x) {
-  out <- numeric(0)
-  for (i in seq_along(x)) out <- c(out, sqrt(x[i]))
-  out
-}
-preallocated <- function(x) {
-  out <- numeric(length(x))
-  for (i in seq_along(x)) out[i] <- sqrt(x[i])
-  out
-}
-```
-
-```{r}
-benchmark_input <- seq_len(5000)
-# TODO: equality, warm-up, five repeated timings, and object.size().
-# TODO: repeat measurement for the three row-summary implementations.
+timings
+apply(timings, 2, median)
+dim(benchmark_input)
 R.version.string
 ```
 
-## Exit evidence
+TODO: interpret the measured timings.
 
-TODO: state the output contract, interpretation of timings, and recommendation.
+## Optional: purrr
 
-## Optional bounded-loop practice
+If purrr is installed, use `purrr::map_dbl(markers, mean)` and compare it with your `vapply()` result. No package installation is required for the core lab.
 
-Starting at `x = 1`, halve repeatedly until `x < 0.01`, with a maximum of 100 steps.
 
 ```{r}
-# TODO: initialize x, iteration, and max_iterations.
-# TODO: use while, updating both x and iteration in the body.
-# TODO: report the value, step count, and whether the threshold was reached.
-# TODO: reset and repeat with a cap of 3, then with initial x = 0.005.
+# Optional: use purrr::map_dbl() and compare.
 ```
-
-Explain why the body can run zero times and why stopping at the cap is not success.
