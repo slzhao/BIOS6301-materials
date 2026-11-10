@@ -56,8 +56,8 @@ theme_set(theme_minimal(base_size = 15))
 | Session | Question | Main product |
 |---|---|---|
 | 14 · Simulation | How does a method behave when the truth is known? | A checked simulation study |
-| 15 · Resampling | What can repeated use of observed data tell us? | Bootstrap uncertainty and permutation tests |
-| 16 · Models and validation | How do we fit, predict, and evaluate? | Checked predictions and a reproducible handoff |
+| 15 · Resampling | What can repeated use of observed data tell us? | Uncertainty, null tests, and resampling design |
+| 16 · Models and synthesis | How do the course tools support a complete analysis? | Interpretable models and a reproducible handoff |
 
 Functions, validation, and iteration from Sessions 11–13 support all three.
 
@@ -78,8 +78,8 @@ analyses it, and iterate over replicates.
 [5]{.objective-num} **Evaluate** bias, RMSE, coverage, interval width, and failed
 replicates, with **Monte Carlo uncertainty**.
 
-[6]{.objective-num} **Choose** the number of replicates from a target Monte Carlo
-SE.
+[6]{.objective-num} **Explain** why more replicates reduce simulation noise,
+and interpret a Monte Carlo SE for a simulated percentage.
 
 [7]{.objective-num} **Estimate** type I error and power, and say what to do when
 the type I error is not what it should be.
@@ -102,19 +102,24 @@ Use base R or tidyverse consistently; validate the same statistical target.
 
 # 1 · Pseudorandom numbers {.section-divider}
 
-## Pseudorandom numbers {.smaller}
+## How R makes random numbers {.smaller}
 
-R's random-number functions use a deterministic generator. Its state determines
-the next draw; a suitable generator gives sequences useful for statistical simulation.
+A **random-number generator** is a recipe that produces numbers that behave
+like random draws. We use them to simulate data, such as patients' blood pressures.
 
 ```{r}
-RNGkind()
+#| label: rng-introduction
+set.seed(42)
+rnorm(3, mean = 120, sd = 10)  # simulate 3 blood pressures
 ```
 
-`set.seed()` makes a run repeatable in a documented R environment. It does not
-guarantee that the simulated model represents the study of interest.
+- R follows a fixed recipe, so we call these **pseudorandom** numbers.
+- Think of a long sequence of numbers: each random call moves forward in it.
+- A **seed** chooses a starting point. The same starting point and the same
+  calls give the same results.
 
-Record the R version and RNG settings when exact reproduction matters.
+This lets us share an example and get exactly the same simulated data.
+
 
 ## The seed picks your starting point {.smaller}
 
@@ -143,42 +148,76 @@ rnorm(3)
 :::
 
 
-## The state is an ordinary object {.smaller}
+## `.Random.seed` remembers where R is {.smaller}
+
+R stores its current generator state in **`.Random.seed`**, an integer vector.
+Think of it as a bookmark: `set.seed(42)` resets it, and random calls update it.
+
+:::: {.columns}
+::: {.column width="50%"}
+**Original code**
 
 ```{r}
-#| label: random-seed
+#| label: random-seed-original
 set.seed(42)
-length(.Random.seed)
-.Random.seed[1:3]
-
-invisible(rnorm(1))     # one draw ...
-.Random.seed[1:3]       # ... and the state has moved
+round(rnorm(3), 3)
+round(rnorm(3), 3)
 ```
 
-. . .
-
-::: {.smaller}
-Two consequences that catch people:
-
-- Every draw **advances** the stream. Nothing is reset until you call `set.seed()`
-  again.
-- **Inserting a chunk changes everything below it.** If a result must be
-  reproducible, seed it immediately before it — not once at the top and hope.
+Rerun this block: both outputs repeat.
 :::
+::: {.column width="50%"}
+**An unrelated random call inserted**
+
+```{r}
+#| label: random-seed-inserted
+set.seed(42)
+round(rnorm(3), 3)
+unused <- runif(1)  # moves the bookmark
+round(rnorm(3), 3)
+```
+
+The first output matches. The second changes.
+:::
+::::
+
+Even unused random draws change later results. Calculations such as `2 + 2` do not.
 
 
-## Where to put `set.seed()` {.smaller}
 
-| Placement | Consequence |
-|---|---|
-| Before the complete study | One reproducible advancing stream |
-| Before a documented independent analysis block | Its output is stable when earlier blocks change |
-| The same seed inside every replicate | Repeats the same random draws: a simulation bug |
-| Arbitrary seeds chosen until results look desirable | Selects results instead of studying performance |
+## A seed before each result you want to reproduce {.smaller}
 
-For parallel work, use the framework's documented independent-stream support.
-`parallel::clusterSetRNGStream()` supports R clusters; fork-based
-`mclapply()` is not a multicore solution on Windows.
+Place `set.seed()` immediately before each simulation or analysis block whose
+output should stay the same when earlier code changes.
+
+:::: {.columns}
+::: {.column width="50%"}
+**The result we want to reproduce**
+
+```{r}
+#| label: seed-result-original
+set.seed(99)
+round(rnorm(3), 3)
+```
+:::
+::: {.column width="50%"}
+**Earlier random work can change**
+
+```{r}
+#| label: seed-result-protected
+unused <- runif(100)
+set.seed(99)  # reset just before this result
+round(rnorm(3), 3)
+```
+:::
+::::
+
+Both blocks give the same result because `set.seed(99)` resets `.Random.seed`
+immediately before `rnorm(3)`.
+
+**For a simulation loop:** set the seed once **before the loop**. Resetting the
+same seed inside every replicate repeats the same draws.
+
 
 # 2 · Drawing from distributions {.section-divider}
 
@@ -229,29 +268,48 @@ resample(sites)
 ```
 
 
-## Four questions, four prefixes {.smaller}
+## Four views of the standard normal distribution {.smaller}
 
-::: {style="font-size:0.88em"}
-| Prefix | Question it answers | Example |
+![](images/normal-dpqr-ai.png){height=510 fig-alt="Four schematic panels: dnorm(0) gives density height about 0.399; pnorm(1.96) gives left-tail probability about 0.975; qnorm(0.975) returns cutoff about 1.96; rnorm(8) generates eight observations."}
+
+::: {style="font-size:20px"}
+AI-generated schematic, not to scale. Values refer to a normal distribution with mean 0 and SD 1.
+:::
+
+## Distribution functions: prefix + name {.smaller}
+
+Combine a prefix with a distribution name: `r` + `norm` gives `rnorm()`.
+
+:::: {.columns}
+::: {.column width="52%"}
+**What do you want to find?**
+
+| Prefix | Meaning | Example |
 |---|---|---|
-| `d` | What is the **density** (or pmf) at `x`? | `dnorm(0)` |
-| `p` | What is $P(X \le q)$ — the **CDF**? | `pnorm(1.96)` |
-| `q` | Which `q` has $P(X \le q) = p$ — the **quantile**? | `qnorm(0.975)` |
-| `r` | Give me `n` **random** draws | `rnorm(10)` |
+| `d` | Density or probability mass | `dnorm(0)` |
+| `p` | Probability up to a value | `pnorm(1.96)` |
+| `q` | Value at a given probability | `qnorm(0.975)` |
+| `r` | Random draws | `rnorm(10)` |
+
+`pnorm(1.96)` is about 0.975.\
+`qnorm(0.975)` is about 1.96.
 :::
+::: {.column width="48%"}
+**Which distribution?**
 
-. . .
-
-::: {.smaller}
-Attach any prefix to any root: `norm`, `unif`, `binom`, `pois`, `t`, `chisq`,
-`exp`, `gamma`, `beta`, `nbinom`, `weibull`, …
+| Name | Distribution |
+|---|---|
+| `norm` | Normal (Gaussian) |
+| `unif` | Uniform |
+| `binom` | Binomial |
+| `pois` | Poisson |
+| `t` | Student's t |
+| `chisq` | Chi-squared |
+| `exp` | Exponential |
+| `gamma` | Gamma |
+| `beta` | Beta |
 :::
-
-```{r}
-#| label: prefix-demo
-c(dnorm(0), pnorm(1.96), qnorm(0.975), qt(0.975, df = 18))
-```
-
+::::
 
 ## `rnorm`, `runif`, `rbinom` {.smaller}
 
@@ -281,24 +339,22 @@ round(rnorm(6, mean = rep(c(148, 134), each = 3), sd = 14))
 
 ## A simulation is an experiment {.smaller}
 
-You would not run a trial by collecting data until the result looked right. A
-simulation has the same failure mode and none of the oversight.
+We create data under known conditions, apply a statistical method, and check
+how well it works across many simulated datasets.
 
-. . .
+Before running it, write down:
 
-::: {.smaller}
-Written down in advance, a simulation study is evidence. Written down afterwards,
-it is a story about the settings that worked.
+- What question are we asking?
+- How will we generate the data and analyse each dataset?
+- How will we judge the results?
+
+**ADEMP** gives us five headings for this plan.
+
+::: {style="font-size:24px; margin-top:1.5em"}
+Optional background: Morris, White & Crowther (2019),
+["Using simulation studies to evaluate statistical methods"](https://doi.org/10.1002/sim.8086),
+*Statistics in Medicine*, 38:2074–2102.
 :::
-
-. . .
-
-::: {.callout-note appearance="simple"}
-**ADEMP** — Morris, White & Crowther, "Using simulation studies to evaluate
-statistical methods," *Statistics in Medicine* **38**:2074–2102, 2019. Read it
-before you design one for real; it is the clearest thing written on the subject.
-:::
-
 
 ## ADEMP {.smaller}
 
@@ -320,43 +376,42 @@ any code.
 :::
 
 
-## ADEMP for today {.smaller}
+## ADEMP for an SBP trial {.smaller}
+
+Our simulated trial measures **SBP reduction = baseline minus 12-week SBP** (mmHg).
+A larger reduction means a larger drop.
 
 ::: {style="font-size:0.82em"}
-| | |
-|---|---|
-| **A** | Does a two-sample *t*-test hold its nominal 5% type I error when the arms have different variances **and** different sizes? |
-| **D** | $y_{\text{ctrl}} \sim N(0, 12^2)$, $n_{\text{ctrl}}$ patients; $y_{\text{trt}} \sim N(\delta, 4^2)$, $n_{\text{trt}}$ patients. Allocations 25/25, 10/40, 40/10 |
-| **E** | $\delta$, the difference in mean SBP change. Null case $\delta = 0$; power cases $\delta = 3, 6, 9, 12$ mmHg |
-| **M** | Pooled *t*-test (`var.equal = TRUE`) vs Welch (`var.equal = FALSE`) |
-| **P** | Rejection rate, bias, empirical SE, coverage, and interval width. 10,000 replicates give MCSE about 0.0022 for a probability near 0.05 |
-:::
-
-. . .
-
-::: {.smaller}
-The SDs 12 and 4 are deliberately chosen teaching scenarios, not estimates from a clinical study. Other variance ratios require separate scenarios.
+- **A · Aim:** How reliably can we estimate the treatment's additional mean SBP
+  reduction when group sizes and variability differ?
+- **D · Data:** Generate independent normal SBP reductions. Control: mean 0,
+  SD 12. Treatment: mean $\delta$, SD 4. Group sizes: 25/25, 10/40, or 40/10.
+- **E · Estimand:** $\delta =$ treatment minus control mean reduction.
+  A value of 6 means an additional 6 mmHg drop with treatment.
+- **M · Methods:** Difference in sample means, with Welch or pooled *t*
+  procedures for the confidence interval and p-value.
+- **P · Performance:** Bias, 95% interval coverage, and detection of an effect.
+  When $\delta = 0$, check false positives.
 :::
 
 
-## Estimands — the letter people skip {.smaller}
 
-::: {.callout-important appearance="simple"}
-The estimand is a property of the **data-generating mechanism**, not of a method.
-If you cannot write down its true value before running anything, you cannot
-compute bias.
-:::
+## Estimand: the quantity we want to learn {.smaller}
 
-. . .
+For the **same SBP trial**, suppose mean reduction is 0 mmHg under control and
+6 mmHg under treatment. How much additional reduction does treatment provide?
 
-::: {.smaller}
-- Two methods can both be "unbiased" — for **different** estimands. A marginal
-  risk difference and a conditional odds ratio are not the same target, and a
-  simulation that mixes them will report bias that is an artefact of the
-  question, not the method.
-- In today's study the estimand is $\delta$, and we know it because we **set**
-  it. That is the entire reason simulation can measure bias at all.
-:::
+| Term | Meaning | Example in our simulation |
+|---|---|---|
+| **Estimand** | The true additional mean SBP reduction | $\delta = 6 - 0 = 6$ mmHg |
+| **Estimator** | The rule applied to sampled patients | Mean reduction in treatment minus mean reduction in control |
+| **Estimate** | The result from one simulated trial | For example, 7.2 mmHg additional reduction |
+
+We set the population means, so we **know the truth is 6**. New samples give
+different estimates, but the target stays 6.
+
+If the estimates average 6.3 over many replicates, estimated **bias** is
+$6.3 - 6 = 0.3$ mmHg. One estimate's error, $7.2 - 6$, is not the bias.
 
 
 # 4 · Building the simulation {.section-divider}
@@ -389,7 +444,7 @@ they were for.
 
 ```{r}
 #| label: sim-one
-# Simulate one two-arm trial. Returns a data frame with `arm` and `y`.
+# One SBP trial: y is baseline minus 12-week SBP (mmHg).
 # Control is N(0, sd_ctrl^2); treatment is N(delta, sd_trt^2).
 simulate_trial <- function(n_ctrl, n_trt, sd_ctrl, sd_trt, delta = 0) {
   stopifnot(n_ctrl >= 2, n_trt >= 2, sd_ctrl > 0, sd_trt > 0)
@@ -619,45 +674,53 @@ with `delta` set differently. Nothing else changes.
 :::
 
 
-## Monte Carlo error {.smaller}
+## Why simulation results have uncertainty {.smaller}
 
-Every number on the previous slide is **itself an estimate**, from $n_{\text{sim}}$
-draws. It has a standard error.
+**Monte Carlo** means using repeated random draws to answer a question.
 
-::: {style="font-size:0.86em"}
-| Quantity | Monte Carlo SE |
-|---|---|
-| Bias | $\mathrm{EmpSE}/\sqrt{n_{\text{sim}}}$ |
-| Empirical SE (approximately normal estimates) | $\mathrm{EmpSE}/\sqrt{2(n_{\text{sim}}-1)}$ |
-| A rejection rate $\hat p$ | $\sqrt{\hat p(1-\hat p)/n_{\text{sim}}}$ |
-:::
+Suppose a test really rejects 5% of the time under the null. In 1,000 simulated
+trials, we expect about 50 rejections, but we will not always get exactly 50.
 
-. . .
+- A run might give 52 rejections: **52 / 1,000 = 5.2%**.
+- A new seed gives new datasets, so the rejection count may change.
+- This variation from using a finite number of replicates is **Monte Carlo uncertainty**.
+
+A fixed seed reproduces the same answer. **More replicates** make the answer
+less sensitive to the particular random draws.
+
+## Two kinds of uncertainty {.smaller}
+
+| | Sampling uncertainty | Monte Carlo uncertainty |
+|---|---|---|
+| What varies? | A treatment effect estimate across trials | A rejection rate across full simulation runs |
+| Example | Each trial has 50 patients | Each simulation run contains 1,000 trials |
+| What helps? | More patients per trial | More simulated trials per run |
+
+Increasing **patients per trial** changes the study we are evaluating.
+Increasing **replicates** helps us evaluate that same study more precisely.
+
+## One calculation for a simulated percentage {.smaller}
+
+The **Monte Carlo standard error (MCSE)** describes how much a simulated
+proportion varies across repeated runs of the simulation.
+
+For independent replicates, $\mathrm{MCSE} = \sqrt{\hat p(1-\hat p)/B}$,
+where $\hat p$ is the observed proportion and $B$ is the number of replicates.
 
 ```{r}
 #| label: mcse
-p_hat <- 0.052; n_sim <- 1000
-sqrt(p_hat * (1 - p_hat) / n_sim)      # MCSE
-p_hat + c(-1.96, 1.96) * sqrt(p_hat * (1 - p_hat) / n_sim)
+p_hat <- 52 / 1000
+n_sim <- 1000
+mcse <- sqrt(p_hat * (1 - p_hat) / n_sim)
+round(100 * c(rate = p_hat, MCSE = mcse,
+              lower = p_hat - 1.96 * mcse,
+              upper = p_hat + 1.96 * mcse), 2)
 ```
 
-. . .
+The rate is **5.2%**, with MCSE **0.70 percentage points** and an approximate
+95% Monte Carlo interval of **3.82% to 6.58%**. This run gives little evidence
+that the true rejection rate differs from 5%.
 
-::: {.smaller}
-At $n_{\text{sim}} = 1000$, an observed 0.052 is consistent with anything from
-0.038 to 0.066. **That simulation cannot tell 5% from 6.5%.**
-:::
-
-
-## Sampling SE and Monte Carlo SE {.smaller}
-
-| Uncertainty | What varies? | What reduces it? |
-|---|---|---|
-| Sampling SE | Estimates across new datasets | More information in each dataset |
-| Monte Carlo SE | A performance summary across repeated simulation runs | More simulation replicates |
-
-Increasing the number of simulated datasets does not make an individual study
-estimate more precise. It makes our assessment of the method more precise.
 
 ## Coverage and interval width in code {.smaller}
 
@@ -685,7 +748,7 @@ c(bias = mean(error), rmse = sqrt(mean(error^2)),
 RMSE summarizes squared estimation error; coverage evaluates an interval procedure.
 They answer different questions. A small bias does not imply a calibrated interval.
 
-## Monte Carlo uncertainty at the boundary {.smaller}
+## Optional: no rejections does not mean zero probability {.smaller}
 
 ```{r}
 binom.test(0, 1000)$conf.int
@@ -696,37 +759,24 @@ The plug-in MCSE formula gives zero here; a binomial interval exposes the remain
 
 Use interval estimates near zero or one, and state the number of valid replicates.
 
-## Choosing $n_{\text{sim}}$ on purpose {.smaller}
+## More replicates give a steadier answer {.smaller}
 
-Invert the formula. For a rejection rate near $p$:
+For a rejection probability near 5%:
 
-$$n_{\text{sim}} = \frac{p(1-p)}{\text{MCSE}^2}$$
-
-::: {style="font-size:0.86em"}
-| Target MCSE at $p = 0.05$ | $n_{\text{sim}}$ | Resolves |
+| Replicates | Expected rejections | MCSE (percentage points) |
 |---|---|---|
-| 0.010 | 475 | 0.05 vs 0.08 |
-| 0.005 | 1,900 | 0.05 vs 0.065 |
-| **0.0025** | **7,600** | 0.05 vs 0.057 |
-| 0.001 | 47,500 | 0.05 vs 0.053 |
-:::
+| 100 | 5 | 2.18 |
+| 1,000 | 50 | 0.69 |
+| 10,000 | 500 | 0.22 |
 
-. . .
+**Four times as many replicates halves the MCSE.** More precision costs more
+computing time.
 
-::: {.smaller}
-For **bias**, $n_{\text{sim}} = (\mathrm{EmpSE}/\text{target})^2$. With an
-empirical SE of 3.9 mmHg and a target of 0.1 mmHg, that is 1,521.
-:::
-
-. . .
-
-::: {.callout-important appearance="simple"}
-**1000 is a habit, not a decision.** State the difference you need to detect, then
-compute $n_{\text{sim}}$ — exactly as you would a sample size for a trial.
-:::
+Start with a small run to check the code. Then choose a larger, fixed number
+of replicates and report the MCSE with the final result.
 
 
-## Plan for the probability you will estimate {.smaller}
+## Optional: choosing replicates for a target precision {.smaller}
 
 ```{r}
 target <- 0.005
@@ -1014,6 +1064,25 @@ before comparing this method with another procedure.
 **Explain:** Why can a method have small bias but poor coverage?
 Why does increasing replication not fix a wrong generator?
 
+## Optional: tools for running simulation studies {.smaller}
+
+| Tool | What it does |
+|---|---|
+| Base R `replicate()` | Repeats an expression. Enough for today's small example |
+| `SimDesign::runSimulation()` | Runs a scenario design using your Generate, Analyse, and Summarise functions |
+| `rsimsum::simsum()` | Summarises stored estimates, including bias, coverage, and Monte Carlo SEs |
+
+SimDesign can manage repetition, parallel execution, and error tracking.
+You still specify the data-generating process and the analysis.
+
+**For this class:** learn the steps with `replicate()`. A framework becomes useful
+as the number of scenarios and methods grows.
+
+::: {style="font-size:0.65em"}
+Optional guides: [SimDesign introduction](https://cran.r-project.org/web/packages/SimDesign/vignettes/SimDesign-intro.html)
+and [rsimsum documentation](https://ellessenne.github.io/rsimsum/).
+:::
+
 ## References {.smaller}
 
 - [Morris, White and Crowther (2019): simulation design and ADEMP](https://pmc.ncbi.nlm.nih.gov/articles/PMC6492164/)
@@ -1031,4 +1100,4 @@ Why does increasing replication not fix a wrong generator?
 
 . . .
 
-**Next connection:** Session 15 uses observed data for bootstrap uncertainty and permutation tests. Session 16 develops predictive validation.
+**Next connection:** Session 15 uses observed data for bootstrap and permutation. Session 16 connects regression, cross-validation, and the complete course workflow.

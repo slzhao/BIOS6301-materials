@@ -1,5 +1,5 @@
 ---
-title: "Session 15 · Bootstrap and permutation"
+title: "Session 15 · Bootstrap, permutation, and resampling design"
 ---
 
 ## The statistical computing sequence
@@ -7,14 +7,36 @@ title: "Session 15 · Bootstrap and permutation"
 | Session | Focus |
 |---|---|
 | 14 | Known-truth simulation: design, performance, failures, and Monte Carlo uncertainty |
-| 15 | Bootstrap uncertainty, permutation tests, and resampling units |
-| 16 | Fitted models, prediction, cross-validation, and reproducible handoff |
+| 15 | Bootstrap, permutation, and resampling design |
+| 16 | Models, cross-validation, broader tools, course recap, and handoff |
+
+## Start with the project question
+
+We have one dataset. Choose the repeated operation from the question:
+
+| Question | Method | Output |
+|---|---|---|
+| How uncertain is an estimate? | Bootstrap participants | SE and interval |
+| Is the observed difference surprising under a specified null? | Permute allowed assignments | p-value |
+
+The melanoma and promotion-decision projects illustrate these two questions.
+This lab uses a synthetic cohort of 60 participants. Cross-validation is taught
+with regression models in Session 16.
+
 
 ## Outline and applied practice
 
-1. **Bootstrap within arms** — Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap bias, SE, percentile and basic intervals, and compare the SE with Welch. Repeat interval endpoints with three documented seeds.
-2. **Permutation tests** — Under the sharp null for the supplied completely randomized design, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution and a binomial interval for the Monte Carlo tail probability. Inspect the supplied demonstration of all 70 assignments for four participants per arm.
+1. **Bootstrap within arms** — Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap SE and a percentile interval, and compare the SE with Welch. Basic intervals, bias, and three-seed stability comparisons are optional follow-up.
+2. **Permutation tests** — Under the sharp null for the supplied completely randomized design, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution. The binomial Monte Carlo interval and supplied enumeration of all 70 assignments for four participants per arm are optional follow-up.
 3. **Choose resampling units** — Use trial_long to compare row and participant bootstraps. Preserve all visits and repeated copies of sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the resampling or reassignment rule.
+
+
+## Paired-data follow-up
+
+For treatment-arm participants, calculate follow-up minus baseline SBP. Bootstrap
+these paired changes and report the mean, SE, and percentile interval. Explain why
+this does not estimate a causal treatment effect, why independent resampling of the
+two visits is inappropriate, and why time labels cannot automatically be permuted.
 
 ## Materials
 

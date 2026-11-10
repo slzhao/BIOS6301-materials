@@ -1,5 +1,5 @@
 ---
-title: "Models, Prediction, and Validation"
+title: "Models, Validation, and Course Review"
 subtitle: "BIOS 6301 · Session 16 · Introduction to Statistical Computing"
 author: "Department of Biostatistics, Vanderbilt University Medical Center"
 format:
@@ -15,7 +15,7 @@ format:
     fig-align: center
     code-line-numbers: false
     highlight-style: github
-    footer: "BIOS 6301 · Session 16 · Models, Prediction, and Validation"
+    footer: "BIOS 6301 · Session 16 · Models, Validation, and Course Review"
     navigation-mode: linear
 execute:
   enabled: true
@@ -46,8 +46,8 @@ trial$sbp_0[c(5, 29, 61)] <- NA_real_
 | Session | Focus |
 |---|---|
 | 14 | Known-truth simulation: design, performance, failures, and Monte Carlo uncertainty |
-| 15 | Bootstrap uncertainty, permutation tests, and resampling units |
-| 16 | Fitted models, prediction, cross-validation, and reproducible handoff |
+| 15 | Bootstrap, permutation, and resampling design |
+| 16 | Models, cross-validation, broader tools, course recap, and handoff |
 
 ## Learning goals {.smaller}
 
@@ -55,6 +55,7 @@ trial$sbp_0[c(5, 29, 61)] <- NA_real_
 - Extract estimates and predict on new data.
 - Distinguish diagnostics from held-out predictive evaluation.
 - Fit preprocessing within each training fold and check predictions.
+- Connect the tools from Sessions 0–15 in a complete project.
 - Deliver results with traceable inputs, code, and environment.
 
 ## Session outline {.smaller}
@@ -65,7 +66,9 @@ trial$sbp_0[c(5, 29, 61)] <- NA_real_
 | 2 | Prediction and diagnostics |
 | 3 | Training folds, preprocessing, and held-out prediction |
 | 4 | Leakage, benchmarks, and validation design |
-| 5 | Reproducible handoff |
+| 5 | Broader computing tools |
+| 6 | Course recap and complete project workflow |
+| 7 | Reproducible handoff |
 
 Optional binary prediction, numerical methods, and structured text are in the
 [supplement](supplement.qmd).
@@ -278,6 +281,18 @@ Good training fit is not a substitute for held-out evaluation.
 
 # 3 · Held-out prediction {.section-divider}
 
+## Five-fold cross-validation in words {.smaller}
+
+1. Divide the participants into five non-overlapping groups called folds.
+2. Fit on four folds and predict the remaining fold.
+3. Repeat until every fold has served as the assessment group once.
+4. Compare each held-out prediction with its observed outcome.
+
+Each participant receives one prediction from a model trained without that
+participant. Pool these prediction errors to estimate performance on new people.
+
+The five fits share training data. Fold scores are not five independent studies.
+
 ## The prediction target {.smaller}
 
 Predict 12-week SBP for a new participant from baseline variables.
@@ -480,7 +495,116 @@ What evaluation data remain available after selecting the formula?
 - For repeated visits, keep each participant entirely on one side of a split.
 - Repeating folds measures split sensitivity, not independent sampling uncertainty.
 
-# 5 · Reproducible handoff {.section-divider}
+# 5 · Choosing computing tools {.section-divider}
+
+## The question determines the tool {.smaller}
+
+| Project need | Starting point | What to check |
+|---|---|---|
+| Estimate an adjusted mean difference | `lm()` | Sample, coding, assumptions, interval |
+| Model a binary outcome | `glm(..., family = binomial)` | Outcome coding, probability scale, calibration |
+| Quantify uncertainty in a statistic | Bootstrap | Resampling unit and stable estimates |
+| Test a randomization null | Permutation | Allowed assignments and null definition |
+| Evaluate prediction on new people | Cross-validation | Training-only fitting and relevant splits |
+
+Use the simplest method that answers the question and whose assumptions you
+can explain. Complex software does not remove the need to check its inputs.
+
+## Beyond model fitting: numerical computing {.smaller}
+
+| Need | R tool | Verification |
+|---|---|---|
+| Find a value where a function is zero | `uniroot()` | Check the function is near zero at the answer |
+| Minimize an objective | `optim()` | Inspect convergence and compare starting values |
+| Compute an area under a curve | `integrate()` | Inspect numerical error and compare a known case |
+
+For example, an estimated parameter may minimize an error function. A returned
+number alone does not establish convergence, uniqueness, or scientific validity.
+
+Worked code is available in the [optional supplement](supplement.qmd).
+
+## A project also depends on its data interface {.smaller}
+
+- Preserve participant IDs when importing, joining, filtering, and predicting.
+- Validate units, factor levels, dates, missing values, and expected row counts.
+- Turn repeated calculations into functions with explicit inputs and outputs.
+- Record warnings and failures instead of silently removing inconvenient rows.
+
+R and Python can implement the same workflow. Choose tools your team can review
+and rerun. Validate AI-generated code using the same checks as code you write.
+
+# 6 · The course as one workflow {.section-divider}
+
+## Course map: setup and data foundations {.smaller}
+
+| Session and topic | Evidence in a project |
+|---|---|
+| **0** · Setup and orientation | Working environment |
+| **1** · Reproducible workflow, scripts, reports, paths | A report that runs from source |
+| **2** · Version control | Reviewed changes and meaningful commits |
+| **3** · R objects, types, coercion, subsetting | Correct types and selected values |
+| **4** · Data structures and base R | Appropriate containers and indexing |
+| **5** · Data import, dates, export | Checked input and output files |
+| **6** · Tidy data and dplyr | Transparent transformations |
+| **7** · Joins, reshaping, cleaning | Valid keys and preserved records |
+| **8** · Visualization | Readable plots with honest scales |
+
+
+## Course map: programming and statistical computing {.smaller}
+
+| Session and topic | Evidence in a project |
+|---|---|
+| **9** · Positron and AI-assisted coding | Verified code and disclosed assistance |
+| **10** · Python for R users | A checked translation of an analysis |
+| **11** · Conditions and functions | Reusable calculations with clear contracts |
+| **12** · Debugging and reliability | Checks that reveal incorrect results |
+| **13** · Iteration and vectorization | Consistent repeated calculations |
+| **14** · Random numbers and simulation | Reproducible evaluation under known truth |
+| **15** · Bootstrap and permutation | Uncertainty and null tests |
+| **16** · Models, validation, synthesis, and handoff | Interpretable results that others can rerun |
+
+
+## One project connects the sessions {.smaller}
+
+**Example:** analyse a two-arm study with baseline and follow-up SBP.
+
+1. Define the scientific question, outcome, comparison, and analysis unit.
+2. Import data, check IDs and units, join visits, and describe missingness.
+3. Plot the data and implement the analysis in checked functions.
+4. Fit a model or choose a resampling method that matches the question.
+5. Interpret the result with uncertainty and limitations.
+6. Render a report and package the code, inputs, and environment for review.
+
+Git records the changes. A clean rerun checks that the report follows from the code.
+
+## Different questions require different evidence {.smaller}
+
+| Question about the study | Relevant evidence |
+|---|---|
+| How large is the mean difference? | Estimate in mmHg with an interval |
+| Is the result inconsistent with the randomization null? | A justified test and p-value |
+| Can we predict a new patient's SBP? | Held-out error against a benchmark |
+| Does the method work under assumed conditions? | Simulation with known truth |
+| Can another analyst reproduce the result? | Inputs, code, versions, checks, and rerun instructions |
+
+A small p-value does not establish accurate prediction. A reproducible report
+can still contain a poorly chosen analysis. Each claim needs the right evidence.
+
+## Capstone review: what would you check? {.smaller}
+
+A report joins visits by row position, drops missing values silently, trains
+and evaluates a model on the same people, and pastes results into slides by hand.
+
+Identify a correction using each part of the course:
+
+- Data structure and joins.
+- Analysis sample and validation.
+- Reusable code and checks.
+- Reproducible reporting and version control.
+
+Explain what evidence would convince a colleague that each correction worked.
+
+# 7 · Reproducible handoff {.section-divider}
 
 ## Record both analysis workflows {.smaller}
 
@@ -539,7 +663,8 @@ Use a colleague's rerun to test the instructions, not only your current workspac
 ## Lab route and exit check {.smaller}
 
 Fit and inspect a model; predict new rows; complete the checked CV scaffold;
-compare with a benchmark; diagnose leakage; save a reproducible handoff.
+compare with a benchmark; diagnose leakage; review the course workflow;
+save a reproducible handoff.
 
 **Explain:** Why are there 77 rows in the coefficient analysis and 80 held-out
 predictions? Which rows learned each imputation value? How does an ID stay

@@ -1,5 +1,5 @@
 ---
-title: "Bootstrap and Permutation"
+title: "Resampling: Bootstrap and Permutation"
 subtitle: "BIOS 6301 · Session 15 · Introduction to Statistical Computing"
 author: "Department of Biostatistics, Vanderbilt University Medical Center"
 format:
@@ -15,7 +15,7 @@ format:
     fig-align: center
     code-line-numbers: false
     highlight-style: github
-    footer: "BIOS 6301 · Session 15 · Bootstrap and Permutation"
+    footer: "BIOS 6301 · Session 15 · Resampling"
     navigation-mode: linear
 execute:
   enabled: true
@@ -71,40 +71,70 @@ gold <- "#CFAE70"
 | Session | Focus |
 |---|---|
 | 14 | Known-truth simulation: design, performance, failures, and Monte Carlo uncertainty |
-| 15 | Bootstrap uncertainty, permutation tests, and resampling units |
-| 16 | Fitted models, prediction, cross-validation, and reproducible handoff |
+| 15 | Bootstrap, permutation, and resampling design |
+| 16 | Models, cross-validation, broader tools, course recap, and handoff |
 
 ## Learning goals {.smaller}
 
 - Implement a within-arm bootstrap for a mean difference.
-- Report bootstrap SE, bias, intervals, and computational stability.
+- Report bootstrap SE and an interval, and explain computational stability.
 - Specify the null and reassignment rule before permuting labels.
 - Preserve participants, pairs, or clusters when resampling.
 - Distinguish sampling uncertainty from Monte Carlo variability.
+- Choose a resampling scheme for independent, paired, or grouped data.
 
 ## Session outline {.smaller}
 
 | Block | Content |
 |---|---|
-| 1 | Bootstrap and permutation targets |
+| 1 | Why resample? Uncertainty and null tests |
 | 2 | Bootstrap estimates, intervals, and stability |
 | 3 | Limits of the bootstrap |
 | 4 | Permutation tests and Monte Carlo precision |
-| 5 | Resampling units and guided practice |
+| 5 | Resampling units |
+| 6 | Practical method choices and reporting |
 
-Cross-validation follows model fitting and prediction in Session 16.
+The core route is one bootstrap, one permutation test, and a paired-data example.
+Cross-validation follows regression and prediction in Session 16.
 
 # 1 · Resampling targets {.section-divider}
 
-## Two resampling targets {.smaller}
+## Why do we need resampling? {.smaller}
 
-| Method | Repeated operation | Target |
+We usually have **one dataset**, but our questions concern what would happen
+with other samples or other assignments.
+
+| Project question | What is hard to observe directly? |
+|---|---|
+| How uncertain is our estimated median or mean difference? | The estimate across many new samples |
+| Is this group difference surprising under no effect? | Results under other allowed assignments |
+
+Resampling reuses the observed data in a deliberate way to approximate these
+comparisons. It does not create new independent information.
+
+## Two questions, two resampling methods {.smaller}
+
+| Method | What we repeat | Main output |
 |---|---|---|
-| Bootstrap | Sample observational units with replacement | Sampling uncertainty of an estimate |
-| Permutation | Reassign labels under a valid null scheme | Null reference distribution of a statistic |
+| **Bootstrap** | Sample participants with replacement and recompute an estimate | Standard error or confidence interval |
+| **Permutation** | Reassign labels according to the null and study design | Reference distribution and p-value |
 
-Replacement alone does not determine validity. Specify the target, the unit,
-and which relationships the repeated operation must preserve.
+Choose the method from the **question**, then specify the unit and what must
+stay together. A bootstrap interval describes uncertainty in an estimate;
+a permutation p-value assesses evidence against a specified null.
+
+## When resampling helps {.smaller}
+
+- A useful statistic has no simple standard-error formula, such as a median
+  or a result calculated by a multistep analysis.
+- A randomized experiment supplies a natural way to construct a null comparison.
+- A paired or clustered design needs uncertainty estimates that preserve its structure.
+
+For a simple mean difference, a standard t method may already be adequate.
+Resampling is an additional tool, not a requirement for every analysis.
+
+The design still matters: biased data, dependent rows, and information leakage
+do not disappear when we repeat the calculation.
 
 ## The same line of code, twice {.smaller}
 
@@ -134,6 +164,41 @@ To sample positions in code, prefer `sample.int(length(x))`.
 
 
 # 2 · The bootstrap, by hand {.section-divider}
+
+## Real-data project: uncertainty in median tumour thickness {.smaller}
+
+`boot::melanoma` contains **205 patients** who underwent melanoma surgery in
+Odense, Denmark. Tumour thickness is recorded in millimetres.
+
+**Our teaching analysis:** estimate median tumour thickness and its uncertainty
+for a population represented by this cohort. This is a new analysis of the data,
+not a claim about the original study's analysis.
+
+Resample **patients** with replacement, compute the median each time, and use
+the distribution to estimate its SE and interval. This avoids deriving a
+statistic-specific SE formula, but still relies on a suitable sample and bootstrap.
+
+::: {style="font-size:24px"}
+Source: [R documentation for the melanoma cohort](https://stat.ethz.ch/R-manual/R-devel/library/boot/html/melanoma.html).
+This example uses thickness, not censored survival time.
+:::
+
+## A bootstrap project in a few lines {.smaller}
+
+```{r}
+#| label: melanoma-bootstrap
+thickness <- boot::melanoma$thickness
+stopifnot(length(thickness) == 205L, all(is.finite(thickness)))
+set.seed(1500)
+boot_median <- replicate(2000,
+  median(sample(thickness, replace = TRUE)))
+round(c(estimate = median(thickness), SE = sd(boot_median),
+        quantile(boot_median, c(.025, .975))), 2)
+```
+
+Report the median, bootstrap SE, and percentile interval in **mm**.
+The interval describes sampling uncertainty under the resampling assumptions.
+It does not show the range containing 95% of individual patients.
 
 ## Why it works at all {.smaller}
 
@@ -290,7 +355,7 @@ This is bias relative to the empirical distribution of the observed sample. It i
 :::
 
 
-## Percentile and basic intervals {.smaller}
+## Optional: Percentile and basic intervals {.smaller}
 
 ```{r}
 perc <- quantile(boot_mean, c(.025, .975))
@@ -321,7 +386,7 @@ separate evaluation, such as simulation under a known data-generating mechanism.
 :::
 
 
-## Bootstrap stability {.smaller}
+## Optional: Bootstrap stability {.smaller}
 
 More resamples reduce computational variation; they do not add participants
 or repair an inappropriate bootstrap scheme.
@@ -391,17 +456,18 @@ short left tail. It can be a poor approximation to sampling a new maximum from t
 
 ## Two packages you should know exist {.smaller}
 
-Not installed here — this is a pointer, not a demonstration.
+Optional package syntax for the same within-arm bootstrap:
 
 ```r
 # boot: the classical implementation. Statistic takes (data, indices).
 library(boot)
-b <- boot(trial, statistic = function(data, i) mean_diff(data[i, ]), R = 10000)
+b <- boot(trial, statistic = function(data, i) mean_diff(data[i, ]),
+          R = 10000, strata = trial$arm)
 boot.ci(b, type = c("perc", "basic", "bca"))
 
 # rsample: tidymodels. Resamples as a tibble of splits.
 library(rsample)
-bootstraps(trial, times = 1000)
+bootstraps(trial, times = 1000, strata = arm)
 ```
 
 . . .
@@ -413,6 +479,47 @@ adjust interval endpoints using bias correction and an acceleration term. They s
 
 
 # 4 · Permutation tests {.section-divider}
+
+## Real experiment: promotion recommendations {.smaller}
+
+Rosen and Jerdee's experiment randomly assigned 48 bank supervisors otherwise
+identical personnel files labelled male or female, 24 of each.
+
+| File label | Recommended promotion | Total |
+|---|---|---|
+| Male | 21 | 24 |
+| Female | 14 | 24 |
+
+The observed difference is $21/24 - 14/24 = 0.292$ (29.2 percentage points).
+**Question:** could an assignment difference this large arise if the label had
+no effect on any supervisor's decision?
+
+::: {style="font-size:24px"}
+Rosen & Jerdee (1974), via [OpenIntro data](https://openintrostat.github.io/openintro/reference/sex_discrimination.html)
+and [study design](https://www.openintro.org/go/?id=os2_04).
+:::
+
+## Why permutation fits this project {.smaller}
+
+Under the **sharp null**, each supervisor's decision would be unchanged by
+the file label. Keep the 48 decisions fixed and randomly assign 24 male labels
+and 24 female labels again.
+
+```{r}
+#| label: promotion-permutation
+decision <- c(rep(1, 21), rep(0, 3), rep(1, 14), rep(0, 10))
+observed_gap <- 21/24 - 14/24
+set.seed(1501)
+null_gap <- replicate(9999, {
+  male <- sample.int(48, 24)
+  mean(decision[male]) - mean(decision[-male])
+})
+(1 + sum(abs(null_gap) >= abs(observed_gap) - 1e-12)) / 10000
+```
+
+This two-sided p-value measures evidence against the null under the assignment
+scheme. It does not estimate the size or uncertainty of an effect.
+
 
 ## The null and the reassignment rule {.smaller}
 
@@ -744,17 +851,88 @@ Sampling, randomization, and prediction targets can imply different rules.
 State the rule before using `sample()`.
 
 
+# 6 · Practical resampling choices {.section-divider}
+
+## Which bootstrap fits the data? {.smaller}
+
+| Approach | What is sampled? | Typical use |
+|---|---|---|
+| Ordinary nonparametric | Observed independent units, with replacement | Median, mean, or another sample statistic |
+| Stratified | Units within each specified group | Preserve treatment-arm sample sizes |
+| Paired or cluster | Whole pairs or clusters | Keep related measurements together |
+| Parametric | New data from a fitted probability model | Use an explicit model for data generation |
+
+The parametric bootstrap connects to Session 14, but estimates the generating
+parameters from the observed data. Its validity depends on that fitted model.
+
+::: {style="font-size:24px"}
+[R's boot documentation](https://stat.ethz.ch/R-manual/R-devel/library/boot/html/boot.html)
+describes ordinary, stratified, and parametric resampling.
+:::
+
+## Paired measurements: bootstrap the change {.smaller}
+
+For the treatment arm, estimate mean **12-week minus baseline SBP**.
+Each participant contributes one paired change.
+
+```{r}
+#| label: paired-change-bootstrap
+treated <- trial[trial$arm == "Treatment", ]
+change <- treated$sbp_12 - treated$sbp_0
+set.seed(1530)
+boot_change <- replicate(2000,
+  mean(sample(change, length(change), replace = TRUE)))
+round(c(mean_change = mean(change), SE = sd(boot_change),
+        quantile(boot_change, c(.025, .975))), 2)
+```
+
+Sampling changes preserves the pairing. Sampling baseline and follow-up values
+separately would break it. This estimates change within one arm, **not a causal
+treatment effect** relative to a control group.
+
+## A paired permutation test needs a justified rule {.smaller}
+
+In a randomized matched-pair experiment, one member of each pair receives each
+treatment. Under the sharp null, swap treatment labels **within each pair**
+according to the assignment scheme.
+
+For a difference statistic, a within-pair swap reverses the sign of that pair's
+difference. It does not move a person's outcome into a different pair.
+
+Before-and-after measurements alone do not justify random swapping of time labels.
+Sign-flipping observational changes requires a suitable null model, such as
+independent differences symmetric about zero.
+
+The bootstrap can describe uncertainty in a mean change without establishing
+the randomization assumptions of a paired permutation test.
+
+## Choosing and reporting the analysis {.smaller}
+
+| Decision | What to state |
+|---|---|
+| Standard method or resampling? | A t method may suffice for a mean; bootstrap can help with less familiar statistics |
+| Estimate uncertainty or test a null? | Report an interval or a justified p-value for the stated question |
+| Which units and restrictions? | Participants, pairs, clusters, and fixed group sizes |
+| How much computation? | Number of resamples, seed, and stability or Monte Carlo precision |
+| What can the result support? | Target population, assumptions, missingness, and limits |
+
+More resamples cannot repair an inappropriate unit, biased sample, or invalid
+reassignment rule. Choose the analysis before inspecting favorable results.
+
 ## Guided lab and exit check {.smaller}
 
 1. Bootstrap the mean difference within treatment arms.
 2. Report SE and intervals, and inspect stability across documented seeds.
 3. Permute treatment labels under the specified randomization scheme.
-4. Compare row and participant resampling for repeated visits.
+4. Preserve participants when there are repeated visits.
+5. Bootstrap paired changes and explain what the estimate does and does not mean.
 
 **Explain:** What changes when you increase the number of resamples?
-Why must a sampled participant retain all visits and every sampled copy?
+Which question calls for bootstrap or permutation?
+Why must both measurements from a participant stay together?
 
 ## References {.smaller}
+
 
 - [R bootstrap implementation](https://stat.ethz.ch/R-manual/R-devel/library/boot/html/boot.html)
 - [R bootstrap confidence intervals](https://stat.ethz.ch/R-manual/R-devel/library/boot/html/boot.ci.html)
@@ -766,4 +944,4 @@ Why must a sampled participant retain all visits and every sampled copy?
 - The resampling unit and reassignment rule must match the study design.
 - More resamples reduce Monte Carlo variability without adding participants.
 
-**Next:** fit a model, make predictions, and evaluate held-out performance in Session 16.
+**Next:** regression models, prediction, cross-validation, and a complete course recap in Session 16.

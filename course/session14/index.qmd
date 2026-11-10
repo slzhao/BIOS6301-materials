@@ -7,17 +7,32 @@ title: "Session 14 · Random numbers and simulation"
 | Session | Focus |
 |---|---|
 | 14 | Known-truth simulation: design, performance, failures, and Monte Carlo uncertainty |
-| 15 | Bootstrap uncertainty, permutation tests, and resampling units |
-| 16 | Fitted models, prediction, cross-validation, and reproducible handoff |
+| 15 | Bootstrap, permutation, and resampling design |
+| 16 | Models, cross-validation, broader tools, course recap, and handoff |
+
+## Warm-up: random draws and the normal distribution
+
+1. Run two successive `rnorm(3)` calls after `set.seed(42)`. Rerun the entire block. Which results repeat?
+2. Save `state_before <- .Random.seed`, draw one value, and compare with `identical(state_before, .Random.seed)`. Explain the generator's changing bookmark.
+3. Insert `unused <- runif(1)` between the two `rnorm(3)` calls. Explain why the second output changes even though `unused` is never used.
+4. Call `set.seed(99)` immediately before the result you want to reproduce. Verify that earlier random work no longer changes that result. Explain why you should not put the same seed inside every replicate.
+5. Evaluate `dnorm(0)`, `pnorm(1.96)`, `qnorm(0.975)`, and `rnorm(8)`. Match them to density height, left-tail area, cutoff value, and simulated observations. Which two functions reverse each other's question? Why is `dnorm(0)` not the probability of observing exactly zero?
 
 ## Outline and applied practice
 
-1. **Specify ADEMP** — Use independent control and treatment groups with SDs 12 and 4. Compare sizes 10/40 and 30/40, differences 0 and 6, and normal versus skewed errors. Both tests target treatment minus control. State the performance measures before running the study.
+1. **Specify ADEMP** — Let each outcome be SBP reduction: baseline minus 12-week SBP, in mmHg. Positive delta means greater mean reduction with treatment. Use independent normal control and treatment groups with SDs 12 and 4. Compare sizes 10/40 and 30/40 and true differences 0 and 6 (four scenarios). Define the estimand as the population mean difference, treatment minus control. Distinguish this target from the estimator and one sample estimate. Write the five ADEMP headings before running the study.
 2. **Inspect one replicate** — Generate one dataset and compare Welch and pooled results on that same dataset. Verify the estimate direction, result names, and interval ordering. Exercise a failed constant-outcome sample.
-3. **Retain each method and replicate** — Implement run_study(s, B) for one scenario row. Retain replicate, method, scenario values, numeric results, and an error message. Both methods must use the same generated dataset in each replicate.
-4. **Plan precision and run scenarios** — Use a target worst-case MCSE of 0.016 for a probability. Calculate the required replication count using 0.25 / target^2, then use at least that many replicates. Seed once before the complete grid.
-5. **Summarize performance and failures** — For each scenario and method report attempts, failures, bias, empirical SE, mean model SE, RMSE, coverage, mean width, rejection rate, and MCSE for bias, coverage, and rejection. Label quantities conditional on success.
-6. **Interpret sensitivity** — Compare null calibration, power, interval coverage, and failure counts across allocation and distribution. Draw one comparison with Monte Carlo uncertainty. Explain why a skewed error is centered using population quantities rather than its sample mean.
+3. **Retain each method and replicate** — Inspect the supplied run_study(s, B) function and run a pilot with B = 5. Identify where it generates one dataset, applies both methods, and retains results or errors. Check that five replicates produce ten rows. Both methods must use the same dataset in each replicate.
+4. **Run reproducible scenarios** — Use B = 1000 for this teaching exercise. Assign each scenario a fixed seed and call set.seed() immediately before running that scenario. Insert an unrelated runif() call before the seed and verify that the scenario results stay unchanged. Do not reset the seed inside the replicate loop.
+5. **Summarize performance and failures** — For each scenario and method report attempts, failures, bias, coverage, rejection rate, and MCSE for rejection. Use sqrt(p_hat * (1 - p_hat) / B_valid), where B_valid counts successful replicates. Label performance summaries as conditional on success. Interpret rejection rates as type I error when delta = 0 and power when delta = 6.
+6. **Interpret the comparison** — Compare null calibration, power, coverage, and failure counts across allocations. Draw one rejection-rate comparison with approximate Monte Carlo intervals. Explain why 5.2% from 1,000 replicates need not differ meaningfully from 5%, and why more replicates differ from more patients per trial.
+
+## Optional extensions
+
+- Add `dgm = "skewed"` to the design using the supplied helper. Explain why it centers errors using the population mean rather than each sample mean. Keep the estimand unchanged.
+- Report empirical SE, mean model SE, RMSE, mean interval width, and MCSE for bias or coverage.
+- Plan B from a target MCSE using `ceiling(p * (1 - p) / target^2)`. Try B = 4000 and explain why MCSE is about half its value at B = 1000.
+- Explore `SimDesign::runSimulation()` for running a larger study or `rsimsum::simsum()` for summarising saved results. No package installation is required for the core lab.
 
 ## Materials
 
