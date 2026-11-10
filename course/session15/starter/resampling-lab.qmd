@@ -1,5 +1,5 @@
 ---
-title: "Session 15 lab: Bootstrap, permutation, and validation"
+title: "Session 15 lab: Bootstrap, permutation, and resampling design"
 format: html
 ---
 
@@ -55,9 +55,23 @@ mean_diff <- function(data) {
 }
 ```
 
+## Start with the project question
+
+We have one dataset. Choose the repeated operation from the question:
+
+| Question | Method | Output |
+|---|---|---|
+| How uncertain is an estimate? | Bootstrap participants | SE and interval |
+| Is the observed difference surprising under a specified null? | Permute allowed assignments | p-value |
+
+The melanoma and promotion-decision projects illustrate these two questions.
+This lab uses a synthetic cohort of 60 participants. Cross-validation is taught
+with regression models in Session 16.
+
+
 ## 1. Bootstrap within arms
 
-Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap bias, SE, percentile and basic intervals, and compare the SE with Welch. Repeat interval endpoints with three seeds.
+Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap SE and a percentile interval, and compare the SE with Welch. Basic intervals, bias, and three-seed stability comparisons are optional follow-up.
 
 ```{r, eval=FALSE}
 observed <- mean_diff(trial)
@@ -66,9 +80,9 @@ observed <- mean_diff(trial)
 
 Interpret the result and state its limitations.
 
-## 2. Monte Carlo and exact permutation
+## 2. Permutation tests
 
-For a completely randomized design under the sharp null, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution and binomial tail-probability interval. Enumerate all 70 assignments for four participants per arm.
+For a completely randomized design under the sharp null, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution. The binomial tail-probability interval and exact-enumeration demonstration below are optional follow-up.
 
 ```{r, eval=FALSE}
 # TODO: keep outcomes fixed, shuffle labels, and compare absolute statistics.
@@ -76,6 +90,17 @@ For a completely randomized design under the sharp null, permute arm labels, ret
 ```
 
 Interpret the result and state its limitations.
+
+### Supplied exact-enumeration demonstration
+
+```{r}
+small <- trial[c(1:4, 31:34), ]
+assignment <- combn(8, 4)
+exact_stat <- apply(assignment, 2, function(i)
+  mean(small$sbp_12[i]) - mean(small$sbp_12[-i]))
+stopifnot(length(exact_stat) == 70L)
+mean(abs(exact_stat) >= abs(mean_diff(small)))
+```
 
 ## 3. Choose resampling units
 
@@ -87,37 +112,12 @@ Use trial_long to compare row and participant bootstraps. Preserve all visits wh
 
 Interpret the result and state its limitations.
 
-## 4. Construct checked folds
+## Paired-data follow-up
 
-Create five folds stratified by arm. Verify one fold label per participant and disjoint training/assessment IDs. Set baseline values at rows 2, 8, 17, 32, 46, and 55 to missing for the next tasks.
-
-```{r, eval=FALSE}
-# TODO: create cv_missing and make_folds(), then inspect counts.
-```
-
-Interpret the result and state its limitations.
-
-## 5. Preprocess within training folds
-
-Implement cv_predict(data, fold) using the lecture model sbp_12 ~ sbp_0 + age + arm. Learn baseline imputation from training rows only. Store one finite prediction per participant, calculate RMSE, and compare with a training-mean benchmark.
-
-```{r, eval=FALSE}
-cv_predict <- function(data, fold) {
-  # TODO: preallocate predictions; fit imputation and regression inside each fold.
-}
-```
-
-Interpret the result and state its limitations.
-
-## 6. Audit leakage and fold sensitivity
-
-Compare with deliberately global imputation using the same folds. Repeat valid CV under ten seeds; report all scores and explain why their variation is not a sampling confidence interval. State the split rule for a new-participant versus new-clinic prediction target.
-
-```{r, eval=FALSE}
-# TODO: compare valid and leaky data flow; repeat the fold assignment.
-```
-
-Interpret the result and state its limitations.
+For treatment-arm participants, calculate follow-up minus baseline SBP. Bootstrap
+these paired changes and report the mean, SE, and percentile interval. Explain why
+this does not estimate a causal treatment effect, why independent resampling of the
+two visits is inappropriate, and why time labels cannot automatically be permuted.
 
 ## AI-use disclosure
 

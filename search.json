@@ -11,14 +11,14 @@
     "href": "course/session14/lab.html#learning-goals",
     "title": "Session 14 guided lab",
     "section": "Learning goals",
-    "text": "Learning goals\nEvaluate two procedures on the same simulated data, quantify their performance and Monte Carlo uncertainty, and retain failed attempts."
+    "text": "Learning goals\nPractice reproducible random draws, distinguish a population target from an estimate, and compare two procedures using a small simulation. Interpret Monte Carlo uncertainty with one proportion formula."
   },
   {
     "objectID": "course/session14/lab.html#tasks-following-the-lecture-outline",
     "href": "course/session14/lab.html#tasks-following-the-lecture-outline",
     "title": "Session 14 guided lab",
     "section": "Tasks following the lecture outline",
-    "text": "Tasks following the lecture outline\n\nSpecify ADEMP — Use independent control and treatment groups with SDs 12 and 4. Compare sizes 10/40 and 30/40, differences 0 and 6, and normal versus skewed errors. Both tests target treatment minus control. State the performance measures before running the study.\nInspect one replicate — Generate one dataset and compare Welch and pooled results on that same dataset. Verify the estimate direction, result names, and interval ordering. Exercise a failed constant-outcome sample.\nRetain each method and replicate — Implement run_study(s, B) for one scenario row. Retain replicate, method, scenario values, numeric results, and an error message. Both methods must use the same generated dataset in each replicate.\nPlan precision and run scenarios — Use a target worst-case MCSE of 0.016 for a probability. Calculate the required replication count using 0.25 / target^2, then use at least that many replicates. Seed once before the complete grid.\nSummarize performance and failures — For each scenario and method report attempts, failures, bias, empirical SE, mean model SE, RMSE, coverage, mean width, rejection rate, and MCSE for bias, coverage, and rejection. Label quantities conditional on success.\nInterpret sensitivity — Compare null calibration, power, interval coverage, and failure counts across allocation and distribution. Draw one comparison with Monte Carlo uncertainty. Explain why a skewed error is centered using population quantities rather than its sample mean."
+    "text": "Tasks following the lecture outline\n\nSpecify ADEMP — Let each outcome be SBP reduction: baseline minus 12-week SBP, in mmHg. Positive delta means greater mean reduction with treatment. Use independent normal control and treatment groups with SDs 12 and 4. Compare sizes 10/40 and 30/40 and true differences 0 and 6 (four scenarios). Define the estimand as the population mean difference, treatment minus control. Distinguish this target from the estimator and one sample estimate. Write the five ADEMP headings before running the study.\nInspect one replicate — Generate one dataset and compare Welch and pooled results on that same dataset. Verify the estimate direction, result names, and interval ordering. Exercise a failed constant-outcome sample.\nRetain each method and replicate — Inspect the supplied run_study(s, B) function and run a pilot with B = 5. Identify where it generates one dataset, applies both methods, and retains results or errors. Check that five replicates produce ten rows. Both methods must use the same dataset in each replicate.\nRun reproducible scenarios — Use B = 1000 for this teaching exercise. Assign each scenario a fixed seed and call set.seed() immediately before running that scenario. Insert an unrelated runif() call before the seed and verify that the scenario results stay unchanged. Do not reset the seed inside the replicate loop.\nSummarize performance and failures — For each scenario and method report attempts, failures, bias, coverage, rejection rate, and MCSE for rejection. Use sqrt(p_hat * (1 - p_hat) / B_valid), where B_valid counts successful replicates. Label performance summaries as conditional on success. Interpret rejection rates as type I error when delta = 0 and power when delta = 6.\nInterpret the comparison — Compare null calibration, power, coverage, and failure counts across allocations. Draw one rejection-rate comparison with approximate Monte Carlo intervals. Explain why 5.2% from 1,000 replicates need not differ meaningfully from 5%, and why more replicates differ from more patients per trial."
   },
   {
     "objectID": "course/session14/lab.html#exit-evidence",
@@ -26,6 +26,20 @@
     "title": "Session 14 guided lab",
     "section": "Exit evidence",
     "text": "Exit evidence\nSubmit the source and rendered report with the requested results, checks, interpretation, and AI-use disclosure. Every result must identify its analysis sample or resampling unit. Use synthetic data supplied in the starter."
+  },
+  {
+    "objectID": "course/session14/lab.html#warm-up-random-draws-and-the-normal-distribution",
+    "href": "course/session14/lab.html#warm-up-random-draws-and-the-normal-distribution",
+    "title": "Session 14 guided lab",
+    "section": "Warm-up: random draws and the normal distribution",
+    "text": "Warm-up: random draws and the normal distribution\n\nRun two successive rnorm(3) calls after set.seed(42). Rerun the entire block. Which results repeat?\nSave state_before &lt;- .Random.seed, draw one value, and compare with identical(state_before, .Random.seed). Explain the generator’s changing bookmark.\nInsert unused &lt;- runif(1) between the two rnorm(3) calls. Explain why the second output changes even though unused is never used.\nCall set.seed(99) immediately before the result you want to reproduce. Verify that earlier random work no longer changes that result. Explain why you should not put the same seed inside every replicate.\nEvaluate dnorm(0), pnorm(1.96), qnorm(0.975), and rnorm(8). Match them to density height, left-tail area, cutoff value, and simulated observations. Which two functions reverse each other’s question? Why is dnorm(0) not the probability of observing exactly zero?"
+  },
+  {
+    "objectID": "course/session14/lab.html#optional-extensions",
+    "href": "course/session14/lab.html#optional-extensions",
+    "title": "Session 14 guided lab",
+    "section": "Optional extensions",
+    "text": "Optional extensions\n\nAdd dgm = \"skewed\" to the design using the supplied helper. Explain why it centers errors using the population mean rather than each sample mean. Keep the estimand unchanged.\nReport empirical SE, mean model SE, RMSE, mean interval width, and MCSE for bias or coverage.\nPlan B from a target MCSE using ceiling(p * (1 - p) / target^2). Try B = 4000 and explain why MCSE is about half its value at B = 1000.\nExplore SimDesign::runSimulation() for running a larger study or rsimsum::simsum() for summarising saved results. No package installation is required for the core lab."
   },
   {
     "objectID": "course/session11/slides.html#where-we-are",
@@ -6615,53 +6629,81 @@
     "text": "Exit evidence\nSubmit the source and rendered report with results, checks, interpretation, and an AI-use disclosure. Identify the analysis sample or resampling unit for each result."
   },
   {
+    "objectID": "course/session16/lab.html#tasks-following-the-lecture",
+    "href": "course/session16/lab.html#tasks-following-the-lecture",
+    "title": "Session 16 guided lab",
+    "section": "Tasks following the lecture",
+    "text": "Tasks following the lecture\n\nDefine and fit the analysis — Specify the model sbp_12 ~ sbp_0 + age + arm. Define complete cases using those model variables, retain excluded IDs, and set Control as the reference. Fit with na.fail, extract an estimate/interval table, and check the analysis count. Inspect the supplied model-matrix check.\nPredict and diagnose — Construct new_people with baseline SBP 140 and 155, ages 55 and 65, and Control and Treatment respectively. Compare mean-response confidence intervals with individual prediction intervals. Create an ID-linked diagnostic table and inspect residual and influence plots.\nConstruct checked folds — Return to all 80 participants in trial, including the three missing baseline values. Use the supplied make_folds() to create five folds stratified by arm. Check unique IDs, fold counts, and disjoint training/assessment IDs. Trace one split before repeating it.\nPredict held-out participants — Complete cv_predict(data, fold) using the scaffold. Within each fold, estimate baseline imputation from training rows only, fit the regression, and predict assessment rows. Preserve one finite prediction per participant. Compare pooled RMSE with a training-mean benchmark using identical folds.\nAudit leakage and validation design — Compare with deliberately global imputation using the same folds. Explain the information leak regardless of the direction of the RMSE difference. State how splits change for repeated visits, a new clinic, or future observations. Repeated-fold sensitivity is an optional extension.\nPrepare a reproducible handoff — Save the coefficient table, ID-linked held-out predictions and folds, RMSE comparison, analysis bundle, and sessionInfo. Verify the saved bundle can be read back. Document the separate complete-case model and imputed prediction workflow, seeds, inputs, and entry point."
+  },
+  {
+    "objectID": "course/session16/lab.html#in-class-route-and-follow-up",
+    "href": "course/session16/lab.html#in-class-route-and-follow-up",
+    "title": "Session 16 guided lab",
+    "section": "In-class route and follow-up",
+    "text": "In-class route and follow-up\nTrace one model and one training/assessment split together. Complete the scaffolded CV loop and checks in class. Finish the leakage explanation and reproducible handoff afterward. Binary prediction, numerical methods, and text parsing are optional and are not required for this core lab."
+  },
+  {
+    "objectID": "course/session16/lab.html#course-recap",
+    "href": "course/session16/lab.html#course-recap",
+    "title": "Session 16 guided lab",
+    "section": "Course recap",
+    "text": "Course recap\nUse the Sessions 0–16 course map to connect data preparation, reliable code, statistical evidence, and reproducible reporting. Complete the workflow audit and explain how earlier skills support this analysis. Broader numerical tools remain a brief overview with optional practice."
+  },
+  {
     "objectID": "course/session16/index.html",
     "href": "course/session16/index.html",
-    "title": "Session 16 · Models, prediction, and validation",
+    "title": "Session 16 · Models, validation, and course review",
     "section": "",
-    "text": "Session\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap uncertainty, permutation tests, and resampling units\n\n\n16\nFitted models, prediction, cross-validation, and reproducible handoff"
+    "text": "Session\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap, permutation, and resampling design\n\n\n16\nModels, cross-validation, broader tools, course recap, and handoff"
   },
   {
     "objectID": "course/session16/index.html#the-statistical-computing-sequence",
     "href": "course/session16/index.html#the-statistical-computing-sequence",
-    "title": "Session 16 · Models, prediction, and validation",
+    "title": "Session 16 · Models, validation, and course review",
     "section": "",
-    "text": "Session\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap uncertainty, permutation tests, and resampling units\n\n\n16\nFitted models, prediction, cross-validation, and reproducible handoff"
+    "text": "Session\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap, permutation, and resampling design\n\n\n16\nModels, cross-validation, broader tools, course recap, and handoff"
   },
   {
     "objectID": "course/session16/index.html#outline-and-applied-practice",
     "href": "course/session16/index.html#outline-and-applied-practice",
-    "title": "Session 16 · Models, prediction, and validation",
+    "title": "Session 16 · Models, validation, and course review",
     "section": "Outline and applied practice",
     "text": "Outline and applied practice\n\nDefine and fit the analysis — Specify the model sbp_12 ~ sbp_0 + age + arm. Define complete cases using those model variables, retain excluded IDs, and set Control as the reference. Fit with na.fail, extract an estimate/interval table, and check the analysis count. Inspect the supplied model-matrix check.\nPredict and diagnose — Construct new_people with baseline SBP 140 and 155, ages 55 and 65, and Control and Treatment respectively. Compare mean-response confidence intervals with individual prediction intervals. Create an ID-linked diagnostic table and inspect residual and influence plots.\nConstruct checked folds — Return to all 80 participants in trial, including the three missing baseline values. Use the supplied make_folds() to create five folds stratified by arm. Check unique IDs, fold counts, and disjoint training/assessment IDs. Trace one split before repeating it.\nPredict held-out participants — Complete cv_predict(data, fold) using the scaffold. Within each fold, estimate baseline imputation from training rows only, fit the regression, and predict assessment rows. Preserve one finite prediction per participant. Compare pooled RMSE with a training-mean benchmark using identical folds.\nAudit leakage and validation design — Compare with deliberately global imputation using the same folds. Explain the information leak regardless of the direction of the RMSE difference. State how splits change for repeated visits, a new clinic, or future observations. Repeated-fold sensitivity is an optional extension.\nPrepare a reproducible handoff — Save the coefficient table, ID-linked held-out predictions and folds, RMSE comparison, analysis bundle, and sessionInfo. Verify the saved bundle can be read back. Document the separate complete-case model and imputed prediction workflow, seeds, inputs, and entry point."
   },
   {
     "objectID": "course/session16/index.html#materials",
     "href": "course/session16/index.html#materials",
-    "title": "Session 16 · Models, prediction, and validation",
+    "title": "Session 16 · Models, validation, and course review",
     "section": "Materials",
     "text": "Materials\n\nLecture slides\nGuided lab\nStarter: Quarto or R Markdown\nOptional supplements: binary prediction, numerical methods, and structured text"
   },
   {
+    "objectID": "course/session16/index.html#course-recap",
+    "href": "course/session16/index.html#course-recap",
+    "title": "Session 16 · Models, validation, and course review",
+    "section": "Course recap",
+    "text": "Course recap\nUse the Sessions 0–16 course map to connect data preparation, reliable code, statistical evidence, and reproducible reporting. Complete the workflow audit and explain how earlier skills support this analysis. Broader numerical tools remain a brief overview with optional practice."
+  },
+  {
     "objectID": "course/session15/slides.html#the-statistical-computing-sequence",
     "href": "course/session15/slides.html#the-statistical-computing-sequence",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "The statistical computing sequence",
-    "text": "The statistical computing sequence\n\n\n\n\n\n\n\nSession\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap uncertainty, permutation tests, and resampling units\n\n\n16\nFitted models, prediction, cross-validation, and reproducible handoff"
+    "text": "The statistical computing sequence\n\n\n\n\n\n\n\nSession\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap, permutation, and resampling design\n\n\n16\nModels, cross-validation, broader tools, course recap, and handoff"
   },
   {
     "objectID": "course/session15/slides.html#learning-goals",
     "href": "course/session15/slides.html#learning-goals",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Learning goals",
-    "text": "Learning goals\n\nImplement a within-arm bootstrap for a mean difference.\nReport bootstrap SE, bias, intervals, and computational stability.\nSpecify the null and reassignment rule before permuting labels.\nPreserve participants, pairs, or clusters when resampling.\nDistinguish sampling uncertainty from Monte Carlo variability."
+    "text": "Learning goals\n\nImplement a within-arm bootstrap for a mean difference.\nReport bootstrap SE and an interval, and explain computational stability.\nSpecify the null and reassignment rule before permuting labels.\nPreserve participants, pairs, or clusters when resampling.\nDistinguish sampling uncertainty from Monte Carlo variability.\nChoose a resampling scheme for independent, paired, or grouped data."
   },
   {
     "objectID": "course/session15/slides.html#session-outline",
     "href": "course/session15/slides.html#session-outline",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Session outline",
-    "text": "Session outline\n\n\n\nBlock\nContent\n\n\n\n\n1\nBootstrap and permutation targets\n\n\n2\nBootstrap estimates, intervals, and stability\n\n\n3\nLimits of the bootstrap\n\n\n4\nPermutation tests and Monte Carlo precision\n\n\n5\nResampling units and guided practice\n\n\n\nCross-validation follows model fitting and prediction in Session 16."
+    "text": "Session outline\n\n\n\nBlock\nContent\n\n\n\n\n1\nWhy resample? Uncertainty and null tests\n\n\n2\nBootstrap estimates, intervals, and stability\n\n\n3\nLimits of the bootstrap\n\n\n4\nPermutation tests and Monte Carlo precision\n\n\n5\nResampling units\n\n\n6\nPractical method choices and reporting\n\n\n\nThe core route is one bootstrap, one permutation test, and a paired-data example. Cross-validation follows regression and prediction in Session 16."
   },
   {
     "objectID": "course/session15/slides.html#three-resampling-targets",
@@ -6673,56 +6715,56 @@
   {
     "objectID": "course/session15/slides.html#the-same-line-of-code-twice",
     "href": "course/session15/slides.html#the-same-line-of-code-twice",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "The same line of code, twice",
     "text": "The same line of code, twice\n\nsbp &lt;- c(150, 142, 168, 131, 155)\n\nset.seed(1)\nsample(sbp, replace = TRUE)   # bootstrap: some values twice, some not at all\n\n[1] 150 131 150 142 155\n\nsample(sbp)                   # permutation: same values, new order\n\n[1] 168 142 131 150 155\n\n\n\n\n\nWith replacement: values may repeat or be omitted.\nWithout replacement: same values, new order. This changes their pairing with labels, arms, or times.\n\n\n\n\n\n\n\n\n\n\nFor length(x) &gt; 1, sample(x) permutes the values. To sample positions in code, prefer sample.int(length(x))."
   },
   {
     "objectID": "course/session15/slides.html#why-it-works-at-all",
     "href": "course/session15/slides.html#why-it-works-at-all",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Why it works at all",
     "text": "Why it works at all\nThe thing you want is a property of the population: the standard deviation of your estimator across repeated samples from it.\n\nYou do not have the population. You have one sample — which is your best available estimate of it.\n\n\n\n\n\n\n\n\nThe plug-in principle. Wherever the formula says population, substitute the empirical distribution of your sample, and compute.\n\n\n\n\n\n\nSo: resample from your data exactly as nature sampled from the population — same size n, drawn with replacement — and watch how the statistic moves."
   },
   {
     "objectID": "course/session15/slides.html#resample-recompute-collect",
     "href": "course/session15/slides.html#resample-recompute-collect",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Resample, recompute, collect",
     "text": "Resample, recompute, collect\n\n\n\n\n\nflowchart LR\n  D[\"&lt;b&gt;your data&lt;/b&gt;&lt;br/&gt;n = 60\"] --&gt; R[\"&lt;b&gt;resample&lt;/b&gt;&lt;br/&gt;n = 60,&lt;br/&gt;with replacement\"]\n  R --&gt; S[\"&lt;b&gt;recompute&lt;/b&gt;&lt;br/&gt;the statistic\"]\n  S --&gt; C[\"&lt;b&gt;collect&lt;/b&gt;&lt;br/&gt;one number\"]\n  C -.-&gt;|\"B = 2000 times\"| R\n  C --&gt; H[\"&lt;b&gt;bootstrap&lt;br/&gt;distribution&lt;/b&gt;\"]\n  style D fill:#f4efe4,stroke:#CFAE70\n  style R fill:#CFAE70,stroke:#8a7448,color:#fff\n  style S fill:#CFAE70,stroke:#8a7448,color:#fff\n\n\n\n\n\n\n\n\nThree lines of code, and none of them are new. sample() is Session 14, indexing a data frame by a vector of row numbers is Session 4, and replicate() repeats a calculation as in Session 14."
   },
   {
     "objectID": "course/session15/slides.html#the-statistic-as-a-function",
     "href": "course/session15/slides.html#the-statistic-as-a-function",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "The statistic, as a function",
     "text": "The statistic, as a function\nWe estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Use the same statistic in the lecture, lab, bootstrap, and permutation test. Welch provides an independent standard-error comparison.\n\n# Difference in mean sbp_12, Treatment minus Placebo.\n# Takes a data frame with `arm` and `sbp_12`; returns one number.\nmean_diff &lt;- function(data) {\n  stopifnot(is.data.frame(data), all(c(\"arm\", \"sbp_12\") %in% names(data)))\n  mean(data$sbp_12[data$arm == \"Treatment\"]) -\n    mean(data$sbp_12[data$arm == \"Placebo\"])\n}\n\nobs_mean &lt;- mean_diff(trial)\nobs_mean\n\n[1] -12.43333\n\n\n\n\nStatistic first, resampling second. If the function is wrong, 2000 resamples make it wrong 2000 times."
   },
   {
     "objectID": "course/session15/slides.html#bootstrap-within-treatment-arms",
     "href": "course/session15/slides.html#bootstrap-within-treatment-arms",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Bootstrap within treatment arms",
     "text": "Bootstrap within treatment arms\n\nset.seed(14)\nB &lt;- 2000\n\nboot_mean &lt;- replicate(B, {\n  groups &lt;- split(seq_len(nrow(trial)), trial$arm)\n  idx &lt;- unlist(lapply(groups, function(i)\n    i[sample.int(length(i), length(i), replace = TRUE)]))\n  mean_diff(trial[idx, ])\n})\n\nstr(boot_mean)\n\n num [1:2000] -13.63 -5.23 -8.83 -11.9 -10.63 ...\n\nhead(round(boot_mean, 1))\n\n[1] -13.6  -5.2  -8.8 -11.9 -10.6 -11.0"
   },
   {
     "objectID": "course/session15/slides.html#the-same-within-arm-bootstrap-with-dplyr",
     "href": "course/session15/slides.html#the-same-within-arm-bootstrap-with-dplyr",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "The same within-arm bootstrap with dplyr",
     "text": "The same within-arm bootstrap with dplyr\n\n\n\n\n\n\n\n\nThe tidyverse way — same thing\n\n\npurrr::map_dbl(seq_len(B), \\(i) mean_diff(\n  trial |&gt; dplyr::group_by(arm) |&gt;\n    dplyr::slice_sample(prop = 1, replace = TRUE) |&gt; dplyr::ungroup()))"
   },
   {
     "objectID": "course/session15/slides.html#what-came-back",
     "href": "course/session15/slides.html#what-came-back",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "What came back",
     "text": "What came back\n\n\nFigure 1: Bootstrap distribution of the difference in mean SBP at 12 weeks.\n\nThe distribution is centered near the observed mean difference. Its spread estimates the sampling uncertainty under this resampling scheme."
   },
   {
     "objectID": "course/session15/slides.html#the-bootstrap-standard-error",
     "href": "course/session15/slides.html#the-bootstrap-standard-error",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "The bootstrap standard error",
     "text": "The bootstrap standard error\nThe standard deviation of the resampled statistics is the estimated standard error. That is the whole definition.\n\nse_boot &lt;- sd(boot_mean)\nse_boot\n\n[1] 3.487651\n\n\n\n\nmean(boot_mean) - obs_mean    # bootstrap estimate of bias\n\n[1] 0.1196667\n\n\n\n\n\nThis is bias relative to the empirical distribution of the observed sample. It is not the true bias measured against a known population parameter in Session 14."
   },
@@ -6743,7 +6785,7 @@
   {
     "objectID": "course/session15/slides.html#compare-the-bootstrap-and-welch-standard-errors",
     "href": "course/session15/slides.html#compare-the-bootstrap-and-welch-standard-errors",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Compare the bootstrap and Welch standard errors",
     "text": "Compare the bootstrap and Welch standard errors\n\nc(boot_se = sd(boot_mean),\n  welch_se = t.test(sbp_12 ~ arm, data = trial)$stderr)\n\n boot_se welch_se \n3.487651 3.571884 \n\n\n\n\nAgreement is a useful implementation check. Interval coverage requires a separate evaluation, such as simulation under a known data-generating mechanism."
   },
@@ -6757,49 +6799,49 @@
   {
     "objectID": "course/session15/slides.html#compare-interval-endpoints-across-seeds",
     "href": "course/session15/slides.html#compare-interval-endpoints-across-seeds",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Compare interval endpoints across seeds",
     "text": "Compare interval endpoints across seeds\n\nt(vapply(1501:1503, boot_interval, numeric(2)))\n\n          [,1]      [,2]\n[1,] -19.30083 -5.433333\n[2,] -19.86833 -6.033333\n[3,] -19.66917 -5.731667\n\n\nCheck endpoints across documented seeds and larger B; keep all runs, not the best-looking one."
   },
   {
     "objectID": "course/session15/slides.html#limits-of-the-ordinary-bootstrap",
     "href": "course/session15/slides.html#limits-of-the-ordinary-bootstrap",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Limits of the ordinary bootstrap",
     "text": "Limits of the ordinary bootstrap\n\n\n\n\n\n\n\nSituation\nWhy extra resamples do not solve it\n\n\n\n\nVery small samples\nThe empirical distribution may poorly represent the population\n\n\nExtremes or boundary parameters\nThe ordinary bootstrap approximation can fail\n\n\nHeavy tails\nUsual finite-variance approximations may fail even though a sampling distribution exists\n\n\nDependent rows\nIndependent row resampling destroys the study’s dependence\n\n\n\nA smooth histogram is not proof of validity. Simulation in a relevant known-truth setting can evaluate coverage; the sampling design determines the resampling unit."
   },
   {
     "objectID": "course/session15/slides.html#the-maximum-bootstrapped",
     "href": "course/session15/slides.html#the-maximum-bootstrapped",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "The maximum, bootstrapped",
     "text": "The maximum, bootstrapped\n\nset.seed(18)\nboot_max &lt;- replicate(B, max(trial$sbp_0[sample(nrow(trial), replace = TRUE)]))\n\nlength(unique(boot_max))                # distinct values across 2000 resamples\n\n[1] 7\n\nmean(boot_max == max(trial$sbp_0))      # how often the resample max is THE max\n\n[1] 0.634\n\n\n\n\nThe resampled maximum can never exceed the observed maximum, and it equals it when a unique largest observed value is drawn at all — probability 1 − (1 − 1/n)n ≈ 0.63.\n\n\n\n\n\n\n\n\n\nThe bootstrap distribution of a maximum is a spike at the observed value with a short left tail. It can be a poor approximation to sampling a new maximum from the population. Increasing B cannot fix that mismatch."
   },
   {
     "objectID": "course/session15/slides.html#two-packages-you-should-know-exist",
     "href": "course/session15/slides.html#two-packages-you-should-know-exist",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Two packages you should know exist",
-    "text": "Two packages you should know exist\nNot installed here — this is a pointer, not a demonstration.\n# boot: the classical implementation. Statistic takes (data, indices).\nlibrary(boot)\nb &lt;- boot(trial, statistic = function(data, i) mean_diff(data[i, ]), R = 10000)\nboot.ci(b, type = c(\"perc\", \"basic\", \"bca\"))\n\n# rsample: tidymodels. Resamples as a tibble of splits.\nlibrary(rsample)\nbootstraps(trial, times = 1000)\n\n\nboot.ci() gives you BCa intervals — bias-corrected and accelerated — which adjust interval endpoints using bias correction and an acceleration term. They still require a suitable resampling scheme and regularity conditions; they do not repair dependence or an unrepresentative sample."
+    "text": "Two packages you should know exist\nOptional package syntax for the same within-arm bootstrap:\n# boot: the classical implementation. Statistic takes (data, indices).\nlibrary(boot)\nb &lt;- boot(trial, statistic = function(data, i) mean_diff(data[i, ]),\n          R = 10000, strata = trial$arm)\nboot.ci(b, type = c(\"perc\", \"basic\", \"bca\"))\n\n# rsample: tidymodels. Resamples as a tibble of splits.\nlibrary(rsample)\nbootstraps(trial, times = 1000, strata = arm)\n\n\nboot.ci() gives you BCa intervals — bias-corrected and accelerated — which adjust interval endpoints using bias correction and an acceleration term. They still require a suitable resampling scheme and regularity conditions; they do not repair dependence or an unrepresentative sample."
   },
   {
     "objectID": "course/session15/slides.html#the-null-and-the-reassignment-rule",
     "href": "course/session15/slides.html#the-null-and-the-reassignment-rule",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "The null and the reassignment rule",
     "text": "The null and the reassignment rule\nIn a completely randomized trial with fixed arm sizes, a randomization test of the sharp null of no effect for any participant holds outcomes fixed and reassigns treatment according to the actual randomization scheme.\nFor independent observational samples, unrestricted label permutation instead needs exchangeability under the null, such as identical group distributions.\nEqual means alone do not guarantee exchangeability when variances differ. Blocked or paired randomization requires restricted reassignment."
   },
   {
     "objectID": "course/session15/slides.html#shuffle-the-labels",
     "href": "course/session15/slides.html#shuffle-the-labels",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Shuffle the labels",
     "text": "Shuffle the labels\n\nobs_mean &lt;- mean_diff(trial)\n\nset.seed(19)\nP &lt;- 999\nperm_stat &lt;- replicate(P, {\n  shuffled &lt;- sample(trial$arm)                 # permutation, not a bootstrap\n  mean(trial$sbp_12[shuffled == \"Treatment\"]) -\n    mean(trial$sbp_12[shuffled == \"Placebo\"])\n})\n\nc(observed = obs_mean, perm_mean = mean(perm_stat), perm_sd = sd(perm_stat))\n\n    observed    perm_mean      perm_sd \n-12.43333333   0.05789122   3.82457944 \n\n\n\n\nNote what is not shuffled: sbp_12 never moves. Only its label does. Jointly reordering outcome-label rows changes nothing. Breaking their pairing creates the reference distribution; the reassignment rule must match the design."
   },
   {
     "objectID": "course/session15/slides.html#the-null-distribution",
     "href": "course/session15/slides.html#the-null-distribution",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "The null distribution",
     "text": "The null distribution\n\n\nFigure 2: Permutation null distribution of the mean difference, with the observed value.\n\nCentred at zero by construction. The p-value is the proportion of this histogram at least as extreme as the line."
   },
@@ -6813,98 +6855,98 @@
   {
     "objectID": "course/session15/slides.html#a-permutation-p-value-is-never-zero",
     "href": "course/session15/slides.html#a-permutation-p-value-is-never-zero",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "A permutation p-value is never zero",
     "text": "A permutation p-value is never zero\n\nn_extreme &lt;- sum(abs(perm_stat) &gt;= abs(obs_mean))\nn_extreme                                        # out of 999\n\n[1] 0\n\n\n\n\nc(wrong = n_extreme / P,\n  right = (n_extreme + 1) / (P + 1))\n\nwrong right \n0.000 0.001 \n\n\n\n\n\nThe observed arrangement is one of the possible arrangements. Counting it in both numerator and denominator is not a fudge to avoid zero — it is the correct count.\n\n\n\n\n\n\n\n\n\nWith P = 999 and no sampled statistic as extreme, report the adjusted Monte Carlo p-value 0.001 and its limited resolution. Increase P if finer resolution is needed; do not report p = 0."
   },
   {
     "objectID": "course/session15/slides.html#interpret-a-permutation-result",
     "href": "course/session15/slides.html#interpret-a-permutation-result",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Interpret a permutation result",
     "text": "Interpret a permutation result\n\nA p-value measures incompatibility with the specified null and reassignment scheme.\nIt does not by itself quantify the effect or remove confounding.\nReport the observed mean difference alongside the test result.\nThis class computes tests; confidence intervals by inverting suitable tests are a further method, not an impossibility.\n\nFor an observational comparison, do not interpret a significant label-permutation result as evidence of a causal treatment effect."
   },
   {
     "objectID": "course/session15/slides.html#monte-carlo-p-value-uncertainty",
     "href": "course/session15/slides.html#monte-carlo-p-value-uncertainty",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Monte Carlo p-value uncertainty",
     "text": "Monte Carlo p-value uncertainty\n\nextreme &lt;- sum(abs(perm_stat) &gt;= abs(obs_mean))\nc(adjusted_p = (extreme + 1) / (P + 1),\n  min_reportable = 1 / (P + 1))\n\n    adjusted_p min_reportable \n         0.001          0.001 \n\nbinom.test(extreme, P)$conf.int\n\n[1] 0.000000000 0.003685763\nattr(,\"conf.level\")\n[1] 0.95\n\n\nThe interval describes the tail probability estimated by independent random permutations conditional on the observed data. It is not a confidence interval for the treatment effect. Exact enumeration has no Monte Carlo sampling error."
   },
   {
     "objectID": "course/session15/slides.html#practice-which-reassignment-is-allowed",
     "href": "course/session15/slides.html#practice-which-reassignment-is-allowed",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Practice: which reassignment is allowed?",
     "text": "Practice: which reassignment is allowed?\nTreatment was randomized separately within each site. A student permutes all treatment labels across the pooled dataset.\nWhat design feature has been lost? What must remain fixed?"
   },
   {
     "objectID": "course/session15/slides.html#practice-preserve-the-assignment-mechanism",
     "href": "course/session15/slides.html#practice-preserve-the-assignment-mechanism",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Practice: preserve the assignment mechanism",
     "text": "Practice: preserve the assignment mechanism\nshuffled &lt;- trial$arm\nfor (i in split(seq_len(nrow(trial)), trial$site)) {\n  shuffled[i] &lt;- trial$arm[i][sample.int(length(i))]\n}\nWithin-site assignment counts stay fixed. Use this rule only when it represents the actual randomization; an arbitrary blocking variable does not establish validity."
   },
   {
     "objectID": "course/session15/slides.html#the-same-cohort-three-visits-each",
     "href": "course/session15/slides.html#the-same-cohort-three-visits-each",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "The same cohort, three visits each",
     "text": "The same cohort, three visits each\n\nhead(trial_long, 7)\n\n    id     arm week sbp\n1 P001 Placebo    4 158\n2 P001 Placebo    8 155\n3 P001 Placebo   12 154\n4 P002 Placebo    4 146\n5 P002 Placebo    8 152\n6 P002 Placebo   12 145\n7 P003 Placebo    4 131\n\nc(rows = nrow(trial_long), patients = length(unique(trial_long$id)))\n\n    rows patients \n     180       60"
   },
   {
     "objectID": "course/session15/slides.html#define-the-statistic-for-repeated-visits",
     "href": "course/session15/slides.html#define-the-statistic-for-repeated-visits",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Define the statistic for repeated visits",
     "text": "Define the statistic for repeated visits\n\ndiff_long &lt;- function(data) {\n  mean(data$sbp[data$arm == \"Treatment\"]) - mean(data$sbp[data$arm == \"Placebo\"])\n}\nobs_long &lt;- diff_long(trial_long)\nobs_long\n\n[1] -7.1\n\n\n\n180 rows. 60 patients. Hold on to that distinction — the rest of this block is about which number is the sample size."
   },
   {
     "objectID": "course/session15/slides.html#the-naive-row-bootstrap",
     "href": "course/session15/slides.html#the-naive-row-bootstrap",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "The naive row bootstrap",
     "text": "The naive row bootstrap\n\nset.seed(21)\nboot_row &lt;- replicate(B, {\n  idx &lt;- sample(nrow(trial_long), replace = TRUE)   # 180 rows, independently\n  diff_long(trial_long[idx, ])\n})\n\nc(estimate = obs_long, se = sd(boot_row))\n\n estimate        se \n-7.100000  1.878739 \n\nround(quantile(boot_row, c(0.025, 0.975)), 2)\n\n 2.5% 97.5% \n-10.7  -3.4 \n\n\n\n\nPerfectly reasonable code. Runs without complaint. Produces a clean, symmetric histogram. The interval comfortably excludes zero.\n\n\n\n\n\n\n\n\n\nIt is wrong, and nothing on this slide tells you so."
   },
   {
     "objectID": "course/session15/slides.html#the-cluster-bootstrap",
     "href": "course/session15/slides.html#the-cluster-bootstrap",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "The cluster bootstrap",
     "text": "The cluster bootstrap\nResample patients, and take all of each patient’s rows with them.\n\nids &lt;- unique(trial_long$id)\nrows_by_id &lt;- split(seq_len(nrow(trial_long)), trial_long$id)   # id -&gt; row numbers\n\nset.seed(22)\nboot_clu &lt;- replicate(B, {\n  picked &lt;- sample(ids, replace = TRUE)              # 60 patients, with repeats\n  diff_long(trial_long[unlist(rows_by_id[picked]), ])\n})\n\nc(row_se = sd(boot_row), cluster_se = sd(boot_clu),\n  ratio = sd(boot_clu) / sd(boot_row))\n\n    row_se cluster_se      ratio \n  1.878739   3.222562   1.715279 \n\n\n\n\nCompare the two estimated SEs. With strong within-person dependence, independent row resampling understates uncertainty in this example."
   },
   {
     "objectID": "course/session15/slides.html#side-by-side",
     "href": "course/session15/slides.html#side-by-side",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Side by side",
     "text": "Side by side\n\n\nFigure 3: Bootstrap distributions of the same estimate under two resampling schemes.\n\nSame data, same estimate, same statistic function. Only the unit changed."
   },
   {
     "objectID": "course/session15/slides.html#dependence-limits-information",
     "href": "course/session15/slides.html#dependence-limits-information",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Dependence limits information",
     "text": "Dependence limits information\nThe teaching generator uses a participant intercept with SD 12 and visit noise with SD 4. Within each arm, its known correlation is:\n\nrho &lt;- 12^2 / (12^2 + 4^2)\nc(rho = rho, design_effect = 1 + (3 - 1) * rho,\n  approximate_se_inflation = sqrt(1 + 2 * rho))\n\n                     rho            design_effect approximate_se_inflation \n                 0.90000                  2.80000                  1.67332 \n\n\nFor equally sized clusters with this correlation structure, the design effect explains why three correlated visits are not three independent participants. This calculation uses the generator’s parameters, not a fitted ICC estimate."
   },
   {
     "objectID": "course/session15/slides.html#permuting-at-the-wrong-level-too",
     "href": "course/session15/slides.html#permuting-at-the-wrong-level-too",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Permuting at the wrong level, too",
     "text": "Permuting at the wrong level, too\nThe same mistake, in the other half of the session:\n\narm_by_id &lt;- trial_long$arm[match(ids, trial_long$id)]\n\nset.seed(32)\np_rows &lt;- replicate(999, {\n  s &lt;- sample(trial_long$arm)                    # shuffles visits, not patients\n  mean(trial_long$sbp[s == \"Treatment\"]) - mean(trial_long$sbp[s == \"Placebo\"])\n})"
   },
   {
     "objectID": "course/session15/slides.html#permute-patient-assignments-then-carry-them-to-visits",
     "href": "course/session15/slides.html#permute-patient-assignments-then-carry-them-to-visits",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Permute patient assignments, then carry them to visits",
     "text": "Permute patient assignments, then carry them to visits\n\np_pats &lt;- replicate(999, {\n  assigned &lt;- sample(arm_by_id)\n  s &lt;- assigned[match(trial_long$id, ids)]      # join by ID, not row order\n  mean(trial_long$sbp[s == \"Treatment\"]) - mean(trial_long$sbp[s == \"Placebo\"])\n})\n\nc(p_row_unit = (sum(abs(p_rows) &gt;= abs(obs_long)) + 1) / 1000,\n  p_patient_unit = (sum(abs(p_pats) &gt;= abs(obs_long)) + 1) / 1000)\n\n    p_row_unit p_patient_unit \n         0.001          0.034 \n\n\n\nCompare the results and their resolution. Randomisation happened to patients, so the permutation must too."
   },
   {
     "objectID": "course/session15/slides.html#the-resampling-unit",
     "href": "course/session15/slides.html#the-resampling-unit",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "The resampling unit",
     "text": "The resampling unit\n\n\n\n\n\n\n\n\nDesign\nBootstrap or validation unit\nPermutation restriction\n\n\n\n\nIndependent participants\nParticipant\nAllowed participant assignments\n\n\nRepeated visits\nParticipant with all visits\nKeep one treatment per participant\n\n\nCluster randomized\nClinic or other randomized cluster\nReassign at cluster level\n\n\nMatched pairs\nPair\nSwap labels within pairs when justified\n\n\nTime series\nDependence-preserving blocks or temporal splits\nRequires a justified dependence model\n\n\n\nSampling, randomization, and prediction targets can imply different rules. State the rule before using sample()."
   },
@@ -7037,37 +7079,149 @@
   {
     "objectID": "course/session15/slides.html#references",
     "href": "course/session15/slides.html#references",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "References",
     "text": "References\n\nR bootstrap implementation\nR bootstrap confidence intervals"
   },
   {
     "objectID": "course/session15/slides.html#summary",
     "href": "course/session15/slides.html#summary",
-    "title": "Bootstrap and Permutation",
+    "title": "Resampling: Bootstrap and Permutation",
     "section": "Summary",
-    "text": "Summary\n\nBootstrap estimates sampling uncertainty from observed data.\nPermutation constructs a reference distribution under a specified null.\nThe resampling unit and reassignment rule must match the study design.\nMore resamples reduce Monte Carlo variability without adding participants.\n\nNext: fit a model, make predictions, and evaluate held-out performance in Session 16."
+    "text": "Summary\n\nBootstrap estimates sampling uncertainty from observed data.\nPermutation constructs a reference distribution under a specified null.\nThe resampling unit and reassignment rule must match the study design.\nMore resamples reduce Monte Carlo variability without adding participants.\n\nNext: regression models, prediction, cross-validation, and a complete course recap in Session 16."
+  },
+  {
+    "objectID": "course/session15/slides.html#two-resampling-targets",
+    "href": "course/session15/slides.html#two-resampling-targets",
+    "title": "Bootstrap and Permutation",
+    "section": "Two resampling targets",
+    "text": "Two resampling targets\n\n\n\n\n\n\n\n\nMethod\nRepeated operation\nTarget\n\n\n\n\nBootstrap\nSample observational units with replacement\nSampling uncertainty of an estimate\n\n\nPermutation\nReassign labels under a valid null scheme\nNull reference distribution of a statistic\n\n\n\nReplacement alone does not determine validity. Specify the target, the unit, and which relationships the repeated operation must preserve."
+  },
+  {
+    "objectID": "course/session15/slides.html#exact-enumeration-a-short-demonstration",
+    "href": "course/session15/slides.html#exact-enumeration-a-short-demonstration",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Exact enumeration: a short demonstration",
+    "text": "Exact enumeration: a short demonstration\nWith 4 patients per arm there are only choose(8, 4) = 70 possible label assignments. You can enumerate all of them:\n\nsmall &lt;- trial[c(1:4, 31:34), c(\"id\", \"arm\", \"sbp_12\")]\nobs_small &lt;- mean_diff(small)\n\ncombos &lt;- combn(8, 4)                    # every way to choose 4 \"Treatment\"\nexact &lt;- apply(combos, 2, function(k) mean(small$sbp_12[k]) -\n                                      mean(small$sbp_12[-k]))\n\nncol(combos)                             # the entire reference set\n\n[1] 70\n\nround(mean(abs(exact) &gt;= abs(obs_small)), 4)    # exact two-sided p-value\n\n[1] 0.0571\n\n\n\n\nWith 30 per arm there are choose(60, 30) ≈ 1.2 × 1017. So you sample from them instead — that is all “Monte Carlo permutation” means."
+  },
+  {
+    "objectID": "course/session15/slides.html#guided-lab-and-exit-check",
+    "href": "course/session15/slides.html#guided-lab-and-exit-check",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Guided lab and exit check",
+    "text": "Guided lab and exit check\n\nBootstrap the mean difference within treatment arms.\nReport SE and intervals, and inspect stability across documented seeds.\nPermute treatment labels under the specified randomization scheme.\nPreserve participants when there are repeated visits.\nBootstrap paired changes and explain what the estimate does and does not mean.\n\nExplain: What changes when you increase the number of resamples? Which question calls for bootstrap or permutation? Why must both measurements from a participant stay together?"
+  },
+  {
+    "objectID": "course/session15/slides.html#why-do-we-need-resampling",
+    "href": "course/session15/slides.html#why-do-we-need-resampling",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Why do we need resampling?",
+    "text": "Why do we need resampling?\nWe usually have one dataset, but our questions concern what would happen with other samples or other assignments.\n\n\n\n\n\n\n\nProject question\nWhat is hard to observe directly?\n\n\n\n\nHow uncertain is our estimated median or mean difference?\nThe estimate across many new samples\n\n\nIs this group difference surprising under no effect?\nResults under other allowed assignments\n\n\n\nResampling reuses the observed data in a deliberate way to approximate these comparisons. It does not create new independent information."
+  },
+  {
+    "objectID": "course/session15/slides.html#two-questions-two-resampling-methods",
+    "href": "course/session15/slides.html#two-questions-two-resampling-methods",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Two questions, two resampling methods",
+    "text": "Two questions, two resampling methods\n\n\n\n\n\n\n\n\nMethod\nWhat we repeat\nMain output\n\n\n\n\nBootstrap\nSample participants with replacement and recompute an estimate\nStandard error or confidence interval\n\n\nPermutation\nReassign labels according to the null and study design\nReference distribution and p-value\n\n\n\nChoose the method from the question, then specify the unit and what must stay together. A bootstrap interval describes uncertainty in an estimate; a permutation p-value assesses evidence against a specified null."
+  },
+  {
+    "objectID": "course/session15/slides.html#when-resampling-helps",
+    "href": "course/session15/slides.html#when-resampling-helps",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "When resampling helps",
+    "text": "When resampling helps\n\nA useful statistic has no simple standard-error formula, such as a median or a result calculated by a multistep analysis.\nA randomized experiment supplies a natural way to construct a null comparison.\nA paired or clustered design needs uncertainty estimates that preserve its structure.\n\nFor a simple mean difference, a standard t method may already be adequate. Resampling is an additional tool, not a requirement for every analysis.\nThe design still matters: biased data, dependent rows, and information leakage do not disappear when we repeat the calculation."
+  },
+  {
+    "objectID": "course/session15/slides.html#real-data-project-uncertainty-in-median-tumour-thickness",
+    "href": "course/session15/slides.html#real-data-project-uncertainty-in-median-tumour-thickness",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Real-data project: uncertainty in median tumour thickness",
+    "text": "Real-data project: uncertainty in median tumour thickness\nboot::melanoma contains 205 patients who underwent melanoma surgery in Odense, Denmark. Tumour thickness is recorded in millimetres.\nOur teaching analysis: estimate median tumour thickness and its uncertainty for a population represented by this cohort. This is a new analysis of the data, not a claim about the original study’s analysis.\nResample patients with replacement, compute the median each time, and use the distribution to estimate its SE and interval. This avoids deriving a statistic-specific SE formula, but still relies on a suitable sample and bootstrap.\n\nSource: R documentation for the melanoma cohort. This example uses thickness, not censored survival time."
+  },
+  {
+    "objectID": "course/session15/slides.html#a-bootstrap-project-in-a-few-lines",
+    "href": "course/session15/slides.html#a-bootstrap-project-in-a-few-lines",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "A bootstrap project in a few lines",
+    "text": "A bootstrap project in a few lines\n\nthickness &lt;- boot::melanoma$thickness\nstopifnot(length(thickness) == 205L, all(is.finite(thickness)))\nset.seed(1500)\nboot_median &lt;- replicate(2000,\n  median(sample(thickness, replace = TRUE)))\nround(c(estimate = median(thickness), SE = sd(boot_median),\n        quantile(boot_median, c(.025, .975))), 2)\n\nestimate       SE     2.5%    97.5% \n    1.94     0.19     1.62     2.26 \n\n\nReport the median, bootstrap SE, and percentile interval in mm. The interval describes sampling uncertainty under the resampling assumptions. It does not show the range containing 95% of individual patients."
+  },
+  {
+    "objectID": "course/session15/slides.html#optional-percentile-and-basic-intervals",
+    "href": "course/session15/slides.html#optional-percentile-and-basic-intervals",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Optional: Percentile and basic intervals",
+    "text": "Optional: Percentile and basic intervals\n\nperc &lt;- quantile(boot_mean, c(.025, .975))\nbasic &lt;- 2 * obs_mean - quantile(boot_mean, c(.975, .025))\nrbind(percentile = unname(perc), basic = unname(basic))\n\n                [,1]      [,2]\npercentile -19.13333 -5.663333\nbasic      -19.20333 -5.733333\n\n\n\nPercentile: use quantiles of the bootstrap estimates directly.\nBasic: reflect those quantiles around the observed estimate.\nBoth rely on a suitable bootstrap approximation; neither automatically has 95% coverage in small, biased, or irregular problems.\n\nCompare endpoints and assumptions. Do not choose whichever interval gives a preferred conclusion."
+  },
+  {
+    "objectID": "course/session15/slides.html#optional-bootstrap-stability",
+    "href": "course/session15/slides.html#optional-bootstrap-stability",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Optional: Bootstrap stability",
+    "text": "Optional: Bootstrap stability\nMore resamples reduce computational variation; they do not add participants or repair an inappropriate bootstrap scheme.\n\nboot_interval &lt;- function(seed, B = 1000) {\n  set.seed(seed)\n  groups &lt;- split(seq_len(nrow(trial)), trial$arm)\n  ans &lt;- replicate(B, {\n    i &lt;- unlist(lapply(groups, function(j)\n      j[sample.int(length(j), replace = TRUE)]))\n    mean_diff(trial[i, ])\n  })\n  unname(quantile(ans, c(.025, .975)))\n}"
+  },
+  {
+    "objectID": "course/session15/slides.html#real-experiment-promotion-recommendations",
+    "href": "course/session15/slides.html#real-experiment-promotion-recommendations",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Real experiment: promotion recommendations",
+    "text": "Real experiment: promotion recommendations\nRosen and Jerdee’s experiment randomly assigned 48 bank supervisors otherwise identical personnel files labelled male or female, 24 of each.\n\n\n\nFile label\nRecommended promotion\nTotal\n\n\n\n\nMale\n21\n24\n\n\nFemale\n14\n24\n\n\n\nThe observed difference is 21/24−14/24=0.29221/24 - 14/24 = 0.292 (29.2 percentage points). Question: could an assignment difference this large arise if the label had no effect on any supervisor’s decision?\n\nRosen & Jerdee (1974), via OpenIntro data and study design."
+  },
+  {
+    "objectID": "course/session15/slides.html#why-permutation-fits-this-project",
+    "href": "course/session15/slides.html#why-permutation-fits-this-project",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Why permutation fits this project",
+    "text": "Why permutation fits this project\nUnder the sharp null, each supervisor’s decision would be unchanged by the file label. Keep the 48 decisions fixed and randomly assign 24 male labels and 24 female labels again.\n\ndecision &lt;- c(rep(1, 21), rep(0, 3), rep(1, 14), rep(0, 10))\nobserved_gap &lt;- 21/24 - 14/24\nset.seed(1501)\nnull_gap &lt;- replicate(9999, {\n  male &lt;- sample.int(48, 24)\n  mean(decision[male]) - mean(decision[-male])\n})\n(1 + sum(abs(null_gap) &gt;= abs(observed_gap) - 1e-12)) / 10000\n\n[1] 0.0526\n\n\nThis two-sided p-value measures evidence against the null under the assignment scheme. It does not estimate the size or uncertainty of an effect."
+  },
+  {
+    "objectID": "course/session15/slides.html#which-bootstrap-fits-the-data",
+    "href": "course/session15/slides.html#which-bootstrap-fits-the-data",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Which bootstrap fits the data?",
+    "text": "Which bootstrap fits the data?\n\n\n\n\n\n\n\n\nApproach\nWhat is sampled?\nTypical use\n\n\n\n\nOrdinary nonparametric\nObserved independent units, with replacement\nMedian, mean, or another sample statistic\n\n\nStratified\nUnits within each specified group\nPreserve treatment-arm sample sizes\n\n\nPaired or cluster\nWhole pairs or clusters\nKeep related measurements together\n\n\nParametric\nNew data from a fitted probability model\nUse an explicit model for data generation\n\n\n\nThe parametric bootstrap connects to Session 14, but estimates the generating parameters from the observed data. Its validity depends on that fitted model.\n\nR’s boot documentation describes ordinary, stratified, and parametric resampling."
+  },
+  {
+    "objectID": "course/session15/slides.html#paired-measurements-bootstrap-the-change",
+    "href": "course/session15/slides.html#paired-measurements-bootstrap-the-change",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Paired measurements: bootstrap the change",
+    "text": "Paired measurements: bootstrap the change\nFor the treatment arm, estimate mean 12-week minus baseline SBP. Each participant contributes one paired change.\n\ntreated &lt;- trial[trial$arm == \"Treatment\", ]\nchange &lt;- treated$sbp_12 - treated$sbp_0\nset.seed(1530)\nboot_change &lt;- replicate(2000,\n  mean(sample(change, length(change), replace = TRUE)))\nround(c(mean_change = mean(change), SE = sd(boot_change),\n        quantile(boot_change, c(.025, .975))), 2)\n\nmean_change          SE        2.5%       97.5% \n     -13.37        1.62      -16.60      -10.23 \n\n\nSampling changes preserves the pairing. Sampling baseline and follow-up values separately would break it. This estimates change within one arm, not a causal treatment effect relative to a control group."
+  },
+  {
+    "objectID": "course/session15/slides.html#a-paired-permutation-test-needs-a-justified-rule",
+    "href": "course/session15/slides.html#a-paired-permutation-test-needs-a-justified-rule",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "A paired permutation test needs a justified rule",
+    "text": "A paired permutation test needs a justified rule\nIn a randomized matched-pair experiment, one member of each pair receives each treatment. Under the sharp null, swap treatment labels within each pair according to the assignment scheme.\nFor a difference statistic, a within-pair swap reverses the sign of that pair’s difference. It does not move a person’s outcome into a different pair.\nBefore-and-after measurements alone do not justify random swapping of time labels. Sign-flipping observational changes requires a suitable null model, such as independent differences symmetric about zero.\nThe bootstrap can describe uncertainty in a mean change without establishing the randomization assumptions of a paired permutation test."
+  },
+  {
+    "objectID": "course/session15/slides.html#choosing-and-reporting-the-analysis",
+    "href": "course/session15/slides.html#choosing-and-reporting-the-analysis",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Choosing and reporting the analysis",
+    "text": "Choosing and reporting the analysis\n\n\n\n\n\n\n\nDecision\nWhat to state\n\n\n\n\nStandard method or resampling?\nA t method may suffice for a mean; bootstrap can help with less familiar statistics\n\n\nEstimate uncertainty or test a null?\nReport an interval or a justified p-value for the stated question\n\n\nWhich units and restrictions?\nParticipants, pairs, clusters, and fixed group sizes\n\n\nHow much computation?\nNumber of resamples, seed, and stability or Monte Carlo precision\n\n\nWhat can the result support?\nTarget population, assumptions, missingness, and limits\n\n\n\nMore resamples cannot repair an inappropriate unit, biased sample, or invalid reassignment rule. Choose the analysis before inspecting favorable results."
   },
   {
     "objectID": "course/session14/index.html",
     "href": "course/session14/index.html",
     "title": "Session 14 · Random numbers and simulation",
     "section": "",
-    "text": "Session\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap uncertainty, permutation tests, and resampling units\n\n\n16\nFitted models, prediction, cross-validation, and reproducible handoff"
+    "text": "Session\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap, permutation, and resampling design\n\n\n16\nModels, cross-validation, broader tools, course recap, and handoff"
   },
   {
     "objectID": "course/session14/index.html#the-statistical-computing-sequence",
     "href": "course/session14/index.html#the-statistical-computing-sequence",
     "title": "Session 14 · Random numbers and simulation",
     "section": "",
-    "text": "Session\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap uncertainty, permutation tests, and resampling units\n\n\n16\nFitted models, prediction, cross-validation, and reproducible handoff"
+    "text": "Session\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap, permutation, and resampling design\n\n\n16\nModels, cross-validation, broader tools, course recap, and handoff"
   },
   {
     "objectID": "course/session14/index.html#outline-and-applied-practice",
     "href": "course/session14/index.html#outline-and-applied-practice",
     "title": "Session 14 · Random numbers and simulation",
     "section": "Outline and applied practice",
-    "text": "Outline and applied practice\n\nSpecify ADEMP — Use independent control and treatment groups with SDs 12 and 4. Compare sizes 10/40 and 30/40, differences 0 and 6, and normal versus skewed errors. Both tests target treatment minus control. State the performance measures before running the study.\nInspect one replicate — Generate one dataset and compare Welch and pooled results on that same dataset. Verify the estimate direction, result names, and interval ordering. Exercise a failed constant-outcome sample.\nRetain each method and replicate — Implement run_study(s, B) for one scenario row. Retain replicate, method, scenario values, numeric results, and an error message. Both methods must use the same generated dataset in each replicate.\nPlan precision and run scenarios — Use a target worst-case MCSE of 0.016 for a probability. Calculate the required replication count using 0.25 / target^2, then use at least that many replicates. Seed once before the complete grid.\nSummarize performance and failures — For each scenario and method report attempts, failures, bias, empirical SE, mean model SE, RMSE, coverage, mean width, rejection rate, and MCSE for bias, coverage, and rejection. Label quantities conditional on success.\nInterpret sensitivity — Compare null calibration, power, interval coverage, and failure counts across allocation and distribution. Draw one comparison with Monte Carlo uncertainty. Explain why a skewed error is centered using population quantities rather than its sample mean."
+    "text": "Outline and applied practice\n\nSpecify ADEMP — Let each outcome be SBP reduction: baseline minus 12-week SBP, in mmHg. Positive delta means greater mean reduction with treatment. Use independent normal control and treatment groups with SDs 12 and 4. Compare sizes 10/40 and 30/40 and true differences 0 and 6 (four scenarios). Define the estimand as the population mean difference, treatment minus control. Distinguish this target from the estimator and one sample estimate. Write the five ADEMP headings before running the study.\nInspect one replicate — Generate one dataset and compare Welch and pooled results on that same dataset. Verify the estimate direction, result names, and interval ordering. Exercise a failed constant-outcome sample.\nRetain each method and replicate — Inspect the supplied run_study(s, B) function and run a pilot with B = 5. Identify where it generates one dataset, applies both methods, and retains results or errors. Check that five replicates produce ten rows. Both methods must use the same dataset in each replicate.\nRun reproducible scenarios — Use B = 1000 for this teaching exercise. Assign each scenario a fixed seed and call set.seed() immediately before running that scenario. Insert an unrelated runif() call before the seed and verify that the scenario results stay unchanged. Do not reset the seed inside the replicate loop.\nSummarize performance and failures — For each scenario and method report attempts, failures, bias, coverage, rejection rate, and MCSE for rejection. Use sqrt(p_hat * (1 - p_hat) / B_valid), where B_valid counts successful replicates. Label performance summaries as conditional on success. Interpret rejection rates as type I error when delta = 0 and power when delta = 6.\nInterpret the comparison — Compare null calibration, power, coverage, and failure counts across allocations. Draw one rejection-rate comparison with approximate Monte Carlo intervals. Explain why 5.2% from 1,000 replicates need not differ meaningfully from 5%, and why more replicates differ from more patients per trial."
   },
   {
     "objectID": "course/session14/index.html#materials",
@@ -7075,6 +7229,20 @@
     "title": "Session 14 · Random numbers and simulation",
     "section": "Materials",
     "text": "Materials\n\nLecture slides\nGuided lab\nStarter: Quarto or R Markdown"
+  },
+  {
+    "objectID": "course/session14/index.html#warm-up-random-draws-and-the-normal-distribution",
+    "href": "course/session14/index.html#warm-up-random-draws-and-the-normal-distribution",
+    "title": "Session 14 · Random numbers and simulation",
+    "section": "Warm-up: random draws and the normal distribution",
+    "text": "Warm-up: random draws and the normal distribution\n\nRun two successive rnorm(3) calls after set.seed(42). Rerun the entire block. Which results repeat?\nSave state_before &lt;- .Random.seed, draw one value, and compare with identical(state_before, .Random.seed). Explain the generator’s changing bookmark.\nInsert unused &lt;- runif(1) between the two rnorm(3) calls. Explain why the second output changes even though unused is never used.\nCall set.seed(99) immediately before the result you want to reproduce. Verify that earlier random work no longer changes that result. Explain why you should not put the same seed inside every replicate.\nEvaluate dnorm(0), pnorm(1.96), qnorm(0.975), and rnorm(8). Match them to density height, left-tail area, cutoff value, and simulated observations. Which two functions reverse each other’s question? Why is dnorm(0) not the probability of observing exactly zero?"
+  },
+  {
+    "objectID": "course/session14/index.html#optional-extensions",
+    "href": "course/session14/index.html#optional-extensions",
+    "title": "Session 14 · Random numbers and simulation",
+    "section": "Optional extensions",
+    "text": "Optional extensions\n\nAdd dgm = \"skewed\" to the design using the supplied helper. Explain why it centers errors using the population mean rather than each sample mean. Keep the estimand unchanged.\nReport empirical SE, mean model SE, RMSE, mean interval width, and MCSE for bias or coverage.\nPlan B from a target MCSE using ceiling(p * (1 - p) / target^2). Try B = 4000 and explain why MCSE is about half its value at B = 1000.\nExplore SimDesign::runSimulation() for running a larger study or rsimsum::simsum() for summarising saved results. No package installation is required for the core lab."
   },
   {
     "objectID": "syllabus.html",
@@ -7130,7 +7298,7 @@
     "href": "syllabus.html#class-topics",
     "title": "BIOS6301: Introduction to Statistical Computing",
     "section": "Class topics",
-    "text": "Class topics\nThe instructor may adjust pacing in response to student preparation and the academic calendar. Session 0 is completed independently before the first class. Instructional sessions are units of content rather than calendar weeks, and two related units may be completed during one class meeting.\n\n\n\n\n\n\n\n\nSession\nTopic\nCore content\n\n\n\n\n0\nSetup and orientation\nInstall and verify R, RStudio, Quarto, and Git; distinguish console from source; open a project; render the diagnostic document\n\n\n1\nReproducible statistical workflow\nRStudio workbench; .R scripts; R Markdown structure and knitr options; Quarto-specific syntax; project paths; source versus generated output; clean-session rendering\n\n\n2\nGit and GitHub\nWorking tree, staging, commits, history, remotes, pull/push, .gitignore, and safe beginner recovery\n\n\n3\nR objects\nVectors, types, coercion, recycling, indexing, missing values, and factors\n\n\n4\nData structures and base-R data handling\nLists, matrices, data frames, [, [[, $, base-R subsetting, transformation, and summaries\n\n\n5\nGetting data into R\nDelimited and other files; base and readr import; import validation; missing-value codes; dates; export formats\n\n\n6\nTidyverse foundations\nTibbles, pipes, filter(), select(), mutate(), arrange(), summarise(), and grouped operations\n\n\n7\nJoins, reshaping, and cleaning\nBasic joins and key checks; wide/long data with tidyr; text with stringr; factors with forcats; dates with lubridate; optional join details and base-R comparisons\n\n\n8\nStatistical visualization\nBase graphics and ggplot2; distributions, comparisons, uncertainty, facets, accessible design, and figure export\n\n\n—\nMidterm examination\nIndividual take-home assessment of the reproducible data workflow and statistical visualization through Session 8; AI assistance is not permitted\n\n\n9\nPositron and AI-assisted coding\nPositron projects and interface; comparison with RStudio; GitHub Copilot completion; accepting and rejecting suggestions; verification, privacy, and disclosure\n\n\n10\nPython introduction for R users\nPython/R comparison; basic syntax; NumPy; pandas; notebooks in Positron; translation of a familiar R analysis\n\n\n11\nConditions, control flow, and functions\nScalar conditions; if, else if, and else; function arguments, defaults, return values, scope, input validation, and refactoring\n\n\n12\nDebugging and reliable programming\nErrors, warnings, tracebacks, debugging tools, defensive checks, testing, and floating-point accuracy\n\n\n13\nIteration, vectorization, and functionals\nfor and while; preallocation; vectorized operations; apply; lapply() and vapply(); purrr; output contracts; timing and measurement\n\n\n14\nRandom-number generation and simulation\nDistribution functions; seeds; ADEMP; paired method comparisons; bias, coverage, and RMSE; Type I error and power; failures; Monte Carlo precision; scenario sensitivity\n\n\n15\nBootstrap and permutation\nBootstrap uncertainty and stability; percentile and basic intervals; exact and Monte Carlo permutation tests; participants, pairs, and clusters as resampling units\n\n\n16\nModels, prediction, and validation\nModel formulas and objects; prediction and diagnostics; held-out prediction; fold-specific preprocessing; leakage; validation design; reproducible handoff. Optional supplements: binomial predictions, numerical methods, and structured text validation"
+    "text": "Class topics\nThe instructor may adjust pacing in response to student preparation and the academic calendar. Session 0 is completed independently before the first class. Instructional sessions are units of content rather than calendar weeks, and two related units may be completed during one class meeting.\n\n\n\n\n\n\n\n\nSession\nTopic\nCore content\n\n\n\n\n0\nSetup and orientation\nInstall and verify R, RStudio, Quarto, and Git; distinguish console from source; open a project; render the diagnostic document\n\n\n1\nReproducible statistical workflow\nRStudio workbench; .R scripts; R Markdown structure and knitr options; Quarto-specific syntax; project paths; source versus generated output; clean-session rendering\n\n\n2\nGit and GitHub\nWorking tree, staging, commits, history, remotes, pull/push, .gitignore, and safe beginner recovery\n\n\n3\nR objects\nVectors, types, coercion, recycling, indexing, missing values, and factors\n\n\n4\nData structures and base-R data handling\nLists, matrices, data frames, [, [[, $, base-R subsetting, transformation, and summaries\n\n\n5\nGetting data into R\nDelimited and other files; base and readr import; import validation; missing-value codes; dates; export formats\n\n\n6\nTidyverse foundations\nTibbles, pipes, filter(), select(), mutate(), arrange(), summarise(), and grouped operations\n\n\n7\nJoins, reshaping, and cleaning\nBasic joins and key checks; wide/long data with tidyr; text with stringr; factors with forcats; dates with lubridate; optional join details and base-R comparisons\n\n\n8\nStatistical visualization\nBase graphics and ggplot2; distributions, comparisons, uncertainty, facets, accessible design, and figure export\n\n\n—\nMidterm examination\nIndividual take-home assessment of the reproducible data workflow and statistical visualization through Session 8; AI assistance is not permitted\n\n\n9\nPositron and AI-assisted coding\nPositron projects and interface; comparison with RStudio; GitHub Copilot completion; accepting and rejecting suggestions; verification, privacy, and disclosure\n\n\n10\nPython introduction for R users\nPython/R comparison; basic syntax; NumPy; pandas; notebooks in Positron; translation of a familiar R analysis\n\n\n11\nConditions, control flow, and functions\nScalar conditions; if, else if, and else; function arguments, defaults, return values, scope, input validation, and refactoring\n\n\n12\nDebugging and reliable programming\nErrors, warnings, tracebacks, debugging tools, defensive checks, testing, and floating-point accuracy\n\n\n13\nIteration, vectorization, and functionals\nfor and while; preallocation; vectorized operations; apply; lapply() and vapply(); purrr; output contracts; timing and measurement\n\n\n14\nRandom-number generation and simulation\nDistribution functions; seeds; ADEMP; paired method comparisons; bias, coverage, and RMSE; Type I error and power; failures; Monte Carlo precision; scenario sensitivity\n\n\n15\nBootstrap and permutation\nMotivation and project examples; bootstrap uncertainty; permutation nulls; participants, pairs, and clusters; method choices and reporting\n\n\n16\nModels, validation, and course review\nRegression and diagnostics; cross-validation, training-only preprocessing, and leakage; broader tools; Sessions 0–16 recap; reproducible handoff"
   },
   {
     "objectID": "syllabus.html#base-r-and-tidyverse-policy",
@@ -7193,14 +7361,14 @@
     "href": "course/session14/slides.html#the-statistical-computing-sequence",
     "title": "Random Numbers and Simulation",
     "section": "The statistical computing sequence",
-    "text": "The statistical computing sequence\n\n\n\n\n\n\n\n\nSession\nQuestion\nMain product\n\n\n\n\n14 · Simulation\nHow does a method behave when the truth is known?\nA checked simulation study\n\n\n15 · Resampling\nWhat can repeated use of observed data tell us?\nBootstrap uncertainty and permutation tests\n\n\n16 · Models and validation\nHow do we fit, predict, and evaluate?\nChecked predictions and a reproducible handoff\n\n\n\nFunctions, validation, and iteration from Sessions 11–13 support all three."
+    "text": "The statistical computing sequence\n\n\n\n\n\n\n\n\nSession\nQuestion\nMain product\n\n\n\n\n14 · Simulation\nHow does a method behave when the truth is known?\nA checked simulation study\n\n\n15 · Resampling\nWhat can repeated use of observed data tell us?\nUncertainty, null tests, and resampling design\n\n\n16 · Models and synthesis\nHow do the course tools support a complete analysis?\nInterpretable models and a reproducible handoff\n\n\n\nFunctions, validation, and iteration from Sessions 11–13 support all three."
   },
   {
     "objectID": "course/session14/slides.html#what-you-will-be-able-to-do",
     "href": "course/session14/slides.html#what-you-will-be-able-to-do",
     "title": "Random Numbers and Simulation",
     "section": "What you will be able to do",
-    "text": "What you will be able to do\n\n1 Explain what a seed is, and why reproducible randomness is not a contradiction.\n2 Draw from a distribution using the r* functions, and use d*, p*, q* for the other three questions.\n3 Structure a simulation study with the ADEMP scaffold.\n4 Write one function that simulates a dataset and one that analyses it, and iterate over replicates.\n5 Evaluate bias, RMSE, coverage, interval width, and failed replicates, with Monte Carlo uncertainty.\n6 Choose the number of replicates from a target Monte Carlo SE.\n7 Estimate type I error and power, and say what to do when the type I error is not what it should be."
+    "text": "What you will be able to do\n\n1 Explain what a seed is, and why reproducible randomness is not a contradiction.\n2 Draw from a distribution using the r* functions, and use d*, p*, q* for the other three questions.\n3 Structure a simulation study with the ADEMP scaffold.\n4 Write one function that simulates a dataset and one that analyses it, and iterate over replicates.\n5 Evaluate bias, RMSE, coverage, interval width, and failed replicates, with Monte Carlo uncertainty.\n6 Explain why more replicates reduce simulation noise, and interpret a Monte Carlo SE for a simulated percentage.\n7 Estimate type I error and power, and say what to do when the type I error is not what it should be."
   },
   {
     "objectID": "course/session14/slides.html#session-outline",
@@ -7284,7 +7452,7 @@
     "href": "course/session14/slides.html#a-simulation-is-an-experiment",
     "title": "Random Numbers and Simulation",
     "section": "A simulation is an experiment",
-    "text": "A simulation is an experiment\nYou would not run a trial by collecting data until the result looked right. A simulation has the same failure mode and none of the oversight.\n\n\nWritten down in advance, a simulation study is evidence. Written down afterwards, it is a story about the settings that worked.\n\n\n\n\n\n\n\n\n\nADEMP — Morris, White & Crowther, “Using simulation studies to evaluate statistical methods,” Statistics in Medicine 38:2074–2102, 2019. Read it before you design one for real; it is the clearest thing written on the subject."
+    "text": "A simulation is an experiment\nWe create data under known conditions, apply a statistical method, and check how well it works across many simulated datasets.\nBefore running it, write down:\n\nWhat question are we asking?\nHow will we generate the data and analyse each dataset?\nHow will we judge the results?\n\nADEMP gives us five headings for this plan.\n\nOptional background: Morris, White & Crowther (2019), “Using simulation studies to evaluate statistical methods”, Statistics in Medicine, 38:2074–2102."
   },
   {
     "objectID": "course/session14/slides.html#ademp",
@@ -7298,7 +7466,7 @@
     "href": "course/session14/slides.html#ademp-for-today",
     "title": "Random Numbers and Simulation",
     "section": "ADEMP for today",
-    "text": "ADEMP for today\n\n\n\n\n\n\n\n\nA\nDoes a two-sample t-test hold its nominal 5% type I error when the arms have different variances and different sizes?\n\n\nD\nyctrl∼N(0,122)y_{\\text{ctrl}} \\sim N(0, 12^2), nctrln_{\\text{ctrl}} patients; ytrt∼N(δ,42)y_{\\text{trt}} \\sim N(\\delta, 4^2), ntrtn_{\\text{trt}} patients. Allocations 25/25, 10/40, 40/10\n\n\nE\nδ\\delta, the difference in mean SBP change. Null case δ=0\\delta = 0; power cases δ=3,6,9,12\\delta = 3, 6, 9, 12 mmHg\n\n\nM\nPooled t-test (var.equal = TRUE) vs Welch (var.equal = FALSE)\n\n\nP\nRejection rate, bias, empirical SE, coverage, and interval width. 10,000 replicates give MCSE about 0.0022 for a probability near 0.05\n\n\n\n\n\n\nThe SDs 12 and 4 are deliberately chosen teaching scenarios, not estimates from a clinical study. Other variance ratios require separate scenarios."
+    "text": "ADEMP for today\n\n\n\n\n\n\n\n\nA\nDoes a two-sample t-test hold its nominal 5% type I error when the arms have different variances and different sizes?\n\n\nD\nyctrl∼N(0,122)y_{\\text{ctrl}} \\sim N(0, 12^2), nctrln_{\\text{ctrl}} patients; ytrt∼N(δ,42)y_{\\text{trt}} \\sim N(\\delta, 4^2), ntrtn_{\\text{trt}} patients. Allocations 25/25, 10/40, 40/10\n\n\nE\nδ\\delta, the difference in mean SBP change. Null case δ=0\\delta = 0; power cases δ=3,6,9,12\\delta = 3, 6, 9, 12 mmHg\n\n\nM\nPooled t-test (var.equal = TRUE) vs Welch (var.equal = FALSE)\n\n\nP\nRejection rate, bias, empirical SE, coverage, and interval width. Repeat 10,000 times and report simulation uncertainty (explained later)\n\n\n\n\n\n\nThe SDs 12 and 4 are deliberately chosen teaching scenarios, not estimates from a clinical study. Other variance ratios require separate scenarios."
   },
   {
     "objectID": "course/session14/slides.html#estimands-the-letter-people-skip",
@@ -7319,7 +7487,7 @@
     "href": "course/session14/slides.html#generate-one-dataset",
     "title": "Random Numbers and Simulation",
     "section": "Generate one dataset",
-    "text": "Generate one dataset\n\n# Simulate one two-arm trial. Returns a data frame with `arm` and `y`.\n# Control is N(0, sd_ctrl^2); treatment is N(delta, sd_trt^2).\nsimulate_trial &lt;- function(n_ctrl, n_trt, sd_ctrl, sd_trt, delta = 0) {\n  stopifnot(n_ctrl &gt;= 2, n_trt &gt;= 2, sd_ctrl &gt; 0, sd_trt &gt; 0)\n\n  data.frame(\n    arm = rep(c(\"ctrl\", \"trt\"), c(n_ctrl, n_trt)),\n    y   = c(rnorm(n_ctrl, mean = 0,     sd = sd_ctrl),\n            rnorm(n_trt,  mean = delta, sd = sd_trt))\n  )\n}\n\nset.seed(6301)\nhead(simulate_trial(3, 3, 12, 4, delta = 8), 3)\n\n   arm         y\n1 ctrl -5.667400\n2 ctrl 12.457060\n3 ctrl  3.299615"
+    "text": "Generate one dataset\n\n# One SBP trial: y is baseline minus 12-week SBP (mmHg).\n# Control is N(0, sd_ctrl^2); treatment is N(delta, sd_trt^2).\nsimulate_trial &lt;- function(n_ctrl, n_trt, sd_ctrl, sd_trt, delta = 0) {\n  stopifnot(n_ctrl &gt;= 2, n_trt &gt;= 2, sd_ctrl &gt; 0, sd_trt &gt; 0)\n\n  data.frame(\n    arm = rep(c(\"ctrl\", \"trt\"), c(n_ctrl, n_trt)),\n    y   = c(rnorm(n_ctrl, mean = 0,     sd = sd_ctrl),\n            rnorm(n_trt,  mean = delta, sd = sd_trt))\n  )\n}\n\nset.seed(6301)\nhead(simulate_trial(3, 3, 12, 4, delta = 8), 3)\n\n   arm         y\n1 ctrl -5.667400\n2 ctrl 12.457060\n3 ctrl  3.299615"
   },
   {
     "objectID": "course/session14/slides.html#analyse-one-dataset",
@@ -7564,35 +7732,147 @@
     "href": "course/session14/slides.html#summary",
     "title": "Random Numbers and Simulation",
     "section": "Summary",
-    "text": "Summary\n\nA seed identifies a pseudorandom stream; it does not make a design valid.\nWrite ADEMP before writing the repetition.\nTest one simulated replicate before running thousands.\nReport Monte Carlo uncertainty with every simulated probability.\nType I error and power differ by the data-generating parameter, not by the code skeleton.\n\n\nNext connection: Session 15 uses observed data for bootstrap uncertainty and permutation tests. Session 16 develops predictive validation."
+    "text": "Summary\n\nA seed identifies a pseudorandom stream; it does not make a design valid.\nWrite ADEMP before writing the repetition.\nTest one simulated replicate before running thousands.\nReport Monte Carlo uncertainty with every simulated probability.\nType I error and power differ by the data-generating parameter, not by the code skeleton.\n\n\nNext connection: Session 15 uses observed data for bootstrap and permutation. Session 16 connects regression, cross-validation, and the complete course workflow."
+  },
+  {
+    "objectID": "course/session14/slides.html#how-r-makes-random-numbers",
+    "href": "course/session14/slides.html#how-r-makes-random-numbers",
+    "title": "Random Numbers and Simulation",
+    "section": "How R makes random numbers",
+    "text": "How R makes random numbers\nA random-number generator is a recipe that produces numbers that behave like random draws. We use them to simulate data, such as patients’ blood pressures.\n\nset.seed(42)\nrnorm(3, mean = 120, sd = 10)  # simulate 3 blood pressures\n\n[1] 133.7096 114.3530 123.6313\n\n\n\nR follows a fixed recipe, so we call these pseudorandom numbers.\nThink of a long sequence of numbers: each random call moves forward in it.\nA seed chooses a starting point. The same starting point and the same calls give the same results.\n\nThis lets us share an example and get exactly the same simulated data."
+  },
+  {
+    "objectID": "course/session14/slides.html#random.seed-remembers-where-r-is",
+    "href": "course/session14/slides.html#random.seed-remembers-where-r-is",
+    "title": "Random Numbers and Simulation",
+    "section": ".Random.seed remembers where R is",
+    "text": ".Random.seed remembers where R is\nR stores its current generator state in .Random.seed, an integer vector. Think of it as a bookmark: set.seed(42) resets it, and random calls update it.\n\n\nOriginal code\n\nset.seed(42)\nround(rnorm(3), 3)\n\n[1]  1.371 -0.565  0.363\n\nround(rnorm(3), 3)\n\n[1]  0.633  0.404 -0.106\n\n\nRerun this block: both outputs repeat.\n\nAn unrelated random call inserted\n\nset.seed(42)\nround(rnorm(3), 3)\n\n[1]  1.371 -0.565  0.363\n\nunused &lt;- runif(1)  # moves the bookmark\nround(rnorm(3), 3)\n\n[1] -1.105  0.539  0.580\n\n\nThe first output matches. The second changes.\n\nEven unused random draws change later results. Calculations such as 2 + 2 do not."
+  },
+  {
+    "objectID": "course/session14/slides.html#a-seed-before-each-result-you-want-to-reproduce",
+    "href": "course/session14/slides.html#a-seed-before-each-result-you-want-to-reproduce",
+    "title": "Random Numbers and Simulation",
+    "section": "A seed before each result you want to reproduce",
+    "text": "A seed before each result you want to reproduce\nPlace set.seed() immediately before each simulation or analysis block whose output should stay the same when earlier code changes.\n\n\nThe result we want to reproduce\n\nset.seed(99)\nround(rnorm(3), 3)\n\n[1] 0.214 0.480 0.088\n\n\n\nEarlier random work can change\n\nunused &lt;- runif(100)\nset.seed(99)  # reset just before this result\nround(rnorm(3), 3)\n\n[1] 0.214 0.480 0.088\n\n\n\nBoth blocks give the same result because set.seed(99) resets .Random.seed immediately before rnorm(3).\nFor a simulation loop: set the seed once before the loop. Resetting the same seed inside every replicate repeats the same draws."
+  },
+  {
+    "objectID": "course/session14/slides.html#four-views-of-the-standard-normal-distribution",
+    "href": "course/session14/slides.html#four-views-of-the-standard-normal-distribution",
+    "title": "Random Numbers and Simulation",
+    "section": "Four views of the standard normal distribution",
+    "text": "Four views of the standard normal distribution\n\n\nAI-generated schematic, not to scale. Values refer to a normal distribution with mean 0 and SD 1."
+  },
+  {
+    "objectID": "course/session14/slides.html#distribution-functions-prefix-name",
+    "href": "course/session14/slides.html#distribution-functions-prefix-name",
+    "title": "Random Numbers and Simulation",
+    "section": "Distribution functions: prefix + name",
+    "text": "Distribution functions: prefix + name\nCombine a prefix with a distribution name: r + norm gives rnorm().\n\n\nWhat do you want to find?\n\n\n\nPrefix\nMeaning\nExample\n\n\n\n\nd\nDensity or probability mass\ndnorm(0)\n\n\np\nProbability up to a value\npnorm(1.96)\n\n\nq\nValue at a given probability\nqnorm(0.975)\n\n\nr\nRandom draws\nrnorm(10)\n\n\n\npnorm(1.96) is about 0.975.\nqnorm(0.975) is about 1.96.\n\nWhich distribution?\n\n\n\nName\nDistribution\n\n\n\n\nnorm\nNormal (Gaussian)\n\n\nunif\nUniform\n\n\nbinom\nBinomial\n\n\npois\nPoisson\n\n\nt\nStudent’s t\n\n\nchisq\nChi-squared\n\n\nexp\nExponential\n\n\ngamma\nGamma\n\n\nbeta\nBeta"
+  },
+  {
+    "objectID": "course/session14/slides.html#estimand-the-quantity-we-want-to-learn",
+    "href": "course/session14/slides.html#estimand-the-quantity-we-want-to-learn",
+    "title": "Random Numbers and Simulation",
+    "section": "Estimand: the quantity we want to learn",
+    "text": "Estimand: the quantity we want to learn\nFor the same SBP trial, suppose mean reduction is 0 mmHg under control and 6 mmHg under treatment. How much additional reduction does treatment provide?\n\n\n\n\n\n\n\n\nTerm\nMeaning\nExample in our simulation\n\n\n\n\nEstimand\nThe true additional mean SBP reduction\nδ=6−0=6\\delta = 6 - 0 = 6 mmHg\n\n\nEstimator\nThe rule applied to sampled patients\nMean reduction in treatment minus mean reduction in control\n\n\nEstimate\nThe result from one simulated trial\nFor example, 7.2 mmHg additional reduction\n\n\n\nWe set the population means, so we know the truth is 6. New samples give different estimates, but the target stays 6.\nIf the estimates average 6.3 over many replicates, estimated bias is 6.3−6=0.36.3 - 6 = 0.3 mmHg. One estimate’s error, 7.2−67.2 - 6, is not the bias."
+  },
+  {
+    "objectID": "course/session14/slides.html#why-simulation-results-have-uncertainty",
+    "href": "course/session14/slides.html#why-simulation-results-have-uncertainty",
+    "title": "Random Numbers and Simulation",
+    "section": "Why simulation results have uncertainty",
+    "text": "Why simulation results have uncertainty\nMonte Carlo means using repeated random draws to answer a question.\nSuppose a test really rejects 5% of the time under the null. In 1,000 simulated trials, we expect about 50 rejections, but we will not always get exactly 50.\n\nA run might give 52 rejections: 52 / 1,000 = 5.2%.\nA new seed gives new datasets, so the rejection count may change.\nThis variation from using a finite number of replicates is Monte Carlo uncertainty.\n\nA fixed seed reproduces the same answer. More replicates make the answer less sensitive to the particular random draws."
+  },
+  {
+    "objectID": "course/session14/slides.html#two-kinds-of-uncertainty",
+    "href": "course/session14/slides.html#two-kinds-of-uncertainty",
+    "title": "Random Numbers and Simulation",
+    "section": "Two kinds of uncertainty",
+    "text": "Two kinds of uncertainty\n\n\n\n\n\n\n\n\n\nSampling uncertainty\nMonte Carlo uncertainty\n\n\n\n\nWhat varies?\nA treatment effect estimate across trials\nA rejection rate across full simulation runs\n\n\nExample\nEach trial has 50 patients\nEach simulation run contains 1,000 trials\n\n\nWhat helps?\nMore patients per trial\nMore simulated trials per run\n\n\n\nIncreasing patients per trial changes the study we are evaluating. Increasing replicates helps us evaluate that same study more precisely."
+  },
+  {
+    "objectID": "course/session14/slides.html#one-calculation-for-a-simulated-percentage",
+    "href": "course/session14/slides.html#one-calculation-for-a-simulated-percentage",
+    "title": "Random Numbers and Simulation",
+    "section": "One calculation for a simulated percentage",
+    "text": "One calculation for a simulated percentage\nThe Monte Carlo standard error (MCSE) describes how much a simulated proportion varies across repeated runs of the simulation.\nFor independent replicates, MCSE=p̂(1−p̂)/B\\mathrm{MCSE} = \\sqrt{\\hat p(1-\\hat p)/B}, where p̂\\hat p is the observed proportion and BB is the number of replicates.\n\np_hat &lt;- 52 / 1000\nn_sim &lt;- 1000\nmcse &lt;- sqrt(p_hat * (1 - p_hat) / n_sim)\nround(100 * c(rate = p_hat, MCSE = mcse,\n              lower = p_hat - 1.96 * mcse,\n              upper = p_hat + 1.96 * mcse), 2)\n\n rate  MCSE lower upper \n 5.20  0.70  3.82  6.58 \n\n\nThe rate is 5.2%, with MCSE 0.70 percentage points and an approximate 95% Monte Carlo interval of 3.82% to 6.58%. This run gives little evidence that the true rejection rate differs from 5%."
+  },
+  {
+    "objectID": "course/session14/slides.html#optional-no-rejections-does-not-mean-zero-probability",
+    "href": "course/session14/slides.html#optional-no-rejections-does-not-mean-zero-probability",
+    "title": "Random Numbers and Simulation",
+    "section": "Optional: no rejections does not mean zero probability",
+    "text": "Optional: no rejections does not mean zero probability\n\nbinom.test(0, 1000)$conf.int\n\n[1] 0.000000000 0.003682084\nattr(,\"conf.level\")\n[1] 0.95\n\n\nZero rejections out of 1,000 does not establish a true rejection probability of zero. The plug-in MCSE formula gives zero here; a binomial interval exposes the remaining uncertainty.\nUse interval estimates near zero or one, and state the number of valid replicates."
+  },
+  {
+    "objectID": "course/session14/slides.html#more-replicates-give-a-steadier-answer",
+    "href": "course/session14/slides.html#more-replicates-give-a-steadier-answer",
+    "title": "Random Numbers and Simulation",
+    "section": "More replicates give a steadier answer",
+    "text": "More replicates give a steadier answer\nFor a rejection probability near 5%:\n\n\n\nReplicates\nExpected rejections\nMCSE (percentage points)\n\n\n\n\n100\n5\n2.18\n\n\n1,000\n50\n0.69\n\n\n10,000\n500\n0.22\n\n\n\nFour times as many replicates halves the MCSE. More precision costs more computing time.\nStart with a small run to check the code. Then choose a larger, fixed number of replicates and report the MCSE with the final result."
+  },
+  {
+    "objectID": "course/session14/slides.html#optional-choosing-replicates-for-a-target-precision",
+    "href": "course/session14/slides.html#optional-choosing-replicates-for-a-target-precision",
+    "title": "Random Numbers and Simulation",
+    "section": "Optional: choosing replicates for a target precision",
+    "text": "Optional: choosing replicates for a target precision\n\ntarget &lt;- 0.005\nceiling(c(near_null = 0.05 * 0.95, worst_case = 0.25) / target^2)\n\n near_null worst_case \n      1900      10000 \n\n\nThe conservative bound uses p(1−p)≤0.25p(1-p) \\le 0.25 and covers every probability. A design sized for Type I error near 0.05 can give less precise power estimates.\nChoose the precision target before inspecting favorable results. Use a pilot to debug and estimate computational cost, then run the planned study."
+  },
+  {
+    "objectID": "course/session14/slides.html#optional-tools-for-running-simulation-studies",
+    "href": "course/session14/slides.html#optional-tools-for-running-simulation-studies",
+    "title": "Random Numbers and Simulation",
+    "section": "Optional: tools for running simulation studies",
+    "text": "Optional: tools for running simulation studies\n\n\n\n\n\n\n\nTool\nWhat it does\n\n\n\n\nBase R replicate()\nRepeats an expression. Enough for today’s small example\n\n\nSimDesign::runSimulation()\nRuns a scenario design using your Generate, Analyse, and Summarise functions\n\n\nrsimsum::simsum()\nSummarises stored estimates, including bias, coverage, and Monte Carlo SEs\n\n\n\nSimDesign can manage repetition, parallel execution, and error tracking. You still specify the data-generating process and the analysis.\nFor this class: learn the steps with replicate(). A framework becomes useful as the number of scenarios and methods grows.\n\nOptional guides: SimDesign introduction and rsimsum documentation."
+  },
+  {
+    "objectID": "course/session14/slides.html#ademp-for-an-sbp-trial",
+    "href": "course/session14/slides.html#ademp-for-an-sbp-trial",
+    "title": "Random Numbers and Simulation",
+    "section": "ADEMP for an SBP trial",
+    "text": "ADEMP for an SBP trial\nOur simulated trial measures SBP reduction = baseline minus 12-week SBP (mmHg). A larger reduction means a larger drop.\n\n\nA · Aim: How reliably can we estimate the treatment’s additional mean SBP reduction when group sizes and variability differ?\nD · Data: Generate independent normal SBP reductions. Control: mean 0, SD 12. Treatment: mean δ\\delta, SD 4. Group sizes: 25/25, 10/40, or 40/10.\nE · Estimand: δ=\\delta = treatment minus control mean reduction. A value of 6 means an additional 6 mmHg drop with treatment.\nM · Methods: Difference in sample means, with Welch or pooled t procedures for the confidence interval and p-value.\nP · Performance: Bias, 95% interval coverage, and detection of an effect. When δ=0\\delta = 0, check false positives."
   },
   {
     "objectID": "course/session15/index.html",
     "href": "course/session15/index.html",
-    "title": "Session 15 · Bootstrap and permutation",
+    "title": "Session 15 · Bootstrap, permutation, and resampling design",
     "section": "",
-    "text": "Session\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap uncertainty, permutation tests, and resampling units\n\n\n16\nFitted models, prediction, cross-validation, and reproducible handoff"
+    "text": "Session\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap, permutation, and resampling design\n\n\n16\nModels, cross-validation, broader tools, course recap, and handoff"
   },
   {
     "objectID": "course/session15/index.html#the-statistical-computing-sequence",
     "href": "course/session15/index.html#the-statistical-computing-sequence",
-    "title": "Session 15 · Bootstrap and permutation",
+    "title": "Session 15 · Bootstrap, permutation, and resampling design",
     "section": "",
-    "text": "Session\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap uncertainty, permutation tests, and resampling units\n\n\n16\nFitted models, prediction, cross-validation, and reproducible handoff"
+    "text": "Session\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap, permutation, and resampling design\n\n\n16\nModels, cross-validation, broader tools, course recap, and handoff"
   },
   {
     "objectID": "course/session15/index.html#outline-and-applied-practice",
     "href": "course/session15/index.html#outline-and-applied-practice",
-    "title": "Session 15 · Bootstrap and permutation",
+    "title": "Session 15 · Bootstrap, permutation, and resampling design",
     "section": "Outline and applied practice",
-    "text": "Outline and applied practice\n\nBootstrap within arms — Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap bias, SE, percentile and basic intervals, and compare the SE with Welch. Repeat interval endpoints with three documented seeds.\nPermutation tests — Under the sharp null for the supplied completely randomized design, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution and a binomial interval for the Monte Carlo tail probability. Inspect the supplied demonstration of all 70 assignments for four participants per arm.\nChoose resampling units — Use trial_long to compare row and participant bootstraps. Preserve all visits and repeated copies of sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the resampling or reassignment rule."
+    "text": "Outline and applied practice\n\nBootstrap within arms — Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap SE and a percentile interval, and compare the SE with Welch. Basic intervals, bias, and three-seed stability comparisons are optional follow-up.\nPermutation tests — Under the sharp null for the supplied completely randomized design, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution. The binomial Monte Carlo interval and supplied enumeration of all 70 assignments for four participants per arm are optional follow-up.\nChoose resampling units — Use trial_long to compare row and participant bootstraps. Preserve all visits and repeated copies of sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the resampling or reassignment rule."
   },
   {
     "objectID": "course/session15/index.html#materials",
     "href": "course/session15/index.html#materials",
-    "title": "Session 15 · Bootstrap and permutation",
+    "title": "Session 15 · Bootstrap, permutation, and resampling design",
     "section": "Materials",
     "text": "Materials\n\nLecture slides\nGuided lab\nStarter: Quarto or R Markdown"
+  },
+  {
+    "objectID": "course/session15/index.html#start-with-the-project-question",
+    "href": "course/session15/index.html#start-with-the-project-question",
+    "title": "Session 15 · Bootstrap, permutation, and resampling design",
+    "section": "Start with the project question",
+    "text": "Start with the project question\nWe have one dataset. Choose the repeated operation from the question:\n\n\n\n\n\n\n\n\nQuestion\nMethod\nOutput\n\n\n\n\nHow uncertain is an estimate?\nBootstrap participants\nSE and interval\n\n\nIs the observed difference surprising under a specified null?\nPermute allowed assignments\np-value\n\n\n\nThe melanoma and promotion-decision projects illustrate these two questions. This lab uses a synthetic cohort of 60 participants. Cross-validation is taught with regression models in Session 16."
+  },
+  {
+    "objectID": "course/session15/index.html#paired-data-follow-up",
+    "href": "course/session15/index.html#paired-data-follow-up",
+    "title": "Session 15 · Bootstrap, permutation, and resampling design",
+    "section": "Paired-data follow-up",
+    "text": "Paired-data follow-up\nFor treatment-arm participants, calculate follow-up minus baseline SBP. Bootstrap these paired changes and report the mean, SE, and percentile interval. Explain why this does not estimate a causal treatment effect, why independent resampling of the two visits is inappropriate, and why time labels cannot automatically be permuted."
   },
   {
     "objectID": "course/session15/lab.html",
@@ -7623,11 +7903,39 @@
     "text": "Exit evidence\nSubmit the source and rendered report with results, checks, interpretation, and an AI-use disclosure. Identify the analysis sample or resampling unit for each result."
   },
   {
+    "objectID": "course/session15/lab.html#tasks-following-the-lecture",
+    "href": "course/session15/lab.html#tasks-following-the-lecture",
+    "title": "Session 15 guided lab",
+    "section": "Tasks following the lecture",
+    "text": "Tasks following the lecture\n\nBootstrap within arms — Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap SE and a percentile interval, and compare the SE with Welch. Basic intervals, bias, and three-seed stability comparisons are optional follow-up.\nPermutation tests — Under the sharp null for the supplied completely randomized design, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution. The binomial Monte Carlo interval and supplied enumeration of all 70 assignments for four participants per arm are optional follow-up.\nChoose resampling units — Use trial_long to compare row and participant bootstraps. Preserve all visits and repeated copies of sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the resampling or reassignment rule."
+  },
+  {
+    "objectID": "course/session15/lab.html#in-class-route-and-follow-up",
+    "href": "course/session15/lab.html#in-class-route-and-follow-up",
+    "title": "Session 15 guided lab",
+    "section": "In-class route and follow-up",
+    "text": "In-class route and follow-up\nBuild one bootstrap and one permutation calculation, then inspect participant and paired resampling. Detailed interval comparisons and exact enumeration are follow-up work."
+  },
+  {
+    "objectID": "course/session15/lab.html#start-with-the-project-question",
+    "href": "course/session15/lab.html#start-with-the-project-question",
+    "title": "Session 15 guided lab",
+    "section": "Start with the project question",
+    "text": "Start with the project question\nWe have one dataset. Choose the repeated operation from the question:\n\n\n\n\n\n\n\n\nQuestion\nMethod\nOutput\n\n\n\n\nHow uncertain is an estimate?\nBootstrap participants\nSE and interval\n\n\nIs the observed difference surprising under a specified null?\nPermute allowed assignments\np-value\n\n\n\nThe melanoma and promotion-decision projects illustrate these two questions. This lab uses a synthetic cohort of 60 participants. Cross-validation is taught with regression models in Session 16."
+  },
+  {
+    "objectID": "course/session15/lab.html#paired-data-follow-up",
+    "href": "course/session15/lab.html#paired-data-follow-up",
+    "title": "Session 15 guided lab",
+    "section": "Paired-data follow-up",
+    "text": "Paired-data follow-up\nFor treatment-arm participants, calculate follow-up minus baseline SBP. Bootstrap these paired changes and report the mean, SE, and percentile interval. Explain why this does not estimate a causal treatment effect, why independent resampling of the two visits is inappropriate, and why time labels cannot automatically be permuted."
+  },
+  {
     "objectID": "course/session16/slides.html#the-statistical-computing-sequence",
     "href": "course/session16/slides.html#the-statistical-computing-sequence",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "The statistical computing sequence",
-    "text": "The statistical computing sequence\n\n\n\n\n\n\n\nSession\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap uncertainty, permutation tests, and resampling units\n\n\n16\nFitted models, prediction, cross-validation, and reproducible handoff"
+    "text": "The statistical computing sequence\n\n\n\n\n\n\n\nSession\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap, permutation, and resampling design\n\n\n16\nModels, cross-validation, broader tools, course recap, and handoff"
   },
   {
     "objectID": "course/session16/slides.html#what-is-new-today",
@@ -7639,16 +7947,16 @@
   {
     "objectID": "course/session16/slides.html#learning-goals",
     "href": "course/session16/slides.html#learning-goals",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Learning goals",
-    "text": "Learning goals\n\nDefine the analysis sample and inspect a fitted model.\nExtract estimates and predict on new data.\nDistinguish diagnostics from held-out predictive evaluation.\nFit preprocessing within each training fold and check predictions.\nDeliver results with traceable inputs, code, and environment."
+    "text": "Learning goals\n\nDefine the analysis sample and inspect a fitted model.\nExtract estimates and predict on new data.\nDistinguish diagnostics from held-out predictive evaluation.\nFit preprocessing within each training fold and check predictions.\nConnect the tools from Sessions 0–15 in a complete project.\nDeliver results with traceable inputs, code, and environment."
   },
   {
     "objectID": "course/session16/slides.html#session-outline",
     "href": "course/session16/slides.html#session-outline",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Session outline",
-    "text": "Session outline\n\n\n\nBlock\nContent\n\n\n\n\n1\nAnalysis sample, formulas, and fitted objects\n\n\n2\nPrediction and diagnostics\n\n\n3\nTraining folds, preprocessing, and held-out prediction\n\n\n4\nLeakage, benchmarks, and validation design\n\n\n5\nReproducible handoff\n\n\n\nOptional binary prediction, numerical methods, and structured text are in the supplement."
+    "text": "Session outline\n\n\n\nBlock\nContent\n\n\n\n\n1\nAnalysis sample, formulas, and fitted objects\n\n\n2\nPrediction and diagnostics\n\n\n3\nTraining folds, preprocessing, and held-out prediction\n\n\n4\nLeakage, benchmarks, and validation design\n\n\n5\nBroader computing tools\n\n\n6\nCourse recap and complete project workflow\n\n\n7\nReproducible handoff\n\n\n\nOptional binary prediction, numerical methods, and structured text are in the supplement."
   },
   {
     "objectID": "course/session16/slides.html#one-synthetic-study",
@@ -7660,14 +7968,14 @@
   {
     "objectID": "course/session16/slides.html#define-the-target-before-fitting",
     "href": "course/session16/slides.html#define-the-target-before-fitting",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Define the target before fitting",
     "text": "Define the target before fitting\n\n\n\n\n\n\n\n\nTask\nTarget\nComputing evidence\n\n\n\n\nAdjusted mean comparison\nModel coefficient for treatment at specified covariates\nFormula, sample, contrast, interval\n\n\nPredict 12-week SBP\nOutcome for a new participant\nPredictor availability and held-out error\n\n\n\nThese tasks can use similar functions while answering different questions."
   },
   {
     "objectID": "course/session16/slides.html#make-the-analysis-population-explicit",
     "href": "course/session16/slides.html#make-the-analysis-population-explicit",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Make the analysis population explicit",
     "text": "Make the analysis population explicit\n\nvars &lt;- c(\"id\", \"arm\", \"sbp_0\", \"age\", \"sbp_12\")\nkeep &lt;- complete.cases(trial[, vars])\nanalysis &lt;- trial[keep, vars]\nc(available = nrow(trial), analysed = nrow(analysis), excluded = sum(!keep))\n\navailable  analysed  excluded \n       80        77         3 \n\ntrial$id[!keep]\n\n[1] \"P005\" \"P029\" \"P061\"\n\nstopifnot(!anyDuplicated(analysis$id))\n\nComplete-case filtering is explicit here for teaching. It changes the population being analysed and may introduce bias; it is not a universal missing-data strategy."
   },
@@ -7681,7 +7989,7 @@
   {
     "objectID": "course/session16/slides.html#read-a-model-formula",
     "href": "course/session16/slides.html#read-a-model-formula",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Read a model formula",
     "text": "Read a model formula\n\nf &lt;- sbp_12 ~ sbp_0 + age + arm\nf\n\nsbp_12 ~ sbp_0 + age + arm\n\n\nThe response is left of ~; the terms on the right specify predictors. An intercept is included by default. In formulas, + adds model terms rather than adding the columns numerically.\nUse data = analysis so the intended source of variables is clear."
   },
@@ -7695,84 +8003,84 @@
   {
     "objectID": "course/session16/slides.html#factors-determine-the-comparison",
     "href": "course/session16/slides.html#factors-determine-the-comparison",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Factors determine the comparison",
     "text": "Factors determine the comparison\n\nanalysis$arm &lt;- factor(analysis$arm, levels = c(\"Control\", \"Treatment\"))\nlevels(analysis$arm)\n\n[1] \"Control\"   \"Treatment\"\n\ncontrasts(analysis$arm)\n\n          Treatment\nControl           0\nTreatment         1\n\n\nWith the treatment contrasts used here, Control is the reference. armTreatment represents the Treatment-versus-Control coefficient conditional on the other terms in this additive model.\nChanging the reference changes coefficient interpretation, not the fitted values."
   },
   {
     "objectID": "course/session16/slides.html#inspect-the-design-matrix",
     "href": "course/session16/slides.html#inspect-the-design-matrix",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Inspect the design matrix",
     "text": "Inspect the design matrix\n\nX &lt;- model.matrix(f, data = analysis)\nhead(X, 4)\n\n  (Intercept)    sbp_0 age armTreatment\n1           1 180.0144  56            0\n2           1 160.3498  69            0\n3           1 144.7369  62            0\n4           1 161.3452  51            0\n\nc(rows = nrow(X), columns = ncol(X), rank = qr(X)$rank)\n\n   rows columns    rank \n     77       4       4 \n\n\nFactors become numeric contrast columns. Collinear columns can make coefficients unidentifiable even when the formula looks reasonable."
   },
   {
     "objectID": "course/session16/slides.html#fit-and-inspect-the-object",
     "href": "course/session16/slides.html#fit-and-inspect-the-object",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Fit and inspect the object",
     "text": "Fit and inspect the object\n\nfit &lt;- lm(f, data = analysis, na.action = na.fail)\nclass(fit)\n\n[1] \"lm\"\n\nc(n = nobs(fit), residual_df = df.residual(fit))\n\n          n residual_df \n         77          73 \n\ncoef(fit)\n\n (Intercept)        sbp_0          age armTreatment \n   2.9627981    0.8644030    0.2188276   -6.7356081 \n\n\nfit is a structured R object, not the printed coefficient table. na.fail prevents the model from silently dropping additional rows after we have defined the analysis sample."
   },
   {
     "objectID": "course/session16/slides.html#extract-results-with-model-methods",
     "href": "course/session16/slides.html#extract-results-with-model-methods",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Extract results with model methods",
     "text": "Extract results with model methods\n\ncoef(summary(fit))\n\n               Estimate  Std. Error    t value     Pr(&gt;|t|)\n(Intercept)   2.9627981 10.56683207  0.2803866 7.799740e-01\nsbp_0         0.8644030  0.05947542 14.5337845 3.044751e-23\nage           0.2188276  0.08220370  2.6620164 9.548023e-03\narmTreatment -6.7356081  1.48954442 -4.5219250 2.320424e-05\n\n\n\n\n\nFunction\nResult\n\n\n\n\ncoef(fit)\nCoefficient estimates\n\n\nconfint(fit)\nModel-based coefficient intervals\n\n\nfitted(fit) / residuals(fit)\nFitted values / residuals\n\n\nmodel.frame(fit)\nVariables and rows used for fitting\n\n\n\nPrefer documented methods to copying numbers out of Console output."
   },
   {
     "objectID": "course/session16/slides.html#build-a-result-table",
     "href": "course/session16/slides.html#build-a-result-table",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Build a result table",
     "text": "Build a result table\n\nci &lt;- confint(fit)\nresults &lt;- data.frame(term = names(coef(fit)),\n  estimate = unname(coef(fit)), lower = ci[, 1], upper = ci[, 2],\n  row.names = NULL)\nresults\n\n          term   estimate        lower      upper\n1  (Intercept)  2.9627981 -18.09686787 24.0224640\n2        sbp_0  0.8644030   0.74586861  0.9829373\n3          age  0.2188276   0.05499586  0.3826593\n4 armTreatment -6.7356081  -9.70426580 -3.7669503\n\n\nState the outcome’s units, reference category, sample size, and adjustment terms. An adjusted coefficient is not automatically a causal effect."
   },
   {
     "objectID": "course/session16/slides.html#verify-rows-and-fitted-values",
     "href": "course/session16/slides.html#verify-rows-and-fitted-values",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Verify rows and fitted values",
     "text": "Verify rows and fitted values\n\nstopifnot(nobs(fit) == nrow(analysis),\n  nrow(model.frame(fit)) == nrow(analysis),\n  isTRUE(all.equal(as.numeric(X %*% coef(fit)), as.numeric(fitted(fit)))))\n\nThis independently checks the link between the matrix, coefficients, and fitted values. It does not establish that the model assumptions are appropriate."
   },
   {
     "objectID": "course/session16/slides.html#practice-a-silent-sample-change",
     "href": "course/session16/slides.html#practice-a-silent-sample-change",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Practice: a silent sample change",
     "text": "Practice: a silent sample change\nA report says “80 participants.” The fitted object reports 77 observations. The analyst used the default missing-value handling in lm().\nWhich variables and identifiers should be checked? Which denominator belongs beside the reported coefficient table?"
   },
   {
     "objectID": "course/session16/slides.html#practice-inspect-the-fitted-sample",
     "href": "course/session16/slides.html#practice-inspect-the-fitted-sample",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Practice: inspect the fitted sample",
     "text": "Practice: inspect the fitted sample\nCompare the required variables, the complete-case indicator, nobs(fit), and model.frame(fit). Record the excluded IDs and the missing fields.\nReport the sample actually used by the model. For comparisons between models, also check whether different formulas cause different rows to be included."
   },
   {
     "objectID": "course/session16/slides.html#construct-prediction-data-deliberately",
     "href": "course/session16/slides.html#construct-prediction-data-deliberately",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Construct prediction data deliberately",
     "text": "Construct prediction data deliberately\n\nnew_people &lt;- data.frame(sbp_0 = c(140, 155), age = c(55, 65),\n  arm = factor(c(\"Control\", \"Treatment\"), levels = levels(analysis$arm)))\npredict(fit, newdata = new_people)\n\n       1        2 \n136.0147 144.4334 \n\n\nMatch predictor names, units, and factor levels. Do not substitute fitted(fit) for predictions on new rows; fitted values describe the training observations."
   },
   {
     "objectID": "course/session16/slides.html#mean-response-and-prediction-intervals",
     "href": "course/session16/slides.html#mean-response-and-prediction-intervals",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Mean-response and prediction intervals",
     "text": "Mean-response and prediction intervals\n\nmean_ci &lt;- predict(fit, new_people, interval = \"confidence\")\nperson_pi &lt;- predict(fit, new_people, interval = \"prediction\")\nround(cbind(mean_ci, prediction_lower = person_pi[, \"lwr\"],\n                     prediction_upper = person_pi[, \"upr\"]), 2)\n\n     fit    lwr    upr prediction_lower prediction_upper\n1 136.01 133.60 138.43           122.97           149.06\n2 144.43 142.07 146.80           131.39           157.47\n\n\nThe confidence interval concerns the conditional mean response. The prediction interval concerns an individual future response and also includes residual variation. Both depend on the model’s assumptions."
   },
   {
     "objectID": "course/session16/slides.html#unsupported-predictions",
     "href": "course/session16/slides.html#unsupported-predictions",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Unsupported predictions",
     "text": "Unsupported predictions\n\nA new factor level may prevent prediction.\nExtrapolation can return a number even far outside the training data.\nA response-derived predictor may be unavailable at deployment.\nA narrow model-based interval does not measure every source of uncertainty.\n\n\nrange(analysis$sbp_0)\n\n[1] 103.4681 180.0144\n\nrange(new_people$sbp_0)\n\n[1] 140 155\n\n\nInspect prediction inputs before interpreting outputs."
   },
   {
     "objectID": "course/session16/slides.html#residuals-versus-fitted-values",
     "href": "course/session16/slides.html#residuals-versus-fitted-values",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Residuals versus fitted values",
     "text": "Residuals versus fitted values\n\nLook for curvature, changing spread, and unusual observations. A pattern suggests follow-up questions; absence of a visible pattern is not proof of adequacy."
   },
@@ -7786,14 +8094,14 @@
   {
     "objectID": "course/session16/slides.html#preserve-identifiers-in-diagnostics",
     "href": "course/session16/slides.html#preserve-identifiers-in-diagnostics",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Preserve identifiers in diagnostics",
     "text": "Preserve identifiers in diagnostics\n\ndiagnostics &lt;- data.frame(id = analysis$id, fitted = fitted(fit),\n  residual = residuals(fit), cook = cooks.distance(fit))\nhead(diagnostics[order(diagnostics$cook, decreasing = TRUE), ], 3)\n\n     id   fitted  residual       cook\n48 P048 123.6897  20.33375 0.23009097\n63 P063 118.6843  13.30352 0.09322739\n80 P080 133.1987 -17.48357 0.07514031\n\n\nRow numbers can change after filtering or sorting. An ID makes a diagnostic traceable to its original record."
   },
   {
     "objectID": "course/session16/slides.html#diagnostics-and-validation-differ",
     "href": "course/session16/slides.html#diagnostics-and-validation-differ",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Diagnostics and validation differ",
     "text": "Diagnostics and validation differ\n\n\n\n\n\n\n\nEvidence\nQuestion\n\n\n\n\nResidual plots and influence\nWhere might the fitted model be inadequate or sensitive?\n\n\nCross-validation in the next block\nHow well does the fitting procedure predict held-out observations?\n\n\nExternal evaluation\nDoes performance transfer to the target setting?\n\n\n\nGood training fit is not a substitute for held-out evaluation."
   },
@@ -7961,7 +8269,7 @@
   {
     "objectID": "course/session16/slides.html#package-versions-are-part-of-the-environment",
     "href": "course/session16/slides.html#package-versions-are-part-of-the-environment",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Package versions are part of the environment",
     "text": "Package versions are part of the environment\nsessionInfo() records the active R session but does not recreate its packages. renv adds a project library and a lockfile describing package dependencies.\n# Optional: run interactively in a dedicated project, outside report rendering.\nrenv::init()\nrenv::snapshot()\n# In a clone with the committed lockfile:\nrenv::restore()\nThese setup commands are optional. A lockfile records dependencies, while the README documents data access, the R version, and system requirements."
   },
@@ -7975,7 +8283,7 @@
   {
     "objectID": "course/session16/slides.html#a-reproducible-delivery-check",
     "href": "course/session16/slides.html#a-reproducible-delivery-check",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "A reproducible delivery check",
     "text": "A reproducible delivery check\n\nOpen a clean R session in the documented project environment.\nObtain the specified input and run the analysis from the documented entry point.\nConfirm sample counts, key uniqueness, coefficient names, and prediction checks.\nRender the report and inspect tables and figures.\nConfirm that the outputs identify their input, code, and environment versions.\n\nUse a colleague’s rerun to test the instructions, not only your current workspace."
   },
@@ -8010,177 +8318,191 @@
   {
     "objectID": "course/session16/slides.html#summary",
     "href": "course/session16/slides.html#summary",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Summary",
     "text": "Summary\nDefine the sample, inspect the model, and label predictions. Fit preprocessing inside training folds, check held-out predictions, and retain the evidence needed to reproduce the result."
   },
   {
-    "objectID": "course/session15/lab.html#tasks-following-the-lecture",
-    "href": "course/session15/lab.html#tasks-following-the-lecture",
-    "title": "Session 15 guided lab",
-    "section": "Tasks following the lecture",
-    "text": "Tasks following the lecture\n\nBootstrap within arms — Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap bias, SE, percentile and basic intervals, and compare the SE with Welch. Repeat interval endpoints with three documented seeds.\nPermutation tests — Under the sharp null for the supplied completely randomized design, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution and a binomial interval for the Monte Carlo tail probability. Inspect the supplied demonstration of all 70 assignments for four participants per arm.\nChoose resampling units — Use trial_long to compare row and participant bootstraps. Preserve all visits and repeated copies of sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the resampling or reassignment rule."
-  },
-  {
-    "objectID": "course/session15/lab.html#in-class-route-and-follow-up",
-    "href": "course/session15/lab.html#in-class-route-and-follow-up",
-    "title": "Session 15 guided lab",
-    "section": "In-class route and follow-up",
-    "text": "In-class route and follow-up\nBuild one bootstrap and one permutation calculation in class, then inspect the participant-resampling demonstration. Complete the seed-stability comparison and design explanations afterward. Exact enumeration code is supplied for inspection."
-  },
-  {
-    "objectID": "course/session15/slides.html#two-resampling-targets",
-    "href": "course/session15/slides.html#two-resampling-targets",
-    "title": "Bootstrap and Permutation",
-    "section": "Two resampling targets",
-    "text": "Two resampling targets\n\n\n\n\n\n\n\n\nMethod\nRepeated operation\nTarget\n\n\n\n\nBootstrap\nSample observational units with replacement\nSampling uncertainty of an estimate\n\n\nPermutation\nReassign labels under a valid null scheme\nNull reference distribution of a statistic\n\n\n\nReplacement alone does not determine validity. Specify the target, the unit, and which relationships the repeated operation must preserve."
-  },
-  {
-    "objectID": "course/session15/slides.html#exact-enumeration-a-short-demonstration",
-    "href": "course/session15/slides.html#exact-enumeration-a-short-demonstration",
-    "title": "Bootstrap and Permutation",
-    "section": "Exact enumeration: a short demonstration",
-    "text": "Exact enumeration: a short demonstration\nWith 4 patients per arm there are only choose(8, 4) = 70 possible label assignments. You can enumerate all of them:\n\nsmall &lt;- trial[c(1:4, 31:34), c(\"id\", \"arm\", \"sbp_12\")]\nobs_small &lt;- mean_diff(small)\n\ncombos &lt;- combn(8, 4)                    # every way to choose 4 \"Treatment\"\nexact &lt;- apply(combos, 2, function(k) mean(small$sbp_12[k]) -\n                                      mean(small$sbp_12[-k]))\n\nncol(combos)                             # the entire reference set\n\n[1] 70\n\nround(mean(abs(exact) &gt;= abs(obs_small)), 4)    # exact two-sided p-value\n\n[1] 0.0571\n\n\n\n\nWith 30 per arm there are choose(60, 30) ≈ 1.2 × 1017. So you sample from them instead — that is all “Monte Carlo permutation” means."
-  },
-  {
-    "objectID": "course/session15/slides.html#guided-lab-and-exit-check",
-    "href": "course/session15/slides.html#guided-lab-and-exit-check",
-    "title": "Bootstrap and Permutation",
-    "section": "Guided lab and exit check",
-    "text": "Guided lab and exit check\n\nBootstrap the mean difference within treatment arms.\nReport SE and intervals, and inspect stability across documented seeds.\nPermute treatment labels under the specified randomization scheme.\nCompare row and participant resampling for repeated visits.\n\nExplain: What changes when you increase the number of resamples? Why must a sampled participant retain all visits and every sampled copy?"
-  },
-  {
-    "objectID": "course/session16/lab.html#tasks-following-the-lecture",
-    "href": "course/session16/lab.html#tasks-following-the-lecture",
-    "title": "Session 16 guided lab",
-    "section": "Tasks following the lecture",
-    "text": "Tasks following the lecture\n\nDefine and fit the analysis — Specify the model sbp_12 ~ sbp_0 + age + arm. Define complete cases using those model variables, retain excluded IDs, and set Control as the reference. Fit with na.fail, extract an estimate/interval table, and check the analysis count. Inspect the supplied model-matrix check.\nPredict and diagnose — Construct new_people with baseline SBP 140 and 155, ages 55 and 65, and Control and Treatment respectively. Compare mean-response confidence intervals with individual prediction intervals. Create an ID-linked diagnostic table and inspect residual and influence plots.\nConstruct checked folds — Return to all 80 participants in trial, including the three missing baseline values. Use the supplied make_folds() to create five folds stratified by arm. Check unique IDs, fold counts, and disjoint training/assessment IDs. Trace one split before repeating it.\nPredict held-out participants — Complete cv_predict(data, fold) using the scaffold. Within each fold, estimate baseline imputation from training rows only, fit the regression, and predict assessment rows. Preserve one finite prediction per participant. Compare pooled RMSE with a training-mean benchmark using identical folds.\nAudit leakage and validation design — Compare with deliberately global imputation using the same folds. Explain the information leak regardless of the direction of the RMSE difference. State how splits change for repeated visits, a new clinic, or future observations. Repeated-fold sensitivity is an optional extension.\nPrepare a reproducible handoff — Save the coefficient table, ID-linked held-out predictions and folds, RMSE comparison, analysis bundle, and sessionInfo. Verify the saved bundle can be read back. Document the separate complete-case model and imputed prediction workflow, seeds, inputs, and entry point."
-  },
-  {
-    "objectID": "course/session16/lab.html#in-class-route-and-follow-up",
-    "href": "course/session16/lab.html#in-class-route-and-follow-up",
-    "title": "Session 16 guided lab",
-    "section": "In-class route and follow-up",
-    "text": "In-class route and follow-up\nTrace one model and one training/assessment split together. Complete the scaffolded CV loop and checks in class. Finish the leakage explanation and reproducible handoff afterward. Binary prediction, numerical methods, and text parsing are optional and are not required for this core lab."
-  },
-  {
     "objectID": "course/session16/slides.html#the-prediction-target",
     "href": "course/session16/slides.html#the-prediction-target",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "The prediction target",
     "text": "The prediction target\nPredict 12-week SBP for a new participant from baseline variables. Assessment outcomes are reserved for scoring after predictions are fixed.\nThe coefficient table used 77 complete cases. For prediction, return to all 80 participants and learn an imputation rule within each training fold. These workflows use different samples and missing-data rules. Label both."
   },
   {
     "objectID": "course/session16/slides.html#five-folds-stratified-by-arm",
     "href": "course/session16/slides.html#five-folds-stratified-by-arm",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Five folds stratified by arm",
     "text": "Five folds stratified by arm\n\nmake_folds &lt;- function(arm, k = 5L) {\n  stopifnot(!anyNA(arm), length(k) == 1L, k &gt;= 2L,\n            k == as.integer(k), all(table(arm) &gt;= k))\n  fold &lt;- integer(length(arm))\n  for (i in split(seq_along(arm), arm))\n    fold[i] &lt;- sample(rep(seq_len(k), length.out = length(i)))\n  fold\n}\n\nEach participant appears in one assessment fold and four training folds. Stratification balances arm composition; it does not remove dependence."
   },
   {
     "objectID": "course/session16/slides.html#inspect-folds-before-fitting",
     "href": "course/session16/slides.html#inspect-folds-before-fitting",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Inspect folds before fitting",
     "text": "Inspect folds before fitting\n\ncv_data &lt;- trial[, c(\"id\", \"arm\", \"age\", \"sbp_0\", \"sbp_12\")]\nset.seed(1651)\nfold &lt;- make_folds(cv_data$arm)\nstopifnot(!anyDuplicated(cv_data$id), length(fold) == nrow(cv_data),\n          setequal(unique(fold), 1:5), sum(is.na(cv_data$sbp_0)) == 3L)\nfor (k in 1:5)\n  stopifnot(length(intersect(cv_data$id[fold == k],\n                            cv_data$id[fold != k])) == 0L)\ntable(fold, cv_data$arm)\n\n    \nfold Control Treatment\n   1       8         8\n   2       8         8\n   3       8         8\n   4       8         8\n   5       8         8\n\n\nKeep IDs with rows so that disjointness can be checked directly."
   },
   {
     "objectID": "course/session16/slides.html#one-split-learn-preprocessing-from-training-rows",
     "href": "course/session16/slides.html#one-split-learn-preprocessing-from-training-rows",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "One split: learn preprocessing from training rows",
     "text": "One split: learn preprocessing from training rows\n\ntrain &lt;- cv_data[fold != 1, ]\nassess &lt;- cv_data[fold == 1, ]\nreplacement &lt;- mean(train$sbp_0, na.rm = TRUE)\nstopifnot(is.finite(replacement))\ntrain$sbp_0[is.na(train$sbp_0)] &lt;- replacement\nassess$sbp_0[is.na(assess$sbp_0)] &lt;- replacement\nfold_fit &lt;- lm(sbp_12 ~ sbp_0 + age + arm,\n               data = train, na.action = na.fail)\nhead(predict(fold_fit, newdata = assess), 3)\n\n       3        4        5 \n141.5674 153.4028 141.5373 \n\n\nThe same training mean fills missing values in training and assessment rows. Mean imputation illustrates information flow; it is not a general missing-data solution."
   },
   {
     "objectID": "course/session16/slides.html#one-prediction-per-participant",
     "href": "course/session16/slides.html#one-prediction-per-participant",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "One prediction per participant",
     "text": "One prediction per participant\nPreallocate missing predictions and an assessment counter. Each fold fits its own model.\npred &lt;- rep(NA_real_, nrow(data))\nseen &lt;- integer(nrow(data))\nfor (k in sort(unique(fold))) {\n  test &lt;- fold == k\n  # Learn preprocessing and fit using data[!test, ].\n  # Predict data[test, ] and write into pred[test].\n  seen[test] &lt;- seen[test] + 1L\n}\nCheck that every counter is one and every prediction is finite."
   },
   {
     "objectID": "course/session16/slides.html#a-reusable-prediction-function",
     "href": "course/session16/slides.html#a-reusable-prediction-function",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "A reusable prediction function",
     "text": "A reusable prediction function\nThe lab supplies the scaffold. These lines belong inside its fold loop:\ntrain &lt;- data[!test, ]; assess &lt;- data[test, ]\nm &lt;- mean(train$sbp_0, na.rm = TRUE)\nif (!is.finite(m)) stop(\"training baseline entirely missing\")\ntrain$sbp_0[is.na(train$sbp_0)] &lt;- m\nassess$sbp_0[is.na(assess$sbp_0)] &lt;- m\nfold_fit &lt;- lm(sbp_12 ~ sbp_0 + age + arm,\n               data = train, na.action = na.fail)\npred[test] &lt;- predict(fold_fit, newdata = assess)\nThe function returns predictions in the original participant order."
   },
   {
     "objectID": "course/session16/slides.html#score-predictions-against-a-simple-benchmark",
     "href": "course/session16/slides.html#score-predictions-against-a-simple-benchmark",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Score predictions against a simple benchmark",
     "text": "Score predictions against a simple benchmark\n\nheld_out &lt;- cv_predict(cv_data, fold)\nbenchmark &lt;- rep(NA_real_, nrow(cv_data))\nfor (k in sort(unique(fold)))\n  benchmark[fold == k] &lt;- mean(cv_data$sbp_12[fold != k])\nrmse &lt;- function(observed, predicted) {\n  stopifnot(length(observed) == length(predicted),\n            all(is.finite(observed)), all(is.finite(predicted)))\n  sqrt(mean((observed - predicted)^2))\n}\nscores &lt;- c(model = rmse(cv_data$sbp_12, held_out),\n            benchmark = rmse(cv_data$sbp_12, benchmark))\nscores\n\n    model benchmark \n 6.832214 13.210881 \n\n\nPool participant squared errors before taking the square root. Use identical folds for the model and the training-mean benchmark."
   },
   {
     "objectID": "course/session16/slides.html#a-deliberately-leaky-comparison",
     "href": "course/session16/slides.html#a-deliberately-leaky-comparison",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "A deliberately leaky comparison",
     "text": "A deliberately leaky comparison\n\nleaky &lt;- cv_data\nleaky$sbp_0[is.na(leaky$sbp_0)] &lt;- mean(leaky$sbp_0, na.rm = TRUE)\nc(valid = scores[[\"model\"]],\n  leaky = rmse(cv_data$sbp_12, cv_predict(leaky, fold)))\n\n   valid    leaky \n6.832214 6.827172 \n\n\nGlobal imputation lets assessment covariates influence the learned rule. Leakage need not improve the score in a particular sample. Audit information flow."
   },
   {
     "objectID": "course/session16/slides.html#diagnose-leakage-before-comparing-scores",
     "href": "course/session16/slides.html#diagnose-leakage-before-comparing-scores",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Diagnose leakage before comparing scores",
     "text": "Diagnose leakage before comparing scores\n\n\n\n\n\n\n\nStep\nValid location\n\n\n\n\nFixed, prespecified unit conversion\nCan be applied to all rows\n\n\nMean imputation or scaling estimated from data\nTraining fold\n\n\nChoose features using outcome associations\nTraining fold, with selection validated\n\n\nSelect a model or tuning parameter\nInner validation, separate from final evaluation\n\n\nCompute RMSE\nHeld-out outcomes after predictions are fixed\n\n\n\nA fixed rule is different from a rule estimated using assessment data."
   },
   {
     "objectID": "course/session16/slides.html#grouped-and-temporal-validation",
     "href": "course/session16/slides.html#grouped-and-temporal-validation",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Grouped and temporal validation",
     "text": "Grouped and temporal validation\n\n\n\n\n\n\n\nDeployment question\nAppropriate split idea\n\n\n\n\nPredict a new participant\nKeep all visits of a participant together\n\n\nPredict at a new clinic\nHold out clinics\n\n\nPredict future outcomes\nTrain on earlier observations; assess later observations\n\n\n\nRandom row folds answer the wrong question if the same participant appears on both sides."
   },
   {
     "objectID": "course/session16/slides.html#selection-and-final-evaluation",
     "href": "course/session16/slides.html#selection-and-final-evaluation",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Selection and final evaluation",
     "text": "Selection and final evaluation\nTrying many models and reporting the lowest CV error uses the evaluation data to make a selection. The selected score can be optimistic.\nUse a prespecified candidate, an untouched test set, or nested cross-validation:\n\nAn outer split reserves data for evaluation.\nInner training splits choose features and tuning parameters.\nRefit the selected procedure on outer training data; predict outer assessment data.\n\nAfter evaluation, a final model can be fitted to the intended full training set."
   },
   {
     "objectID": "course/session16/slides.html#practice-find-the-information-leak",
     "href": "course/session16/slides.html#practice-find-the-information-leak",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Practice: find the information leak",
     "text": "Practice: find the information leak\nA student fills missing baseline values using all participants, chooses the best of 20 formulas by CV, and reports that formula’s minimum CV error.\nWhich steps used assessment information? Where should preprocessing happen? What evaluation data remain available after selecting the formula?"
   },
   {
     "objectID": "course/session16/slides.html#practice-a-valid-evaluation-plan",
     "href": "course/session16/slides.html#practice-a-valid-evaluation-plan",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Practice: a valid evaluation plan",
     "text": "Practice: a valid evaluation plan\n\nEstimate preprocessing within training data.\nPrespecify the model for today’s exercise.\nFor model selection, reserve untouched evaluation data or use nested CV.\nFor repeated visits, keep each participant entirely on one side of a split.\nRepeating folds measures split sensitivity, not independent sampling uncertainty."
   },
   {
     "objectID": "course/session16/slides.html#record-both-analysis-workflows",
     "href": "course/session16/slides.html#record-both-analysis-workflows",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Record both analysis workflows",
     "text": "Record both analysis workflows\n\npredictions &lt;- data.frame(id = cv_data$id, fold = fold,\n  observed = cv_data$sbp_12, prediction = held_out, benchmark = benchmark)\nanalysis_bundle &lt;- list(formula = formula(fit),\n  analysed_ids = analysis$id, excluded_ids = trial$id[!keep],\n  coefficients = results, predictions = predictions, rmse = scores,\n  input_seed = 6301, fold_seed = 1651, rng = RNGkind(),\n  missing_policy = \"Complete-case descriptive fit; training-fold mean imputation for CV\",\n  session = sessionInfo())\n\nDocument the input and code revision with the saved results."
   },
   {
     "objectID": "course/session16/slides.html#save-inspectable-outputs",
     "href": "course/session16/slides.html#save-inspectable-outputs",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Save inspectable outputs",
     "text": "Save inspectable outputs\ndir.create(\"output\", showWarnings = FALSE)\nsaveRDS(analysis_bundle, \"output/analysis-bundle.rds\")\nwrite.csv(results, \"output/coefficients.csv\", row.names = FALSE)\nwrite.csv(predictions, \"output/held-out-predictions.csv\", row.names = FALSE)\nwriteLines(capture.output(sessionInfo()), \"output/session-info.txt\")\nRead the bundle back and check its IDs, coefficients, and predictions. The lab also saves RMSE and a README with the rerun instructions."
   },
   {
     "objectID": "course/session16/slides.html#lab-route-and-exit-check",
     "href": "course/session16/slides.html#lab-route-and-exit-check",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "Lab route and exit check",
-    "text": "Lab route and exit check\nFit and inspect a model; predict new rows; complete the checked CV scaffold; compare with a benchmark; diagnose leakage; save a reproducible handoff.\nExplain: Why are there 77 rows in the coefficient analysis and 80 held-out predictions? Which rows learned each imputation value? How does an ID stay attached to its prediction?"
+    "text": "Lab route and exit check\nFit and inspect a model; predict new rows; complete the checked CV scaffold; compare with a benchmark; diagnose leakage; review the course workflow; save a reproducible handoff.\nExplain: Why are there 77 rows in the coefficient analysis and 80 held-out predictions? Which rows learned each imputation value? How does an ID stay attached to its prediction?"
   },
   {
     "objectID": "course/session16/slides.html#references-and-optional-practice",
     "href": "course/session16/slides.html#references-and-optional-practice",
-    "title": "Models, Prediction, and Validation",
+    "title": "Models, Validation, and Course Review",
     "section": "References and optional practice",
     "text": "References and optional practice\n\nR linear models\nR prediction intervals\nrsample V-fold validation\nOptional binary prediction, numerical methods, and structured text"
+  },
+  {
+    "objectID": "course/session16/slides.html#five-fold-cross-validation-in-words",
+    "href": "course/session16/slides.html#five-fold-cross-validation-in-words",
+    "title": "Models, Validation, and Course Review",
+    "section": "Five-fold cross-validation in words",
+    "text": "Five-fold cross-validation in words\n\nDivide the participants into five non-overlapping groups called folds.\nFit on four folds and predict the remaining fold.\nRepeat until every fold has served as the assessment group once.\nCompare each held-out prediction with its observed outcome.\n\nEach participant receives one prediction from a model trained without that participant. Pool these prediction errors to estimate performance on new people.\nThe five fits share training data. Fold scores are not five independent studies."
+  },
+  {
+    "objectID": "course/session16/slides.html#the-question-determines-the-tool",
+    "href": "course/session16/slides.html#the-question-determines-the-tool",
+    "title": "Models, Validation, and Course Review",
+    "section": "The question determines the tool",
+    "text": "The question determines the tool\n\n\n\n\n\n\n\n\nProject need\nStarting point\nWhat to check\n\n\n\n\nEstimate an adjusted mean difference\nlm()\nSample, coding, assumptions, interval\n\n\nModel a binary outcome\nglm(..., family = binomial)\nOutcome coding, probability scale, calibration\n\n\nQuantify uncertainty in a statistic\nBootstrap\nResampling unit and stable estimates\n\n\nTest a randomization null\nPermutation\nAllowed assignments and null definition\n\n\nEvaluate prediction on new people\nCross-validation\nTraining-only fitting and relevant splits\n\n\n\nUse the simplest method that answers the question and whose assumptions you can explain. Complex software does not remove the need to check its inputs."
+  },
+  {
+    "objectID": "course/session16/slides.html#beyond-model-fitting-numerical-computing",
+    "href": "course/session16/slides.html#beyond-model-fitting-numerical-computing",
+    "title": "Models, Validation, and Course Review",
+    "section": "Beyond model fitting: numerical computing",
+    "text": "Beyond model fitting: numerical computing\n\n\n\n\n\n\n\n\nNeed\nR tool\nVerification\n\n\n\n\nFind a value where a function is zero\nuniroot()\nCheck the function is near zero at the answer\n\n\nMinimize an objective\noptim()\nInspect convergence and compare starting values\n\n\nCompute an area under a curve\nintegrate()\nInspect numerical error and compare a known case\n\n\n\nFor example, an estimated parameter may minimize an error function. A returned number alone does not establish convergence, uniqueness, or scientific validity.\nWorked code is available in the optional supplement."
+  },
+  {
+    "objectID": "course/session16/slides.html#a-project-also-depends-on-its-data-interface",
+    "href": "course/session16/slides.html#a-project-also-depends-on-its-data-interface",
+    "title": "Models, Validation, and Course Review",
+    "section": "A project also depends on its data interface",
+    "text": "A project also depends on its data interface\n\nPreserve participant IDs when importing, joining, filtering, and predicting.\nValidate units, factor levels, dates, missing values, and expected row counts.\nTurn repeated calculations into functions with explicit inputs and outputs.\nRecord warnings and failures instead of silently removing inconvenient rows.\n\nR and Python can implement the same workflow. Choose tools your team can review and rerun. Validate AI-generated code using the same checks as code you write."
+  },
+  {
+    "objectID": "course/session16/slides.html#course-map-setup-and-data-foundations",
+    "href": "course/session16/slides.html#course-map-setup-and-data-foundations",
+    "title": "Models, Validation, and Course Review",
+    "section": "Course map: setup and data foundations",
+    "text": "Course map: setup and data foundations\n\n\n\n\n\n\n\nSession and topic\nEvidence in a project\n\n\n\n\n0 · Setup and orientation\nWorking environment\n\n\n1 · Reproducible workflow, scripts, reports, paths\nA report that runs from source\n\n\n2 · Version control\nReviewed changes and meaningful commits\n\n\n3 · R objects, types, coercion, subsetting\nCorrect types and selected values\n\n\n4 · Data structures and base R\nAppropriate containers and indexing\n\n\n5 · Data import, dates, export\nChecked input and output files\n\n\n6 · Tidy data and dplyr\nTransparent transformations\n\n\n7 · Joins, reshaping, cleaning\nValid keys and preserved records\n\n\n8 · Visualization\nReadable plots with honest scales"
+  },
+  {
+    "objectID": "course/session16/slides.html#course-map-programming-and-statistical-computing",
+    "href": "course/session16/slides.html#course-map-programming-and-statistical-computing",
+    "title": "Models, Validation, and Course Review",
+    "section": "Course map: programming and statistical computing",
+    "text": "Course map: programming and statistical computing\n\n\n\n\n\n\n\nSession and topic\nEvidence in a project\n\n\n\n\n9 · Positron and AI-assisted coding\nVerified code and disclosed assistance\n\n\n10 · Python for R users\nA checked translation of an analysis\n\n\n11 · Conditions and functions\nReusable calculations with clear contracts\n\n\n12 · Debugging and reliability\nChecks that reveal incorrect results\n\n\n13 · Iteration and vectorization\nConsistent repeated calculations\n\n\n14 · Random numbers and simulation\nReproducible evaluation under known truth\n\n\n15 · Bootstrap and permutation\nUncertainty and null tests\n\n\n16 · Models, validation, synthesis, and handoff\nInterpretable results that others can rerun"
+  },
+  {
+    "objectID": "course/session16/slides.html#one-project-connects-the-sessions",
+    "href": "course/session16/slides.html#one-project-connects-the-sessions",
+    "title": "Models, Validation, and Course Review",
+    "section": "One project connects the sessions",
+    "text": "One project connects the sessions\nExample: analyse a two-arm study with baseline and follow-up SBP.\n\nDefine the scientific question, outcome, comparison, and analysis unit.\nImport data, check IDs and units, join visits, and describe missingness.\nPlot the data and implement the analysis in checked functions.\nFit a model or choose a resampling method that matches the question.\nInterpret the result with uncertainty and limitations.\nRender a report and package the code, inputs, and environment for review.\n\nGit records the changes. A clean rerun checks that the report follows from the code."
+  },
+  {
+    "objectID": "course/session16/slides.html#different-questions-require-different-evidence",
+    "href": "course/session16/slides.html#different-questions-require-different-evidence",
+    "title": "Models, Validation, and Course Review",
+    "section": "Different questions require different evidence",
+    "text": "Different questions require different evidence\n\n\n\n\n\n\n\nQuestion about the study\nRelevant evidence\n\n\n\n\nHow large is the mean difference?\nEstimate in mmHg with an interval\n\n\nIs the result inconsistent with the randomization null?\nA justified test and p-value\n\n\nCan we predict a new patient’s SBP?\nHeld-out error against a benchmark\n\n\nDoes the method work under assumed conditions?\nSimulation with known truth\n\n\nCan another analyst reproduce the result?\nInputs, code, versions, checks, and rerun instructions\n\n\n\nA small p-value does not establish accurate prediction. A reproducible report can still contain a poorly chosen analysis. Each claim needs the right evidence."
+  },
+  {
+    "objectID": "course/session16/slides.html#capstone-review-what-would-you-check",
+    "href": "course/session16/slides.html#capstone-review-what-would-you-check",
+    "title": "Models, Validation, and Course Review",
+    "section": "Capstone review: what would you check?",
+    "text": "Capstone review: what would you check?\nA report joins visits by row position, drops missing values silently, trains and evaluates a model on the same people, and pastes results into slides by hand.\nIdentify a correction using each part of the course:\n\nData structure and joins.\nAnalysis sample and validation.\nReusable code and checks.\nReproducible reporting and version control.\n\nExplain what evidence would convince a colleague that each correction worked."
   },
   {
     "objectID": "course/session16/supplement.html",
@@ -9286,7 +9608,7 @@
     "href": "index.html#course-sequence",
     "title": "BIOS6301: Introduction to Statistical Computing",
     "section": "Course sequence",
-    "text": "Course sequence\n\n\n\nSession\nTopic\nMain emphasis\n\n\n\n\n0\nSetup and orientation\nself-study diagnostic\n\n\n1\nReproducible documents and workflow\nRStudio, R Markdown, and Quarto\n\n\n2\nGit and GitHub\nversion control\n\n\n3\nR objects\nbase R foundations\n\n\n4\nData structures and base-R handling\ncontainers and base R\n\n\n5\nGetting data into R\nfiles, checks, and dates\n\n\n6\nTidy data and dplyr\ntidyverse + base verification\n\n\n7\nJoins, reshaping, and cleaning\nrelated tables, text, factors, and dates\n\n\n8\nVisualization\nbase graphics + ggplot2\n\n\n9\nPositron and AI-assisted coding\nCopilot verification and policy\n\n\n10\nPython introduction for R users\ntranslation from familiar R\n\n\n11\nControl flow and functions\nbase R programming\n\n\n12\nDebugging and numerical reliability\nreliable code\n\n\n13\nIteration, vectorization, and functionals\nloops, base functionals, and purrr\n\n\n14\nRandom generation and simulation\nMonte Carlo studies\n\n\n15\nResampling\nbootstrap, permutation, and resampling units\n\n\n16\nModels, prediction, and validation\nfitted models, held-out prediction, leakage, and handoff"
+    "text": "Course sequence\n\n\n\nSession\nTopic\nMain emphasis\n\n\n\n\n0\nSetup and orientation\nself-study diagnostic\n\n\n1\nReproducible documents and workflow\nRStudio, R Markdown, and Quarto\n\n\n2\nGit and GitHub\nversion control\n\n\n3\nR objects\nbase R foundations\n\n\n4\nData structures and base-R handling\ncontainers and base R\n\n\n5\nGetting data into R\nfiles, checks, and dates\n\n\n6\nTidy data and dplyr\ntidyverse + base verification\n\n\n7\nJoins, reshaping, and cleaning\nrelated tables, text, factors, and dates\n\n\n8\nVisualization\nbase graphics + ggplot2\n\n\n9\nPositron and AI-assisted coding\nCopilot verification and policy\n\n\n10\nPython introduction for R users\ntranslation from familiar R\n\n\n11\nControl flow and functions\nbase R programming\n\n\n12\nDebugging and numerical reliability\nreliable code\n\n\n13\nIteration, vectorization, and functionals\nloops, base functionals, and purrr\n\n\n14\nRandom generation and simulation\nMonte Carlo studies\n\n\n15\nResampling\nbootstrap, permutation, paired data, and resampling units\n\n\n16\nModels and course review\nmodel interpretation, cross-validation, course recap, and handoff"
   },
   {
     "objectID": "index.html#assignments",

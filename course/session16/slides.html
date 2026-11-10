@@ -10,7 +10,7 @@
   <meta name="generator" content="quarto-1.9.38">
 
   <meta name="author" content="Department of Biostatistics, Vanderbilt University Medical Center">
-  <title>BIOS6301 · Student Materials – Models, Prediction, and Validation</title>
+  <title>BIOS6301 · Student Materials – Models, Validation, and Course Review</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -197,7 +197,7 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Models, Prediction, and Validation</h1>
+  <h1 class="title">Models, Validation, and Course Review</h1>
   <p class="subtitle">BIOS 6301 · Session 16 · Introduction to Statistical Computing</p>
 
 <div class="quarto-title-authors">
@@ -229,11 +229,11 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </tr>
 <tr class="even">
 <td>15</td>
-<td>Bootstrap uncertainty, permutation tests, and resampling units</td>
+<td>Bootstrap, permutation, and resampling design</td>
 </tr>
 <tr class="odd">
 <td>16</td>
-<td>Fitted models, prediction, cross-validation, and reproducible handoff</td>
+<td>Models, cross-validation, broader tools, course recap, and handoff</td>
 </tr>
 </tbody>
 </table>
@@ -245,6 +245,7 @@ Department of Biostatistics, Vanderbilt University Medical Center
 <li>Extract estimates and predict on new data.</li>
 <li>Distinguish diagnostics from held-out predictive evaluation.</li>
 <li>Fit preprocessing within each training fold and check predictions.</li>
+<li>Connect the tools from Sessions 0–15 in a complete project.</li>
 <li>Deliver results with traceable inputs, code, and environment.</li>
 </ul>
 </section>
@@ -276,6 +277,14 @@ Department of Biostatistics, Vanderbilt University Medical Center
 </tr>
 <tr class="odd">
 <td>5</td>
+<td>Broader computing tools</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Course recap and complete project workflow</td>
+</tr>
+<tr class="odd">
+<td>7</td>
 <td>Reproducible handoff</td>
 </tr>
 </tbody>
@@ -592,6 +601,17 @@ armTreatment -6.7356081  1.48954442 -4.5219250 2.320424e-05</code></pre>
 <h1>3 · Held-out prediction</h1>
 
 </section>
+<section id="five-fold-cross-validation-in-words" class="slide level2 smaller">
+<h2>Five-fold cross-validation in words</h2>
+<ol type="1">
+<li>Divide the participants into five non-overlapping groups called folds.</li>
+<li>Fit on four folds and predict the remaining fold.</li>
+<li>Repeat until every fold has served as the assessment group once.</li>
+<li>Compare each held-out prediction with its observed outcome.</li>
+</ol>
+<p>Each participant receives one prediction from a model trained without that participant. Pool these prediction errors to estimate performance on new people.</p>
+<p>The five fits share training data. Fold scores are not five independent studies.</p>
+</section>
 <section id="the-prediction-target" class="slide level2 smaller">
 <h2>The prediction target</h2>
 <p>Predict 12-week SBP for a new participant from baseline variables. Assessment outcomes are reserved for scoring after predictions are fixed.</p>
@@ -816,8 +836,274 @@ fold Control Treatment
 </ul>
 </section></section>
 <section>
+<section id="choosing-computing-tools" class="title-slide slide level1 section-divider center">
+<h1>5 · Choosing computing tools</h1>
+
+</section>
+<section id="the-question-determines-the-tool" class="slide level2 smaller">
+<h2>The question determines the tool</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Project need</th>
+<th>Starting point</th>
+<th>What to check</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Estimate an adjusted mean difference</td>
+<td><code>lm()</code></td>
+<td>Sample, coding, assumptions, interval</td>
+</tr>
+<tr class="even">
+<td>Model a binary outcome</td>
+<td><code>glm(..., family = binomial)</code></td>
+<td>Outcome coding, probability scale, calibration</td>
+</tr>
+<tr class="odd">
+<td>Quantify uncertainty in a statistic</td>
+<td>Bootstrap</td>
+<td>Resampling unit and stable estimates</td>
+</tr>
+<tr class="even">
+<td>Test a randomization null</td>
+<td>Permutation</td>
+<td>Allowed assignments and null definition</td>
+</tr>
+<tr class="odd">
+<td>Evaluate prediction on new people</td>
+<td>Cross-validation</td>
+<td>Training-only fitting and relevant splits</td>
+</tr>
+</tbody>
+</table>
+<p>Use the simplest method that answers the question and whose assumptions you can explain. Complex software does not remove the need to check its inputs.</p>
+</section>
+<section id="beyond-model-fitting-numerical-computing" class="slide level2 smaller">
+<h2>Beyond model fitting: numerical computing</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Need</th>
+<th>R tool</th>
+<th>Verification</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Find a value where a function is zero</td>
+<td><code>uniroot()</code></td>
+<td>Check the function is near zero at the answer</td>
+</tr>
+<tr class="even">
+<td>Minimize an objective</td>
+<td><code>optim()</code></td>
+<td>Inspect convergence and compare starting values</td>
+</tr>
+<tr class="odd">
+<td>Compute an area under a curve</td>
+<td><code>integrate()</code></td>
+<td>Inspect numerical error and compare a known case</td>
+</tr>
+</tbody>
+</table>
+<p>For example, an estimated parameter may minimize an error function. A returned number alone does not establish convergence, uniqueness, or scientific validity.</p>
+<p>Worked code is available in the <a href="../../course/session16/supplement.html">optional supplement</a>.</p>
+</section>
+<section id="a-project-also-depends-on-its-data-interface" class="slide level2 smaller">
+<h2>A project also depends on its data interface</h2>
+<ul>
+<li>Preserve participant IDs when importing, joining, filtering, and predicting.</li>
+<li>Validate units, factor levels, dates, missing values, and expected row counts.</li>
+<li>Turn repeated calculations into functions with explicit inputs and outputs.</li>
+<li>Record warnings and failures instead of silently removing inconvenient rows.</li>
+</ul>
+<p>R and Python can implement the same workflow. Choose tools your team can review and rerun. Validate AI-generated code using the same checks as code you write.</p>
+</section></section>
+<section>
+<section id="the-course-as-one-workflow" class="title-slide slide level1 section-divider center">
+<h1>6 · The course as one workflow</h1>
+
+</section>
+<section id="course-map-setup-and-data-foundations" class="slide level2 smaller">
+<h2>Course map: setup and data foundations</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Session and topic</th>
+<th>Evidence in a project</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>0</strong> · Setup and orientation</td>
+<td>Working environment</td>
+</tr>
+<tr class="even">
+<td><strong>1</strong> · Reproducible workflow, scripts, reports, paths</td>
+<td>A report that runs from source</td>
+</tr>
+<tr class="odd">
+<td><strong>2</strong> · Version control</td>
+<td>Reviewed changes and meaningful commits</td>
+</tr>
+<tr class="even">
+<td><strong>3</strong> · R objects, types, coercion, subsetting</td>
+<td>Correct types and selected values</td>
+</tr>
+<tr class="odd">
+<td><strong>4</strong> · Data structures and base R</td>
+<td>Appropriate containers and indexing</td>
+</tr>
+<tr class="even">
+<td><strong>5</strong> · Data import, dates, export</td>
+<td>Checked input and output files</td>
+</tr>
+<tr class="odd">
+<td><strong>6</strong> · Tidy data and dplyr</td>
+<td>Transparent transformations</td>
+</tr>
+<tr class="even">
+<td><strong>7</strong> · Joins, reshaping, cleaning</td>
+<td>Valid keys and preserved records</td>
+</tr>
+<tr class="odd">
+<td><strong>8</strong> · Visualization</td>
+<td>Readable plots with honest scales</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="course-map-programming-and-statistical-computing" class="slide level2 smaller">
+<h2>Course map: programming and statistical computing</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Session and topic</th>
+<th>Evidence in a project</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>9</strong> · Positron and AI-assisted coding</td>
+<td>Verified code and disclosed assistance</td>
+</tr>
+<tr class="even">
+<td><strong>10</strong> · Python for R users</td>
+<td>A checked translation of an analysis</td>
+</tr>
+<tr class="odd">
+<td><strong>11</strong> · Conditions and functions</td>
+<td>Reusable calculations with clear contracts</td>
+</tr>
+<tr class="even">
+<td><strong>12</strong> · Debugging and reliability</td>
+<td>Checks that reveal incorrect results</td>
+</tr>
+<tr class="odd">
+<td><strong>13</strong> · Iteration and vectorization</td>
+<td>Consistent repeated calculations</td>
+</tr>
+<tr class="even">
+<td><strong>14</strong> · Random numbers and simulation</td>
+<td>Reproducible evaluation under known truth</td>
+</tr>
+<tr class="odd">
+<td><strong>15</strong> · Bootstrap and permutation</td>
+<td>Uncertainty and null tests</td>
+</tr>
+<tr class="even">
+<td><strong>16</strong> · Models, validation, synthesis, and handoff</td>
+<td>Interpretable results that others can rerun</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="one-project-connects-the-sessions" class="slide level2 smaller">
+<h2>One project connects the sessions</h2>
+<p><strong>Example:</strong> analyse a two-arm study with baseline and follow-up SBP.</p>
+<ol type="1">
+<li>Define the scientific question, outcome, comparison, and analysis unit.</li>
+<li>Import data, check IDs and units, join visits, and describe missingness.</li>
+<li>Plot the data and implement the analysis in checked functions.</li>
+<li>Fit a model or choose a resampling method that matches the question.</li>
+<li>Interpret the result with uncertainty and limitations.</li>
+<li>Render a report and package the code, inputs, and environment for review.</li>
+</ol>
+<p>Git records the changes. A clean rerun checks that the report follows from the code.</p>
+</section>
+<section id="different-questions-require-different-evidence" class="slide level2 smaller">
+<h2>Different questions require different evidence</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Question about the study</th>
+<th>Relevant evidence</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>How large is the mean difference?</td>
+<td>Estimate in mmHg with an interval</td>
+</tr>
+<tr class="even">
+<td>Is the result inconsistent with the randomization null?</td>
+<td>A justified test and p-value</td>
+</tr>
+<tr class="odd">
+<td>Can we predict a new patient’s SBP?</td>
+<td>Held-out error against a benchmark</td>
+</tr>
+<tr class="even">
+<td>Does the method work under assumed conditions?</td>
+<td>Simulation with known truth</td>
+</tr>
+<tr class="odd">
+<td>Can another analyst reproduce the result?</td>
+<td>Inputs, code, versions, checks, and rerun instructions</td>
+</tr>
+</tbody>
+</table>
+<p>A small p-value does not establish accurate prediction. A reproducible report can still contain a poorly chosen analysis. Each claim needs the right evidence.</p>
+</section>
+<section id="capstone-review-what-would-you-check" class="slide level2 smaller">
+<h2>Capstone review: what would you check?</h2>
+<p>A report joins visits by row position, drops missing values silently, trains and evaluates a model on the same people, and pastes results into slides by hand.</p>
+<p>Identify a correction using each part of the course:</p>
+<ul>
+<li>Data structure and joins.</li>
+<li>Analysis sample and validation.</li>
+<li>Reusable code and checks.</li>
+<li>Reproducible reporting and version control.</li>
+</ul>
+<p>Explain what evidence would convince a colleague that each correction worked.</p>
+</section></section>
+<section>
 <section id="reproducible-handoff" class="title-slide slide level1 section-divider center">
-<h1>5 · Reproducible handoff</h1>
+<h1>7 · Reproducible handoff</h1>
 
 </section>
 <section id="record-both-analysis-workflows" class="slide level2 smaller">
@@ -866,7 +1152,7 @@ fold Control Treatment
 </section>
 <section id="lab-route-and-exit-check" class="slide level2 smaller">
 <h2>Lab route and exit check</h2>
-<p>Fit and inspect a model; predict new rows; complete the checked CV scaffold; compare with a benchmark; diagnose leakage; save a reproducible handoff.</p>
+<p>Fit and inspect a model; predict new rows; complete the checked CV scaffold; compare with a benchmark; diagnose leakage; review the course workflow; save a reproducible handoff.</p>
 <p><strong>Explain:</strong> Why are there 77 rows in the coefficient analysis and 80 held-out predictions? Which rows learned each imputation value? How does an ID stay attached to its prediction?</p>
 </section>
 <section id="references-and-optional-practice" class="slide level2 smaller">
@@ -887,7 +1173,7 @@ fold Control Treatment
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
-<p>BIOS 6301 · Session 16 · Models, Prediction, and Validation</p>
+<p>BIOS 6301 · Session 16 · Models, Validation, and Course Review</p>
 </div>
 </div></div>
 

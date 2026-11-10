@@ -114,6 +114,10 @@ ul.task-list li input[type="checkbox"] {
  <span class="dropdown-text">Homework 2 · Import and analysis</span></a>
   </li>
         <li>
+    <a class="dropdown-item" href="../../homework/homework03/index.html">
+ <span class="dropdown-text">Homework 3 · Functions and iteration</span></a>
+  </li>
+        <li>
     <a class="dropdown-item" href="../../midterm/index.html">
  <span class="dropdown-text">Midterm · Due October 30</span></a>
   </li>
@@ -218,7 +222,7 @@ ul.task-list li input[type="checkbox"] {
   </li>
         <li>
     <a class="dropdown-item" href="../../course/session16/index.html">
- <span class="dropdown-text">16 · Practical computing</span></a>
+ <span class="dropdown-text">16 · Models and course review</span></a>
   </li>
     </ul>
   </li>
@@ -246,7 +250,9 @@ ul.task-list li input[type="checkbox"] {
 
   <ul>
   <li><a href="#learning-goals" id="toc-learning-goals" class="nav-link active" data-scroll-target="#learning-goals">Learning goals</a></li>
+  <li><a href="#warm-up-random-draws-and-the-normal-distribution" id="toc-warm-up-random-draws-and-the-normal-distribution" class="nav-link" data-scroll-target="#warm-up-random-draws-and-the-normal-distribution">Warm-up: random draws and the normal distribution</a></li>
   <li><a href="#tasks-following-the-lecture-outline" id="toc-tasks-following-the-lecture-outline" class="nav-link" data-scroll-target="#tasks-following-the-lecture-outline">Tasks following the lecture outline</a></li>
+  <li><a href="#optional-extensions" id="toc-optional-extensions" class="nav-link" data-scroll-target="#optional-extensions">Optional extensions</a></li>
   <li><a href="#exit-evidence" id="toc-exit-evidence" class="nav-link" data-scroll-target="#exit-evidence">Exit evidence</a></li>
   </ul>
 </nav>
@@ -277,18 +283,37 @@ ul.task-list li input[type="checkbox"] {
 <p>Work in <strong>BIOS6301-mywork.Rproj</strong>. Copy one starter from the separate course clone into <code>work/session14/</code>: <a href="starter/simulation-lab.qmd">Quarto</a> or <a href="starter/simulation-lab.Rmd">R Markdown</a>. Keep the course originals unchanged.</p>
 <section id="learning-goals" class="level2">
 <h2 class="anchored" data-anchor-id="learning-goals">Learning goals</h2>
-<p>Evaluate two procedures on the same simulated data, quantify their performance and Monte Carlo uncertainty, and retain failed attempts.</p>
+<p>Practice reproducible random draws, distinguish a population target from an estimate, and compare two procedures using a small simulation. Interpret Monte Carlo uncertainty with one proportion formula.</p>
+</section>
+<section id="warm-up-random-draws-and-the-normal-distribution" class="level2">
+<h2 class="anchored" data-anchor-id="warm-up-random-draws-and-the-normal-distribution">Warm-up: random draws and the normal distribution</h2>
+<ol type="1">
+<li>Run two successive <code>rnorm(3)</code> calls after <code>set.seed(42)</code>. Rerun the entire block. Which results repeat?</li>
+<li>Save <code>state_before &lt;- .Random.seed</code>, draw one value, and compare with <code>identical(state_before, .Random.seed)</code>. Explain the generator’s changing bookmark.</li>
+<li>Insert <code>unused &lt;- runif(1)</code> between the two <code>rnorm(3)</code> calls. Explain why the second output changes even though <code>unused</code> is never used.</li>
+<li>Call <code>set.seed(99)</code> immediately before the result you want to reproduce. Verify that earlier random work no longer changes that result. Explain why you should not put the same seed inside every replicate.</li>
+<li>Evaluate <code>dnorm(0)</code>, <code>pnorm(1.96)</code>, <code>qnorm(0.975)</code>, and <code>rnorm(8)</code>. Match them to density height, left-tail area, cutoff value, and simulated observations. Which two functions reverse each other’s question? Why is <code>dnorm(0)</code> not the probability of observing exactly zero?</li>
+</ol>
 </section>
 <section id="tasks-following-the-lecture-outline" class="level2">
 <h2 class="anchored" data-anchor-id="tasks-following-the-lecture-outline">Tasks following the lecture outline</h2>
 <ol type="1">
-<li><strong>Specify ADEMP</strong> — Use independent control and treatment groups with SDs 12 and 4. Compare sizes 10/40 and 30/40, differences 0 and 6, and normal versus skewed errors. Both tests target treatment minus control. State the performance measures before running the study.</li>
+<li><strong>Specify ADEMP</strong> — Let each outcome be SBP reduction: baseline minus 12-week SBP, in mmHg. Positive delta means greater mean reduction with treatment. Use independent normal control and treatment groups with SDs 12 and 4. Compare sizes 10/40 and 30/40 and true differences 0 and 6 (four scenarios). Define the estimand as the population mean difference, treatment minus control. Distinguish this target from the estimator and one sample estimate. Write the five ADEMP headings before running the study.</li>
 <li><strong>Inspect one replicate</strong> — Generate one dataset and compare Welch and pooled results on that same dataset. Verify the estimate direction, result names, and interval ordering. Exercise a failed constant-outcome sample.</li>
-<li><strong>Retain each method and replicate</strong> — Implement run_study(s, B) for one scenario row. Retain replicate, method, scenario values, numeric results, and an error message. Both methods must use the same generated dataset in each replicate.</li>
-<li><strong>Plan precision and run scenarios</strong> — Use a target worst-case MCSE of 0.016 for a probability. Calculate the required replication count using 0.25 / target^2, then use at least that many replicates. Seed once before the complete grid.</li>
-<li><strong>Summarize performance and failures</strong> — For each scenario and method report attempts, failures, bias, empirical SE, mean model SE, RMSE, coverage, mean width, rejection rate, and MCSE for bias, coverage, and rejection. Label quantities conditional on success.</li>
-<li><strong>Interpret sensitivity</strong> — Compare null calibration, power, interval coverage, and failure counts across allocation and distribution. Draw one comparison with Monte Carlo uncertainty. Explain why a skewed error is centered using population quantities rather than its sample mean.</li>
+<li><strong>Retain each method and replicate</strong> — Inspect the supplied run_study(s, B) function and run a pilot with B = 5. Identify where it generates one dataset, applies both methods, and retains results or errors. Check that five replicates produce ten rows. Both methods must use the same dataset in each replicate.</li>
+<li><strong>Run reproducible scenarios</strong> — Use B = 1000 for this teaching exercise. Assign each scenario a fixed seed and call set.seed() immediately before running that scenario. Insert an unrelated runif() call before the seed and verify that the scenario results stay unchanged. Do not reset the seed inside the replicate loop.</li>
+<li><strong>Summarize performance and failures</strong> — For each scenario and method report attempts, failures, bias, coverage, rejection rate, and MCSE for rejection. Use sqrt(p_hat * (1 - p_hat) / B_valid), where B_valid counts successful replicates. Label performance summaries as conditional on success. Interpret rejection rates as type I error when delta = 0 and power when delta = 6.</li>
+<li><strong>Interpret the comparison</strong> — Compare null calibration, power, coverage, and failure counts across allocations. Draw one rejection-rate comparison with approximate Monte Carlo intervals. Explain why 5.2% from 1,000 replicates need not differ meaningfully from 5%, and why more replicates differ from more patients per trial.</li>
 </ol>
+</section>
+<section id="optional-extensions" class="level2">
+<h2 class="anchored" data-anchor-id="optional-extensions">Optional extensions</h2>
+<ul>
+<li>Add <code>dgm = "skewed"</code> to the design using the supplied helper. Explain why it centers errors using the population mean rather than each sample mean. Keep the estimand unchanged.</li>
+<li>Report empirical SE, mean model SE, RMSE, mean interval width, and MCSE for bias or coverage.</li>
+<li>Plan B from a target MCSE using <code>ceiling(p * (1 - p) / target^2)</code>. Try B = 4000 and explain why MCSE is about half its value at B = 1000.</li>
+<li>Explore <code>SimDesign::runSimulation()</code> for running a larger study or <code>rsimsum::simsum()</code> for summarising saved results. No package installation is required for the core lab.</li>
+</ul>
 </section>
 <section id="exit-evidence" class="level2">
 <h2 class="anchored" data-anchor-id="exit-evidence">Exit evidence</h2>
