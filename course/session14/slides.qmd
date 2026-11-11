@@ -416,13 +416,69 @@ $6.3 - 6 = 0.3$ mmHg. One estimate's error, $7.2 - 6$, is not the bias.
 
 # 4 · Building the simulation {.section-divider}
 
+## Data generation starts with assumptions {.smaller}
+
+A **data-generating model** describes the population and how we sample from it.
+We choose this model before choosing an R random-number function.
+
+- **Outcome:** each patient's SBP reduction, baseline minus 12-week SBP.
+  Values can be positive or negative. A negative value means SBP increased.
+- **Distribution:** what shape, spread, and extreme values are plausible
+  within each treatment group?
+- **Structure:** are patients independent? Repeated visits or patients within
+  clinics may require a model for their dependence.
+- **Parameters:** use previous studies, pilot data, or subject-matter knowledge
+  to choose plausible means and SDs. Explore a range when these are uncertain.
+
+Our means and SDs are **invented teaching scenarios**, not clinical estimates.
+
+## Why use a normal distribution here? {.smaller}
+
+We start with normal SBP reductions as a **simple reference scenario**. This lets
+us study unequal group sizes and SDs while keeping the distribution's shape fixed.
+
+For a real project, examine relevant prior or pilot data: group-specific
+histograms, Q–Q plots, outliers, and plausible ranges. Rough symmetry and modest
+tails may support a normal approximation. They do not prove it.
+
+A normal model allows any real value. It may be unsuitable if it generates
+implausible changes, strong skewness is present, or extreme values are common.
+
+**Sensitivity check:** repeat the study with skewed errors while preserving
+the population means and SDs. Report whether the conclusions change.
+
+
+## From the SBP model to rnorm() {.smaller}
+
+For one teaching scenario, assume independent reductions within each arm:
+
+$$
+Y_{\mathrm{control}} \sim N(0,12^2), \qquad
+Y_{\mathrm{treatment}} \sim N(6,4^2).
+$$
+
+The treatment group's **population mean is 6 mmHg and SD is 4 mmHg**.
+In the formula the second quantity is variance. R's `sd` argument takes the SD.
+
+```{r}
+set.seed(1425)
+reduction <- rnorm(n = 5, mean = 6, sd = 4)
+round(reduction, 1)
+```
+
+`rnorm()` implements our assumption. These five patients need not have a sample
+mean of exactly 6 or a sample SD of exactly 4.
+
+Before a large run, inspect simulated ranges, plots, and group summaries.
+That checks the generator's implementation; real-world plausibility needs evidence.
+
 ## The shape of every simulation {.smaller}
 
 ```{mermaid}
 %%| echo: false
 %%| fig-width: 10
 flowchart LR
-  P["<b>parameters</b><br/>n, sd, delta"] --> S["<b>simulate_one()</b><br/>one dataset"]
+  P["<b>data model</b><br/>shape, dependence, parameters"] --> S["<b>simulate_one()</b><br/>one dataset"]
   S --> A["<b>analyse_one()</b><br/>one row of results"]
   A --> R["<b>replicate</b><br/>× n_sim"]
   R --> T["<b>results</b><br/>one row per replicate"]
@@ -445,10 +501,9 @@ they were for.
 ```{r}
 #| label: sim-one
 # One SBP trial: y is baseline minus 12-week SBP (mmHg).
-# Control is N(0, sd_ctrl^2); treatment is N(delta, sd_trt^2).
+# Assumptions: independent patients, normal reductions within each arm.
 simulate_trial <- function(n_ctrl, n_trt, sd_ctrl, sd_trt, delta = 0) {
   stopifnot(n_ctrl >= 2, n_trt >= 2, sd_ctrl > 0, sd_trt > 0)
-
   data.frame(
     arm = rep(c("ctrl", "trt"), c(n_ctrl, n_trt)),
     y   = c(rnorm(n_ctrl, mean = 0,     sd = sd_ctrl),
@@ -960,9 +1015,9 @@ intervals from 2,000 replicates per scenario.
 . . .
 
 ::: {.smaller}
-None of that required any new mathematics. It required a DGM you could write
-down, two short functions, ten thousand replicates, and the discipline to report a
-Monte Carlo SE.
+These conclusions apply to the data-generating scenarios we studied.
+More replicates improve precision within a scenario. They do not establish
+that its distribution or independence assumptions describe a real trial.
 :::
 
 . . .
