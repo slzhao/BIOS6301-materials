@@ -28,8 +28,11 @@ Practice reproducible random draws, distinguish a population target from an esti
 5. **Summarize performance and failures** — For each scenario and method report attempts, failures, bias, coverage, rejection rate, and MCSE for rejection. Use sqrt(p_hat * (1 - p_hat) / B_valid), where B_valid counts successful replicates. Label performance summaries as conditional on success. Interpret rejection rates as type I error when delta = 0 and power when delta = 6.
 6. **Interpret the comparison** — Compare null calibration, power, coverage, and failure counts across allocations. Draw one rejection-rate comparison with approximate Monte Carlo intervals. Explain why 5.2% from 1,000 replicates need not differ meaningfully from 5%, and why more replicates differ from more patients per trial.
 
+7. **Power for study planning** — Use the delta = 6 results to compare Welch power for 10/40 and 30/40 patients. Report rejections, valid trials, power, MCSE, and an approximate 95% Monte Carlo interval. Explain why this interval concerns detection probability rather than the treatment effect. Distinguish power from coverage. Do the results support at least 80% power? Explain what increasing patient numbers changes and what increasing B changes.
+
 ## Optional extensions
 
+- Extend the Welch power comparison to more sample sizes or a smaller effect (for example, 3 mmHg). Keep the test rule fixed and refine promising scenarios with more replicates.
 - Add `dgm = "skewed"` to the design using the supplied helper. Explain why it centers errors using the population mean rather than each sample mean. Keep the estimand unchanged.
 - Report empirical SE, mean model SE, RMSE, mean interval width, and MCSE for bias or coverage.
 - Plan B from a target MCSE using `ceiling(p * (1 - p) / target^2)`. Try B = 4000 and explain why MCSE is about half its value at B = 1000.

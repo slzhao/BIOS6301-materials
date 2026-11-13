@@ -174,8 +174,23 @@ Compare null calibration, power, coverage, and failure counts across allocations
 
 Interpret the result and state its limitations.
 
+## 7. Power for study planning
+
+Use the existing delta = 6 results to compare Welch power for 10/40 and 30/40 patients. Report the number of rejections, valid trials, estimated power, MCSE, and an approximate 95% Monte Carlo interval. Explain whether the results support at least 80% power, allowing for simulation uncertainty. Distinguish power from coverage, and more patients from more simulation replicates.
+
+```{r, eval=FALSE}
+# TODO: select the Welch results with delta == 6.
+# power = mean(p < .05) across valid simulated trials.
+# mcse = sqrt(power * (1 - power) / B_valid)
+# Report power +/- 1.96 * mcse, with endpoints bounded by 0 and 1.
+# Compare n_ctrl = 10 and 30, holding n_trt = 40 fixed.
+```
+
+Interpret the comparison under the stated normal, independent-patient model.
+
 ## Optional extensions
 
+- Extend the Welch power comparison to more sample sizes or a smaller effect (for example, 3 mmHg). Keep the test rule fixed and refine promising scenarios with more replicates.
 - Add `dgm = "skewed"` to the design using the supplied helper. Explain why it centers errors using the population mean rather than each sample mean. Keep the estimand unchanged.
 - Report empirical SE, mean model SE, RMSE, mean interval width, and MCSE for bias or coverage.
 - Plan B from a target MCSE using `ceiling(p * (1 - p) / target^2)`. Try B = 4000 and explain why MCSE is about half its value at B = 1000.

@@ -966,7 +966,68 @@ Welch uses $\sqrt{s_1^2/n_1+s_2^2/n_2}$ with approximate degrees of freedom.
 
 Add an equal-variance scenario before making a claim about that tradeoff.
 
-## Power, from the same machinery {.smaller}
+## Power: detecting a specified treatment effect {.smaller}
+
+Suppose treatment truly produces **6 mmHg more mean SBP reduction** than control.
+Our test still asks whether the population mean difference is zero.
+
+**Power is the probability that the planned test rejects that null when the
+specified effect is real.** Power of 80% means about 80 of 100 repeated trials
+would reject it. The remaining 20 would miss the effect (type II error).
+
+To estimate power by simulation:
+
+1. Specify the effect, distributions, sample sizes, and analysis in advance.
+2. Generate one complete trial under that nonzero effect.
+3. Apply the planned test and record whether `p < 0.05`.
+4. Repeat independently and calculate the proportion of rejections.
+
+Here we use a **two-sided Welch test at 5%**. At a true effect of zero, the same
+calculation estimates type I error instead of power to detect a nonzero effect.
+
+## Estimated power for one SBP design {.smaller}
+
+Assume independent normal reductions, **40 patients per arm**, SDs 12 and 4,
+and a true additional reduction of **6 mmHg**.
+
+```{r}
+#| label: power-worked
+set.seed(1456)
+power_run <- run_scenario(2000, 40, 40, 12, 4,
+                          delta = 6, pooled = FALSE)
+stopifnot(nrow(power_run) == 2000, all(is.finite(power_run$p)))
+detected <- power_run$p < 0.05
+power_hat <- mean(detected)
+power_mcse <- sqrt(power_hat * (1 - power_hat) / nrow(power_run))
+round(c(power = power_hat, MCSE = power_mcse), 3)
+```
+
+We detected the effect in **`r sum(detected)` of 2,000 trials**.
+The estimated power is **`r round(100 * power_hat, 1)`%**, with MCSE
+**`r round(100 * power_mcse, 2)` percentage points**.
+
+Each replicate contains 80 patients. The MCSE denominator is **2,000 trials**.
+
+## Power, coverage, and Monte Carlo uncertainty {.smaller}
+
+For the same true effect of 6 mmHg, each simulated trial gives a p-value and a
+confidence interval for the treatment effect.
+
+| Quantity | What we count or calculate |
+|---|---|
+| **Power** | Fraction of trials rejecting the null effect of zero |
+| **Coverage** | Fraction of treatment-effect intervals containing the true value 6 |
+| **MCSE of power** | Uncertainty in the power estimate because we simulated a finite number of trials |
+
+An interval **[2, 10] mmHg** covers 6 and excludes 0: it covers and detects.
+An interval **[−2, 14] mmHg** covers 6 but includes 0: it covers but does not detect.
+
+The worked design's approximate **95% Monte Carlo interval for power** is
+**`r round(100 * (power_hat - 1.96 * power_mcse), 1)`% to
+`r round(100 * (power_hat + 1.96 * power_mcse), 1)`%**. These endpoints describe
+a probability of detection, not a treatment effect in mmHg.
+
+## Power across effect sizes and allocations {.smaller}
 
 ```{r}
 #| label: fig-power
@@ -982,25 +1043,77 @@ pw <- do.call(rbind, lapply(seq_len(nrow(pw_grid)), function(k) {
   i <- pw_grid$i[k]
   r <- run_scenario(2000, alloc$nc[i], alloc$nt[i], 12, 4,
                     delta = pw_grid$delta[k], pooled = FALSE)
+  mc_ci <- binom.test(sum(r$p < .05), nrow(r))$conf.int
   data.frame(alloc = alloc$lab[i], delta = pw_grid$delta[k],
              power = mean(r$p < 0.05),
-             mcse = sqrt(mean(r$p < 0.05) * (1 - mean(r$p < 0.05)) / nrow(r)))
+             mcse = sqrt(mean(r$p < 0.05) * (1 - mean(r$p < 0.05)) / nrow(r)),
+             mc_lower = mc_ci[1], mc_upper = mc_ci[2])
 }))
 ggplot(pw, aes(delta, power, colour = alloc, shape = alloc)) +
   geom_line(linewidth = 0.9) + geom_point(size = 2.6) +
-  geom_errorbar(aes(ymin = pmax(0, power - 1.96 * mcse),
-                    ymax = pmin(1, power + 1.96 * mcse)), width = .15) +
+  geom_errorbar(aes(ymin = mc_lower, ymax = mc_upper), width = .15) +
   geom_hline(yintercept = 0.8, linetype = 2, colour = "grey40") +
   scale_y_continuous(limits = c(0, 1)) +
-  labs(x = "true difference in means (mmHg)", y = "power",
+  labs(x = "true additional SBP reduction (mmHg)", y = "rejection probability",
        colour = "ctrl / trt", shape = "ctrl / trt")
 ```
 
 ::: {.smaller}
-Same DGM, same functions, one argument changed: `delta`. Fifty patients in every
-scenario — only the **allocation** differs. Bars show approximate 95% Monte Carlo
-intervals from 2,000 replicates per scenario.
+Along each curve, the true effect changes. Between curves, the allocation changes
+while total N stays 50. At effect 0, rejection is type I error; at nonzero effects,
+it is power. Bars show 95% Monte Carlo intervals from 2,000 trials per point.
 :::
+
+## Power and the number of patients {.smaller}
+
+```{r}
+#| label: fig-power-sample-size
+#| echo: false
+#| fig-width: 9
+#| fig-height: 3.4
+#| fig-cap: "Welch test at 5%, normal reductions, SDs 12 and 4. Equal group sizes."
+size_grid <- expand.grid(n_arm = c(20, 40, 60, 80, 120, 160),
+                         delta = c(3, 6))
+power_by_size <- do.call(rbind, lapply(seq_len(nrow(size_grid)), function(k) {
+  set.seed(1460 + k)
+  s <- size_grid[k, ]
+  r <- run_scenario(2000, s$n_arm, s$n_arm, 12, 4, s$delta, FALSE)
+  stopifnot(nrow(r) == 2000, all(is.finite(r$p)))
+  p <- mean(r$p < .05)
+  mc_ci <- binom.test(sum(r$p < .05), nrow(r))$conf.int
+  data.frame(s, power = p, mcse = sqrt(p * (1 - p) / nrow(r)),
+             mc_lower = mc_ci[1], mc_upper = mc_ci[2])
+}))
+ggplot(power_by_size, aes(n_arm, power, colour = factor(delta))) +
+  geom_hline(yintercept = .8, linetype = 2, colour = "grey40") +
+  geom_line(linewidth = .9) + geom_point(size = 2.5) +
+  geom_errorbar(aes(ymin = mc_lower, ymax = mc_upper), width = 2) +
+  scale_y_continuous(limits = c(0, 1)) +
+  labs(x = "patients per arm (total N is twice this value)", y = "power",
+       colour = "true effect\n(mmHg)")
+```
+
+More patients increase power in these scenarios. A smaller effect requires more
+patients to reach the same target. The dashed line marks an illustrative **80%**
+target. Bars describe Monte Carlo uncertainty from 2,000 trials per point.
+
+
+## Simulation for study planning {.smaller}
+
+- **Choose a meaningful effect:** justify the difference worth detecting and
+  examine smaller effects too. Do not substitute the observed effect after a trial.
+- **Specify plausible variability:** larger SDs generally reduce power with
+  the other assumptions fixed. Check a range supported by prior information.
+- **Compare sample sizes and allocations:** for our mean difference, sampling
+  variance is $12^2/n_{\mathrm{ctrl}} + 4^2/n_{\mathrm{trt}}$. More patients in the
+  noisier control arm can help when total size and per-person costs are fixed.
+- **Keep the test rule fixed:** a higher significance threshold can raise power
+  but also permits more false positives. Check null calibration first.
+- **Refine promising designs:** use more replicates near the desired power,
+  report MCSE, and assess sensitivity to the model assumptions.
+
+**More patients can raise power. More simulation replicates estimate that power
+more precisely.** Neither 80% nor a single simulated crossing is a universal rule.
 
 
 ## What the simulation actually told us {.smaller}
@@ -1152,6 +1265,7 @@ and [rsimsum documentation](https://ellessenne.github.io/rsimsum/).
 - Test one simulated replicate before running thousands.
 - Report Monte Carlo uncertainty with every simulated probability.
 - Type I error and power differ by the data-generating parameter, not by the code skeleton.
+- Power calculations support study planning only for the specified effects, designs, and assumptions.
 
 . . .
 
