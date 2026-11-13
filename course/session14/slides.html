@@ -1437,14 +1437,97 @@ Figure&nbsp;1: Null p-values, 10,000 replicates, n = 10 / 40, sd = 12 / 4.
 </ul>
 <p>Add an equal-variance scenario before making a claim about that tradeoff.</p>
 </section>
-<section id="power-from-the-same-machinery" class="slide level2 smaller">
-<h2>Power, from the same machinery</h2>
+<section id="power-detecting-a-specified-treatment-effect" class="slide level2 smaller">
+<h2>Power: detecting a specified treatment effect</h2>
+<p>Suppose treatment truly produces <strong>6 mmHg more mean SBP reduction</strong> than control. Our test still asks whether the population mean difference is zero.</p>
+<p><strong>Power is the probability that the planned test rejects that null when the specified effect is real.</strong> Power of 80% means about 80 of 100 repeated trials would reject it. The remaining 20 would miss the effect (type II error).</p>
+<p>To estimate power by simulation:</p>
+<ol type="1">
+<li>Specify the effect, distributions, sample sizes, and analysis in advance.</li>
+<li>Generate one complete trial under that nonzero effect.</li>
+<li>Apply the planned test and record whether <code>p &lt; 0.05</code>.</li>
+<li>Repeat independently and calculate the proportion of rejections.</li>
+</ol>
+<p>Here we use a <strong>two-sided Welch test at 5%</strong>. At a true effect of zero, the same calculation estimates type I error instead of power to detect a nonzero effect.</p>
+</section>
+<section id="estimated-power-for-one-sbp-design" class="slide level2 smaller">
+<h2>Estimated power for one SBP design</h2>
+<p>Assume independent normal reductions, <strong>40 patients per arm</strong>, SDs 12 and 4, and a true additional reduction of <strong>6 mmHg</strong>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1456</span>)</span>
+<span id="cb79-2"><a aria-hidden="true" tabindex="-1"></a>power_run <span class="ot">&lt;-</span> <span class="fu">run_scenario</span>(<span class="dv">2000</span>, <span class="dv">40</span>, <span class="dv">40</span>, <span class="dv">12</span>, <span class="dv">4</span>,</span>
+<span id="cb79-3"><a aria-hidden="true" tabindex="-1"></a>                          <span class="at">delta =</span> <span class="dv">6</span>, <span class="at">pooled =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb79-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(power_run) <span class="sc">==</span> <span class="dv">2000</span>, <span class="fu">all</span>(<span class="fu">is.finite</span>(power_run<span class="sc">$</span>p)))</span>
+<span id="cb79-5"><a aria-hidden="true" tabindex="-1"></a>detected <span class="ot">&lt;-</span> power_run<span class="sc">$</span>p <span class="sc">&lt;</span> <span class="fl">0.05</span></span>
+<span id="cb79-6"><a aria-hidden="true" tabindex="-1"></a>power_hat <span class="ot">&lt;-</span> <span class="fu">mean</span>(detected)</span>
+<span id="cb79-7"><a aria-hidden="true" tabindex="-1"></a>power_mcse <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(power_hat <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> power_hat) <span class="sc">/</span> <span class="fu">nrow</span>(power_run))</span>
+<span id="cb79-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">power =</span> power_hat, <span class="at">MCSE =</span> power_mcse), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>power  MCSE
+0.838 0.008 </code></pre>
+</div>
+</div>
+<p>We detected the effect in <strong>1676 of 2,000 trials</strong>. The estimated power is <strong>83.8%</strong>, with MCSE <strong>0.82 percentage points</strong>.</p>
+<p>Each replicate contains 80 patients. The MCSE denominator is <strong>2,000 trials</strong>.</p>
+</section>
+<section id="power-coverage-and-monte-carlo-uncertainty" class="slide level2 smaller">
+<h2>Power, coverage, and Monte Carlo uncertainty</h2>
+<p>For the same true effect of 6 mmHg, each simulated trial gives a p-value and a confidence interval for the treatment effect.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Quantity</th>
+<th>What we count or calculate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Power</strong></td>
+<td>Fraction of trials rejecting the null effect of zero</td>
+</tr>
+<tr class="even">
+<td><strong>Coverage</strong></td>
+<td>Fraction of treatment-effect intervals containing the true value 6</td>
+</tr>
+<tr class="odd">
+<td><strong>MCSE of power</strong></td>
+<td>Uncertainty in the power estimate because we simulated a finite number of trials</td>
+</tr>
+</tbody>
+</table>
+<p>An interval <strong>[2, 10] mmHg</strong> covers 6 and excludes 0: it covers and detects. An interval <strong>[−2, 14] mmHg</strong> covers 6 but includes 0: it covers but does not detect.</p>
+<p>The worked design’s approximate <strong>95% Monte Carlo interval for power</strong> is <strong>82.2% to 85.4%</strong>. These endpoints describe a probability of detection, not a treatment effect in mmHg.</p>
+</section>
+<section id="power-across-effect-sizes-and-allocations" class="slide level2 smaller">
+<h2>Power across effect sizes and allocations</h2>
 
 <img data-src="slides_files/figure-revealjs/fig-power-1.png" width="864" class="r-stretch quarto-figure-center" id="fig-power"><p class="caption">
 Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (trt).
 </p><div class="smaller">
-<p>Same DGM, same functions, one argument changed: <code>delta</code>. Fifty patients in every scenario — only the <strong>allocation</strong> differs. Bars show approximate 95% Monte Carlo intervals from 2,000 replicates per scenario.</p>
+<p>Along each curve, the true effect changes. Between curves, the allocation changes while total N stays 50. At effect 0, rejection is type I error; at nonzero effects, it is power. Bars show 95% Monte Carlo intervals from 2,000 trials per point.</p>
 </div>
+</section>
+<section id="power-and-the-number-of-patients" class="slide level2 smaller">
+<h2>Power and the number of patients</h2>
+
+<img data-src="slides_files/figure-revealjs/fig-power-sample-size-1.png" width="864" class="r-stretch quarto-figure-center" id="fig-power-sample-size"><p class="caption">
+Figure&nbsp;3: Welch test at 5%, normal reductions, SDs 12 and 4. Equal group sizes.
+</p><p>More patients increase power in these scenarios. A smaller effect requires more patients to reach the same target. The dashed line marks an illustrative <strong>80%</strong> target. Bars describe Monte Carlo uncertainty from 2,000 trials per point.</p>
+</section>
+<section id="simulation-for-study-planning" class="slide level2 smaller">
+<h2>Simulation for study planning</h2>
+<ul>
+<li><strong>Choose a meaningful effect:</strong> justify the difference worth detecting and examine smaller effects too. Do not substitute the observed effect after a trial.</li>
+<li><strong>Specify plausible variability:</strong> larger SDs generally reduce power with the other assumptions fixed. Check a range supported by prior information.</li>
+<li><strong>Compare sample sizes and allocations:</strong> for our mean difference, sampling variance is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>12</mn><mn>2</mn></msup><mi>/</mi><msub><mi>n</mi><mrow><mi mathvariant="normal">c</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">l</mi></mrow></msub><mo>+</mo><msup><mn>4</mn><mn>2</mn></msup><mi>/</mi><msub><mi>n</mi><mrow><mi mathvariant="normal">t</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">t</mi></mrow></msub></mrow><annotation encoding="application/x-tex">12^2/n_{\mathrm{ctrl}} + 4^2/n_{\mathrm{trt}}</annotation></semantics></math>. More patients in the noisier control arm can help when total size and per-person costs are fixed.</li>
+<li><strong>Keep the test rule fixed:</strong> a higher significance threshold can raise power but also permits more false positives. Check null calibration first.</li>
+<li><strong>Refine promising designs:</strong> use more replicates near the desired power, report MCSE, and assess sensitivity to the model assumptions.</li>
+</ul>
+<p><strong>More patients can raise power. More simulation replicates estimate that power more precisely.</strong> Neither 80% nor a single simulated crossing is a universal rule.</p>
 </section>
 <section id="what-the-simulation-actually-told-us" class="slide level2 smaller">
 <h2>What the simulation actually told us</h2>
@@ -1482,14 +1565,14 @@ Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (
 <section id="a-grid-that-answers-a-question" class="slide level2 smaller">
 <h2>A grid that answers a question</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a aria-hidden="true" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">n_ctrl =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">30</span>), <span class="at">n_trt =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">30</span>),</span>
-<span id="cb79-2"><a aria-hidden="true" tabindex="-1"></a>                      <span class="at">delta =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">6</span>), <span class="at">dgm =</span> <span class="fu">c</span>(<span class="st">"normal"</span>, <span class="st">"skewed"</span>),</span>
-<span id="cb79-3"><a aria-hidden="true" tabindex="-1"></a>                      <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb79-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(design)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a aria-hidden="true" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">n_ctrl =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">30</span>), <span class="at">n_trt =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">30</span>),</span>
+<span id="cb81-2"><a aria-hidden="true" tabindex="-1"></a>                      <span class="at">delta =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">6</span>), <span class="at">dgm =</span> <span class="fu">c</span>(<span class="st">"normal"</span>, <span class="st">"skewed"</span>),</span>
+<span id="cb81-3"><a aria-hidden="true" tabindex="-1"></a>                      <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb81-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(design)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 16</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(design, <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(design, <span class="dv">4</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  n_ctrl n_trt delta    dgm
 1     10    10     0 normal
@@ -1503,28 +1586,28 @@ Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (
 <section id="a-skewed-error-with-known-mean-and-sd" class="slide level2 smaller">
 <h2>A skewed error with known mean and SD</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a aria-hidden="true" tabindex="-1"></a>draw_error <span class="ot">&lt;-</span> <span class="cf">function</span>(n, target_sd, <span class="at">dgm =</span> <span class="st">"normal"</span>) {</span>
-<span id="cb83-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (dgm <span class="sc">==</span> <span class="st">"normal"</span>) <span class="fu">return</span>(<span class="fu">rnorm</span>(n, <span class="dv">0</span>, target_sd))</span>
-<span id="cb83-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (dgm <span class="sc">!=</span> <span class="st">"skewed"</span>) <span class="fu">stop</span>(<span class="st">"unknown dgm"</span>)</span>
-<span id="cb83-4"><a aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fl">0.7</span></span>
-<span id="cb83-5"><a aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> <span class="fu">exp</span>(a<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">2</span>)</span>
-<span id="cb83-6"><a aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">&lt;-</span> <span class="fu">sqrt</span>((<span class="fu">exp</span>(a<span class="sc">^</span><span class="dv">2</span>) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="fu">exp</span>(a<span class="sc">^</span><span class="dv">2</span>))</span>
-<span id="cb83-7"><a aria-hidden="true" tabindex="-1"></a>  target_sd <span class="sc">*</span> (<span class="fu">rlnorm</span>(n, <span class="dv">0</span>, a) <span class="sc">-</span> mu) <span class="sc">/</span> sigma</span>
-<span id="cb83-8"><a aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a aria-hidden="true" tabindex="-1"></a>draw_error <span class="ot">&lt;-</span> <span class="cf">function</span>(n, target_sd, <span class="at">dgm =</span> <span class="st">"normal"</span>) {</span>
+<span id="cb85-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (dgm <span class="sc">==</span> <span class="st">"normal"</span>) <span class="fu">return</span>(<span class="fu">rnorm</span>(n, <span class="dv">0</span>, target_sd))</span>
+<span id="cb85-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (dgm <span class="sc">!=</span> <span class="st">"skewed"</span>) <span class="fu">stop</span>(<span class="st">"unknown dgm"</span>)</span>
+<span id="cb85-4"><a aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fl">0.7</span></span>
+<span id="cb85-5"><a aria-hidden="true" tabindex="-1"></a>  mu <span class="ot">&lt;-</span> <span class="fu">exp</span>(a<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb85-6"><a aria-hidden="true" tabindex="-1"></a>  sigma <span class="ot">&lt;-</span> <span class="fu">sqrt</span>((<span class="fu">exp</span>(a<span class="sc">^</span><span class="dv">2</span>) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> <span class="fu">exp</span>(a<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb85-7"><a aria-hidden="true" tabindex="-1"></a>  target_sd <span class="sc">*</span> (<span class="fu">rlnorm</span>(n, <span class="dv">0</span>, a) <span class="sc">-</span> mu) <span class="sc">/</span> sigma</span>
+<span id="cb85-8"><a aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Subtract the <strong>theoretical</strong> log-normal mean and divide by its theoretical SD. Centering every generated sample by its own mean would remove sampling variation.</p>
 </section>
 <section id="a-second-generator-using-the-same-interface" class="slide level2 smaller">
 <h2>A second generator using the same interface</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a aria-hidden="true" tabindex="-1"></a>simulate_dgm <span class="ot">&lt;-</span> <span class="cf">function</span>(n_ctrl, n_trt, sd_ctrl, sd_trt,</span>
-<span id="cb84-2"><a aria-hidden="true" tabindex="-1"></a>                         <span class="at">delta =</span> <span class="dv">0</span>, <span class="at">dgm =</span> <span class="st">"normal"</span>) {</span>
-<span id="cb84-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">arm =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"ctrl"</span>, <span class="st">"trt"</span>), <span class="fu">c</span>(n_ctrl, n_trt)),</span>
-<span id="cb84-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">c</span>(<span class="fu">draw_error</span>(n_ctrl, sd_ctrl, dgm),</span>
-<span id="cb84-5"><a aria-hidden="true" tabindex="-1"></a>          delta <span class="sc">+</span> <span class="fu">draw_error</span>(n_trt, sd_trt, dgm)))</span>
-<span id="cb84-6"><a aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb84-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1403</span>)</span>
-<span id="cb84-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">simulate_dgm</span>(<span class="dv">10</span>, <span class="dv">40</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="st">"skewed"</span>), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a aria-hidden="true" tabindex="-1"></a>simulate_dgm <span class="ot">&lt;-</span> <span class="cf">function</span>(n_ctrl, n_trt, sd_ctrl, sd_trt,</span>
+<span id="cb86-2"><a aria-hidden="true" tabindex="-1"></a>                         <span class="at">delta =</span> <span class="dv">0</span>, <span class="at">dgm =</span> <span class="st">"normal"</span>) {</span>
+<span id="cb86-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">arm =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"ctrl"</span>, <span class="st">"trt"</span>), <span class="fu">c</span>(n_ctrl, n_trt)),</span>
+<span id="cb86-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="fu">c</span>(<span class="fu">draw_error</span>(n_ctrl, sd_ctrl, dgm),</span>
+<span id="cb86-5"><a aria-hidden="true" tabindex="-1"></a>          delta <span class="sc">+</span> <span class="fu">draw_error</span>(n_trt, sd_trt, dgm)))</span>
+<span id="cb86-6"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb86-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1403</span>)</span>
+<span id="cb86-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">simulate_dgm</span>(<span class="dv">10</span>, <span class="dv">40</span>, <span class="dv">12</span>, <span class="dv">4</span>, <span class="dv">6</span>, <span class="st">"skewed"</span>), <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   arm          y
 1 ctrl -10.683638
@@ -1615,6 +1698,7 @@ Figure&nbsp;2: Welch power. Total N = 50 in every scenario. sd = 12 (ctrl) / 4 (
 <li>Test one simulated replicate before running thousands.</li>
 <li>Report Monte Carlo uncertainty with every simulated probability.</li>
 <li>Type I error and power differ by the data-generating parameter, not by the code skeleton.</li>
+<li>Power calculations support study planning only for the specified effects, designs, and assumptions.</li>
 </ul>
 <div class="fragment">
 <p><strong>Next connection:</strong> Session 15 uses observed data for bootstrap and permutation. Session 16 connects regression, cross-validation, and the complete course workflow.</p>
