@@ -7389,14 +7389,14 @@
     "href": "course/session14/slides.html#the-seed-picks-your-starting-point",
     "title": "Random Numbers and Simulation",
     "section": "The seed picks your starting point",
-    "text": "The seed picks your starting point\n\nset.seed(42)\nrnorm(3)\n\n[1]  1.3709584 -0.5646982  0.3631284\n\nset.seed(42)\nrnorm(3)\n\n[1]  1.3709584 -0.5646982  0.3631284"
+    "text": "The seed picks your starting point\n\nset.seed(42)\nrnorm(n = 3)\n\n[1]  1.3709584 -0.5646982  0.3631284\n\nset.seed(42)\nrnorm(n = 3)\n\n[1]  1.3709584 -0.5646982  0.3631284"
   },
   {
     "objectID": "course/session14/slides.html#new-calls-advance-the-random-stream",
     "href": "course/session14/slides.html#new-calls-advance-the-random-stream",
     "title": "Random Numbers and Simulation",
     "section": "New calls advance the random stream",
-    "text": "New calls advance the random stream\n\nset.seed(42)\nrnorm(3)\n\n[1]  1.3709584 -0.5646982  0.3631284\n\nrnorm(3)\n\n[1]  0.6328626  0.4042683 -0.1061245\n\n\n\n\n\n\n\n\n\nReproducible randomness is not a contradiction. The same seed, RNG settings, and sequence of random calls reproduce a run in the same computational environment. Changing the calls changes the stream used downstream."
+    "text": "New calls advance the random stream\n\nset.seed(42)\nrnorm(n = 3)\n\n[1]  1.3709584 -0.5646982  0.3631284\n\nrnorm(n = 3)\n\n[1]  0.6328626  0.4042683 -0.1061245\n\n\n\n\n\n\n\n\n\nReproducible randomness is not a contradiction. The same seed, RNG settings, and sequence of random calls reproduce a run in the same computational environment. Changing the calls changes the stream used downstream."
   },
   {
     "objectID": "course/session14/slides.html#the-state-is-an-ordinary-object",
@@ -7438,14 +7438,14 @@
     "href": "course/session14/slides.html#rnorm-runif-rbinom",
     "title": "Random Numbers and Simulation",
     "section": "rnorm, runif, rbinom",
-    "text": "rnorm, runif, rbinom\n\nset.seed(13)\nround(rnorm(3, mean = 148, sd = 14), 1)  # n, then the parameters\n\n[1] 155.8 144.1 172.9\n\nround(runif(3, min = 0, max = 1), 3)\n\n[1] 0.574 0.764 0.873\n\nrbinom(3, size = 1, prob = 0.3)          # 3 coin flips\n\n[1] 0 0 1\n\nrbinom(3, size = 10, prob = 0.3)         # 3 counts out of 10\n\n[1] 5 3 3"
+    "text": "rnorm, runif, rbinom\n\nset.seed(13)\nround(rnorm(n = 3, mean = 148, sd = 14), 1)  # n, then the parameters\n\n[1] 155.8 144.1 172.9\n\nround(runif(3, min = 0, max = 1), 3)\n\n[1] 0.574 0.764 0.873\n\nrbinom(3, size = 1, prob = 0.3)          # 3 coin flips\n\n[1] 0 0 1\n\nrbinom(3, size = 10, prob = 0.3)         # 3 counts out of 10\n\n[1] 5 3 3"
   },
   {
     "objectID": "course/session14/slides.html#generate-observations-with-different-parameters",
     "href": "course/session14/slides.html#generate-observations-with-different-parameters",
     "title": "Random Numbers and Simulation",
     "section": "Generate observations with different parameters",
-    "text": "Generate observations with different parameters\n\nParameters recycle, which is how you generate a whole trial in one call:\n\n\nset.seed(13)\nround(rnorm(6, mean = rep(c(148, 134), each = 3), sd = 14))\n\n[1] 156 144 173 137 150 140"
+    "text": "Generate observations with different parameters\n\nParameters recycle, which is how you generate a whole trial in one call:\n\n\nset.seed(13)\nround(rnorm(n = 6, mean = rep(c(148, 134), each = 3), sd = 14))\n\n[1] 156 144 173 137 150 140"
   },
   {
     "objectID": "course/session14/slides.html#a-simulation-is-an-experiment",
@@ -7487,21 +7487,21 @@
     "href": "course/session14/slides.html#generate-one-dataset",
     "title": "Random Numbers and Simulation",
     "section": "Generate one dataset",
-    "text": "Generate one dataset\n\n# One SBP trial: y is baseline minus 12-week SBP (mmHg).\n# Assumptions: independent patients, normal reductions within each arm.\nsimulate_trial &lt;- function(n_ctrl, n_trt, sd_ctrl, sd_trt, delta = 0) {\n  stopifnot(n_ctrl &gt;= 2, n_trt &gt;= 2, sd_ctrl &gt; 0, sd_trt &gt; 0)\n  data.frame(\n    arm = rep(c(\"ctrl\", \"trt\"), c(n_ctrl, n_trt)),\n    y   = c(rnorm(n_ctrl, mean = 0,     sd = sd_ctrl),\n            rnorm(n_trt,  mean = delta, sd = sd_trt))\n  )\n}\n\nset.seed(6301)\nhead(simulate_trial(3, 3, 12, 4, delta = 8), 3)\n\n   arm         y\n1 ctrl -5.667400\n2 ctrl 12.457060\n3 ctrl  3.299615"
+    "text": "Generate one dataset\n\n# y is SBP reduction; independent normal outcomes within each arm.\nsimulate_trial &lt;- function(n_ctrl, n_trt, sd_ctrl, sd_trt, delta = 0) {\n  stopifnot(n_ctrl &gt;= 2, n_trt &gt;= 2, sd_ctrl &gt; 0, sd_trt &gt; 0)\n  data.frame(\n    arm = rep(c(\"ctrl\", \"trt\"), c(n_ctrl, n_trt)),\n    y   = c(rnorm(n = n_ctrl, mean = 0, sd = sd_ctrl),\n            rnorm(n = n_trt, mean = delta, sd = sd_trt))\n  )\n}\n\nset.seed(6301)\nd_example &lt;- simulate_trial(n_ctrl = 3, n_trt = 3,\n                            sd_ctrl = 12, sd_trt = 4, delta = 8)\nhead(d_example, n = 3)\n\n   arm         y\n1 ctrl -5.667400\n2 ctrl 12.457060\n3 ctrl  3.299615"
   },
   {
     "objectID": "course/session14/slides.html#analyse-one-dataset",
     "href": "course/session14/slides.html#analyse-one-dataset",
     "title": "Random Numbers and Simulation",
     "section": "Analyse one dataset",
-    "text": "Analyse one dataset\n\nanalyse_trial &lt;- function(data, pooled = FALSE) {\n  x &lt;- data$y[data$arm == \"trt\"]\n  y &lt;- data$y[data$arm == \"ctrl\"]\n  fit &lt;- t.test(x, y, var.equal = pooled)\n  c(est = mean(x) - mean(y), se = fit$stderr,\n    p = fit$p.value, lo = fit$conf.int[1], hi = fit$conf.int[2])\n}\nset.seed(6301)\nround(analyse_trial(simulate_trial(20, 20, 12, 4, delta = 8)), 3)\n\n   est     se      p     lo     hi \n 8.171  2.473  0.003  3.096 13.246 \n\n\nPassing treatment first makes the estimate and interval both treatment minus control. Check this direction before running any replications."
+    "text": "Analyse one dataset\n\nanalyse_trial &lt;- function(data, pooled = FALSE) {\n  x &lt;- data$y[data$arm == \"trt\"]\n  y &lt;- data$y[data$arm == \"ctrl\"]\n  fit &lt;- t.test(x = x, y = y, var.equal = pooled)\n  c(est = mean(x) - mean(y), se = fit$stderr,\n    p = fit$p.value, lo = fit$conf.int[1], hi = fit$conf.int[2])\n}\nset.seed(6301)\nd_analysis &lt;- simulate_trial(n_ctrl = 20, n_trt = 20,\n                             sd_ctrl = 12, sd_trt = 4, delta = 8)\nround(analyse_trial(data = d_analysis, pooled = FALSE), digits = 3)\n\n   est     se      p     lo     hi \n 8.171  2.473  0.003  3.096 13.246 \n\n\nPassing treatment first makes the estimate and interval both treatment minus control. Check this direction before running any replications."
   },
   {
     "objectID": "course/session14/slides.html#compare-methods-on-the-same-dataset",
     "href": "course/session14/slides.html#compare-methods-on-the-same-dataset",
     "title": "Random Numbers and Simulation",
     "section": "Compare methods on the same dataset",
-    "text": "Compare methods on the same dataset\n\nset.seed(1401)\none_data &lt;- simulate_trial(10, 40, 12, 4, delta = 0)\none_pair &lt;- rbind(Welch = analyse_trial(one_data, FALSE),\n                 pooled = analyse_trial(one_data, TRUE))\nround(one_pair, 3)\n\n         est    se     p     lo    hi\nWelch  1.116 2.512 0.666 -4.429 6.661\npooled 1.116 1.883 0.556 -2.670 4.902\n\nstopifnot(one_pair[\"Welch\", \"est\"] == one_pair[\"pooled\", \"est\"])\n\nBoth tests estimate the same mean difference. Their standard errors, degrees of freedom, intervals, and p-values can differ. Pairing methods within a replicate also supports direct comparisons of their performance."
+    "text": "Compare methods on the same dataset\n\nset.seed(1401)\none_data &lt;- simulate_trial(n_ctrl = 10, n_trt = 40,\n                           sd_ctrl = 12, sd_trt = 4, delta = 0)\none_pair &lt;- rbind(Welch = analyse_trial(data = one_data, pooled = FALSE),\n                 pooled = analyse_trial(data = one_data, pooled = TRUE))\nround(one_pair, 3)\n\n         est    se     p     lo    hi\nWelch  1.116 2.512 0.666 -4.429 6.661\npooled 1.116 1.883 0.556 -2.670 4.902\n\nstopifnot(one_pair[\"Welch\", \"est\"] == one_pair[\"pooled\", \"est\"])\n\nBoth tests estimate the same mean difference. Their standard errors, degrees of freedom, intervals, and p-values can differ. Pairing methods within a replicate also supports direct comparisons of their performance."
   },
   {
     "objectID": "course/session14/slides.html#one-replicate-then-ten-thousand",
@@ -7515,7 +7515,7 @@
     "href": "course/session14/slides.html#store-results-tidily",
     "title": "Random Numbers and Simulation",
     "section": "Store results tidily",
-    "text": "Store results tidily\nKeep one row per replicate, and carry every parameter that varies:\n\nset.seed(6301)\nres &lt;- run_scenario(200, 10, 40, 12, 4, delta = 0, pooled = TRUE)\nres$n_ctrl &lt;- 10; res$n_trt &lt;- 40; res$method &lt;- \"pooled\"\n\nres |&gt;\n  group_by(method) |&gt;\n  summarise(reject = mean(p &lt; 0.05), bias = mean(est), emp_se = sd(est))\n\n# A tibble: 1 x 4\n  method reject   bias emp_se\n  &lt;chr&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;\n1 pooled   0.26 -0.243   3.78\n\n\n\n\n\n\n\n\n\nThe base R way\nc(reject = mean(res$p &lt; 0.05), bias = mean(res$est), emp_se = sd(res$est))"
+    "text": "Store results tidily\nKeep one row per replicate, and carry every parameter that varies:\n\nset.seed(6301)\nres &lt;- run_scenario(n_sim = 200, n_ctrl = 10, n_trt = 40,\n                    sd_ctrl = 12, sd_trt = 4, delta = 0, pooled = TRUE)\nres$n_ctrl &lt;- 10; res$n_trt &lt;- 40; res$method &lt;- \"pooled\"\n\nres |&gt;\n  group_by(method) |&gt;\n  summarise(reject = mean(p &lt; 0.05), bias = mean(est), emp_se = sd(est))\n\n# A tibble: 1 x 4\n  method reject   bias emp_se\n  &lt;chr&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;\n1 pooled   0.26 -0.243   3.78\n\n\n\n\n\n\n\n\n\nThe base R way\nc(reject = mean(res$p &lt; 0.05), bias = mean(res$est), emp_se = sd(res$est))"
   },
   {
     "objectID": "course/session14/slides.html#many-scenarios",
@@ -7529,14 +7529,14 @@
     "href": "course/session14/slides.html#save-results-with-the-design",
     "title": "Random Numbers and Simulation",
     "section": "Save results with the design",
-    "text": "Save results with the design\nbundle &lt;- list(results = res, scenarios = grid, seed = 6301,\n               rng = RNGkind(), session = sessionInfo())\ndir.create(\"output\", showWarnings = FALSE)\nsaveRDS(bundle, \"output/simulation.rds\")\n\nA results file should identify the parameters and code version that produced it.\nRerun when the generator, analysis, or scenario definition changes.\nA file’s existence is not evidence that it matches the current specification.\n\nFor expensive studies, run a script once and let the report read the saved results."
+    "text": "Save results with the design\nbundle &lt;- list(results = grid_results, scenarios = grid,\n               settings = list(n_sim = 200, sd_ctrl = 12,\n                               sd_trt = 4, pooled = FALSE),\n               rng = RNGkind(), session = sessionInfo())\ndir.create(\"output\", showWarnings = FALSE)\nsaveRDS(bundle, \"output/simulation.rds\")\n\nThe saved results now match all six design rows, including their recorded seeds.\nRecord the code version alongside the parameters and computational environment.\nRerun when the generator, analysis, or scenario definition changes.\nA file’s existence is not evidence that it matches the current specification.\n\nFor expensive studies, run a script once and let the report read the saved results."
   },
   {
     "objectID": "course/session14/slides.html#a-buggy-simulation-does-not-crash",
     "href": "course/session14/slides.html#a-buggy-simulation-does-not-crash",
     "title": "Random Numbers and Simulation",
     "section": "A buggy simulation does not crash",
-    "text": "A buggy simulation does not crash\n\nsimulate_bad &lt;- function(n_ctrl, n_trt, sd_ctrl, sd_trt, delta = 0) {\n  set.seed(6301)                       # &lt;- the bug\n  data.frame(\n    arm = rep(c(\"ctrl\", \"trt\"), c(n_ctrl, n_trt)),\n    y   = c(rnorm(n_ctrl, 0, sd_ctrl), rnorm(n_trt, delta, sd_trt))\n  )\n}\n\nbad &lt;- as.data.frame(t(replicate(500, analyse_trial(simulate_bad(25, 25, 12, 4)))))\nc(reject = mean(bad$p &lt; 0.05), bias = mean(bad$est), emp_se = sd(bad$est))\n\n  reject     bias   emp_se \n0.000000 1.082951 0.000000 \n\n\n\n\nNo error or warning. The empirical SE is zero and the rejection rate is either zero or one. The reported bias is the error of a single repeated estimate, not necessarily zero."
+    "text": "A buggy simulation does not crash\n\nsimulate_bad &lt;- function(n_ctrl, n_trt, sd_ctrl, sd_trt, delta = 0) {\n  set.seed(6301)                       # &lt;- the bug\n  simulate_trial(n_ctrl = n_ctrl, n_trt = n_trt,\n                  sd_ctrl = sd_ctrl, sd_trt = sd_trt, delta = delta)\n}\n\nbad &lt;- replicate(n = 500, expr = {\n  d &lt;- simulate_bad(n_ctrl = 25, n_trt = 25,\n                    sd_ctrl = 12, sd_trt = 4, delta = 0)\n  analyse_trial(data = d, pooled = FALSE)\n})\nbad &lt;- as.data.frame(t(bad))\nc(reject = mean(bad$p &lt; 0.05), bias = mean(bad$est), emp_se = sd(bad$est))\n\n  reject     bias   emp_se \n0.000000 1.082951 0.000000 \n\n\n\n\nResetting the seed repeats one dataset. Empirical SE is zero, and the reported bias is just one estimate’s error."
   },
   {
     "objectID": "course/session14/slides.html#assertions-for-simulations",
@@ -7550,14 +7550,14 @@
     "href": "course/session14/slides.html#check-a-known-data-generating-mechanism",
     "title": "Random Numbers and Simulation",
     "section": "Check a known data-generating mechanism",
-    "text": "Check a known data-generating mechanism\n\nset.seed(6301)\ncheck &lt;- simulate_trial(1e6, 1e6, 12, 4, delta = 8)\nstopifnot(\n  abs(mean(check$y[check$arm == \"trt\"]) - 8) &lt; 0.05,\n  abs(sd(check$y[check$arm == \"ctrl\"]) - 12) &lt; 0.05\n)\n\"DGM checks passed\"\n\n[1] \"DGM checks passed\""
+    "text": "Check a known data-generating mechanism\n\nset.seed(6301)\ncheck &lt;- simulate_trial(n_ctrl = 1e6, n_trt = 1e6,\n                        sd_ctrl = 12, sd_trt = 4, delta = 8)\nstopifnot(\n  abs(mean(check$y[check$arm == \"trt\"]) - 8) &lt; 0.05,\n  abs(sd(check$y[check$arm == \"ctrl\"]) - 12) &lt; 0.05\n)\n\"DGM checks passed\"\n\n[1] \"DGM checks passed\""
   },
   {
     "objectID": "course/session14/slides.html#keep-a-failed-replicate-visible",
     "href": "course/session14/slides.html#keep-a-failed-replicate-visible",
     "title": "Random Numbers and Simulation",
     "section": "Keep a failed replicate visible",
-    "text": "Keep a failed replicate visible\n\nanalyse_checked &lt;- function(data, pooled = FALSE) {\n  tryCatch({\n    value &lt;- analyse_trial(data, pooled)\n    if (any(!is.finite(value))) stop(\"nonfinite result\")\n    list(value = value, error = NA_character_)\n  }, error = function(e) list(value = NULL, error = conditionMessage(e)))\n}\nbad_data &lt;- data.frame(arm = rep(c(\"ctrl\", \"trt\"), each = 3), y = 1)\nanalyse_checked(bad_data)$error\n\n[1] \"data are essentially constant\"\n\n\nRetain the replicate ID, scenario, method, and reason. Warnings also need review; this wrapper catches errors, not warnings."
+    "text": "Keep a failed replicate visible\n\nanalyse_checked &lt;- function(data, pooled = FALSE) {\n  tryCatch({\n    value &lt;- analyse_trial(data = data, pooled = pooled)\n    if (any(!is.finite(value))) stop(\"nonfinite result\")\n    list(value = value, error = NA_character_)\n  }, error = function(e) list(value = NULL, error = conditionMessage(e)))\n}\nbad_data &lt;- data.frame(arm = rep(c(\"ctrl\", \"trt\"), each = 3), y = 1)\nanalyse_checked(data = bad_data)$error\n\n[1] \"data are essentially constant\"\n\n\nRetain the replicate ID, scenario, method, and reason. Warnings also need review; this wrapper catches errors, not warnings."
   },
   {
     "objectID": "course/session14/slides.html#failure-changes-the-denominator",
@@ -7592,7 +7592,7 @@
     "href": "course/session14/slides.html#coverage-and-interval-width-in-code",
     "title": "Random Numbers and Simulation",
     "section": "Coverage and interval width in code",
-    "text": "Coverage and interval width in code\n\nset.seed(1402)\ncheck_ci &lt;- run_scenario(1000, 10, 40, 12, 4, delta = 6, pooled = FALSE)\ncovered &lt;- check_ci$lo &lt;= 6 & 6 &lt;= check_ci$hi\nc(bias = mean(check_ci$est) - 6,\n  empirical_se = sd(check_ci$est), mean_model_se = mean(check_ci$se),\n  coverage = mean(covered), width = mean(check_ci$hi - check_ci$lo),\n  coverage_mcse = sqrt(mean(covered) * (1 - mean(covered)) / nrow(check_ci)))\n\n         bias  empirical_se mean_model_se      coverage         width \n  0.124394859   3.742722925   3.757382982   0.953000000  16.849626866 \ncoverage_mcse \n  0.006692608 \n\n\nThe truth is 6, not the estimate from one simulated sample. Wide intervals may cover well while being too imprecise to be useful."
+    "text": "Coverage and interval width in code\n\nset.seed(1402)\ncheck_ci &lt;- run_scenario(n_sim = 1000, n_ctrl = 10, n_trt = 40,\n                         sd_ctrl = 12, sd_trt = 4, delta = 6, pooled = FALSE)\ncovered &lt;- check_ci$lo &lt;= 6 & 6 &lt;= check_ci$hi\nc(bias = mean(check_ci$est) - 6,\n  empirical_se = sd(check_ci$est), mean_model_se = mean(check_ci$se),\n  coverage = mean(covered), width = mean(check_ci$hi - check_ci$lo),\n  coverage_mcse = sqrt(mean(covered) * (1 - mean(covered)) / nrow(check_ci)))\n\n         bias  empirical_se mean_model_se      coverage         width \n  0.124394859   3.742722925   3.757382982   0.953000000  16.849626866 \ncoverage_mcse \n  0.006692608 \n\n\nThe truth is 6, not the estimate from one simulated sample. Wide intervals may cover well while being too imprecise to be useful."
   },
   {
     "objectID": "course/session14/slides.html#bias-variance-and-rmse",
@@ -7634,7 +7634,7 @@
     "href": "course/session14/slides.html#run-it",
     "title": "Random Numbers and Simulation",
     "section": "Run it",
-    "text": "Run it\n\nn_sim &lt;- 10000\nset.seed(6301)\n\nscenarios &lt;- list(\n  list(lab = \"25 / 25\", nc = 25, nt = 25, pooled = TRUE),\n  list(lab = \"10 / 40\", nc = 10, nt = 40, pooled = TRUE),\n  list(lab = \"40 / 10\", nc = 40, nt = 10, pooled = TRUE),\n  list(lab = \"10 / 40\", nc = 10, nt = 40, pooled = FALSE)\n)\n\ntype1 &lt;- do.call(rbind, lapply(scenarios, function(s) {\n  r &lt;- run_scenario(n_sim, s$nc, s$nt, sd_ctrl = 12, sd_trt = 4,\n                    delta = 0, pooled = s$pooled)\n  data.frame(alloc = s$lab, method = ifelse(s$pooled, \"pooled\", \"Welch\"),\n             reject = mean(r$p &lt; 0.05), bias = mean(r$est), emp_se = sd(r$est))\n}))\ntype1$mcse &lt;- sqrt(type1$reject * (1 - type1$reject) / n_sim)"
+    "text": "Run it\n\nn_sim &lt;- 10000\nset.seed(6301)\n\nscenarios &lt;- list(\n  list(lab = \"25 / 25\", nc = 25, nt = 25, pooled = TRUE),\n  list(lab = \"10 / 40\", nc = 10, nt = 40, pooled = TRUE),\n  list(lab = \"40 / 10\", nc = 40, nt = 10, pooled = TRUE),\n  list(lab = \"10 / 40\", nc = 10, nt = 40, pooled = FALSE)\n)\n\ntype1 &lt;- do.call(rbind, lapply(scenarios, function(s) {\n  r &lt;- run_scenario(n_sim = n_sim, n_ctrl = s$nc, n_trt = s$nt,\n                    sd_ctrl = 12, sd_trt = 4,\n                    delta = 0, pooled = s$pooled)\n  data.frame(alloc = s$lab, method = ifelse(s$pooled, \"pooled\", \"Welch\"),\n             reject = mean(r$p &lt; 0.05), bias = mean(r$est), emp_se = sd(r$est))\n}))\ntype1$mcse &lt;- sqrt(type1$reject * (1 - type1$reject) / n_sim)"
   },
   {
     "objectID": "course/session14/slides.html#the-type-i-error-is-not-0.05",
@@ -7683,14 +7683,14 @@
     "href": "course/session14/slides.html#a-skewed-error-with-known-mean-and-sd",
     "title": "Random Numbers and Simulation",
     "section": "A skewed error with known mean and SD",
-    "text": "A skewed error with known mean and SD\n\ndraw_error &lt;- function(n, target_sd, dgm = \"normal\") {\n  if (dgm == \"normal\") return(rnorm(n, 0, target_sd))\n  if (dgm != \"skewed\") stop(\"unknown dgm\")\n  a &lt;- 0.7\n  mu &lt;- exp(a^2 / 2)\n  sigma &lt;- sqrt((exp(a^2) - 1) * exp(a^2))\n  target_sd * (rlnorm(n, 0, a) - mu) / sigma\n}\n\nSubtract the theoretical log-normal mean and divide by its theoretical SD. Centering every generated sample by its own mean would remove sampling variation."
+    "text": "A skewed error with known mean and SD\n\ndraw_error &lt;- function(n, target_sd, dgm = \"normal\") {\n  if (dgm == \"normal\") return(rnorm(n = n, mean = 0, sd = target_sd))\n  if (dgm != \"skewed\") stop(\"unknown dgm\")\n  a &lt;- 0.7\n  mu &lt;- exp(a^2 / 2)\n  sigma &lt;- sqrt((exp(a^2) - 1) * exp(a^2))\n  target_sd * (rlnorm(n = n, meanlog = 0, sdlog = a) - mu) / sigma\n}\n\nSubtract the theoretical log-normal mean and divide by its theoretical SD. Centering every generated sample by its own mean would remove sampling variation."
   },
   {
     "objectID": "course/session14/slides.html#a-second-generator-using-the-same-interface",
     "href": "course/session14/slides.html#a-second-generator-using-the-same-interface",
     "title": "Random Numbers and Simulation",
     "section": "A second generator using the same interface",
-    "text": "A second generator using the same interface\n\nsimulate_dgm &lt;- function(n_ctrl, n_trt, sd_ctrl, sd_trt,\n                         delta = 0, dgm = \"normal\") {\n  data.frame(arm = rep(c(\"ctrl\", \"trt\"), c(n_ctrl, n_trt)),\n    y = c(draw_error(n_ctrl, sd_ctrl, dgm),\n          delta + draw_error(n_trt, sd_trt, dgm)))\n}\nset.seed(1403)\nhead(simulate_dgm(10, 40, 12, 4, 6, \"skewed\"), 3)\n\n   arm          y\n1 ctrl -10.683638\n2 ctrl  15.386841\n3 ctrl  -5.293769\n\n\nanalyse_trial() stays unchanged. The true treatment-minus-control mean difference remains delta in both mechanisms."
+    "text": "A second generator using the same interface\n\nsimulate_dgm &lt;- function(n_ctrl, n_trt, sd_ctrl, sd_trt,\n                         delta = 0, dgm = \"normal\") {\n  data.frame(arm = rep(c(\"ctrl\", \"trt\"), c(n_ctrl, n_trt)),\n    y = c(draw_error(n = n_ctrl, target_sd = sd_ctrl, dgm = dgm),\n          delta + draw_error(n = n_trt, target_sd = sd_trt, dgm = dgm)))\n}\nset.seed(1403)\nd_skewed &lt;- simulate_dgm(n_ctrl = 10, n_trt = 40, sd_ctrl = 12,\n                         sd_trt = 4, delta = 6, dgm = \"skewed\")\nhead(d_skewed, n = 3)\n\n   arm          y\n1 ctrl -10.683638\n2 ctrl  15.386841\n3 ctrl  -5.293769\n\n\nanalyse_trial() stays unchanged. The true treatment-minus-control mean difference remains delta in both mechanisms."
   },
   {
     "objectID": "course/session14/slides.html#plot-uncertainty-with-the-scenario-results",
@@ -7739,21 +7739,21 @@
     "href": "course/session14/slides.html#how-r-makes-random-numbers",
     "title": "Random Numbers and Simulation",
     "section": "How R makes random numbers",
-    "text": "How R makes random numbers\nA fixed algorithm gives the same output from the same starting state. R’s usual pseudorandom generator uses such an algorithm to produce numbers that behave like random draws.\nComputers can also obtain randomness from physical sources, such as electronic noise. Statistical simulation usually uses pseudorandom numbers for speed and reproducibility.\n\nset.seed(42)\nrnorm(3, mean = 120, sd = 10)  # simulate 3 blood pressures\n\n[1] 133.7096 114.3530 123.6313\n\n\n\nA seed chooses a starting state. Each random call advances the generator.\nThe same seed and calls reproduce the results in the same R/RNG environment.\nReproducibility lets us share simulated data and debug the same example."
+    "text": "How R makes random numbers\nA fixed algorithm gives the same output from the same starting state. R’s usual pseudorandom generator uses such an algorithm to produce numbers that behave like random draws.\nComputers can also obtain randomness from physical sources, such as electronic noise. Statistical simulation usually uses pseudorandom numbers for speed and reproducibility.\n\nset.seed(42)\nrnorm(n = 3, mean = 120, sd = 10)  # simulate 3 blood pressures\n\n[1] 133.7096 114.3530 123.6313\n\n\n\nA seed chooses a starting state. Each random call advances the generator.\nThe same seed and calls reproduce the results in the same R/RNG environment.\nReproducibility lets us share simulated data and debug the same example."
   },
   {
     "objectID": "course/session14/slides.html#random.seed-remembers-where-r-is",
     "href": "course/session14/slides.html#random.seed-remembers-where-r-is",
     "title": "Random Numbers and Simulation",
     "section": ".Random.seed remembers where R is",
-    "text": ".Random.seed remembers where R is\nR stores its current generator state in .Random.seed, an integer vector. Think of it as a bookmark: set.seed(42) resets it, and random calls update it.\n\n\nOriginal code\n\nset.seed(42)\nround(rnorm(3), 3)\n\n[1]  1.371 -0.565  0.363\n\nround(rnorm(3), 3)\n\n[1]  0.633  0.404 -0.106\n\n\nRerun this block: both outputs repeat.\n\nAn unrelated random call inserted\n\nset.seed(42)\nround(rnorm(3), 3)\n\n[1]  1.371 -0.565  0.363\n\nunused &lt;- runif(1)  # moves the bookmark\nround(rnorm(3), 3)\n\n[1] -1.105  0.539  0.580\n\n\nThe first output matches. The second changes.\n\nEven unused random draws change later results. Calculations such as 2 + 2 do not."
+    "text": ".Random.seed remembers where R is\nR stores its current generator state in .Random.seed, an integer vector. Think of it as a bookmark: set.seed(42) resets it, and random calls update it.\n\n\nOriginal code\n\nset.seed(42)\nround(rnorm(n = 3), 3)\n\n[1]  1.371 -0.565  0.363\n\nround(rnorm(n = 3), 3)\n\n[1]  0.633  0.404 -0.106\n\n\nRerun this block: both outputs repeat.\n\nAn unrelated random call inserted\n\nset.seed(42)\nround(rnorm(n = 3), 3)\n\n[1]  1.371 -0.565  0.363\n\nunused &lt;- runif(1)  # moves the bookmark\nround(rnorm(n = 3), 3)\n\n[1] -1.105  0.539  0.580\n\n\nThe first output matches. The second changes.\n\nEven unused random draws change later results. Calculations such as 2 + 2 do not."
   },
   {
     "objectID": "course/session14/slides.html#a-seed-before-each-result-you-want-to-reproduce",
     "href": "course/session14/slides.html#a-seed-before-each-result-you-want-to-reproduce",
     "title": "Random Numbers and Simulation",
     "section": "A seed before each result you want to reproduce",
-    "text": "A seed before each result you want to reproduce\nPlace set.seed() immediately before each simulation or analysis block whose output should stay the same when earlier code changes.\n\n\nThe result we want to reproduce\n\nset.seed(99)\nround(rnorm(3), 3)\n\n[1] 0.214 0.480 0.088\n\n\n\nEarlier random work can change\n\nunused &lt;- runif(100)\nset.seed(99)  # reset just before this result\nround(rnorm(3), 3)\n\n[1] 0.214 0.480 0.088\n\n\n\nBoth blocks give the same result because set.seed(99) resets .Random.seed immediately before rnorm(3).\nFor a simulation loop: set the seed once before the loop. Resetting the same seed inside every replicate repeats the same draws."
+    "text": "A seed before each result you want to reproduce\nPlace set.seed() immediately before each simulation or analysis block whose output should stay the same when earlier code changes.\n\n\nThe result we want to reproduce\n\nset.seed(99)\nround(rnorm(n = 3), 3)\n\n[1] 0.214 0.480 0.088\n\n\n\nEarlier random work can change\n\nunused &lt;- runif(100)\nset.seed(99)  # reset just before this result\nround(rnorm(n = 3), 3)\n\n[1] 0.214 0.480 0.088\n\n\n\nBoth blocks give the same result because set.seed(99) resets .Random.seed immediately before rnorm(n = 3).\nFor a simulation loop: set the seed once before the loop. Resetting the same seed inside every replicate repeats the same draws."
   },
   {
     "objectID": "course/session14/slides.html#four-views-of-the-standard-normal-distribution",
@@ -7767,7 +7767,7 @@
     "href": "course/session14/slides.html#distribution-functions-prefix-name",
     "title": "Random Numbers and Simulation",
     "section": "Distribution functions: prefix + name",
-    "text": "Distribution functions: prefix + name\nCombine a prefix with a distribution name: r + norm gives rnorm().\n\n\nWhat do you want to find?\n\n\n\nPrefix\nMeaning\nExample\n\n\n\n\nd\nDensity or probability mass\ndnorm(0)\n\n\np\nProbability up to a value\npnorm(1.96)\n\n\nq\nValue at a given probability\nqnorm(0.975)\n\n\nr\nRandom draws\nrnorm(10)\n\n\n\npnorm(1.96) is about 0.975.\nqnorm(0.975) is about 1.96.\n\nWhich distribution?\n\n\n\nName\nDistribution\n\n\n\n\nnorm\nNormal (Gaussian)\n\n\nunif\nUniform\n\n\nbinom\nBinomial\n\n\npois\nPoisson\n\n\nt\nStudent’s t\n\n\nchisq\nChi-squared\n\n\nexp\nExponential\n\n\ngamma\nGamma\n\n\nbeta\nBeta"
+    "text": "Distribution functions: prefix + name\nCombine a prefix with a distribution name: r + norm gives rnorm().\n\n\nWhat do you want to find?\n\n\n\nPrefix\nMeaning\nExample\n\n\n\n\nd\nDensity or probability mass\ndnorm(0)\n\n\np\nProbability up to a value\npnorm(1.96)\n\n\nq\nValue at a given probability\nqnorm(0.975)\n\n\nr\nRandom draws\nrnorm(n = 10)\n\n\n\npnorm(1.96) is about 0.975.\nqnorm(0.975) is about 1.96.\n\nWhich distribution?\n\n\n\nName\nDistribution\n\n\n\n\nnorm\nNormal (Gaussian)\n\n\nunif\nUniform\n\n\nbinom\nBinomial\n\n\npois\nPoisson\n\n\nt\nStudent’s t\n\n\nchisq\nChi-squared\n\n\nexp\nExponential\n\n\ngamma\nGamma\n\n\nbeta\nBeta"
   },
   {
     "objectID": "course/session14/slides.html#estimand-the-quantity-we-want-to-learn",
@@ -7865,7 +7865,7 @@
     "href": "course/session14/slides.html#estimated-power-for-one-sbp-design",
     "title": "Random Numbers and Simulation",
     "section": "Estimated power for one SBP design",
-    "text": "Estimated power for one SBP design\nAssume independent normal reductions, 40 patients per arm, SDs 12 and 4, and a true additional reduction of 6 mmHg.\n\nset.seed(1456)\npower_run &lt;- run_scenario(2000, 40, 40, 12, 4,\n                          delta = 6, pooled = FALSE)\nstopifnot(nrow(power_run) == 2000, all(is.finite(power_run$p)))\ndetected &lt;- power_run$p &lt; 0.05\npower_hat &lt;- mean(detected)\npower_mcse &lt;- sqrt(power_hat * (1 - power_hat) / nrow(power_run))\nround(c(power = power_hat, MCSE = power_mcse), 3)\n\npower  MCSE \n0.838 0.008 \n\n\nWe detected the effect in 1676 of 2,000 trials. The estimated power is 83.8%, with MCSE 0.82 percentage points.\nEach replicate contains 80 patients. The MCSE denominator is 2,000 trials."
+    "text": "Estimated power for one SBP design\nAssume independent normal reductions, 40 patients per arm, SDs 12 and 4, and a true additional reduction of 6 mmHg.\n\nset.seed(1456)\npower_run &lt;- run_scenario(n_sim = 2000, n_ctrl = 40, n_trt = 40,\n                          sd_ctrl = 12, sd_trt = 4, delta = 6, pooled = FALSE)\nstopifnot(nrow(power_run) == 2000, all(is.finite(power_run$p)))\ndetected &lt;- power_run$p &lt; 0.05\npower_hat &lt;- mean(detected)\npower_mcse &lt;- sqrt(power_hat * (1 - power_hat) / nrow(power_run))\nround(c(power = power_hat, MCSE = power_mcse), 3)\n\npower  MCSE \n0.838 0.008 \n\n\nWe detected the effect in 1676 of 2,000 trials. The estimated power is 83.8%, with MCSE 0.82 percentage points.\nEach replicate contains 80 patients. The MCSE denominator is 2,000 trials."
   },
   {
     "objectID": "course/session14/slides.html#power-coverage-and-monte-carlo-uncertainty",
@@ -7901,6 +7901,55 @@
     "title": "Random Numbers and Simulation",
     "section": "sample(): permutation and bootstrap",
     "text": "sample(): permutation and bootstrap\n\nset.seed(13)\nids &lt;- c(\"A\", \"B\", \"C\", \"D\")\nsample(ids, 4, replace = FALSE)  # every patient once: permutation\n\n[1] \"D\" \"C\" \"B\" \"A\"\n\nsample(ids, 4, replace = TRUE)   # patients may repeat: bootstrap\n\n[1] \"B\" \"A\" \"B\" \"D\"\n\n\n\n\n\nWithout replacement: leave each selected card out of the bag. Drawing all four gives a permutation. Drawing only two selects a subset.\nWith replacement: return each card before the next draw. Some patients may appear several times and others may be absent.\nResampling includes both bootstrap and permutation methods. Their statistical questions and resampling rules differ."
+  },
+  {
+    "objectID": "course/session14/slides.html#replicate-repeat-an-expression",
+    "href": "course/session14/slides.html#replicate-repeat-an-expression",
+    "title": "Random Numbers and Simulation",
+    "section": "replicate(): repeat an expression",
+    "text": "replicate(): repeat an expression\nreplicate(n, expr) evaluates expr again for each repetition and collects the outputs. Put the random-data generation inside the expression.\n\nset.seed(1431)\ndraws &lt;- replicate(n = 3, expr = rnorm(n = 4, mean = 0, sd = 1))\nround(draws, digits = 2)\n\n      [,1]  [,2]  [,3]\n[1,] -0.17  1.34 -2.49\n[2,]  0.20  0.71 -0.50\n[3,] -0.91 -1.30  0.26\n[4,] -0.85 -0.55  1.00\n\n\n\nreplicate(n = 3, ...) means three repetitions.\nrnorm(n = 4, ...) means four observations per repetition.\nEach column contains one repetition’s four values. Equal-length vector outputs form a matrix by default. A scalar output gives a vector."
+  },
+  {
+    "objectID": "course/session14/slides.html#a-function-for-one-simulation-scenario",
+    "href": "course/session14/slides.html#a-function-for-one-simulation-scenario",
+    "title": "Random Numbers and Simulation",
+    "section": "A function for one simulation scenario",
+    "text": "A function for one simulation scenario\n\nrun_scenario &lt;- function(n_sim, n_ctrl, n_trt, sd_ctrl, sd_trt,\n                         delta = 0, pooled = TRUE) {\n  out &lt;- replicate(n = n_sim, expr = {\n    d &lt;- simulate_trial(n_ctrl = n_ctrl, n_trt = n_trt,\n                        sd_ctrl = sd_ctrl, sd_trt = sd_trt, delta = delta)\n    analyse_trial(data = d, pooled = pooled)\n  })\n  as.data.frame(t(out))          # n_sim rows, one per replicate\n}\n\nEach repetition generates a new trial and returns five analysis results. t(out) transposes the matrix so each row becomes one simulated trial."
+  },
+  {
+    "objectID": "course/session14/slides.html#a-five-trial-pilot",
+    "href": "course/session14/slides.html#a-five-trial-pilot",
+    "title": "Random Numbers and Simulation",
+    "section": "A five-trial pilot",
+    "text": "A five-trial pilot\n\nset.seed(6301)\ndemo &lt;- run_scenario(n_sim = 5, n_ctrl = 20, n_trt = 20,\n                     sd_ctrl = 12, sd_trt = 4, delta = 8, pooled = FALSE)\nround(demo, digits = 3)\n\n    est    se     p     lo     hi\n1 8.171 2.473 0.003  3.096 13.246\n2 2.910 2.843 0.317 -2.969  8.789\n3 1.976 2.730 0.476 -3.650  7.602\n4 5.212 3.631 0.167 -2.361 12.785\n5 6.813 2.965 0.032  0.642 12.984\n\n\nFive trials, 20 patients per arm in each trial. Read one row as an estimate, its SE, a p-value, and confidence limits. New trials give different rows.\nCheck this small output before increasing n_sim to hundreds or thousands."
+  },
+  {
+    "objectID": "course/session14/slides.html#a-grid-of-simulation-scenarios",
+    "href": "course/session14/slides.html#a-grid-of-simulation-scenarios",
+    "title": "Random Numbers and Simulation",
+    "section": "A grid of simulation scenarios",
+    "text": "A grid of simulation scenarios\nEach row specifies one setting. We use Welch throughout this grid, with SDs 12 and 4 and 50 patients per trial. Allocation and true effect vary.\n\ngrid &lt;- expand.grid(n_ctrl = c(25, 10, 40), delta = c(0, 6))\ngrid$n_trt &lt;- 50 - grid$n_ctrl\ngrid$scenario &lt;- seq_len(nrow(grid))\ngrid$seed &lt;- 6300 + grid$scenario\ngrid\n\n  n_ctrl delta n_trt scenario seed\n1     25     0    25        1 6301\n2     10     0    40        2 6302\n3     40     0    10        3 6303\n4     25     6    25        4 6304\n5     10     6    40        5 6305\n6     40     6    10        6 6306\n\n\n\n\nThree allocations × two effects = six scenarios. At 200 trials per scenario, we will generate and analyse 1,200 trials."
+  },
+  {
+    "objectID": "course/session14/slides.html#one-grid-row-supplies-the-function-arguments",
+    "href": "course/session14/slides.html#one-grid-row-supplies-the-function-arguments",
+    "title": "Random Numbers and Simulation",
+    "section": "One grid row supplies the function arguments",
+    "text": "One grid row supplies the function arguments\n\ns &lt;- grid[2, ]\ns\n\n  n_ctrl delta n_trt scenario seed\n2     10     0    40        2 6302\n\nset.seed(s$seed)\none_scenario &lt;- run_scenario(\n  n_sim = 5, n_ctrl = s$n_ctrl, n_trt = s$n_trt,\n  sd_ctrl = 12, sd_trt = 4, delta = s$delta, pooled = FALSE)\nhead(one_scenario, n = 2)\n\n        est       se         p         lo        hi\n1 -1.308369 4.684768 0.7860833 -11.839433  9.222694\n2  3.127066 4.185321 0.4735827  -6.305496 12.559627\n\n\nHere s$n_ctrl, s$n_trt, and s$delta come from row 2: 10 control patients, 40 treatment patients, and a true effect of 0. The function applies this setting to every trial in the pilot."
+  },
+  {
+    "objectID": "course/session14/slides.html#run-every-row-of-the-grid",
+    "href": "course/session14/slides.html#run-every-row-of-the-grid",
+    "title": "Random Numbers and Simulation",
+    "section": "Run every row of the grid",
+    "text": "Run every row of the grid\n\nresults_by_scenario &lt;- vector(mode = \"list\", length = nrow(grid))\nfor (i in seq_len(nrow(grid))) {\n  s &lt;- grid[i, ]\n  set.seed(s$seed)\n  r &lt;- run_scenario(\n    n_sim = 200, n_ctrl = s$n_ctrl, n_trt = s$n_trt,\n    sd_ctrl = 12, sd_trt = 4, delta = s$delta, pooled = FALSE)\n  results_by_scenario[[i]] &lt;- cbind(\n    s, replicate = seq_len(nrow(r)), method = \"Welch\", r)\n}\ngrid_results &lt;- do.call(what = rbind, args = results_by_scenario)\n\nThe outer for loop changes the scenario. Inside run_scenario(), replicate() repeats trials within that scenario. cbind() attaches the design row to every trial; rbind() combines all scenarios’ rows."
+  },
+  {
+    "objectID": "course/session14/slides.html#check-and-summarize-the-combined-results",
+    "href": "course/session14/slides.html#check-and-summarize-the-combined-results",
+    "title": "Random Numbers and Simulation",
+    "section": "Check and summarize the combined results",
+    "text": "Check and summarize the combined results\n\ngrid_summary &lt;- grid_results |&gt;\n  group_by(scenario, n_ctrl, n_trt, delta) |&gt;\n  summarise(reject = mean(p &lt; 0.05),\n            bias = mean(est) - first(delta), .groups = \"drop\")\nknitr::kable(grid_summary, digits = 3, align = \"c\")\n\n\n\n\nscenario\nn_ctrl\nn_trt\ndelta\nreject\nbias\n\n\n\n\n1\n25\n25\n0\n0.075\n-0.485\n\n\n2\n10\n40\n0\n0.055\n-0.009\n\n\n3\n40\n10\n0\n0.035\n0.324\n\n\n4\n25\n25\n6\n0.620\n-0.152\n\n\n5\n10\n40\n6\n0.300\n0.266\n\n\n6\n40\n10\n6\n0.735\n0.034\n\n\n\n\n\nChecks confirm 1,200 trials: 200 per scenario. Rejection estimates type I error at delta = 0 and power at delta = 6. Monte Carlo uncertainty comes next."
   },
   {
     "objectID": "course/session15/index.html",
