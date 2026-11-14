@@ -39,14 +39,14 @@ trial <- data.frame(
   id        = sprintf("P%03d", 1:n),
   arm       = rep(c("Placebo", "Treatment"), each = n / 2),
   site      = sample(1:4, n, replace = TRUE),
-  age       = round(rnorm(n, 61, 9)),
+  age       = round(rnorm(n = n, 61, 9)),
   sex       = sample(c("F", "M"), n, replace = TRUE),
-  weight_kg = round(rnorm(n, 82, 15), 1),
-  sbp_0     = round(rnorm(n, 148, 14)),
+  weight_kg = round(rnorm(n = n, 82, 15), 1),
+  sbp_0     = round(rnorm(n = n, 148, 14)),
   stringsAsFactors = FALSE
 )
 trial$sbp_12 <- round(trial$sbp_0 -
-  ifelse(trial$arm == "Treatment", rnorm(n, 14, 8), rnorm(n, 3, 8)))
+  ifelse(trial$arm == "Treatment", rnorm(n = n, 14, 8), rnorm(n = n, 3, 8)))
 
 theme_set(theme_minimal(base_size = 15))
 ```
@@ -115,7 +115,7 @@ reproducibility.
 ```{r}
 #| label: rng-introduction
 set.seed(42)
-rnorm(3, mean = 120, sd = 10)  # simulate 3 blood pressures
+rnorm(n = 3, mean = 120, sd = 10)  # simulate 3 blood pressures
 ```
 
 - A **seed** chooses a starting state. Each random call advances the generator.
@@ -128,10 +128,10 @@ rnorm(3, mean = 120, sd = 10)  # simulate 3 blood pressures
 ```{r}
 #| label: seed-demo
 set.seed(42)
-rnorm(3)
+rnorm(n = 3)
 
 set.seed(42)
-rnorm(3)
+rnorm(n = 3)
 ```
 
 ## New calls advance the random stream {.smaller}
@@ -139,8 +139,8 @@ rnorm(3)
 ```{r}
 #| label: seed-demo-2
 set.seed(42)
-rnorm(3)
-rnorm(3)
+rnorm(n = 3)
+rnorm(n = 3)
 ```
 
 . . .
@@ -162,8 +162,8 @@ Think of it as a bookmark: `set.seed(42)` resets it, and random calls update it.
 ```{r}
 #| label: random-seed-original
 set.seed(42)
-round(rnorm(3), 3)
-round(rnorm(3), 3)
+round(rnorm(n = 3), 3)
+round(rnorm(n = 3), 3)
 ```
 
 Rerun this block: both outputs repeat.
@@ -174,9 +174,9 @@ Rerun this block: both outputs repeat.
 ```{r}
 #| label: random-seed-inserted
 set.seed(42)
-round(rnorm(3), 3)
+round(rnorm(n = 3), 3)
 unused <- runif(1)  # moves the bookmark
-round(rnorm(3), 3)
+round(rnorm(n = 3), 3)
 ```
 
 The first output matches. The second changes.
@@ -199,7 +199,7 @@ output should stay the same when earlier code changes.
 ```{r}
 #| label: seed-result-original
 set.seed(99)
-round(rnorm(3), 3)
+round(rnorm(n = 3), 3)
 ```
 :::
 ::: {.column width="50%"}
@@ -209,13 +209,13 @@ round(rnorm(3), 3)
 #| label: seed-result-protected
 unused <- runif(100)
 set.seed(99)  # reset just before this result
-round(rnorm(3), 3)
+round(rnorm(n = 3), 3)
 ```
 :::
 ::::
 
 Both blocks give the same result because `set.seed(99)` resets `.Random.seed`
-immediately before `rnorm(3)`.
+immediately before `rnorm(n = 3)`.
 
 **For a simulation loop:** set the seed once **before the loop**. Resetting the
 same seed inside every replicate repeats the same draws.
@@ -275,7 +275,7 @@ resample(sites)
 
 ## Four views of the standard normal distribution {.smaller}
 
-![](images/normal-dpqr-ai.png){height=510 fig-alt="Four schematic panels: dnorm(0) gives density height about 0.399; pnorm(1.96) gives left-tail probability about 0.975; qnorm(0.975) returns cutoff about 1.96; rnorm(8) generates eight observations."}
+![](images/normal-dpqr-ai.png){height=510 fig-alt="Four schematic panels: dnorm(0) gives density height about 0.399; pnorm(1.96) gives left-tail probability about 0.975; qnorm(0.975) returns cutoff about 1.96; rnorm(n = 8) generates eight observations."}
 
 ::: {style="font-size:20px"}
 AI-generated schematic, not to scale. Values refer to a normal distribution with mean 0 and SD 1.
@@ -294,7 +294,7 @@ Combine a prefix with a distribution name: `r` + `norm` gives `rnorm()`.
 | `d` | Density or probability mass | `dnorm(0)` |
 | `p` | Probability up to a value | `pnorm(1.96)` |
 | `q` | Value at a given probability | `qnorm(0.975)` |
-| `r` | Random draws | `rnorm(10)` |
+| `r` | Random draws | `rnorm(n = 10)` |
 
 `pnorm(1.96)` is about 0.975.\
 `qnorm(0.975)` is about 1.96.
@@ -321,7 +321,7 @@ Combine a prefix with a distribution name: `r` + `norm` gives `rnorm()`.
 ```{r}
 #| label: r-funs
 set.seed(13)
-round(rnorm(3, mean = 148, sd = 14), 1)  # n, then the parameters
+round(rnorm(n = 3, mean = 148, sd = 14), 1)  # n, then the parameters
 round(runif(3, min = 0, max = 1), 3)
 rbinom(3, size = 1, prob = 0.3)          # 3 coin flips
 rbinom(3, size = 10, prob = 0.3)         # 3 counts out of 10
@@ -336,7 +336,7 @@ rbinom(3, size = 10, prob = 0.3)         # 3 counts out of 10
 ```{r}
 #| label: r-vectorised
 set.seed(13)
-round(rnorm(6, mean = rep(c(148, 134), each = 3), sd = 14))
+round(rnorm(n = 6, mean = rep(c(148, 134), each = 3), sd = 14))
 ```
 
 
@@ -505,19 +505,20 @@ they were for.
 
 ```{r}
 #| label: sim-one
-# One SBP trial: y is baseline minus 12-week SBP (mmHg).
-# Assumptions: independent patients, normal reductions within each arm.
+# y is SBP reduction; independent normal outcomes within each arm.
 simulate_trial <- function(n_ctrl, n_trt, sd_ctrl, sd_trt, delta = 0) {
   stopifnot(n_ctrl >= 2, n_trt >= 2, sd_ctrl > 0, sd_trt > 0)
   data.frame(
     arm = rep(c("ctrl", "trt"), c(n_ctrl, n_trt)),
-    y   = c(rnorm(n_ctrl, mean = 0,     sd = sd_ctrl),
-            rnorm(n_trt,  mean = delta, sd = sd_trt))
+    y   = c(rnorm(n = n_ctrl, mean = 0, sd = sd_ctrl),
+            rnorm(n = n_trt, mean = delta, sd = sd_trt))
   )
 }
 
 set.seed(6301)
-head(simulate_trial(3, 3, 12, 4, delta = 8), 3)
+d_example <- simulate_trial(n_ctrl = 3, n_trt = 3,
+                            sd_ctrl = 12, sd_trt = 4, delta = 8)
+head(d_example, n = 3)
 ```
 
 
@@ -527,12 +528,14 @@ head(simulate_trial(3, 3, 12, 4, delta = 8), 3)
 analyse_trial <- function(data, pooled = FALSE) {
   x <- data$y[data$arm == "trt"]
   y <- data$y[data$arm == "ctrl"]
-  fit <- t.test(x, y, var.equal = pooled)
+  fit <- t.test(x = x, y = y, var.equal = pooled)
   c(est = mean(x) - mean(y), se = fit$stderr,
     p = fit$p.value, lo = fit$conf.int[1], hi = fit$conf.int[2])
 }
 set.seed(6301)
-round(analyse_trial(simulate_trial(20, 20, 12, 4, delta = 8)), 3)
+d_analysis <- simulate_trial(n_ctrl = 20, n_trt = 20,
+                             sd_ctrl = 12, sd_trt = 4, delta = 8)
+round(analyse_trial(data = d_analysis, pooled = FALSE), digits = 3)
 ```
 
 Passing treatment first makes the estimate and interval both treatment minus control.
@@ -542,9 +545,10 @@ Check this direction before running any replications.
 
 ```{r}
 set.seed(1401)
-one_data <- simulate_trial(10, 40, 12, 4, delta = 0)
-one_pair <- rbind(Welch = analyse_trial(one_data, FALSE),
-                 pooled = analyse_trial(one_data, TRUE))
+one_data <- simulate_trial(n_ctrl = 10, n_trt = 40,
+                           sd_ctrl = 12, sd_trt = 4, delta = 0)
+one_pair <- rbind(Welch = analyse_trial(data = one_data, pooled = FALSE),
+                 pooled = analyse_trial(data = one_data, pooled = TRUE))
 round(one_pair, 3)
 stopifnot(one_pair["Welch", "est"] == one_pair["pooled", "est"])
 ```
@@ -553,23 +557,56 @@ Both tests estimate the same mean difference. Their standard errors, degrees of
 freedom, intervals, and p-values can differ. Pairing methods within a replicate
 also supports direct comparisons of their performance.
 
-## One replicate, then ten thousand {.smaller}
+## `replicate()`: repeat an expression {.smaller}
+
+`replicate(n, expr)` evaluates `expr` again for each repetition and collects
+the outputs. Put the random-data generation **inside** the expression.
+
+```{r}
+#| label: replicate-introduction
+set.seed(1431)
+draws <- replicate(n = 3, expr = rnorm(n = 4, mean = 0, sd = 1))
+round(draws, digits = 2)
+```
+
+- `replicate(n = 3, ...)` means **three repetitions**.
+- `rnorm(n = 4, ...)` means **four observations per repetition**.
+- Each column contains one repetition's four values. Equal-length vector
+  outputs form a matrix by default. A scalar output gives a vector.
+
+
+## A function for one simulation scenario {.smaller}
 
 ```{r}
 #| label: replicate-demo
 run_scenario <- function(n_sim, n_ctrl, n_trt, sd_ctrl, sd_trt,
                          delta = 0, pooled = TRUE) {
-  out <- replicate(n_sim, {
-    d <- simulate_trial(n_ctrl, n_trt, sd_ctrl, sd_trt, delta)
-    analyse_trial(d, pooled = pooled)
+  out <- replicate(n = n_sim, expr = {
+    d <- simulate_trial(n_ctrl = n_ctrl, n_trt = n_trt,
+                        sd_ctrl = sd_ctrl, sd_trt = sd_trt, delta = delta)
+    analyse_trial(data = d, pooled = pooled)
   })
   as.data.frame(t(out))          # n_sim rows, one per replicate
 }
-
-set.seed(6301)
-demo <- run_scenario(5, 20, 20, 12, 4, delta = 8)
-round(demo, 3)
 ```
+
+Each repetition generates a new trial and returns five analysis results.
+`t(out)` transposes the matrix so **each row becomes one simulated trial**.
+
+## A five-trial pilot {.smaller}
+
+```{r}
+#| label: replicate-pilot
+set.seed(6301)
+demo <- run_scenario(n_sim = 5, n_ctrl = 20, n_trt = 20,
+                     sd_ctrl = 12, sd_trt = 4, delta = 8, pooled = FALSE)
+round(demo, digits = 3)
+```
+
+Five trials, **20 patients per arm in each trial**. Read one row as an estimate,
+its SE, a p-value, and confidence limits. New trials give different rows.
+
+Check this small output before increasing `n_sim` to hundreds or thousands.
 
 
 ## Store results tidily {.smaller}
@@ -579,7 +616,8 @@ Keep **one row per replicate**, and carry every parameter that varies:
 ```{r}
 #| label: tidy-results
 set.seed(6301)
-res <- run_scenario(200, 10, 40, 12, 4, delta = 0, pooled = TRUE)
+res <- run_scenario(n_sim = 200, n_ctrl = 10, n_trt = 40,
+                    sd_ctrl = 12, sd_trt = 4, delta = 0, pooled = TRUE)
 res$n_ctrl <- 10; res$n_trt <- 40; res$method <- "pooled"
 
 res |>
@@ -597,38 +635,103 @@ c(reject = mean(res$p < 0.05), bias = mean(res$est), emp_se = sd(res$est))
 :::
 
 
-## Many scenarios {.smaller}
+## A grid of simulation scenarios {.smaller}
+
+Each row specifies one setting. We use **Welch throughout this grid**, with
+SDs 12 and 4 and 50 patients per trial. Allocation and true effect vary.
 
 ```{r}
 #| label: grid
-grid <- expand.grid(
-  alloc  = c("25 / 25", "10 / 40", "40 / 10"),
-  method = c("pooled", "welch"),
-  delta  = c(0, 6),
-  stringsAsFactors = FALSE
-)
-nrow(grid)
-head(grid, 3)
+grid <- expand.grid(n_ctrl = c(25, 10, 40), delta = c(0, 6))
+grid$n_trt <- 50 - grid$n_ctrl
+grid$scenario <- seq_len(nrow(grid))
+grid$seed <- 6300 + grid$scenario
+grid
 ```
 
 . . .
 
 ::: {.smaller}
-`nrow(grid)` scenarios × `n_sim` replicates is the whole cost of the study.
-**Compute that number before you start the run**, not while it is running.
+Three allocations × two effects = **six scenarios**.
+At 200 trials per scenario, we will generate and analyse **1,200 trials**.
 :::
 
+## One grid row supplies the function arguments {.smaller}
+
+```{r}
+#| label: grid-one-row
+s <- grid[2, ]
+s
+set.seed(s$seed)
+one_scenario <- run_scenario(
+  n_sim = 5, n_ctrl = s$n_ctrl, n_trt = s$n_trt,
+  sd_ctrl = 12, sd_trt = 4, delta = s$delta, pooled = FALSE)
+head(one_scenario, n = 2)
+```
+
+Here `s$n_ctrl`, `s$n_trt`, and `s$delta` come from **row 2**: 10 control patients,
+40 treatment patients, and a true effect of 0. The function applies this setting
+to every trial in the pilot.
+
+## Run every row of the grid {.smaller}
+
+```{r}
+#| label: grid-run
+results_by_scenario <- vector(mode = "list", length = nrow(grid))
+for (i in seq_len(nrow(grid))) {
+  s <- grid[i, ]
+  set.seed(s$seed)
+  r <- run_scenario(
+    n_sim = 200, n_ctrl = s$n_ctrl, n_trt = s$n_trt,
+    sd_ctrl = 12, sd_trt = 4, delta = s$delta, pooled = FALSE)
+  results_by_scenario[[i]] <- cbind(
+    s, replicate = seq_len(nrow(r)), method = "Welch", r)
+}
+grid_results <- do.call(what = rbind, args = results_by_scenario)
+```
+
+The outer `for` loop changes the **scenario**. Inside `run_scenario()`,
+`replicate()` repeats **trials within that scenario**. `cbind()` attaches the
+design row to every trial; `rbind()` combines all scenarios' rows.
+
+## Check and summarize the combined results {.smaller}
+
+```{r}
+#| label: grid-checks
+#| include: false
+stopifnot(nrow(grid_results) == nrow(grid) * 200,
+          all(table(grid_results$scenario) == 200))
+pilot_rows <- grid_results[grid_results$scenario == 2 &
+                            grid_results$replicate <= 5, names(one_scenario)]
+stopifnot(identical(unname(as.matrix(pilot_rows)),
+                    unname(as.matrix(one_scenario))))
+```
+
+```{r}
+#| label: grid-summary
+grid_summary <- grid_results |>
+  group_by(scenario, n_ctrl, n_trt, delta) |>
+  summarise(reject = mean(p < 0.05),
+            bias = mean(est) - first(delta), .groups = "drop")
+knitr::kable(grid_summary, digits = 3, align = "c")
+```
+
+Checks confirm **1,200 trials: 200 per scenario**. Rejection estimates type I error
+at `delta = 0` and power at `delta = 6`. Monte Carlo uncertainty comes next.
 
 ## Save results with the design {.smaller}
 
 ```r
-bundle <- list(results = res, scenarios = grid, seed = 6301,
+bundle <- list(results = grid_results, scenarios = grid,
+               settings = list(n_sim = 200, sd_ctrl = 12,
+                               sd_trt = 4, pooled = FALSE),
                rng = RNGkind(), session = sessionInfo())
 dir.create("output", showWarnings = FALSE)
 saveRDS(bundle, "output/simulation.rds")
 ```
 
-- A results file should identify the parameters and code version that produced it.
+- The saved results now match all six design rows, including their recorded seeds.
+- Record the code version alongside the parameters and computational environment.
 - Rerun when the generator, analysis, or scenario definition changes.
 - A file's existence is not evidence that it matches the current specification.
 
@@ -640,20 +743,24 @@ For expensive studies, run a script once and let the report read the saved resul
 #| label: seed-bug
 simulate_bad <- function(n_ctrl, n_trt, sd_ctrl, sd_trt, delta = 0) {
   set.seed(6301)                       # <- the bug
-  data.frame(
-    arm = rep(c("ctrl", "trt"), c(n_ctrl, n_trt)),
-    y   = c(rnorm(n_ctrl, 0, sd_ctrl), rnorm(n_trt, delta, sd_trt))
-  )
+  simulate_trial(n_ctrl = n_ctrl, n_trt = n_trt,
+                  sd_ctrl = sd_ctrl, sd_trt = sd_trt, delta = delta)
 }
 
-bad <- as.data.frame(t(replicate(500, analyse_trial(simulate_bad(25, 25, 12, 4)))))
+bad <- replicate(n = 500, expr = {
+  d <- simulate_bad(n_ctrl = 25, n_trt = 25,
+                    sd_ctrl = 12, sd_trt = 4, delta = 0)
+  analyse_trial(data = d, pooled = FALSE)
+})
+bad <- as.data.frame(t(bad))
 c(reject = mean(bad$p < 0.05), bias = mean(bad$est), emp_se = sd(bad$est))
 ```
 
 . . .
 
 ::: {.smaller}
-No error or warning. The empirical SE is zero and the rejection rate is either zero or one. The reported bias is the error of a single repeated estimate, not necessarily zero.
+Resetting the seed repeats **one dataset**. Empirical SE is zero, and the reported
+bias is just one estimate's error.
 :::
 
 
@@ -673,7 +780,8 @@ No error or warning. The empirical SE is zero and the rejection rate is either z
 ```{r}
 #| label: dgm-check
 set.seed(6301)
-check <- simulate_trial(1e6, 1e6, 12, 4, delta = 8)
+check <- simulate_trial(n_ctrl = 1e6, n_trt = 1e6,
+                        sd_ctrl = 12, sd_trt = 4, delta = 8)
 stopifnot(
   abs(mean(check$y[check$arm == "trt"]) - 8) < 0.05,
   abs(sd(check$y[check$arm == "ctrl"]) - 12) < 0.05
@@ -687,13 +795,13 @@ stopifnot(
 ```{r}
 analyse_checked <- function(data, pooled = FALSE) {
   tryCatch({
-    value <- analyse_trial(data, pooled)
+    value <- analyse_trial(data = data, pooled = pooled)
     if (any(!is.finite(value))) stop("nonfinite result")
     list(value = value, error = NA_character_)
   }, error = function(e) list(value = NULL, error = conditionMessage(e)))
 }
 bad_data <- data.frame(arm = rep(c("ctrl", "trt"), each = 3), y = 1)
-analyse_checked(bad_data)$error
+analyse_checked(data = bad_data)$error
 ```
 
 Retain the replicate ID, scenario, method, and reason. Warnings also need review;
@@ -786,7 +894,8 @@ that the true rejection rate differs from 5%.
 
 ```{r}
 set.seed(1402)
-check_ci <- run_scenario(1000, 10, 40, 12, 4, delta = 6, pooled = FALSE)
+check_ci <- run_scenario(n_sim = 1000, n_ctrl = 10, n_trt = 40,
+                         sd_ctrl = 12, sd_trt = 4, delta = 6, pooled = FALSE)
 covered <- check_ci$lo <= 6 & 6 <= check_ci$hi
 c(bias = mean(check_ci$est) - 6,
   empirical_se = sd(check_ci$est), mean_model_se = mean(check_ci$se),
@@ -891,7 +1000,8 @@ scenarios <- list(
 )
 
 type1 <- do.call(rbind, lapply(scenarios, function(s) {
-  r <- run_scenario(n_sim, s$nc, s$nt, sd_ctrl = 12, sd_trt = 4,
+  r <- run_scenario(n_sim = n_sim, n_ctrl = s$nc, n_trt = s$nt,
+                    sd_ctrl = 12, sd_trt = 4,
                     delta = 0, pooled = s$pooled)
   data.frame(alloc = s$lab, method = ifelse(s$pooled, "pooled", "Welch"),
              reject = mean(r$p < 0.05), bias = mean(r$est), emp_se = sd(r$est))
@@ -943,9 +1053,11 @@ $n_{\text{sim}} = 10{,}000$. Nominal $\alpha = 0.05$.
 set.seed(97)
 pv <- rbind(
   data.frame(method = "Pooled t-test",
-             p = run_scenario(10000, 10, 40, 12, 4, 0, TRUE)$p),
+             p = run_scenario(n_sim = 10000, n_ctrl = 10, n_trt = 40,
+               sd_ctrl = 12, sd_trt = 4, delta = 0, pooled = TRUE)$p),
   data.frame(method = "Welch t-test",
-             p = run_scenario(10000, 10, 40, 12, 4, 0, FALSE)$p)
+             p = run_scenario(n_sim = 10000, n_ctrl = 10, n_trt = 40,
+               sd_ctrl = 12, sd_trt = 4, delta = 0, pooled = FALSE)$p)
 )
 ggplot(pv, aes(p)) +
   geom_histogram(breaks = seq(0, 1, 0.05), fill = "#CFAE70", colour = "white") +
@@ -998,8 +1110,8 @@ and a true additional reduction of **6 mmHg**.
 ```{r}
 #| label: power-worked
 set.seed(1456)
-power_run <- run_scenario(2000, 40, 40, 12, 4,
-                          delta = 6, pooled = FALSE)
+power_run <- run_scenario(n_sim = 2000, n_ctrl = 40, n_trt = 40,
+                          sd_ctrl = 12, sd_trt = 4, delta = 6, pooled = FALSE)
 stopifnot(nrow(power_run) == 2000, all(is.finite(power_run$p)))
 detected <- power_run$p < 0.05
 power_hat <- mean(detected)
@@ -1046,7 +1158,8 @@ alloc <- data.frame(lab = c("10 / 40", "25 / 25", "38 / 12"),
 pw_grid <- expand.grid(i = 1:3, delta = c(0, 3, 6, 9, 12))
 pw <- do.call(rbind, lapply(seq_len(nrow(pw_grid)), function(k) {
   i <- pw_grid$i[k]
-  r <- run_scenario(2000, alloc$nc[i], alloc$nt[i], 12, 4,
+  r <- run_scenario(n_sim = 2000, n_ctrl = alloc$nc[i], n_trt = alloc$nt[i],
+                    sd_ctrl = 12, sd_trt = 4,
                     delta = pw_grid$delta[k], pooled = FALSE)
   mc_ci <- binom.test(sum(r$p < .05), nrow(r))$conf.int
   data.frame(alloc = alloc$lab[i], delta = pw_grid$delta[k],
@@ -1082,7 +1195,8 @@ size_grid <- expand.grid(n_arm = c(20, 40, 60, 80, 120, 160),
 power_by_size <- do.call(rbind, lapply(seq_len(nrow(size_grid)), function(k) {
   set.seed(1460 + k)
   s <- size_grid[k, ]
-  r <- run_scenario(2000, s$n_arm, s$n_arm, 12, 4, s$delta, FALSE)
+  r <- run_scenario(n_sim = 2000, n_ctrl = s$n_arm, n_trt = s$n_arm,
+                    sd_ctrl = 12, sd_trt = 4, delta = s$delta, pooled = FALSE)
   stopifnot(nrow(r) == 2000, all(is.finite(r$p)))
   p <- mean(r$p < .05)
   mc_ci <- binom.test(sum(r$p < .05), nrow(r))$conf.int
@@ -1165,12 +1279,12 @@ unchanged when comparing robustness across data-generating mechanisms.
 
 ```{r}
 draw_error <- function(n, target_sd, dgm = "normal") {
-  if (dgm == "normal") return(rnorm(n, 0, target_sd))
+  if (dgm == "normal") return(rnorm(n = n, mean = 0, sd = target_sd))
   if (dgm != "skewed") stop("unknown dgm")
   a <- 0.7
   mu <- exp(a^2 / 2)
   sigma <- sqrt((exp(a^2) - 1) * exp(a^2))
-  target_sd * (rlnorm(n, 0, a) - mu) / sigma
+  target_sd * (rlnorm(n = n, meanlog = 0, sdlog = a) - mu) / sigma
 }
 ```
 
@@ -1183,11 +1297,13 @@ Centering every generated sample by its own mean would remove sampling variation
 simulate_dgm <- function(n_ctrl, n_trt, sd_ctrl, sd_trt,
                          delta = 0, dgm = "normal") {
   data.frame(arm = rep(c("ctrl", "trt"), c(n_ctrl, n_trt)),
-    y = c(draw_error(n_ctrl, sd_ctrl, dgm),
-          delta + draw_error(n_trt, sd_trt, dgm)))
+    y = c(draw_error(n = n_ctrl, target_sd = sd_ctrl, dgm = dgm),
+          delta + draw_error(n = n_trt, target_sd = sd_trt, dgm = dgm)))
 }
 set.seed(1403)
-head(simulate_dgm(10, 40, 12, 4, 6, "skewed"), 3)
+d_skewed <- simulate_dgm(n_ctrl = 10, n_trt = 40, sd_ctrl = 12,
+                         sd_trt = 4, delta = 6, dgm = "skewed")
+head(d_skewed, n = 3)
 ```
 
 `analyse_trial()` stays unchanged. The true treatment-minus-control mean

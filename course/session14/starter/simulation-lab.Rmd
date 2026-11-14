@@ -19,65 +19,71 @@ simulate_trial <- function(n_ctrl, n_trt, sd_ctrl, sd_trt, delta = 0) {
 
   data.frame(
     arm = rep(c("ctrl", "trt"), c(n_ctrl, n_trt)),
-    y   = c(rnorm(n_ctrl, mean = 0,     sd = sd_ctrl),
-            rnorm(n_trt,  mean = delta, sd = sd_trt))
+    y   = c(rnorm(n = n_ctrl, mean = 0, sd = sd_ctrl),
+            rnorm(n = n_trt, mean = delta, sd = sd_trt))
   )
 }
 
 set.seed(6301)
-head(simulate_trial(3, 3, 12, 4, delta = 8), 3)
+d_example <- simulate_trial(n_ctrl = 3, n_trt = 3,
+                            sd_ctrl = 12, sd_trt = 4, delta = 8)
+head(d_example, n = 3)
 
 analyse_trial <- function(data, pooled = FALSE) {
   x <- data$y[data$arm == "trt"]
   y <- data$y[data$arm == "ctrl"]
-  fit <- t.test(x, y, var.equal = pooled)
+  fit <- t.test(x = x, y = y, var.equal = pooled)
   c(est = mean(x) - mean(y), se = fit$stderr,
     p = fit$p.value, lo = fit$conf.int[1], hi = fit$conf.int[2])
 }
 set.seed(6301)
-round(analyse_trial(simulate_trial(20, 20, 12, 4, delta = 8)), 3)
+d_analysis <- simulate_trial(n_ctrl = 20, n_trt = 20,
+                             sd_ctrl = 12, sd_trt = 4, delta = 8)
+round(analyse_trial(data = d_analysis, pooled = FALSE), digits = 3)
 
 draw_error <- function(n, target_sd, dgm = "normal") {
-  if (dgm == "normal") return(rnorm(n, 0, target_sd))
+  if (dgm == "normal") return(rnorm(n = n, mean = 0, sd = target_sd))
   if (dgm != "skewed") stop("unknown dgm")
   a <- 0.7
   mu <- exp(a^2 / 2)
   sigma <- sqrt((exp(a^2) - 1) * exp(a^2))
-  target_sd * (rlnorm(n, 0, a) - mu) / sigma
+  target_sd * (rlnorm(n = n, meanlog = 0, sdlog = a) - mu) / sigma
 }
 
 simulate_dgm <- function(n_ctrl, n_trt, sd_ctrl, sd_trt,
                          delta = 0, dgm = "normal") {
   data.frame(arm = rep(c("ctrl", "trt"), c(n_ctrl, n_trt)),
-    y = c(draw_error(n_ctrl, sd_ctrl, dgm),
-          delta + draw_error(n_trt, sd_trt, dgm)))
+    y = c(draw_error(n = n_ctrl, target_sd = sd_ctrl, dgm = dgm),
+          delta + draw_error(n = n_trt, target_sd = sd_trt, dgm = dgm)))
 }
 set.seed(1403)
-head(simulate_dgm(10, 40, 12, 4, 6, "skewed"), 3)
+d_skewed <- simulate_dgm(n_ctrl = 10, n_trt = 40, sd_ctrl = 12,
+                         sd_trt = 4, delta = 6, dgm = "skewed")
+head(d_skewed, n = 3)
 
 analyse_checked <- function(data, pooled = FALSE) {
   tryCatch({
-    value <- analyse_trial(data, pooled)
+    value <- analyse_trial(data = data, pooled = pooled)
     if (any(!is.finite(value))) stop("nonfinite result")
     list(value = value, error = NA_character_)
   }, error = function(e) list(value = NULL, error = conditionMessage(e)))
 }
 bad_data <- data.frame(arm = rep(c("ctrl", "trt"), each = 3), y = 1)
-analyse_checked(bad_data)$error
+analyse_checked(data = bad_data)$error
 ```
 
 ## Warm-up: random draws and the normal distribution
 
-1. Run two successive `rnorm(3)` calls after `set.seed(42)`. Rerun the entire block. Which results repeat?
+1. Run two successive `rnorm(n = 3)` calls after `set.seed(42)`. Rerun the entire block. Which results repeat?
 2. Save `state_before <- .Random.seed`, draw one value, and compare with `identical(state_before, .Random.seed)`. Explain the generator's changing bookmark.
-3. Insert `unused <- runif(1)` between the two `rnorm(3)` calls. Explain why the second output changes even though `unused` is never used.
+3. Insert `unused <- runif(1)` between the two `rnorm(n = 3)` calls. Explain why the second output changes even though `unused` is never used.
 4. Call `set.seed(99)` immediately before the result you want to reproduce. Verify that earlier random work no longer changes that result. Explain why you should not put the same seed inside every replicate.
-5. Evaluate `dnorm(0)`, `pnorm(1.96)`, `qnorm(0.975)`, and `rnorm(8)`. Match them to density height, left-tail area, cutoff value, and simulated observations. Which two functions reverse each other's question? Why is `dnorm(0)` not the probability of observing exactly zero?
+5. Evaluate `dnorm(0)`, `pnorm(1.96)`, `qnorm(0.975)`, and `rnorm(n = 8)`. Match them to density height, left-tail area, cutoff value, and simulated observations. Which two functions reverse each other's question? Why is `dnorm(0)` not the probability of observing exactly zero?
 
 ```{r, eval=FALSE}
 set.seed(42)
 state_before <- .Random.seed
-rnorm(3)
+rnorm(n = 3)
 identical(state_before, .Random.seed)
 # TODO: complete the comparisons described above.
 ```
@@ -115,9 +121,10 @@ run_study <- function(s, B) {
   stopifnot(nrow(s) == 1L, length(B) == 1L, is.finite(B), B >= 2, B == as.integer(B))
   rows <- vector("list", 2L * B)
   for (b in seq_len(B)) {
-    d <- simulate_dgm(s$n_ctrl, s$n_trt, 12, 4, s$delta, s$dgm)
+    d <- simulate_dgm(n_ctrl = s$n_ctrl, n_trt = s$n_trt,
+                      sd_ctrl = 12, sd_trt = 4, delta = s$delta, dgm = s$dgm)
     for (j in 1:2) {
-      ans <- analyse_checked(d, pooled = j == 2L)
+      ans <- analyse_checked(data = d, pooled = j == 2L)
       value <- if (is.null(ans$value)) setNames(rep(NA_real_, 5),
         c("est", "se", "p", "lo", "hi")) else ans$value
       rows[[2L * (b - 1L) + j]] <- data.frame(
@@ -132,7 +139,7 @@ run_study <- function(s, B) {
 
 ```{r, eval=FALSE}
 set.seed(1401)
-# TODO: pilot <- run_study(design[1, ], B = 5)
+# TODO: pilot <- run_study(s = design[1, ], B = 5)
 # Check the number of rows and that methods share each replicate.
 ```
 
