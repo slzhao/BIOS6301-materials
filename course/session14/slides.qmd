@@ -104,8 +104,13 @@ Use base R or tidyverse consistently; validate the same statistical target.
 
 ## How R makes random numbers {.smaller}
 
-A **random-number generator** is a recipe that produces numbers that behave
-like random draws. We use them to simulate data, such as patients' blood pressures.
+A fixed algorithm gives the same output from the same starting state.
+R's usual **pseudorandom generator** uses such an algorithm to produce numbers
+that behave like random draws.
+
+Computers can also obtain randomness from physical sources, such as electronic
+noise. Statistical simulation usually uses pseudorandom numbers for speed and
+reproducibility.
 
 ```{r}
 #| label: rng-introduction
@@ -113,12 +118,9 @@ set.seed(42)
 rnorm(3, mean = 120, sd = 10)  # simulate 3 blood pressures
 ```
 
-- R follows a fixed recipe, so we call these **pseudorandom** numbers.
-- Think of a long sequence of numbers: each random call moves forward in it.
-- A **seed** chooses a starting point. The same starting point and the same
-  calls give the same results.
-
-This lets us share an example and get exactly the same simulated data.
+- A **seed** chooses a starting state. Each random call advances the generator.
+- The same seed and calls reproduce the results in the same R/RNG environment.
+- Reproducibility lets us share simulated data and debug the same example.
 
 
 ## The seed picks your starting point {.smaller}
@@ -221,24 +223,27 @@ same seed inside every replicate repeats the same draws.
 
 # 2 · Drawing from distributions {.section-divider}
 
-## `sample()` {.smaller}
+## `sample()`: permutation and bootstrap {.smaller}
 
 ```{r}
 #| label: sample-demo
 set.seed(13)
-sample(5)                              # a permutation of 1:5
-sample(trial$id, 4)                    # 4 patients, no repeats
-sample(c("A", "B"), 8, replace = TRUE) # allocation, with replacement
+ids <- c("A", "B", "C", "D")
+sample(ids, 4, replace = FALSE)  # every patient once: permutation
+sample(ids, 4, replace = TRUE)   # patients may repeat: bootstrap
 ```
 
 . . .
 
 ::: {.smaller}
-- Default is **without replacement**, and `size` defaults to `length(x)`.
-- `replace = TRUE` is the one-word difference between *permuting* and
-  *resampling* — but the statistical target and resampling unit also change in Session 15.
-- `prob =` gives unequal selection probabilities.
+- **Without replacement:** leave each selected card out of the bag. Drawing
+  all four gives a permutation. Drawing only two selects a subset.
+- **With replacement:** return each card before the next draw. Some patients
+  may appear several times and others may be absent.
+- **Resampling** includes both bootstrap and permutation methods. Their
+  statistical questions and resampling rules differ.
 :::
+
 
 
 ## The `sample()` trap {.smaller}
