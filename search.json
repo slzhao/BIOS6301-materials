@@ -7739,7 +7739,7 @@
     "href": "course/session14/slides.html#how-r-makes-random-numbers",
     "title": "Random Numbers and Simulation",
     "section": "How R makes random numbers",
-    "text": "How R makes random numbers\nA random-number generator is a recipe that produces numbers that behave like random draws. We use them to simulate data, such as patients’ blood pressures.\n\nset.seed(42)\nrnorm(3, mean = 120, sd = 10)  # simulate 3 blood pressures\n\n[1] 133.7096 114.3530 123.6313\n\n\n\nR follows a fixed recipe, so we call these pseudorandom numbers.\nThink of a long sequence of numbers: each random call moves forward in it.\nA seed chooses a starting point. The same starting point and the same calls give the same results.\n\nThis lets us share an example and get exactly the same simulated data."
+    "text": "How R makes random numbers\nA fixed algorithm gives the same output from the same starting state. R’s usual pseudorandom generator uses such an algorithm to produce numbers that behave like random draws.\nComputers can also obtain randomness from physical sources, such as electronic noise. Statistical simulation usually uses pseudorandom numbers for speed and reproducibility.\n\nset.seed(42)\nrnorm(3, mean = 120, sd = 10)  # simulate 3 blood pressures\n\n[1] 133.7096 114.3530 123.6313\n\n\n\nA seed chooses a starting state. Each random call advances the generator.\nThe same seed and calls reproduce the results in the same R/RNG environment.\nReproducibility lets us share simulated data and debug the same example."
   },
   {
     "objectID": "course/session14/slides.html#random.seed-remembers-where-r-is",
@@ -7894,6 +7894,13 @@
     "title": "Random Numbers and Simulation",
     "section": "Simulation for study planning",
     "text": "Simulation for study planning\n\nChoose a meaningful effect: justify the difference worth detecting and examine smaller effects too. Do not substitute the observed effect after a trial.\nSpecify plausible variability: larger SDs generally reduce power with the other assumptions fixed. Check a range supported by prior information.\nCompare sample sizes and allocations: for our mean difference, sampling variance is 122/nctrl+42/ntrt12^2/n_{\\mathrm{ctrl}} + 4^2/n_{\\mathrm{trt}}. More patients in the noisier control arm can help when total size and per-person costs are fixed.\nKeep the test rule fixed: a higher significance threshold can raise power but also permits more false positives. Check null calibration first.\nRefine promising designs: use more replicates near the desired power, report MCSE, and assess sensitivity to the model assumptions.\n\nMore patients can raise power. More simulation replicates estimate that power more precisely. Neither 80% nor a single simulated crossing is a universal rule."
+  },
+  {
+    "objectID": "course/session14/slides.html#sample-permutation-and-bootstrap",
+    "href": "course/session14/slides.html#sample-permutation-and-bootstrap",
+    "title": "Random Numbers and Simulation",
+    "section": "sample(): permutation and bootstrap",
+    "text": "sample(): permutation and bootstrap\n\nset.seed(13)\nids &lt;- c(\"A\", \"B\", \"C\", \"D\")\nsample(ids, 4, replace = FALSE)  # every patient once: permutation\n\n[1] \"D\" \"C\" \"B\" \"A\"\n\nsample(ids, 4, replace = TRUE)   # patients may repeat: bootstrap\n\n[1] \"B\" \"A\" \"B\" \"D\"\n\n\n\n\n\nWithout replacement: leave each selected card out of the bag. Drawing all four gives a permutation. Drawing only two selects a subset.\nWith replacement: return each card before the next draw. Some patients may appear several times and others may be absent.\nResampling includes both bootstrap and permutation methods. Their statistical questions and resampling rules differ."
   },
   {
     "objectID": "course/session15/index.html",
