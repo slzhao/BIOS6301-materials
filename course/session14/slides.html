@@ -1290,9 +1290,8 @@ pooled 1.116 1.883 0.556 -2.670 4.902</code></pre>
 <h1>5 · Performance measures</h1>
 
 </section>
-<section id="what-you-actually-report" class="slide level2 smaller">
-<h2>What you actually report</h2>
-<div style="font-size:0.84em">
+<section id="two-kinds-of-uncertainty" class="slide level2 smaller">
+<h2>Two kinds of uncertainty</h2>
 <table class="caption-top">
 <colgroup>
 <col style="width: 33%">
@@ -1301,45 +1300,35 @@ pooled 1.116 1.883 0.556 -2.670 4.902</code></pre>
 </colgroup>
 <thead>
 <tr class="header">
-<th>Measure</th>
-<th>Estimated by</th>
-<th>Answers</th>
+<th></th>
+<th>Sampling uncertainty</th>
+<th>Monte Carlo uncertainty</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td><strong>Bias</strong></td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo accent="true">‾</mo></mover><mo>−</mo><mi>θ</mi></mrow><annotation encoding="application/x-tex">\bar{\hat\theta} - \theta</annotation></semantics></math></td>
-<td>Is the estimator systematically off?</td>
+<td>What varies?</td>
+<td>A treatment effect estimate across trials</td>
+<td>A rejection rate across full simulation runs</td>
 </tr>
 <tr class="even">
-<td><strong>Empirical SE</strong></td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">s</mi><mi mathvariant="normal">d</mi></mrow><mo stretchy="false" form="prefix">(</mo><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathrm{sd}(\hat\theta)</annotation></semantics></math></td>
-<td>How variable is it, run to run?</td>
+<td>Reported as</td>
+<td>Effect SE and confidence interval (mmHg)</td>
+<td>MCSE and Monte Carlo interval for a rate</td>
 </tr>
 <tr class="odd">
-<td><strong>Coverage</strong></td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><msub><mi>n</mi><mtext mathvariant="normal">sim</mtext></msub></mfrac><mo>∑</mo><mn>𝟙</mn><mo stretchy="false" form="prefix">{</mo><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">lo</mtext></msub><mo>≤</mo><mi>θ</mi><mo>≤</mo><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">hi</mtext></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\frac{1}{n_{\text{sim}}}\sum \mathbb{1}\{\hat\theta_{\text{lo}} \le \theta \le \hat\theta_{\text{hi}}\}</annotation></semantics></math></td>
-<td>Does the 95% CI cover 95% of the time?</td>
+<td>Example</td>
+<td>Each trial has 50 patients</td>
+<td>Each simulation run contains 1,000 trials</td>
 </tr>
 <tr class="even">
-<td><strong>Type I error</strong></td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">n</mi></mrow><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo>&lt;</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathrm{mean}(p &lt; \alpha)</annotation></semantics></math>, with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\theta = 0</annotation></semantics></math></td>
-<td>Does the test hold its size?</td>
-</tr>
-<tr class="odd">
-<td><strong>Power</strong></td>
-<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">m</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">n</mi></mrow><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mo>&lt;</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathrm{mean}(p &lt; \alpha)</annotation></semantics></math>, with <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>θ</mi><mo>≠</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\theta \ne 0</annotation></semantics></math></td>
-<td>Will the study detect a real effect?</td>
+<td>What helps?</td>
+<td>More patients per trial</td>
+<td>More simulated trials per run</td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="fragment">
-<div class="smaller">
-<p>Type I error and power are the <strong>same computation</strong> on data from the same DGM with <code>delta</code> set differently. Nothing else changes.</p>
-</div>
-</div>
+<p>Increasing <strong>patients per trial</strong> changes the study we are evaluating. Increasing <strong>replicates</strong> helps us evaluate that same study more precisely.</p>
 </section>
 <section id="coverage-and-interval-width-in-code" class="slide level2 smaller">
 <h2>Coverage and interval width in code</h2>
@@ -1457,8 +1446,9 @@ attr(,"conf.level")
 <p>The conservative bound uses <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mn>0.25</mn></mrow><annotation encoding="application/x-tex">p(1-p) \le 0.25</annotation></semantics></math> and covers every probability. A design sized for Type I error near 0.05 can give less precise power estimates.</p>
 <p>Choose the precision target before inspecting favorable results. Use a pilot to debug and estimate computational cost, then run the planned study.</p>
 </section>
-<section id="two-kinds-of-uncertainty" class="slide level2 smaller">
-<h2>Two kinds of uncertainty</h2>
+<section id="what-you-actually-report" class="slide level2 smaller">
+<h2>What you actually report</h2>
+<div style="font-size:0.84em">
 <table class="caption-top">
 <colgroup>
 <col style="width: 33%">
@@ -1467,35 +1457,46 @@ attr(,"conf.level")
 </colgroup>
 <thead>
 <tr class="header">
-<th></th>
-<th>Sampling uncertainty</th>
-<th>Monte Carlo uncertainty</th>
+<th>Report</th>
+<th>What it describes</th>
+<th>Interpretation</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>What varies?</td>
-<td>A treatment effect estimate across trials</td>
-<td>A rejection rate across full simulation runs</td>
+<td><strong>Effect SE and CI width</strong></td>
+<td>Sampling uncertainty</td>
+<td>Precision of the effect estimate in one trial</td>
 </tr>
 <tr class="even">
-<td>Reported as</td>
-<td>Effect SE and confidence interval (mmHg)</td>
-<td>MCSE and Monte Carlo interval for a rate</td>
+<td><strong>Empirical SE</strong></td>
+<td>Sampling uncertainty</td>
+<td>Spread of effect estimates across trials</td>
 </tr>
 <tr class="odd">
-<td>Example</td>
-<td>Each trial has 50 patients</td>
-<td>Each simulation run contains 1,000 trials</td>
+<td><strong>Bias and RMSE</strong></td>
+<td>Method performance</td>
+<td>Systematic error and overall estimation error</td>
 </tr>
 <tr class="even">
-<td>What helps?</td>
-<td>More patients per trial</td>
-<td>More simulated trials per run</td>
+<td><strong>Coverage</strong></td>
+<td>Method performance</td>
+<td>Fraction of effect CIs containing the truth</td>
+</tr>
+<tr class="odd">
+<td><strong>Type I error / power</strong></td>
+<td>Method performance</td>
+<td>Rejection fraction under a zero / nonzero effect</td>
+</tr>
+<tr class="even">
+<td><strong>MCSE and Monte Carlo interval</strong></td>
+<td>Monte Carlo uncertainty</td>
+<td>Precision of a simulated performance estimate</td>
 </tr>
 </tbody>
 </table>
-<p>Increasing <strong>patients per trial</strong> changes the study we are evaluating. Increasing <strong>replicates</strong> helps us evaluate that same study more precisely.</p>
+</div>
+<p>Bias, coverage, and power are <strong>performance measures</strong>. Their estimated values also have Monte Carlo uncertainty because we simulate a finite number of trials.</p>
 </section></section>
 <section>
 <section id="type-i-error-and-power" class="title-slide slide level1 section-divider center">
@@ -1838,11 +1839,12 @@ Figure&nbsp;3: Welch test at 5%, normal reductions, SDs 12 and 4. Equal group si
 <section id="lab-route-and-exit-check" class="slide level2 smaller">
 <h2>Lab route and exit check</h2>
 <ol type="1">
-<li>Write ADEMP; generate and inspect one dataset.</li>
-<li>Compare both tests on the same dataset, then repeat under null and alternative.</li>
-<li>Summarize bias, SE, coverage, rejection, width, and failures.</li>
-<li>Add a skewed scenario and report the limits of the comparison.</li>
+<li>Review <code>simulate_trial()</code>, <code>analyse_trial()</code>, and <code>run_study()</code>.</li>
+<li>Build four weight-loss scenarios in <code>design</code>; inspect one trial and a pilot.</li>
+<li>Repeat each scenario with Welch’s test; summarize precision, coverage, and power.</li>
+<li>Distinguish sampling uncertainty from Monte Carlo uncertainty.</li>
 </ol>
+<p>The lab repeats the lecture workflow with <strong>weight loss in kg</strong>. Comparing Welch and pooled tests is optional.</p>
 <p><strong>Explain:</strong> Why can a method have small bias but poor coverage? Why does increasing replication not fix a wrong generator?</p>
 </section>
 <section id="optional-tools-for-running-simulation-studies" class="slide level2 smaller">

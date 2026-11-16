@@ -5,9 +5,11 @@ output: html_document
 
 ## How to use this starter
 
-The setup runs as supplied. Exercise chunks are disabled with `eval=FALSE` so the
-unfinished starter can render. Replace each TODO, remove that option, and render
-again. A successful render of the untouched starter is not completion.
+This lab repeats the lecture workflow with a new outcome: weight loss.
+The three function definitions run as supplied. Exercise chunks use
+`eval=FALSE`; remove that option as you work through each question in order.
+Complete the TODOs and explanations. Rendering an untouched starter is not
+completion. Use the supplied normal scenarios and Welch's test for the core lab.
 
 ## Simulation project: evaluating a weight-loss intervention
 
@@ -20,68 +22,40 @@ the intervention mean is 1 kg under the null and 3 kg under the alternative.
 The true additional weight loss, `delta`, is therefore 0 or 2 kg. All means,
 SDs, and distribution choices below are hypothetical teaching assumptions.
 
-## Supplied synthetic data and helpers
+## The three functions used throughout the lab
 
 ```{r}
-# Simulate one two-arm trial. Returns a data frame with `arm` and `y`.
-# y is 12-week weight loss (kg); negative values mean weight gain.
-# Control is N(1, sd_ctrl^2); treatment is N(1 + delta, sd_trt^2).
+# One trial: y is weight lost after 12 weeks (kg).
+# Control mean = 1; intervention mean = 1 + delta.
 simulate_trial <- function(n_ctrl, n_trt, sd_ctrl, sd_trt, delta = 0) {
-  stopifnot(n_ctrl >= 2, n_trt >= 2, sd_ctrl > 0, sd_trt > 0)
-
   data.frame(
-    arm = rep(c("ctrl", "trt"), c(n_ctrl, n_trt)),
-    y   = c(rnorm(n = n_ctrl, mean = 1, sd = sd_ctrl),
-            rnorm(n = n_trt, mean = 1 + delta, sd = sd_trt))
+    arm = rep(x = c("ctrl", "trt"), times = c(n_ctrl, n_trt)),
+    y = c(rnorm(n = n_ctrl, mean = 1, sd = sd_ctrl),
+          rnorm(n = n_trt, mean = 1 + delta, sd = sd_trt))
   )
 }
 
-set.seed(6301)
-d_example <- simulate_trial(n_ctrl = 3, n_trt = 3,
-                            sd_ctrl = 4, sd_trt = 2, delta = 2)
-head(d_example, n = 3)
-
+# Analyse one trial. The core lab uses Welch's test (pooled = FALSE).
 analyse_trial <- function(data, pooled = FALSE) {
-  x <- data$y[data$arm == "trt"]
-  y <- data$y[data$arm == "ctrl"]
-  fit <- t.test(x = x, y = y, var.equal = pooled)
-  c(est = mean(x) - mean(y), se = fit$stderr,
-    p = fit$p.value, lo = fit$conf.int[1], hi = fit$conf.int[2])
-}
-set.seed(6301)
-d_analysis <- simulate_trial(n_ctrl = 20, n_trt = 20,
-                             sd_ctrl = 4, sd_trt = 2, delta = 2)
-round(analyse_trial(data = d_analysis, pooled = FALSE), digits = 3)
-
-draw_error <- function(n, target_sd, dgm = "normal") {
-  if (dgm == "normal") return(rnorm(n = n, mean = 0, sd = target_sd))
-  if (dgm != "skewed") stop("unknown dgm")
-  a <- 0.7
-  mu <- exp(a^2 / 2)
-  sigma <- sqrt((exp(a^2) - 1) * exp(a^2))
-  target_sd * (rlnorm(n = n, meanlog = 0, sdlog = a) - mu) / sigma
+  treatment <- data$y[data$arm == "trt"]
+  control <- data$y[data$arm == "ctrl"]
+  fit <- t.test(x = treatment, y = control, var.equal = pooled)
+  c(est = mean(x = treatment) - mean(x = control),
+    se = fit$stderr, p = fit$p.value,
+    lo = fit$conf.int[1], hi = fit$conf.int[2])
 }
 
-simulate_dgm <- function(n_ctrl, n_trt, sd_ctrl, sd_trt,
-                         delta = 0, dgm = "normal") {
-  data.frame(arm = rep(c("ctrl", "trt"), c(n_ctrl, n_trt)),
-    y = c(1 + draw_error(n = n_ctrl, target_sd = sd_ctrl, dgm = dgm),
-          1 + delta + draw_error(n = n_trt, target_sd = sd_trt, dgm = dgm)))
+# Repeat one design row B times, like run_scenario() in the lecture.
+run_study <- function(s, B, pooled = FALSE) {
+  out <- replicate(n = B, expr = {
+    d <- simulate_trial(n_ctrl = s$n_ctrl, n_trt = s$n_trt,
+                        sd_ctrl = s$sd_ctrl, sd_trt = s$sd_trt,
+                        delta = s$delta)
+    analyse_trial(data = d, pooled = pooled)
+  })
+  data.frame(s, replicate = seq_len(B),
+             as.data.frame(t(out)), row.names = NULL)
 }
-set.seed(1403)
-d_skewed <- simulate_dgm(n_ctrl = 10, n_trt = 40, sd_ctrl = 4,
-                         sd_trt = 2, delta = 2, dgm = "skewed")
-head(d_skewed, n = 3)
-
-analyse_checked <- function(data, pooled = FALSE) {
-  tryCatch({
-    value <- analyse_trial(data = data, pooled = pooled)
-    if (any(!is.finite(value))) stop("nonfinite result")
-    list(value = value, error = NA_character_)
-  }, error = function(e) list(value = NULL, error = conditionMessage(e)))
-}
-bad_data <- data.frame(arm = rep(c("ctrl", "trt"), each = 3), y = 1)
-analyse_checked(data = bad_data)$error
 ```
 
 ## Warm-up: random draws and the normal distribution
@@ -92,157 +66,230 @@ analyse_checked(data = bad_data)$error
 4. Call `set.seed(99)` immediately before the result you want to reproduce. Verify that earlier random work no longer changes that result. Explain why you should not put the same seed inside every replicate.
 5. Evaluate `dnorm(0)`, `pnorm(1.96)`, `qnorm(0.975)`, and `rnorm(n = 8)`. Match them to density height, left-tail area, cutoff value, and simulated observations. Which two functions reverse each other's question? Why is `dnorm(0)` not the probability of observing exactly zero?
 
+## 1. Review the functions and trace the workflow
+
+Read the three supplied functions before running the study. For each, describe
+its inputs, output, and role. Trace `run_study()` calling `simulate_trial()` and
+then `analyse_trial()`. Which line creates new patient outcomes in every trial?
+Explain the difference between `rnorm(n = ...)` and `replicate(n = ...)`, and
+why `t(out)` puts one trial on each row. What do `est`, `se`, `p`, `lo`, and `hi`
+mean? Use the function reference below to discuss the other R functions as you
+encounter them; you do not need to memorize their syntax.
+
 ```{r, eval=FALSE}
-set.seed(42)
-state_before <- .Random.seed
-rnorm(n = 3)
-identical(state_before, .Random.seed)
-# TODO: complete the comparisons described above.
+simulate_trial
+analyse_trial
+run_study
+# Printing a function shows its definition without calling it.
+# TODO: explain the inputs, output, and call sequence in your own words.
 ```
 
-## 1. Specify ADEMP
+| Function | Role in this lab |
+|---|---|
+| `simulate_trial()` | Generates one trial's patient outcomes |
+| `analyse_trial()` | Returns `est`, `se`, `p`, `lo`, and `hi` for one trial |
+| `run_study()` | Repeats generation and analysis for one scenario |
+| `rnorm()`, `rep()`, `c()`, `data.frame()` | Draw outcomes, create arm labels, and assemble data |
+| `t.test()`, `mean()` | Fit the two-sample test and calculate means or proportions |
+| `replicate()`, `t()`, `as.data.frame()` | Repeat an expression and put trials into rows |
+| `expand.grid()` | Creates every combination of the chosen scenario values |
+| `nrow()`, `seq_len()`, `vector()` | Count rows, create indices, and prepare a results list |
+| `set.seed()`, `runif()`, `identical()` | Reproduce a run and check the seed experiment |
+| `do.call()`, `rbind()` | Combine the list of scenario results into one table |
+| `head()`, `summary()`, `tapply()`, `table()`, `subset()` | Inspect and select data |
+| `sd()`, `sqrt()`, `sum()`, `round()` | Calculate spread, MCSE, counts, and rounded values |
+| `plot()`, `arrows()`, `abline()`, `pmax()`, `pmin()` | Plot rates and bounded Monte Carlo intervals |
 
-Let each outcome be weight loss: baseline minus 12-week weight, in kg. Positive delta means greater mean weight loss with the intervention. The control mean is 1 kg and the intervention mean is 1 + delta kg. Use independent normal control and treatment groups with SDs 4 and 2. Compare sizes 10/40 and 30/40 and true differences 0 and 2 (four scenarios). Define the estimand as the population mean difference, treatment minus control. Distinguish this target from the estimator and one sample estimate. Write the five ADEMP headings before running the study. Explain why normal weight losses are a useful reference scenario, what prior or pilot evidence would support this model in a real project, and one reason to examine a skewed alternative. State the independence assumption and identify the means and SDs as teaching values.
+`for` repeats code over design rows; `function` defines a reusable function.
+`$` selects a column or named result, `[i, ]` selects a row, and `[[i]]`
+selects an element of a list. `rep()` repeats values; `replicate()` reruns code.
+
+Write your explanation here.
+
+## 2. Specify the study and build design
+
+Write a short ADEMP plan: aims, data-generating mechanism, estimand, methods,
+and performance measures. Use independent normal outcomes, control mean 1 kg,
+intervention mean `1 + delta` kg, and SDs 4 and 2 kg. Explain what evidence could
+support these teaching assumptions in a real study. Define the true mean
+difference and distinguish it from an estimate in one trial.
+
+Build `design` below. Explain why `expand.grid()` creates four rows, identify
+what changes and what stays fixed, and describe row 3 in words. Each row is a
+scenario, not a patient or a simulated trial. Why is there a separate seed for
+each scenario?
 
 ```{r, eval=FALSE}
-# TODO: write ADEMP in prose above this chunk.
-# Build four rows: n_ctrl = c(10, 30), n_trt = 40,
-# delta = c(0, 2), dgm = "normal". Add scenario = seq_len(nrow(design)).
+design <- expand.grid(n_ctrl = c(10, 30), delta = c(0, 2))
+design$n_trt <- 40
+design$sd_ctrl <- 4
+design$sd_trt <- 2
+design$scenario <- seq_len(nrow(design))
+design$seed <- 1400 + design$scenario
+design
+design[3, ]
+# TODO: explain how these four rows implement your ADEMP plan.
 ```
 
-Interpret the result and state its limitations.
+Write your explanation here.
 
-## 2. Inspect one replicate
+## 3. Generate and analyse one trial
 
-Generate one dataset. Inspect outcome ranges and group summaries to check the generator, allowing for sampling variation. Explain why simulated data cannot establish that real weight losses are normal. Compare Welch and pooled results on that same dataset. Verify the estimate direction, result names, and interval ordering. Exercise a failed constant-outcome sample.
+Use row 3 of `design` to generate one trial. Inspect the outcomes and group
+summaries. Explain the meaning of negative weight loss. Apply `analyse_trial()`
+to this dataset and interpret its five results. Calculate the treatment-minus-
+control sample mean difference yourself and compare it with `est`.
+Why is the observed difference not exactly 2 kg? Why cannot this simulated
+sample establish that real weight losses follow a normal distribution?
 
 ```{r, eval=FALSE}
-set.seed(1401)
-d <- simulate_trial(n_ctrl = 10, n_trt = 40,
-                    sd_ctrl = 4, sd_trt = 2, delta = 2)
+s <- design[3, ]
+set.seed(s$seed)
+d <- simulate_trial(n_ctrl = s$n_ctrl, n_trt = s$n_trt,
+                    sd_ctrl = s$sd_ctrl, sd_trt = s$sd_trt,
+                    delta = s$delta)
+head(x = d)
 tapply(X = d$y, INDEX = d$arm, FUN = summary)
-welch <- analyse_trial(data = d, pooled = FALSE)
-# TODO: fit the pooled method to d, check both results,
-# and use analyse_checked() on a constant-outcome sample.
+fit <- analyse_trial(data = d)
+fit
+# TODO: compute the two group means and their difference.
+# Explain the estimate, SE, p-value, and confidence interval.
 ```
 
-Interpret the result and state its limitations.
+Write your explanation here.
 
-## 3. Retain each method and replicate
+## 4. Repeat one scenario: a five-trial pilot
 
-Inspect the supplied run_study(s, B) function and run a pilot with B = 5. Identify where it generates one dataset, applies both methods, and retains results or errors. Check that five replicates produce ten rows. Both methods must use the same dataset in each replicate.
-
-```{r}
-run_study <- function(s, B) {
-  stopifnot(nrow(s) == 1L, length(B) == 1L, is.finite(B), B >= 2, B == as.integer(B))
-  rows <- vector("list", 2L * B)
-  for (b in seq_len(B)) {
-    d <- simulate_dgm(n_ctrl = s$n_ctrl, n_trt = s$n_trt,
-                      sd_ctrl = 4, sd_trt = 2, delta = s$delta, dgm = s$dgm)
-    for (j in 1:2) {
-      ans <- analyse_checked(data = d, pooled = j == 2L)
-      value <- if (is.null(ans$value)) setNames(rep(NA_real_, 5),
-        c("est", "se", "p", "lo", "hi")) else ans$value
-      rows[[2L * (b - 1L) + j]] <- data.frame(
-        scenario = s$scenario, replicate = b, method = c("Welch", "pooled")[j],
-        n_ctrl = s$n_ctrl, n_trt = s$n_trt, delta = s$delta, dgm = s$dgm,
-        as.list(value), error = ans$error)
-    }
-  }
-  do.call(rbind, rows)
-}
-```
+Pass the same row to `run_study()` with `B = 5`. Identify the five result
+columns and the repeated scenario information. Explain why the output has
+five rows and why the estimates differ. Compare its first estimate with the
+single-trial result from question 3. Explain why using the same starting seed
+makes them agree, but resetting that seed inside `replicate()` would be wrong.
 
 ```{r, eval=FALSE}
-set.seed(1401)
-pilot <- run_study(s = design[1, ], B = 5)
+set.seed(s$seed)
+pilot <- run_study(s = s, B = 5)
+pilot
 nrow(pilot)
-with(data = pilot, expr = table(replicate, method))
-# TODO: check that both methods have the same estimate in each replicate.
-# Locate the shared dataset and error handling inside run_study().
+pilot$est[1]
+fit["est"]
+# TODO: describe what stays fixed and what changes across the five trials.
 ```
 
-Interpret the result and state its limitations.
+Write your explanation here.
 
-## 4. Run reproducible scenarios
+## 5. Run all four design rows
 
-Use B = 1000 for this teaching exercise. Assign each scenario a fixed seed and call set.seed() immediately before running that scenario. Insert an unrelated runif() call before the seed and verify that the scenario results stay unchanged. Do not reset the seed inside the replicate loop.
+Use `B = 1000` for each scenario. Trace one pass through the loop: choose a
+design row, set its seed, run the scenario, and store the result. Explain how
+`do.call()` and `rbind()` combine the results. How many rows should `all_results`
+contain? Verify the number of trials per scenario. Insert an unrelated
+`runif()` call before a scenario's `set.seed()` and check that its results stay
+unchanged. Do not reset the seed within the trial repetitions.
 
 ```{r, eval=FALSE}
-B <- 1000L
-design$seed <- 1400L + design$scenario
+B <- 1000
 results <- vector(mode = "list", length = nrow(design))
 for (i in seq_len(nrow(design))) {
   set.seed(design$seed[i])
   results[[i]] <- run_study(s = design[i, ], B = B)
 }
 all_results <- do.call(what = rbind, args = results)
-# TODO: verify the row counts and repeat a scenario after inserting
-# runif(n = 100) BEFORE its set.seed() call. Compare with identical().
+nrow(all_results)
+table(all_results$scenario)
+# TODO: use runif(), set.seed(), and identical() to check reproducibility.
 ```
 
-Interpret the result and state its limitations.
+Write your explanation here.
 
-## 5. Summarize performance and failures
+## 6. Summarize estimation and testing performance
 
-For each scenario and method report attempts, failures, bias, coverage, rejection rate, and MCSE for rejection. Use sqrt(p_hat * (1 - p_hat) / B_valid), where B_valid counts successful replicates. Label performance summaries as conditional on success. Interpret rejection rates as type I error when delta = 0 and power when delta = 2.
+For every scenario, report bias, empirical SE, coverage, rejection rate, and
+MCSE of the rejection rate. Trace the supplied summary loop for one scenario.
+Explain why `mean()` of a TRUE/FALSE condition gives a proportion.
+Add mean confidence-interval width to the summary. Which values describe the
+method's performance, which describe sampling variability, and which describe
+Monte Carlo uncertainty? Interpret rejection as type I error for `delta = 0`
+and power for `delta = 2`.
 
 ```{r, eval=FALSE}
-# Start with one scenario and method; then repeat for every combination.
-one <- subset(x = all_results, subset = scenario == 1 & method == "Welch")
-valid <- subset(x = one, subset = is.na(error))
-B_valid <- nrow(valid)
-rejection <- mean(x = valid$p < 0.05)
-mcse_rejection <- sqrt(rejection * (1 - rejection) / B_valid)
-# TODO: count attempts/failures and calculate bias and coverage.
-# Create performance: one row per scenario/method, retaining n_ctrl,
-# n_trt, delta, valid (= B_valid), rejection, and mcse_rejection.
-# Include your other requested measures; guard against too few valid trials.
+summaries <- vector(mode = "list", length = nrow(design))
+for (i in seq_len(nrow(design))) {
+  one <- all_results[all_results$scenario == design$scenario[i], ]
+  truth <- design$delta[i]
+  rejection <- mean(x = one$p < 0.05)
+  summaries[[i]] <- data.frame(
+    design[i, ], trials = nrow(one),
+    bias = mean(x = one$est) - truth,
+    empirical_se = sd(x = one$est),
+    coverage = mean(x = one$lo <= truth & truth <= one$hi),
+    rejection = rejection,
+    mcse_rejection = sqrt(rejection * (1 - rejection) / nrow(one)))
+}
+performance <- do.call(what = rbind, args = summaries)
+performance
+# TODO: add mean_width = mean(one$hi - one$lo) inside data.frame().
+# Explain how each measure answers the study question.
 ```
 
-Interpret the result and state its limitations.
+Write your explanation here.
 
-## 6. Interpret the comparison
+## 7. Compare the designs and the two kinds of uncertainty
 
-Compare null calibration, power, coverage, and failure counts across allocations. Draw one rejection-rate comparison with approximate Monte Carlo intervals. Explain why 5.2% from 1,000 replicates need not differ meaningfully from 5%, and why more replicates differ from more patients per trial.
+Compare the 10/40 and 30/40 allocations. What happens to empirical SE,
+interval width, coverage, and rejection? Plot the null rejection rates with
+approximate 95% Monte Carlo intervals and compare them with 5%.
+Explain why 5.2% from 1,000 trials need not differ meaningfully from 5%.
+Distinguish these intervals for a rejection probability from the treatment-
+effect interval in question 3. What changes when we add patients, and what
+changes when we add simulation replicates?
 
 ```{r, eval=FALSE}
 null <- subset(x = performance, subset = delta == 0)
-plot(x = seq_len(nrow(null)), y = null$rejection,
-     ylim = c(0, 1), xlab = "Scenario / method", ylab = "Null rejection rate")
+plot(x = null$n_ctrl, y = null$rejection, ylim = c(0, 0.15),
+     xlab = "Control patients (40 intervention patients)",
+     ylab = "Null rejection rate", pch = 19)
 abline(h = 0.05, lty = 2)
-# TODO: label the points and add intervals using arrows():
-# lower = pmax(0, rejection - 1.96 * mcse_rejection)
-# upper = pmin(1, rejection + 1.96 * mcse_rejection)
-# Tighten the y-axis limits to show all points and intervals clearly.
+# TODO: use arrows() to add intervals at x = null$n_ctrl:
+# lower = pmax(0, null$rejection - 1.96 * null$mcse_rejection)
+# upper = pmin(1, null$rejection + 1.96 * null$mcse_rejection)
 ```
 
-Interpret the result and state its limitations.
+Write your explanation here.
 
-## 7. Power for study planning
+## 8. Use power for study planning
 
-Use the existing delta = 2 results to compare Welch power for 10/40 and 30/40 patients. Report the number of rejections, valid trials, estimated power, MCSE, and an approximate 95% Monte Carlo interval. Explain whether the results support at least 80% power, allowing for simulation uncertainty. Distinguish power from coverage, and more patients from more simulation replicates.
+Use the `delta = 2` results to compare power for the two allocations. Report
+rejections, trials, power, MCSE, and an approximate 95% Monte Carlo interval.
+Do the results support at least 80% power? Distinguish power from coverage:
+which event does each count? Explain why increasing `B` alone cannot rescue
+a study with low power. State that the conclusions depend on the assumed
+outcome distribution, independence, means, and SDs.
 
 ```{r, eval=FALSE}
-power_results <- subset(x = performance,
-                        subset = delta == 2 & method == "Welch")
+power_results <- subset(x = performance, subset = delta == 2)
 power_results$power <- power_results$rejection
-power_results$rejected <- round(power_results$power * power_results$valid)
+power_results$rejected <- round(power_results$power * power_results$trials)
 power_results$mc_lower <- pmax(0, power_results$power -
                                 1.96 * power_results$mcse_rejection)
-# TODO: add mc_upper (bounded by 1), then report the requested columns.
-# Compare both allocations with the 80% power target.
+# TODO: add mc_upper using pmin(1, power + 1.96 * mcse_rejection).
+# Report the requested columns and compare both designs with 80% power.
 ```
 
-Interpret the comparison under the stated normal, independent-patient model.
+Write your explanation here.
 
-## Optional extensions
+## Optional extension: compare Welch and pooled tests
 
-- Extend the Welch power comparison to more sample sizes or a smaller effect (for example, 1 kg). Keep the test rule fixed and refine promising scenarios with more replicates.
-- Add `dgm = "skewed"` to the design using the supplied helper. Explain why it centers errors using the population mean rather than each sample mean. Keep the estimand unchanged.
-- Report empirical SE, mean model SE, RMSE, mean interval width, and MCSE for bias or coverage.
-- Plan B from a target MCSE using `ceiling(p * (1 - p) / target^2)`. Try B = 4000 and explain why MCSE is about half its value at B = 1000.
-- Explore `SimDesign::runSimulation()` for running a larger study or `rsimsum::simsum()` for summarising saved results. No package installation is required for the core lab.
+Repeat one scenario with `pooled = TRUE`. Start both runs at the same scenario
+seed so they use the same generated datasets. Compare null rejection rates
+before interpreting differences in power. The core lab requires only Welch.
+
+```r
+set.seed(design$seed[1])
+welch_results <- run_study(s = design[1, ], B = 1000)
+set.seed(design$seed[1])
+pooled_results <- run_study(s = design[1, ], B = 1000, pooled = TRUE)
+```
 
 ## AI-use disclosure
 

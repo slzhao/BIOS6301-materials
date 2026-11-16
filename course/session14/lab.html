@@ -288,15 +288,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#warm-up-random-draws-and-the-normal-distribution" id="toc-warm-up-random-draws-and-the-normal-distribution" class="nav-link" data-scroll-target="#warm-up-random-draws-and-the-normal-distribution">Warm-up: random draws and the normal distribution</a></li>
   <li><a href="#simulation-project-evaluating-a-weight-loss-intervention" id="toc-simulation-project-evaluating-a-weight-loss-intervention" class="nav-link" data-scroll-target="#simulation-project-evaluating-a-weight-loss-intervention">Simulation project: evaluating a weight-loss intervention</a>
   <ul class="collapse">
-  <li><a href="#specify-ademp" id="toc-specify-ademp" class="nav-link" data-scroll-target="#specify-ademp">1. Specify ADEMP</a></li>
-  <li><a href="#inspect-one-replicate" id="toc-inspect-one-replicate" class="nav-link" data-scroll-target="#inspect-one-replicate">2. Inspect one replicate</a></li>
-  <li><a href="#retain-each-method-and-replicate" id="toc-retain-each-method-and-replicate" class="nav-link" data-scroll-target="#retain-each-method-and-replicate">3. Retain each method and replicate</a></li>
-  <li><a href="#run-reproducible-scenarios" id="toc-run-reproducible-scenarios" class="nav-link" data-scroll-target="#run-reproducible-scenarios">4. Run reproducible scenarios</a></li>
-  <li><a href="#summarize-performance-and-failures" id="toc-summarize-performance-and-failures" class="nav-link" data-scroll-target="#summarize-performance-and-failures">5. Summarize performance and failures</a></li>
-  <li><a href="#interpret-the-comparison" id="toc-interpret-the-comparison" class="nav-link" data-scroll-target="#interpret-the-comparison">6. Interpret the comparison</a></li>
-  <li><a href="#power-for-study-planning" id="toc-power-for-study-planning" class="nav-link" data-scroll-target="#power-for-study-planning">7. Power for study planning</a></li>
+  <li><a href="#review-the-functions-and-trace-the-workflow" id="toc-review-the-functions-and-trace-the-workflow" class="nav-link" data-scroll-target="#review-the-functions-and-trace-the-workflow">1. Review the functions and trace the workflow</a></li>
+  <li><a href="#specify-the-study-and-build-design" id="toc-specify-the-study-and-build-design" class="nav-link" data-scroll-target="#specify-the-study-and-build-design">2. Specify the study and build design</a></li>
+  <li><a href="#generate-and-analyse-one-trial" id="toc-generate-and-analyse-one-trial" class="nav-link" data-scroll-target="#generate-and-analyse-one-trial">3. Generate and analyse one trial</a></li>
+  <li><a href="#repeat-one-scenario-a-five-trial-pilot" id="toc-repeat-one-scenario-a-five-trial-pilot" class="nav-link" data-scroll-target="#repeat-one-scenario-a-five-trial-pilot">4. Repeat one scenario: a five-trial pilot</a></li>
+  <li><a href="#run-all-four-design-rows" id="toc-run-all-four-design-rows" class="nav-link" data-scroll-target="#run-all-four-design-rows">5. Run all four design rows</a></li>
+  <li><a href="#summarize-estimation-and-testing-performance" id="toc-summarize-estimation-and-testing-performance" class="nav-link" data-scroll-target="#summarize-estimation-and-testing-performance">6. Summarize estimation and testing performance</a></li>
+  <li><a href="#compare-the-designs-and-the-two-kinds-of-uncertainty" id="toc-compare-the-designs-and-the-two-kinds-of-uncertainty" class="nav-link" data-scroll-target="#compare-the-designs-and-the-two-kinds-of-uncertainty">7. Compare the designs and the two kinds of uncertainty</a></li>
+  <li><a href="#use-power-for-study-planning" id="toc-use-power-for-study-planning" class="nav-link" data-scroll-target="#use-power-for-study-planning">8. Use power for study planning</a></li>
   </ul></li>
-  <li><a href="#optional-extensions" id="toc-optional-extensions" class="nav-link" data-scroll-target="#optional-extensions">Optional extensions</a></li>
+  <li><a href="#optional-extension-compare-welch-and-pooled-tests" id="toc-optional-extension-compare-welch-and-pooled-tests" class="nav-link" data-scroll-target="#optional-extension-compare-welch-and-pooled-tests">Optional extension: compare Welch and pooled tests</a></li>
   <li><a href="#exit-evidence" id="toc-exit-evidence" class="nav-link" data-scroll-target="#exit-evidence">Exit evidence</a></li>
   </ul>
 </nav>
@@ -327,114 +328,209 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Work in <strong>BIOS6301-mywork.Rproj</strong>. Copy one starter from the separate course clone into <code>work/session14/</code>: <a href="starter/simulation-lab.qmd">Quarto</a> or <a href="starter/simulation-lab.Rmd">R Markdown</a>. Keep the course originals unchanged.</p>
 <section id="learning-goals" class="level2">
 <h2 class="anchored" data-anchor-id="learning-goals">Learning goals</h2>
-<p>Practice reproducible random draws, distinguish a population target from an estimate, and compare two procedures using a small simulation. Interpret Monte Carlo uncertainty with one proportion formula.</p>
+<p>Repeat the lecture workflow on a weight-loss study: understand the three functions, build a scenario table, generate and analyse one trial, repeat it, and interpret estimation precision, coverage, power, and Monte Carlo uncertainty.</p>
 </section>
 <section id="warm-up-random-draws-and-the-normal-distribution" class="level2">
 <h2 class="anchored" data-anchor-id="warm-up-random-draws-and-the-normal-distribution">Warm-up: random draws and the normal distribution</h2>
 <ol type="1">
-<li>Run two successive <code>rnorm(3)</code> calls after <code>set.seed(42)</code>. Rerun the entire block. Which results repeat?</li>
+<li>Run two successive <code>rnorm(n = 3)</code> calls after <code>set.seed(42)</code>. Rerun the entire block. Which results repeat?</li>
 <li>Save <code>state_before &lt;- .Random.seed</code>, draw one value, and compare with <code>identical(state_before, .Random.seed)</code>. Explain the generator’s changing bookmark.</li>
-<li>Insert <code>unused &lt;- runif(1)</code> between the two <code>rnorm(3)</code> calls. Explain why the second output changes even though <code>unused</code> is never used.</li>
+<li>Insert <code>unused &lt;- runif(1)</code> between the two <code>rnorm(n = 3)</code> calls. Explain why the second output changes even though <code>unused</code> is never used.</li>
 <li>Call <code>set.seed(99)</code> immediately before the result you want to reproduce. Verify that earlier random work no longer changes that result. Explain why you should not put the same seed inside every replicate.</li>
-<li>Evaluate <code>dnorm(0)</code>, <code>pnorm(1.96)</code>, <code>qnorm(0.975)</code>, and <code>rnorm(8)</code>. Match them to density height, left-tail area, cutoff value, and simulated observations. Which two functions reverse each other’s question? Why is <code>dnorm(0)</code> not the probability of observing exactly zero?</li>
+<li>Evaluate <code>dnorm(0)</code>, <code>pnorm(1.96)</code>, <code>qnorm(0.975)</code>, and <code>rnorm(n = 8)</code>. Match them to density height, left-tail area, cutoff value, and simulated observations. Which two functions reverse each other’s question? Why is <code>dnorm(0)</code> not the probability of observing exactly zero?</li>
 </ol>
 </section>
 <section id="simulation-project-evaluating-a-weight-loss-intervention" class="level2">
 <h2 class="anchored" data-anchor-id="simulation-project-evaluating-a-weight-loss-intervention">Simulation project: evaluating a weight-loss intervention</h2>
 <p>Can we reliably estimate and detect the additional weight loss from a new intervention, and do our confidence intervals have the advertised coverage?</p>
 <p>The outcome is weight lost after 12 weeks, in kg: positive values mean weight loss and negative values mean weight gain. The control population mean is 1 kg; the intervention mean is 1 kg under the null and 3 kg under the alternative. The true additional weight loss, <code>delta</code>, is therefore 0 or 2 kg. All means, SDs, and distribution choices below are hypothetical teaching assumptions.</p>
-<p>Use the helpers supplied in the starter. The code below gives starting points; complete the TODOs and answer every question in prose.</p>
-<section id="specify-ademp" class="level3">
-<h3 class="anchored" data-anchor-id="specify-ademp">1. Specify ADEMP</h3>
-<p>Let each outcome be weight loss: baseline minus 12-week weight, in kg. Positive delta means greater mean weight loss with the intervention. The control mean is 1 kg and the intervention mean is 1 + delta kg. Use independent normal control and treatment groups with SDs 4 and 2. Compare sizes 10/40 and 30/40 and true differences 0 and 2 (four scenarios). Define the estimand as the population mean difference, treatment minus control. Distinguish this target from the estimator and one sample estimate. Write the five ADEMP headings before running the study. Explain why normal weight losses are a useful reference scenario, what prior or pilot evidence would support this model in a real project, and one reason to examine a skewed alternative. State the independence assumption and identify the means and SDs as teaching values.</p>
+<p>The starter supplies the three function definitions. Work through the questions in order using the code below, and explain each result in your own words.</p>
+<section id="review-the-functions-and-trace-the-workflow" class="level3">
+<h3 class="anchored" data-anchor-id="review-the-functions-and-trace-the-workflow">1. Review the functions and trace the workflow</h3>
+<p>Read the three supplied functions before running the study. For each, describe its inputs, output, and role. Trace <code>run_study()</code> calling <code>simulate_trial()</code> and then <code>analyse_trial()</code>. Which line creates new patient outcomes in every trial? Explain the difference between <code>rnorm(n = ...)</code> and <code>replicate(n = ...)</code>, and why <code>t(out)</code> puts one trial on each row. What do <code>est</code>, <code>se</code>, <code>p</code>, <code>lo</code>, and <code>hi</code> mean? Use the function reference below to discuss the other R functions as you encounter them; you do not need to memorize their syntax.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>simulate_trial</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>analyse_trial</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>run_study</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Printing a function shows its definition without calling it.</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: explain the inputs, output, and call sequence in your own words.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Role in this lab</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>simulate_trial()</code></td>
+<td>Generates one trial’s patient outcomes</td>
+</tr>
+<tr class="even">
+<td><code>analyse_trial()</code></td>
+<td>Returns <code>est</code>, <code>se</code>, <code>p</code>, <code>lo</code>, and <code>hi</code> for one trial</td>
+</tr>
+<tr class="odd">
+<td><code>run_study()</code></td>
+<td>Repeats generation and analysis for one scenario</td>
+</tr>
+<tr class="even">
+<td><code>rnorm()</code>, <code>rep()</code>, <code>c()</code>, <code>data.frame()</code></td>
+<td>Draw outcomes, create arm labels, and assemble data</td>
+</tr>
+<tr class="odd">
+<td><code>t.test()</code>, <code>mean()</code></td>
+<td>Fit the two-sample test and calculate means or proportions</td>
+</tr>
+<tr class="even">
+<td><code>replicate()</code>, <code>t()</code>, <code>as.data.frame()</code></td>
+<td>Repeat an expression and put trials into rows</td>
+</tr>
+<tr class="odd">
+<td><code>expand.grid()</code></td>
+<td>Creates every combination of the chosen scenario values</td>
+</tr>
+<tr class="even">
+<td><code>nrow()</code>, <code>seq_len()</code>, <code>vector()</code></td>
+<td>Count rows, create indices, and prepare a results list</td>
+</tr>
+<tr class="odd">
+<td><code>set.seed()</code>, <code>runif()</code>, <code>identical()</code></td>
+<td>Reproduce a run and check the seed experiment</td>
+</tr>
+<tr class="even">
+<td><code>do.call()</code>, <code>rbind()</code></td>
+<td>Combine the list of scenario results into one table</td>
+</tr>
+<tr class="odd">
+<td><code>head()</code>, <code>summary()</code>, <code>tapply()</code>, <code>table()</code>, <code>subset()</code></td>
+<td>Inspect and select data</td>
+</tr>
+<tr class="even">
+<td><code>sd()</code>, <code>sqrt()</code>, <code>sum()</code>, <code>round()</code></td>
+<td>Calculate spread, MCSE, counts, and rounded values</td>
+</tr>
+<tr class="odd">
+<td><code>plot()</code>, <code>arrows()</code>, <code>abline()</code>, <code>pmax()</code>, <code>pmin()</code></td>
+<td>Plot rates and bounded Monte Carlo intervals</td>
+</tr>
+</tbody>
+</table>
+<p><code>for</code> repeats code over design rows; <code>function</code> defines a reusable function. <code>$</code> selects a column or named result, <code>[i, ]</code> selects a row, and <code>[[i]]</code> selects an element of a list. <code>rep()</code> repeats values; <code>replicate()</code> reruns code.</p>
 </section>
-<section id="inspect-one-replicate" class="level3">
-<h3 class="anchored" data-anchor-id="inspect-one-replicate">2. Inspect one replicate</h3>
-<p>Generate one dataset. Inspect outcome ranges and group summaries to check the generator, allowing for sampling variation. Explain why simulated data cannot establish that real weight losses are normal. Compare Welch and pooled results on that same dataset. Verify the estimate direction, result names, and interval ordering. Exercise a failed constant-outcome sample.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1401</span>)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">simulate_trial</span>(<span class="at">n_ctrl =</span> <span class="dv">10</span>, <span class="at">n_trt =</span> <span class="dv">40</span>,</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sd_ctrl =</span> <span class="dv">4</span>, <span class="at">sd_trt =</span> <span class="dv">2</span>, <span class="at">delta =</span> <span class="dv">2</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(<span class="at">X =</span> d<span class="sc">$</span>y, <span class="at">INDEX =</span> d<span class="sc">$</span>arm, <span class="at">FUN =</span> summary)</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>welch <span class="ot">&lt;-</span> <span class="fu">analyse_trial</span>(<span class="at">data =</span> d, <span class="at">pooled =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: fit the pooled method to d, check both results,</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># and use analyse_checked() on a constant-outcome sample.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="specify-the-study-and-build-design" class="level3">
+<h3 class="anchored" data-anchor-id="specify-the-study-and-build-design">2. Specify the study and build design</h3>
+<p>Write a short ADEMP plan: aims, data-generating mechanism, estimand, methods, and performance measures. Use independent normal outcomes, control mean 1 kg, intervention mean <code>1 + delta</code> kg, and SDs 4 and 2 kg. Explain what evidence could support these teaching assumptions in a real study. Define the true mean difference and distinguish it from an estimate in one trial.</p>
+<p>Build <code>design</code> below. Explain why <code>expand.grid()</code> creates four rows, identify what changes and what stays fixed, and describe row 3 in words. Each row is a scenario, not a patient or a simulated trial. Why is there a separate seed for each scenario?</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>design <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">n_ctrl =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">30</span>), <span class="at">delta =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">2</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>design<span class="sc">$</span>n_trt <span class="ot">&lt;-</span> <span class="dv">40</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>design<span class="sc">$</span>sd_ctrl <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>design<span class="sc">$</span>sd_trt <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>design<span class="sc">$</span>scenario <span class="ot">&lt;-</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(design))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>design<span class="sc">$</span>seed <span class="ot">&lt;-</span> <span class="dv">1400</span> <span class="sc">+</span> design<span class="sc">$</span>scenario</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>design</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>design[<span class="dv">3</span>, ]</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: explain how these four rows implement your ADEMP plan.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="retain-each-method-and-replicate" class="level3">
-<h3 class="anchored" data-anchor-id="retain-each-method-and-replicate">3. Retain each method and replicate</h3>
-<p>Inspect the supplied run_study(s, B) function and run a pilot with B = 5. Identify where it generates one dataset, applies both methods, and retains results or errors. Check that five replicates produce ten rows. Both methods must use the same dataset in each replicate.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1401</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>pilot <span class="ot">&lt;-</span> <span class="fu">run_study</span>(<span class="at">s =</span> design[<span class="dv">1</span>, ], <span class="at">B =</span> <span class="dv">5</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(pilot)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(<span class="at">data =</span> pilot, <span class="at">expr =</span> <span class="fu">table</span>(replicate, method))</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: check that both methods have the same estimate in each replicate.</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Locate the shared dataset and error handling inside run_study().</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="generate-and-analyse-one-trial" class="level3">
+<h3 class="anchored" data-anchor-id="generate-and-analyse-one-trial">3. Generate and analyse one trial</h3>
+<p>Use row 3 of <code>design</code> to generate one trial. Inspect the outcomes and group summaries. Explain the meaning of negative weight loss. Apply <code>analyse_trial()</code> to this dataset and interpret its five results. Calculate the treatment-minus- control sample mean difference yourself and compare it with <code>est</code>. Why is the observed difference not exactly 2 kg? Why cannot this simulated sample establish that real weight losses follow a normal distribution?</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>s <span class="ot">&lt;-</span> design[<span class="dv">3</span>, ]</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(s<span class="sc">$</span>seed)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">simulate_trial</span>(<span class="at">n_ctrl =</span> s<span class="sc">$</span>n_ctrl, <span class="at">n_trt =</span> s<span class="sc">$</span>n_trt,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sd_ctrl =</span> s<span class="sc">$</span>sd_ctrl, <span class="at">sd_trt =</span> s<span class="sc">$</span>sd_trt,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                    <span class="at">delta =</span> s<span class="sc">$</span>delta)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="at">x =</span> d)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(<span class="at">X =</span> d<span class="sc">$</span>y, <span class="at">INDEX =</span> d<span class="sc">$</span>arm, <span class="at">FUN =</span> summary)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">analyse_trial</span>(<span class="at">data =</span> d)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>fit</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: compute the two group means and their difference.</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Explain the estimate, SE, p-value, and confidence interval.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="run-reproducible-scenarios" class="level3">
-<h3 class="anchored" data-anchor-id="run-reproducible-scenarios">4. Run reproducible scenarios</h3>
-<p>Use B = 1000 for this teaching exercise. Assign each scenario a fixed seed and call set.seed() immediately before running that scenario. Insert an unrelated runif() call before the seed and verify that the scenario results stay unchanged. Do not reset the seed inside the replicate loop.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">1000</span>L</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>design<span class="sc">$</span>seed <span class="ot">&lt;-</span> <span class="dv">1400</span>L <span class="sc">+</span> design<span class="sc">$</span>scenario</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="at">mode =</span> <span class="st">"list"</span>, <span class="at">length =</span> <span class="fu">nrow</span>(design))</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(design))) {</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(design<span class="sc">$</span>seed[i])</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  results[[i]] <span class="ot">&lt;-</span> <span class="fu">run_study</span>(<span class="at">s =</span> design[i, ], <span class="at">B =</span> B)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>all_results <span class="ot">&lt;-</span> <span class="fu">do.call</span>(<span class="at">what =</span> rbind, <span class="at">args =</span> results)</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: verify the row counts and repeat a scenario after inserting</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># runif(n = 100) BEFORE its set.seed() call. Compare with identical().</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="repeat-one-scenario-a-five-trial-pilot" class="level3">
+<h3 class="anchored" data-anchor-id="repeat-one-scenario-a-five-trial-pilot">4. Repeat one scenario: a five-trial pilot</h3>
+<p>Pass the same row to <code>run_study()</code> with <code>B = 5</code>. Identify the five result columns and the repeated scenario information. Explain why the output has five rows and why the estimates differ. Compare its first estimate with the single-trial result from question 3. Explain why using the same starting seed makes them agree, but resetting that seed inside <code>replicate()</code> would be wrong.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(s<span class="sc">$</span>seed)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>pilot <span class="ot">&lt;-</span> <span class="fu">run_study</span>(<span class="at">s =</span> s, <span class="at">B =</span> <span class="dv">5</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>pilot</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(pilot)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>pilot<span class="sc">$</span>est[<span class="dv">1</span>]</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>fit[<span class="st">"est"</span>]</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: describe what stays fixed and what changes across the five trials.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="summarize-performance-and-failures" class="level3">
-<h3 class="anchored" data-anchor-id="summarize-performance-and-failures">5. Summarize performance and failures</h3>
-<p>For each scenario and method report attempts, failures, bias, coverage, rejection rate, and MCSE for rejection. Use sqrt(p_hat * (1 - p_hat) / B_valid), where B_valid counts successful replicates. Label performance summaries as conditional on success. Interpret rejection rates as type I error when delta = 0 and power when delta = 2.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Start with one scenario and method; then repeat for every combination.</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>one <span class="ot">&lt;-</span> <span class="fu">subset</span>(<span class="at">x =</span> all_results, <span class="at">subset =</span> scenario <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> method <span class="sc">==</span> <span class="st">"Welch"</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>valid <span class="ot">&lt;-</span> <span class="fu">subset</span>(<span class="at">x =</span> one, <span class="at">subset =</span> <span class="fu">is.na</span>(error))</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>B_valid <span class="ot">&lt;-</span> <span class="fu">nrow</span>(valid)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>rejection <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="at">x =</span> valid<span class="sc">$</span>p <span class="sc">&lt;</span> <span class="fl">0.05</span>)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>mcse_rejection <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(rejection <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> rejection) <span class="sc">/</span> B_valid)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: count attempts/failures and calculate bias and coverage.</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Create performance: one row per scenario/method, retaining n_ctrl,</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># n_trt, delta, valid (= B_valid), rejection, and mcse_rejection.</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Include your other requested measures; guard against too few valid trials.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="run-all-four-design-rows" class="level3">
+<h3 class="anchored" data-anchor-id="run-all-four-design-rows">5. Run all four design rows</h3>
+<p>Use <code>B = 1000</code> for each scenario. Trace one pass through the loop: choose a design row, set its seed, run the scenario, and store the result. Explain how <code>do.call()</code> and <code>rbind()</code> combine the results. How many rows should <code>all_results</code> contain? Verify the number of trials per scenario. Insert an unrelated <code>runif()</code> call before a scenario’s <code>set.seed()</code> and check that its results stay unchanged. Do not reset the seed within the trial repetitions.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="at">mode =</span> <span class="st">"list"</span>, <span class="at">length =</span> <span class="fu">nrow</span>(design))</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(design))) {</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(design<span class="sc">$</span>seed[i])</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  results[[i]] <span class="ot">&lt;-</span> <span class="fu">run_study</span>(<span class="at">s =</span> design[i, ], <span class="at">B =</span> B)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>all_results <span class="ot">&lt;-</span> <span class="fu">do.call</span>(<span class="at">what =</span> rbind, <span class="at">args =</span> results)</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(all_results)</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(all_results<span class="sc">$</span>scenario)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: use runif(), set.seed(), and identical() to check reproducibility.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="interpret-the-comparison" class="level3">
-<h3 class="anchored" data-anchor-id="interpret-the-comparison">6. Interpret the comparison</h3>
-<p>Compare null calibration, power, coverage, and failure counts across allocations. Draw one rejection-rate comparison with approximate Monte Carlo intervals. Explain why 5.2% from 1,000 replicates need not differ meaningfully from 5%, and why more replicates differ from more patients per trial.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>null <span class="ot">&lt;-</span> <span class="fu">subset</span>(<span class="at">x =</span> performance, <span class="at">subset =</span> delta <span class="sc">==</span> <span class="dv">0</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="at">x =</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(null)), <span class="at">y =</span> null<span class="sc">$</span>rejection,</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">xlab =</span> <span class="st">"Scenario / method"</span>, <span class="at">ylab =</span> <span class="st">"Null rejection rate"</span>)</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="fl">0.05</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: label the points and add intervals using arrows():</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># lower = pmax(0, rejection - 1.96 * mcse_rejection)</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># upper = pmin(1, rejection + 1.96 * mcse_rejection)</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Tighten the y-axis limits to show all points and intervals clearly.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="summarize-estimation-and-testing-performance" class="level3">
+<h3 class="anchored" data-anchor-id="summarize-estimation-and-testing-performance">6. Summarize estimation and testing performance</h3>
+<p>For every scenario, report bias, empirical SE, coverage, rejection rate, and MCSE of the rejection rate. Trace the supplied summary loop for one scenario. Explain why <code>mean()</code> of a TRUE/FALSE condition gives a proportion. Add mean confidence-interval width to the summary. Which values describe the method’s performance, which describe sampling variability, and which describe Monte Carlo uncertainty? Interpret rejection as type I error for <code>delta = 0</code> and power for <code>delta = 2</code>.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>summaries <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="at">mode =</span> <span class="st">"list"</span>, <span class="at">length =</span> <span class="fu">nrow</span>(design))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(design))) {</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  one <span class="ot">&lt;-</span> all_results[all_results<span class="sc">$</span>scenario <span class="sc">==</span> design<span class="sc">$</span>scenario[i], ]</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  truth <span class="ot">&lt;-</span> design<span class="sc">$</span>delta[i]</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  rejection <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="at">x =</span> one<span class="sc">$</span>p <span class="sc">&lt;</span> <span class="fl">0.05</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  summaries[[i]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    design[i, ], <span class="at">trials =</span> <span class="fu">nrow</span>(one),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">bias =</span> <span class="fu">mean</span>(<span class="at">x =</span> one<span class="sc">$</span>est) <span class="sc">-</span> truth,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">empirical_se =</span> <span class="fu">sd</span>(<span class="at">x =</span> one<span class="sc">$</span>est),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">coverage =</span> <span class="fu">mean</span>(<span class="at">x =</span> one<span class="sc">$</span>lo <span class="sc">&lt;=</span> truth <span class="sc">&amp;</span> truth <span class="sc">&lt;=</span> one<span class="sc">$</span>hi),</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">rejection =</span> rejection,</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">mcse_rejection =</span> <span class="fu">sqrt</span>(rejection <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> rejection) <span class="sc">/</span> <span class="fu">nrow</span>(one)))</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>performance <span class="ot">&lt;-</span> <span class="fu">do.call</span>(<span class="at">what =</span> rbind, <span class="at">args =</span> summaries)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>performance</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: add mean_width = mean(one$hi - one$lo) inside data.frame().</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Explain how each measure answers the study question.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="power-for-study-planning" class="level3">
-<h3 class="anchored" data-anchor-id="power-for-study-planning">7. Power for study planning</h3>
-<p>Use the delta = 2 results to compare Welch power for 10/40 and 30/40 patients. Report rejections, valid trials, power, MCSE, and an approximate 95% Monte Carlo interval. Explain why this interval concerns detection probability rather than the treatment effect. Distinguish power from coverage. Do the results support at least 80% power? Explain what increasing patient numbers changes and what increasing B changes.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>power_results <span class="ot">&lt;-</span> <span class="fu">subset</span>(<span class="at">x =</span> performance,</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">subset =</span> delta <span class="sc">==</span> <span class="dv">2</span> <span class="sc">&amp;</span> method <span class="sc">==</span> <span class="st">"Welch"</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>power_results<span class="sc">$</span>power <span class="ot">&lt;-</span> power_results<span class="sc">$</span>rejection</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>power_results<span class="sc">$</span>rejected <span class="ot">&lt;-</span> <span class="fu">round</span>(power_results<span class="sc">$</span>power <span class="sc">*</span> power_results<span class="sc">$</span>valid)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>power_results<span class="sc">$</span>mc_lower <span class="ot">&lt;-</span> <span class="fu">pmax</span>(<span class="dv">0</span>, power_results<span class="sc">$</span>power <span class="sc">-</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                                <span class="fl">1.96</span> <span class="sc">*</span> power_results<span class="sc">$</span>mcse_rejection)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: add mc_upper (bounded by 1), then report the requested columns.</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare both allocations with the 80% power target.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="compare-the-designs-and-the-two-kinds-of-uncertainty" class="level3">
+<h3 class="anchored" data-anchor-id="compare-the-designs-and-the-two-kinds-of-uncertainty">7. Compare the designs and the two kinds of uncertainty</h3>
+<p>Compare the 10/40 and 30/40 allocations. What happens to empirical SE, interval width, coverage, and rejection? Plot the null rejection rates with approximate 95% Monte Carlo intervals and compare them with 5%. Explain why 5.2% from 1,000 trials need not differ meaningfully from 5%. Distinguish these intervals for a rejection probability from the treatment- effect interval in question 3. What changes when we add patients, and what changes when we add simulation replicates?</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>null <span class="ot">&lt;-</span> <span class="fu">subset</span>(<span class="at">x =</span> performance, <span class="at">subset =</span> delta <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="at">x =</span> null<span class="sc">$</span>n_ctrl, <span class="at">y =</span> null<span class="sc">$</span>rejection, <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.15</span>),</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Control patients (40 intervention patients)"</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">"Null rejection rate"</span>, <span class="at">pch =</span> <span class="dv">19</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="fl">0.05</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: use arrows() to add intervals at x = null$n_ctrl:</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># lower = pmax(0, null$rejection - 1.96 * null$mcse_rejection)</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># upper = pmin(1, null$rejection + 1.96 * null$mcse_rejection)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="use-power-for-study-planning" class="level3">
+<h3 class="anchored" data-anchor-id="use-power-for-study-planning">8. Use power for study planning</h3>
+<p>Use the <code>delta = 2</code> results to compare power for the two allocations. Report rejections, trials, power, MCSE, and an approximate 95% Monte Carlo interval. Do the results support at least 80% power? Distinguish power from coverage: which event does each count? Explain why increasing <code>B</code> alone cannot rescue a study with low power. State that the conclusions depend on the assumed outcome distribution, independence, means, and SDs.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>power_results <span class="ot">&lt;-</span> <span class="fu">subset</span>(<span class="at">x =</span> performance, <span class="at">subset =</span> delta <span class="sc">==</span> <span class="dv">2</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>power_results<span class="sc">$</span>power <span class="ot">&lt;-</span> power_results<span class="sc">$</span>rejection</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>power_results<span class="sc">$</span>rejected <span class="ot">&lt;-</span> <span class="fu">round</span>(power_results<span class="sc">$</span>power <span class="sc">*</span> power_results<span class="sc">$</span>trials)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>power_results<span class="sc">$</span>mc_lower <span class="ot">&lt;-</span> <span class="fu">pmax</span>(<span class="dv">0</span>, power_results<span class="sc">$</span>power <span class="sc">-</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>                                <span class="fl">1.96</span> <span class="sc">*</span> power_results<span class="sc">$</span>mcse_rejection)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: add mc_upper using pmin(1, power + 1.96 * mcse_rejection).</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Report the requested columns and compare both designs with 80% power.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 </section>
-<section id="optional-extensions" class="level2">
-<h2 class="anchored" data-anchor-id="optional-extensions">Optional extensions</h2>
-<ul>
-<li>Extend the Welch power comparison to more sample sizes or a smaller effect (for example, 1 kg). Keep the test rule fixed and refine promising scenarios with more replicates.</li>
-<li>Add <code>dgm = "skewed"</code> to the design using the supplied helper. Explain why it centers errors using the population mean rather than each sample mean. Keep the estimand unchanged.</li>
-<li>Report empirical SE, mean model SE, RMSE, mean interval width, and MCSE for bias or coverage.</li>
-<li>Plan B from a target MCSE using <code>ceiling(p * (1 - p) / target^2)</code>. Try B = 4000 and explain why MCSE is about half its value at B = 1000.</li>
-<li>Explore <code>SimDesign::runSimulation()</code> for running a larger study or <code>rsimsum::simsum()</code> for summarising saved results. No package installation is required for the core lab.</li>
-</ul>
+<section id="optional-extension-compare-welch-and-pooled-tests" class="level2">
+<h2 class="anchored" data-anchor-id="optional-extension-compare-welch-and-pooled-tests">Optional extension: compare Welch and pooled tests</h2>
+<p>Repeat one scenario with <code>pooled = TRUE</code>. Start both runs at the same scenario seed so they use the same generated datasets. Compare null rejection rates before interpreting differences in power. The core lab requires only Welch.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(design<span class="sc">$</span>seed[<span class="dv">1</span>])</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>welch_results <span class="ot">&lt;-</span> <span class="fu">run_study</span>(<span class="at">s =</span> design[<span class="dv">1</span>, ], <span class="at">B =</span> <span class="dv">1000</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(design<span class="sc">$</span>seed[<span class="dv">1</span>])</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>pooled_results <span class="ot">&lt;-</span> <span class="fu">run_study</span>(<span class="at">s =</span> design[<span class="dv">1</span>, ], <span class="at">B =</span> <span class="dv">1000</span>, <span class="at">pooled =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
 <section id="exit-evidence" class="level2">
 <h2 class="anchored" data-anchor-id="exit-evidence">Exit evidence</h2>
-<p>Submit the source and rendered report with the requested results, checks, interpretation, and AI-use disclosure. Every result must identify its analysis sample or resampling unit. Use synthetic data supplied in the starter.</p>
+<p>Submit the source and rendered report with answers to all eight questions, your design table, simulation summaries, comparison plot, and AI-use disclosure. Identify the outcome units, true effect, patient counts, and number of simulated trials. Use only synthetic data generated by the supplied functions.</p>
 
 
 </section>
