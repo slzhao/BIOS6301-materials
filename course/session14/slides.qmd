@@ -856,6 +856,31 @@ with `delta` set differently. Nothing else changes.
 :::
 
 
+## Coverage and interval width in code {.smaller}
+
+```{r}
+set.seed(1402)
+check_ci <- run_scenario(n_sim = 1000, n_ctrl = 10, n_trt = 40,
+                         sd_ctrl = 12, sd_trt = 4, delta = 6, pooled = FALSE)
+covered <- check_ci$lo <= 6 & 6 <= check_ci$hi
+c(bias = mean(check_ci$est) - 6,
+  empirical_se = sd(check_ci$est), mean_model_se = mean(check_ci$se),
+  coverage = mean(covered), width = mean(check_ci$hi - check_ci$lo))
+```
+
+The truth is **6 mmHg**. SE and interval width describe effect-estimate precision.
+**Coverage** is how often intervals contain 6; wide intervals can cover well.
+
+## Bias, variance, and RMSE {.smaller}
+
+```{r}
+error <- check_ci$est - 6
+c(bias = mean(error), rmse = sqrt(mean(error^2)))
+```
+
+RMSE summarizes squared estimation error; coverage evaluates an interval procedure.
+They answer different questions. A small bias does not imply a calibrated interval.
+
 ## Why simulation results have uncertainty {.smaller}
 
 **Monte Carlo** means using repeated random draws to answer a question.
@@ -869,17 +894,6 @@ trials, we expect about 50 rejections, but we will not always get exactly 50.
 
 A fixed seed reproduces the same answer. **More replicates** make the answer
 less sensitive to the particular random draws.
-
-## Two kinds of uncertainty {.smaller}
-
-| | Sampling uncertainty | Monte Carlo uncertainty |
-|---|---|---|
-| What varies? | A treatment effect estimate across trials | A rejection rate across full simulation runs |
-| Example | Each trial has 50 patients | Each simulation run contains 1,000 trials |
-| What helps? | More patients per trial | More simulated trials per run |
-
-Increasing **patients per trial** changes the study we are evaluating.
-Increasing **replicates** helps us evaluate that same study more precisely.
 
 ## One calculation for a simulated percentage {.smaller}
 
@@ -904,44 +918,6 @@ The rate is **5.2%**, with MCSE **0.70 percentage points** and an approximate
 that the true rejection rate differs from 5%.
 
 
-## Coverage and interval width in code {.smaller}
-
-```{r}
-set.seed(1402)
-check_ci <- run_scenario(n_sim = 1000, n_ctrl = 10, n_trt = 40,
-                         sd_ctrl = 12, sd_trt = 4, delta = 6, pooled = FALSE)
-covered <- check_ci$lo <= 6 & 6 <= check_ci$hi
-c(bias = mean(check_ci$est) - 6,
-  empirical_se = sd(check_ci$est), mean_model_se = mean(check_ci$se),
-  coverage = mean(covered), width = mean(check_ci$hi - check_ci$lo),
-  coverage_mcse = sqrt(mean(covered) * (1 - mean(covered)) / nrow(check_ci)))
-```
-
-The truth is **6**, not the estimate from one simulated sample.
-Wide intervals may cover well while being too imprecise to be useful.
-
-## Bias, variance, and RMSE {.smaller}
-
-```{r}
-error <- check_ci$est - 6
-c(bias = mean(error), rmse = sqrt(mean(error^2)),
-  mcse_bias = sd(error) / sqrt(length(error)))
-```
-
-RMSE summarizes squared estimation error; coverage evaluates an interval procedure.
-They answer different questions. A small bias does not imply a calibrated interval.
-
-## Optional: no rejections does not mean zero probability {.smaller}
-
-```{r}
-binom.test(0, 1000)$conf.int
-```
-
-Zero rejections out of 1,000 does not establish a true rejection probability of zero.
-The plug-in MCSE formula gives zero here; a binomial interval exposes the remaining uncertainty.
-
-Use interval estimates near zero or one, and state the number of valid replicates.
-
 ## More replicates give a steadier answer {.smaller}
 
 For a rejection probability near 5%:
@@ -959,6 +935,17 @@ Start with a small run to check the code. Then choose a larger, fixed number
 of replicates and report the MCSE with the final result.
 
 
+## Optional: no rejections does not mean zero probability {.smaller}
+
+```{r}
+binom.test(0, 1000)$conf.int
+```
+
+Zero rejections out of 1,000 does not establish a true rejection probability of zero.
+The plug-in MCSE formula gives zero here; a binomial interval exposes the remaining uncertainty.
+
+Use interval estimates near zero or one, and state the number of valid replicates.
+
 ## Optional: choosing replicates for a target precision {.smaller}
 
 ```{r}
@@ -971,6 +958,18 @@ A design sized for Type I error near 0.05 can give less precise power estimates.
 
 Choose the precision target before inspecting favorable results. Use a pilot to
 debug and estimate computational cost, then run the planned study.
+
+## Two kinds of uncertainty {.smaller}
+
+| | Sampling uncertainty | Monte Carlo uncertainty |
+|---|---|---|
+| What varies? | A treatment effect estimate across trials | A rejection rate across full simulation runs |
+| Reported as | Effect SE and confidence interval (mmHg) | MCSE and Monte Carlo interval for a rate |
+| Example | Each trial has 50 patients | Each simulation run contains 1,000 trials |
+| What helps? | More patients per trial | More simulated trials per run |
+
+Increasing **patients per trial** changes the study we are evaluating.
+Increasing **replicates** helps us evaluate that same study more precisely.
 
 # 6 · Type I error and power {.section-divider}
 
