@@ -836,25 +836,17 @@ Report the failure rate and the chosen denominator. Silently applying
 
 # 5 · Performance measures {.section-divider}
 
-## What you actually report {.smaller}
+## Two kinds of uncertainty {.smaller}
 
-::: {style="font-size:0.84em"}
-| Measure | Estimated by | Answers |
+| | Sampling uncertainty | Monte Carlo uncertainty |
 |---|---|---|
-| **Bias** | $\bar{\hat\theta} - \theta$ | Is the estimator systematically off? |
-| **Empirical SE** | $\mathrm{sd}(\hat\theta)$ | How variable is it, run to run? |
-| **Coverage** | $\frac{1}{n_{\text{sim}}}\sum \mathbb{1}\{\hat\theta_{\text{lo}} \le \theta \le \hat\theta_{\text{hi}}\}$ | Does the 95% CI cover 95% of the time? |
-| **Type I error** | $\mathrm{mean}(p < \alpha)$, with $\theta = 0$ | Does the test hold its size? |
-| **Power** | $\mathrm{mean}(p < \alpha)$, with $\theta \ne 0$ | Will the study detect a real effect? |
-:::
+| What varies? | A treatment effect estimate across trials | A rejection rate across full simulation runs |
+| Reported as | Effect SE and confidence interval (mmHg) | MCSE and Monte Carlo interval for a rate |
+| Example | Each trial has 50 patients | Each simulation run contains 1,000 trials |
+| What helps? | More patients per trial | More simulated trials per run |
 
-. . .
-
-::: {.smaller}
-Type I error and power are the **same computation** on data from the same DGM
-with `delta` set differently. Nothing else changes.
-:::
-
+Increasing **patients per trial** changes the study we are evaluating.
+Increasing **replicates** helps us evaluate that same study more precisely.
 
 ## Coverage and interval width in code {.smaller}
 
@@ -959,17 +951,22 @@ A design sized for Type I error near 0.05 can give less precise power estimates.
 Choose the precision target before inspecting favorable results. Use a pilot to
 debug and estimate computational cost, then run the planned study.
 
-## Two kinds of uncertainty {.smaller}
+## What you actually report {.smaller}
 
-| | Sampling uncertainty | Monte Carlo uncertainty |
+::: {style="font-size:0.84em"}
+| Report | What it describes | Interpretation |
 |---|---|---|
-| What varies? | A treatment effect estimate across trials | A rejection rate across full simulation runs |
-| Reported as | Effect SE and confidence interval (mmHg) | MCSE and Monte Carlo interval for a rate |
-| Example | Each trial has 50 patients | Each simulation run contains 1,000 trials |
-| What helps? | More patients per trial | More simulated trials per run |
+| **Effect SE and CI width** | Sampling uncertainty | Precision of the effect estimate in one trial |
+| **Empirical SE** | Sampling uncertainty | Spread of effect estimates across trials |
+| **Bias and RMSE** | Method performance | Systematic error and overall estimation error |
+| **Coverage** | Method performance | Fraction of effect CIs containing the truth |
+| **Type I error / power** | Method performance | Rejection fraction under a zero / nonzero effect |
+| **MCSE and Monte Carlo interval** | Monte Carlo uncertainty | Precision of a simulated performance estimate |
+:::
 
-Increasing **patients per trial** changes the study we are evaluating.
-Increasing **replicates** helps us evaluate that same study more precisely.
+Bias, coverage, and power are **performance measures**. Their estimated values
+also have Monte Carlo uncertainty because we simulate a finite number of trials.
+
 
 # 6 · Type I error and power {.section-divider}
 
@@ -1358,10 +1355,13 @@ before comparing this method with another procedure.
 
 ## Lab route and exit check {.smaller}
 
-1. Write ADEMP; generate and inspect one dataset.
-2. Compare both tests on the same dataset, then repeat under null and alternative.
-3. Summarize bias, SE, coverage, rejection, width, and failures.
-4. Add a skewed scenario and report the limits of the comparison.
+1. Review `simulate_trial()`, `analyse_trial()`, and `run_study()`.
+2. Build four weight-loss scenarios in `design`; inspect one trial and a pilot.
+3. Repeat each scenario with Welch's test; summarize precision, coverage, and power.
+4. Distinguish sampling uncertainty from Monte Carlo uncertainty.
+
+The lab repeats the lecture workflow with **weight loss in kg**. Comparing
+Welch and pooled tests is optional.
 
 **Explain:** Why can a method have small bias but poor coverage?
 Why does increasing replication not fix a wrong generator?
