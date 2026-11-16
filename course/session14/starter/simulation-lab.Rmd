@@ -73,8 +73,8 @@ its inputs, output, and role. Trace `run_study()` calling `simulate_trial()` and
 then `analyse_trial()`. Which line creates new patient outcomes in every trial?
 Explain the difference between `rnorm(n = ...)` and `replicate(n = ...)`, and
 why `t(out)` puts one trial on each row. What do `est`, `se`, `p`, `lo`, and `hi`
-mean? Use the function reference below to discuss the other R functions as you
-encounter them; you do not need to memorize their syntax.
+mean? Explain how `replicate()` repeats trials and how `expand.grid()`
+will create scenarios. Focus on the five functions in the table below.
 
 ```{r, eval=FALSE}
 simulate_trial
@@ -89,30 +89,60 @@ run_study
 | `simulate_trial()` | Generates one trial's patient outcomes |
 | `analyse_trial()` | Returns `est`, `se`, `p`, `lo`, and `hi` for one trial |
 | `run_study()` | Repeats generation and analysis for one scenario |
-| `rnorm()`, `rep()`, `c()`, `data.frame()` | Draw outcomes, create arm labels, and assemble data |
-| `t.test()`, `mean()` | Fit the two-sample test and calculate means or proportions |
-| `replicate()`, `t()`, `as.data.frame()` | Repeat an expression and put trials into rows |
+| `replicate()` | Runs the same expression repeatedly, generating a new trial each time |
 | `expand.grid()` | Creates every combination of the chosen scenario values |
-| `nrow()`, `seq_len()`, `vector()` | Count rows, create indices, and prepare a results list |
-| `set.seed()`, `runif()`, `identical()` | Reproduce a run and check the seed experiment |
-| `do.call()`, `rbind()` | Combine the list of scenario results into one table |
-| `head()`, `summary()`, `tapply()`, `table()`, `subset()` | Inspect and select data |
-| `sd()`, `sqrt()`, `sum()`, `round()` | Calculate spread, MCSE, counts, and rounded values |
-| `plot()`, `arrows()`, `abline()`, `pmax()`, `pmin()` | Plot rates and bounded Monte Carlo intervals |
-
-`for` repeats code over design rows; `function` defines a reusable function.
-`$` selects a column or named result, `[i, ]` selects a row, and `[[i]]`
-selects an element of a list. `rep()` repeats values; `replicate()` reruns code.
 
 Write your explanation here.
 
-## 2. Specify the study and build design
+## 2. Plan simulations for different outcomes
 
-Write a short ADEMP plan: aims, data-generating mechanism, estimand, methods,
-and performance measures. Use independent normal outcomes, control mean 1 kg,
-intervention mean `1 + delta` kg, and SDs 4 and 2 kg. Explain what evidence could
-support these teaching assumptions in a real study. Define the true mean
-difference and distinguish it from an estimate in one trial.
+Before writing a loop, decide what one observation represents, how outcomes
+could arise, and what you want to learn. Discuss the three examples below and
+write **one or two sentences under each ADEMP heading for each example**.
+These are hypothetical teaching scenarios, not claims about actual treatments.
+Only Example A will be implemented in the remaining questions.
+
+**Example A — Weight loss (continuous outcome).** A study measures kg lost
+after 12 weeks; negative values mean weight gain. Consider a control mean of
+1 kg and an intervention mean of 3 kg, with SDs 4 and 2 kg. Compare 10/40 and
+30/40 patients. We want to assess estimation of additional weight loss and
+the chance of detecting it.
+
+**Example B — Smoking cessation (binary outcome).** Each person is recorded
+as having quit or not quit at six months. Consider 100 people per group and
+quit probabilities of 0.15 for control and 0.25 for intervention. We want to
+estimate the difference in quit probabilities and assess the chance of
+detecting an improvement.
+
+**Example C — Migraine episodes (count outcome).** Each person reports the
+number of episodes during one month. Consider 50 people per group and mean
+counts of 4 for control and 3 for intervention. We want to estimate the
+intervention-minus-control difference in mean counts and assess whether the
+analysis detects a reduction.
+
+| ADEMP heading | Key points to decide |
+|---|---|
+| **Aims** | What project question should the simulation answer? |
+| **Data-generating mechanism** | What is one observation? Which distribution fits its possible values? What parameters, group sizes, and independence assumptions will you use? |
+| **Estimand** | What population quantity is the target, in what units, and what is its known value? |
+| **Methods** | How will you estimate that quantity and obtain an interval or test? Describe the approach; no new analysis code is required. |
+| **Performance measures** | Which of bias, precision, coverage, type I error, and power answer the aims? How will you describe Monte Carlo uncertainty? |
+
+For each example, propose a starting distribution and explain why it is
+plausible; there is no single best model without scientific context or data.
+Would ordinary normal draws make sense for a 0/1 outcome or a nonnegative
+integer count? What prior or pilot information would support your choices?
+State an independence assumption, one assumption you would question, and
+how you would change the generating parameters to study **no treatment effect**.
+Distinguish the known population target from its estimate in one simulated trial.
+
+Write the key ADEMP points for A, B, and C here.
+
+## 3. Build design for the weight-loss study
+
+Now implement **Example A** using independent normal outcomes, control mean
+1 kg, intervention mean `1 + delta` kg, and SDs 4 and 2 kg. The two values of
+`delta` (0 and 2) represent the null and alternative scenarios in your plan.
 
 Build `design` below. Explain why `expand.grid()` creates four rows, identify
 what changes and what stays fixed, and describe row 3 in words. Each row is a
@@ -133,7 +163,7 @@ design[3, ]
 
 Write your explanation here.
 
-## 3. Generate and analyse one trial
+## 4. Generate and analyse one trial
 
 Use row 3 of `design` to generate one trial. Inspect the outcomes and group
 summaries. Explain the meaning of negative weight loss. Apply `analyse_trial()`
@@ -158,12 +188,12 @@ fit
 
 Write your explanation here.
 
-## 4. Repeat one scenario: a five-trial pilot
+## 5. Repeat one scenario: a five-trial pilot
 
 Pass the same row to `run_study()` with `B = 5`. Identify the five result
 columns and the repeated scenario information. Explain why the output has
 five rows and why the estimates differ. Compare its first estimate with the
-single-trial result from question 3. Explain why using the same starting seed
+single-trial result from question 4. Explain why using the same starting seed
 makes them agree, but resetting that seed inside `replicate()` would be wrong.
 
 ```{r, eval=FALSE}
@@ -178,7 +208,7 @@ fit["est"]
 
 Write your explanation here.
 
-## 5. Run all four design rows
+## 6. Run all four design rows
 
 Use `B = 1000` for each scenario. Trace one pass through the loop: choose a
 design row, set its seed, run the scenario, and store the result. Explain how
@@ -202,7 +232,7 @@ table(all_results$scenario)
 
 Write your explanation here.
 
-## 6. Summarize estimation and testing performance
+## 7. Summarize estimation and testing performance
 
 For every scenario, report bias, empirical SE, coverage, rejection rate, and
 MCSE of the rejection rate. Trace the supplied summary loop for one scenario.
@@ -234,14 +264,14 @@ performance
 
 Write your explanation here.
 
-## 7. Compare the designs and the two kinds of uncertainty
+## 8. Compare the designs and the two kinds of uncertainty
 
 Compare the 10/40 and 30/40 allocations. What happens to empirical SE,
 interval width, coverage, and rejection? Plot the null rejection rates with
 approximate 95% Monte Carlo intervals and compare them with 5%.
 Explain why 5.2% from 1,000 trials need not differ meaningfully from 5%.
 Distinguish these intervals for a rejection probability from the treatment-
-effect interval in question 3. What changes when we add patients, and what
+effect interval in question 4. What changes when we add patients, and what
 changes when we add simulation replicates?
 
 ```{r, eval=FALSE}
@@ -257,7 +287,7 @@ abline(h = 0.05, lty = 2)
 
 Write your explanation here.
 
-## 8. Use power for study planning
+## 9. Use power for study planning
 
 Use the `delta = 2` results to compare power for the two allocations. Report
 rejections, trials, power, MCSE, and an approximate 95% Monte Carlo interval.
