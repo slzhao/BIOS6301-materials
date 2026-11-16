@@ -114,11 +114,15 @@ quit probabilities of 0.15 for control and 0.25 for intervention. We want to
 estimate the difference in quit probabilities and assess the chance of
 detecting an improvement.
 
-**Example C — Migraine episodes (count outcome).** Each person reports the
-number of episodes during one month. Consider 50 people per group and mean
-counts of 4 for control and 3 for intervention. We want to estimate the
-intervention-minus-control difference in mean counts and assess whether the
-analysis detects a reduction.
+**Example C — Gene-expression read counts (count outcome).** A bulk RNA-seq
+study measures the read count for one gene in six independent biological samples
+per group. For this teaching scenario, assume equal sequencing depth. Use a
+negative binomial model with mean count 100 for control, 200 for treatment,
+and `size = 10` in both groups. The `size` parameter controls extra variation
+beyond a Poisson model; it is not the number of samples. We want to estimate
+the treatment/control **log2 fold change** and assess whether the analysis
+detects differential expression. Explain why the distribution must allow
+nonnegative integers and variance greater than the mean.
 
 | ADEMP heading | Key points to decide |
 |---|---|
