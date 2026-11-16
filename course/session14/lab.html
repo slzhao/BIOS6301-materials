@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -251,7 +286,16 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#learning-goals" id="toc-learning-goals" class="nav-link active" data-scroll-target="#learning-goals">Learning goals</a></li>
   <li><a href="#warm-up-random-draws-and-the-normal-distribution" id="toc-warm-up-random-draws-and-the-normal-distribution" class="nav-link" data-scroll-target="#warm-up-random-draws-and-the-normal-distribution">Warm-up: random draws and the normal distribution</a></li>
-  <li><a href="#tasks-following-the-lecture-outline" id="toc-tasks-following-the-lecture-outline" class="nav-link" data-scroll-target="#tasks-following-the-lecture-outline">Tasks following the lecture outline</a></li>
+  <li><a href="#simulation-project-evaluating-a-weight-loss-intervention" id="toc-simulation-project-evaluating-a-weight-loss-intervention" class="nav-link" data-scroll-target="#simulation-project-evaluating-a-weight-loss-intervention">Simulation project: evaluating a weight-loss intervention</a>
+  <ul class="collapse">
+  <li><a href="#specify-ademp" id="toc-specify-ademp" class="nav-link" data-scroll-target="#specify-ademp">1. Specify ADEMP</a></li>
+  <li><a href="#inspect-one-replicate" id="toc-inspect-one-replicate" class="nav-link" data-scroll-target="#inspect-one-replicate">2. Inspect one replicate</a></li>
+  <li><a href="#retain-each-method-and-replicate" id="toc-retain-each-method-and-replicate" class="nav-link" data-scroll-target="#retain-each-method-and-replicate">3. Retain each method and replicate</a></li>
+  <li><a href="#run-reproducible-scenarios" id="toc-run-reproducible-scenarios" class="nav-link" data-scroll-target="#run-reproducible-scenarios">4. Run reproducible scenarios</a></li>
+  <li><a href="#summarize-performance-and-failures" id="toc-summarize-performance-and-failures" class="nav-link" data-scroll-target="#summarize-performance-and-failures">5. Summarize performance and failures</a></li>
+  <li><a href="#interpret-the-comparison" id="toc-interpret-the-comparison" class="nav-link" data-scroll-target="#interpret-the-comparison">6. Interpret the comparison</a></li>
+  <li><a href="#power-for-study-planning" id="toc-power-for-study-planning" class="nav-link" data-scroll-target="#power-for-study-planning">7. Power for study planning</a></li>
+  </ul></li>
   <li><a href="#optional-extensions" id="toc-optional-extensions" class="nav-link" data-scroll-target="#optional-extensions">Optional extensions</a></li>
   <li><a href="#exit-evidence" id="toc-exit-evidence" class="nav-link" data-scroll-target="#exit-evidence">Exit evidence</a></li>
   </ul>
@@ -263,7 +307,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Session 14 guided lab</h1>
-<p class="subtitle lead">Design and evaluate a simulation</p>
+<p class="subtitle lead">Evaluating a weight-loss intervention</p>
 </div>
 
 
@@ -295,22 +339,93 @@ ul.task-list li input[type="checkbox"] {
 <li>Evaluate <code>dnorm(0)</code>, <code>pnorm(1.96)</code>, <code>qnorm(0.975)</code>, and <code>rnorm(8)</code>. Match them to density height, left-tail area, cutoff value, and simulated observations. Which two functions reverse each other’s question? Why is <code>dnorm(0)</code> not the probability of observing exactly zero?</li>
 </ol>
 </section>
-<section id="tasks-following-the-lecture-outline" class="level2">
-<h2 class="anchored" data-anchor-id="tasks-following-the-lecture-outline">Tasks following the lecture outline</h2>
-<ol type="1">
-<li><p><strong>Specify ADEMP</strong> — Let each outcome be SBP reduction: baseline minus 12-week SBP, in mmHg. Positive delta means greater mean reduction with treatment. Use independent normal control and treatment groups with SDs 12 and 4. Compare sizes 10/40 and 30/40 and true differences 0 and 6 (four scenarios). Define the estimand as the population mean difference, treatment minus control. Distinguish this target from the estimator and one sample estimate. Write the five ADEMP headings before running the study. Explain why normal reductions are a useful reference scenario, what prior or pilot evidence would support this model in a real project, and one reason to examine a skewed alternative. State the independence assumption and identify the means and SDs as teaching values.</p></li>
-<li><p><strong>Inspect one replicate</strong> — Generate one dataset. Inspect outcome ranges and group summaries to check the generator, allowing for sampling variation. Explain why simulated data cannot establish that real SBP reductions are normal. Compare Welch and pooled results on that same dataset. Verify the estimate direction, result names, and interval ordering. Exercise a failed constant-outcome sample.</p></li>
-<li><p><strong>Retain each method and replicate</strong> — Inspect the supplied run_study(s, B) function and run a pilot with B = 5. Identify where it generates one dataset, applies both methods, and retains results or errors. Check that five replicates produce ten rows. Both methods must use the same dataset in each replicate.</p></li>
-<li><p><strong>Run reproducible scenarios</strong> — Use B = 1000 for this teaching exercise. Assign each scenario a fixed seed and call set.seed() immediately before running that scenario. Insert an unrelated runif() call before the seed and verify that the scenario results stay unchanged. Do not reset the seed inside the replicate loop.</p></li>
-<li><p><strong>Summarize performance and failures</strong> — For each scenario and method report attempts, failures, bias, coverage, rejection rate, and MCSE for rejection. Use sqrt(p_hat * (1 - p_hat) / B_valid), where B_valid counts successful replicates. Label performance summaries as conditional on success. Interpret rejection rates as type I error when delta = 0 and power when delta = 6.</p></li>
-<li><p><strong>Interpret the comparison</strong> — Compare null calibration, power, coverage, and failure counts across allocations. Draw one rejection-rate comparison with approximate Monte Carlo intervals. Explain why 5.2% from 1,000 replicates need not differ meaningfully from 5%, and why more replicates differ from more patients per trial.</p></li>
-<li><p><strong>Power for study planning</strong> — Use the delta = 6 results to compare Welch power for 10/40 and 30/40 patients. Report rejections, valid trials, power, MCSE, and an approximate 95% Monte Carlo interval. Explain why this interval concerns detection probability rather than the treatment effect. Distinguish power from coverage. Do the results support at least 80% power? Explain what increasing patient numbers changes and what increasing B changes.</p></li>
-</ol>
+<section id="simulation-project-evaluating-a-weight-loss-intervention" class="level2">
+<h2 class="anchored" data-anchor-id="simulation-project-evaluating-a-weight-loss-intervention">Simulation project: evaluating a weight-loss intervention</h2>
+<p>Can we reliably estimate and detect the additional weight loss from a new intervention, and do our confidence intervals have the advertised coverage?</p>
+<p>The outcome is weight lost after 12 weeks, in kg: positive values mean weight loss and negative values mean weight gain. The control population mean is 1 kg; the intervention mean is 1 kg under the null and 3 kg under the alternative. The true additional weight loss, <code>delta</code>, is therefore 0 or 2 kg. All means, SDs, and distribution choices below are hypothetical teaching assumptions.</p>
+<p>Use the helpers supplied in the starter. The code below gives starting points; complete the TODOs and answer every question in prose.</p>
+<section id="specify-ademp" class="level3">
+<h3 class="anchored" data-anchor-id="specify-ademp">1. Specify ADEMP</h3>
+<p>Let each outcome be weight loss: baseline minus 12-week weight, in kg. Positive delta means greater mean weight loss with the intervention. The control mean is 1 kg and the intervention mean is 1 + delta kg. Use independent normal control and treatment groups with SDs 4 and 2. Compare sizes 10/40 and 30/40 and true differences 0 and 2 (four scenarios). Define the estimand as the population mean difference, treatment minus control. Distinguish this target from the estimator and one sample estimate. Write the five ADEMP headings before running the study. Explain why normal weight losses are a useful reference scenario, what prior or pilot evidence would support this model in a real project, and one reason to examine a skewed alternative. State the independence assumption and identify the means and SDs as teaching values.</p>
+</section>
+<section id="inspect-one-replicate" class="level3">
+<h3 class="anchored" data-anchor-id="inspect-one-replicate">2. Inspect one replicate</h3>
+<p>Generate one dataset. Inspect outcome ranges and group summaries to check the generator, allowing for sampling variation. Explain why simulated data cannot establish that real weight losses are normal. Compare Welch and pooled results on that same dataset. Verify the estimate direction, result names, and interval ordering. Exercise a failed constant-outcome sample.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1401</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">simulate_trial</span>(<span class="at">n_ctrl =</span> <span class="dv">10</span>, <span class="at">n_trt =</span> <span class="dv">40</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">sd_ctrl =</span> <span class="dv">4</span>, <span class="at">sd_trt =</span> <span class="dv">2</span>, <span class="at">delta =</span> <span class="dv">2</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(<span class="at">X =</span> d<span class="sc">$</span>y, <span class="at">INDEX =</span> d<span class="sc">$</span>arm, <span class="at">FUN =</span> summary)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>welch <span class="ot">&lt;-</span> <span class="fu">analyse_trial</span>(<span class="at">data =</span> d, <span class="at">pooled =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: fit the pooled method to d, check both results,</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co"># and use analyse_checked() on a constant-outcome sample.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="retain-each-method-and-replicate" class="level3">
+<h3 class="anchored" data-anchor-id="retain-each-method-and-replicate">3. Retain each method and replicate</h3>
+<p>Inspect the supplied run_study(s, B) function and run a pilot with B = 5. Identify where it generates one dataset, applies both methods, and retains results or errors. Check that five replicates produce ten rows. Both methods must use the same dataset in each replicate.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1401</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>pilot <span class="ot">&lt;-</span> <span class="fu">run_study</span>(<span class="at">s =</span> design[<span class="dv">1</span>, ], <span class="at">B =</span> <span class="dv">5</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(pilot)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">with</span>(<span class="at">data =</span> pilot, <span class="at">expr =</span> <span class="fu">table</span>(replicate, method))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: check that both methods have the same estimate in each replicate.</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Locate the shared dataset and error handling inside run_study().</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="run-reproducible-scenarios" class="level3">
+<h3 class="anchored" data-anchor-id="run-reproducible-scenarios">4. Run reproducible scenarios</h3>
+<p>Use B = 1000 for this teaching exercise. Assign each scenario a fixed seed and call set.seed() immediately before running that scenario. Insert an unrelated runif() call before the seed and verify that the scenario results stay unchanged. Do not reset the seed inside the replicate loop.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">1000</span>L</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>design<span class="sc">$</span>seed <span class="ot">&lt;-</span> <span class="dv">1400</span>L <span class="sc">+</span> design<span class="sc">$</span>scenario</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>results <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="at">mode =</span> <span class="st">"list"</span>, <span class="at">length =</span> <span class="fu">nrow</span>(design))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(design))) {</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(design<span class="sc">$</span>seed[i])</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  results[[i]] <span class="ot">&lt;-</span> <span class="fu">run_study</span>(<span class="at">s =</span> design[i, ], <span class="at">B =</span> B)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>all_results <span class="ot">&lt;-</span> <span class="fu">do.call</span>(<span class="at">what =</span> rbind, <span class="at">args =</span> results)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: verify the row counts and repeat a scenario after inserting</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># runif(n = 100) BEFORE its set.seed() call. Compare with identical().</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="summarize-performance-and-failures" class="level3">
+<h3 class="anchored" data-anchor-id="summarize-performance-and-failures">5. Summarize performance and failures</h3>
+<p>For each scenario and method report attempts, failures, bias, coverage, rejection rate, and MCSE for rejection. Use sqrt(p_hat * (1 - p_hat) / B_valid), where B_valid counts successful replicates. Label performance summaries as conditional on success. Interpret rejection rates as type I error when delta = 0 and power when delta = 2.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Start with one scenario and method; then repeat for every combination.</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>one <span class="ot">&lt;-</span> <span class="fu">subset</span>(<span class="at">x =</span> all_results, <span class="at">subset =</span> scenario <span class="sc">==</span> <span class="dv">1</span> <span class="sc">&amp;</span> method <span class="sc">==</span> <span class="st">"Welch"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>valid <span class="ot">&lt;-</span> <span class="fu">subset</span>(<span class="at">x =</span> one, <span class="at">subset =</span> <span class="fu">is.na</span>(error))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>B_valid <span class="ot">&lt;-</span> <span class="fu">nrow</span>(valid)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>rejection <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="at">x =</span> valid<span class="sc">$</span>p <span class="sc">&lt;</span> <span class="fl">0.05</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>mcse_rejection <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(rejection <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> rejection) <span class="sc">/</span> B_valid)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: count attempts/failures and calculate bias and coverage.</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Create performance: one row per scenario/method, retaining n_ctrl,</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co"># n_trt, delta, valid (= B_valid), rejection, and mcse_rejection.</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Include your other requested measures; guard against too few valid trials.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="interpret-the-comparison" class="level3">
+<h3 class="anchored" data-anchor-id="interpret-the-comparison">6. Interpret the comparison</h3>
+<p>Compare null calibration, power, coverage, and failure counts across allocations. Draw one rejection-rate comparison with approximate Monte Carlo intervals. Explain why 5.2% from 1,000 replicates need not differ meaningfully from 5%, and why more replicates differ from more patients per trial.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>null <span class="ot">&lt;-</span> <span class="fu">subset</span>(<span class="at">x =</span> performance, <span class="at">subset =</span> delta <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="at">x =</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(null)), <span class="at">y =</span> null<span class="sc">$</span>rejection,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">xlab =</span> <span class="st">"Scenario / method"</span>, <span class="at">ylab =</span> <span class="st">"Null rejection rate"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">h =</span> <span class="fl">0.05</span>, <span class="at">lty =</span> <span class="dv">2</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: label the points and add intervals using arrows():</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="co"># lower = pmax(0, rejection - 1.96 * mcse_rejection)</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># upper = pmin(1, rejection + 1.96 * mcse_rejection)</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Tighten the y-axis limits to show all points and intervals clearly.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="power-for-study-planning" class="level3">
+<h3 class="anchored" data-anchor-id="power-for-study-planning">7. Power for study planning</h3>
+<p>Use the delta = 2 results to compare Welch power for 10/40 and 30/40 patients. Report rejections, valid trials, power, MCSE, and an approximate 95% Monte Carlo interval. Explain why this interval concerns detection probability rather than the treatment effect. Distinguish power from coverage. Do the results support at least 80% power? Explain what increasing patient numbers changes and what increasing B changes.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>power_results <span class="ot">&lt;-</span> <span class="fu">subset</span>(<span class="at">x =</span> performance,</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">subset =</span> delta <span class="sc">==</span> <span class="dv">2</span> <span class="sc">&amp;</span> method <span class="sc">==</span> <span class="st">"Welch"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>power_results<span class="sc">$</span>power <span class="ot">&lt;-</span> power_results<span class="sc">$</span>rejection</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>power_results<span class="sc">$</span>rejected <span class="ot">&lt;-</span> <span class="fu">round</span>(power_results<span class="sc">$</span>power <span class="sc">*</span> power_results<span class="sc">$</span>valid)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>power_results<span class="sc">$</span>mc_lower <span class="ot">&lt;-</span> <span class="fu">pmax</span>(<span class="dv">0</span>, power_results<span class="sc">$</span>power <span class="sc">-</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                                <span class="fl">1.96</span> <span class="sc">*</span> power_results<span class="sc">$</span>mcse_rejection)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: add mc_upper (bounded by 1), then report the requested columns.</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare both allocations with the 80% power target.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
 </section>
 <section id="optional-extensions" class="level2">
 <h2 class="anchored" data-anchor-id="optional-extensions">Optional extensions</h2>
 <ul>
-<li>Extend the Welch power comparison to more sample sizes or a smaller effect (for example, 3 mmHg). Keep the test rule fixed and refine promising scenarios with more replicates.</li>
+<li>Extend the Welch power comparison to more sample sizes or a smaller effect (for example, 1 kg). Keep the test rule fixed and refine promising scenarios with more replicates.</li>
 <li>Add <code>dgm = "skewed"</code> to the design using the supplied helper. Explain why it centers errors using the population mean rather than each sample mean. Keep the estimand unchanged.</li>
 <li>Report empirical SE, mean model SE, RMSE, mean interval width, and MCSE for bias or coverage.</li>
 <li>Plan B from a target MCSE using <code>ceiling(p * (1 - p) / target^2)</code>. Try B = 4000 and explain why MCSE is about half its value at B = 1000.</li>

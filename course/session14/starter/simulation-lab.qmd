@@ -1,5 +1,5 @@
 ---
-title: "Session 14 lab: Design and evaluate a simulation"
+title: "Session 14 lab: Evaluating a weight-loss intervention"
 format: html
 ---
 
@@ -9,24 +9,36 @@ The setup runs as supplied. Exercise chunks are disabled with `eval=FALSE` so th
 unfinished starter can render. Replace each TODO, remove that option, and render
 again. A successful render of the untouched starter is not completion.
 
+## Simulation project: evaluating a weight-loss intervention
+
+Can we reliably estimate and detect the additional weight loss from a new
+intervention, and do our confidence intervals have the advertised coverage?
+
+The outcome is weight lost after 12 weeks, in kg: positive values mean weight
+loss and negative values mean weight gain. The control population mean is 1 kg;
+the intervention mean is 1 kg under the null and 3 kg under the alternative.
+The true additional weight loss, `delta`, is therefore 0 or 2 kg. All means,
+SDs, and distribution choices below are hypothetical teaching assumptions.
+
 ## Supplied synthetic data and helpers
 
 ```{r}
 # Simulate one two-arm trial. Returns a data frame with `arm` and `y`.
-# Control is N(0, sd_ctrl^2); treatment is N(delta, sd_trt^2).
+# y is 12-week weight loss (kg); negative values mean weight gain.
+# Control is N(1, sd_ctrl^2); treatment is N(1 + delta, sd_trt^2).
 simulate_trial <- function(n_ctrl, n_trt, sd_ctrl, sd_trt, delta = 0) {
   stopifnot(n_ctrl >= 2, n_trt >= 2, sd_ctrl > 0, sd_trt > 0)
 
   data.frame(
     arm = rep(c("ctrl", "trt"), c(n_ctrl, n_trt)),
-    y   = c(rnorm(n = n_ctrl, mean = 0, sd = sd_ctrl),
-            rnorm(n = n_trt, mean = delta, sd = sd_trt))
+    y   = c(rnorm(n = n_ctrl, mean = 1, sd = sd_ctrl),
+            rnorm(n = n_trt, mean = 1 + delta, sd = sd_trt))
   )
 }
 
 set.seed(6301)
 d_example <- simulate_trial(n_ctrl = 3, n_trt = 3,
-                            sd_ctrl = 12, sd_trt = 4, delta = 8)
+                            sd_ctrl = 4, sd_trt = 2, delta = 2)
 head(d_example, n = 3)
 
 analyse_trial <- function(data, pooled = FALSE) {
@@ -38,7 +50,7 @@ analyse_trial <- function(data, pooled = FALSE) {
 }
 set.seed(6301)
 d_analysis <- simulate_trial(n_ctrl = 20, n_trt = 20,
-                             sd_ctrl = 12, sd_trt = 4, delta = 8)
+                             sd_ctrl = 4, sd_trt = 2, delta = 2)
 round(analyse_trial(data = d_analysis, pooled = FALSE), digits = 3)
 
 draw_error <- function(n, target_sd, dgm = "normal") {
@@ -53,12 +65,12 @@ draw_error <- function(n, target_sd, dgm = "normal") {
 simulate_dgm <- function(n_ctrl, n_trt, sd_ctrl, sd_trt,
                          delta = 0, dgm = "normal") {
   data.frame(arm = rep(c("ctrl", "trt"), c(n_ctrl, n_trt)),
-    y = c(draw_error(n = n_ctrl, target_sd = sd_ctrl, dgm = dgm),
-          delta + draw_error(n = n_trt, target_sd = sd_trt, dgm = dgm)))
+    y = c(1 + draw_error(n = n_ctrl, target_sd = sd_ctrl, dgm = dgm),
+          1 + delta + draw_error(n = n_trt, target_sd = sd_trt, dgm = dgm)))
 }
 set.seed(1403)
-d_skewed <- simulate_dgm(n_ctrl = 10, n_trt = 40, sd_ctrl = 12,
-                         sd_trt = 4, delta = 6, dgm = "skewed")
+d_skewed <- simulate_dgm(n_ctrl = 10, n_trt = 40, sd_ctrl = 4,
+                         sd_trt = 2, delta = 2, dgm = "skewed")
 head(d_skewed, n = 3)
 
 analyse_checked <- function(data, pooled = FALSE) {
@@ -90,24 +102,28 @@ identical(state_before, .Random.seed)
 
 ## 1. Specify ADEMP
 
-Let each outcome be SBP reduction: baseline minus 12-week SBP, in mmHg. Positive delta means greater mean reduction with treatment. Use independent normal control and treatment groups with SDs 12 and 4. Compare sizes 10/40 and 30/40 and true differences 0 and 6 (four scenarios). Define the estimand as the population mean difference, treatment minus control. Distinguish this target from the estimator and one sample estimate. Write the five ADEMP headings before running the study. Explain why normal reductions are a useful reference scenario, what prior or pilot evidence would support this model in a real project, and one reason to examine a skewed alternative. State the independence assumption and identify the means and SDs as teaching values.
+Let each outcome be weight loss: baseline minus 12-week weight, in kg. Positive delta means greater mean weight loss with the intervention. The control mean is 1 kg and the intervention mean is 1 + delta kg. Use independent normal control and treatment groups with SDs 4 and 2. Compare sizes 10/40 and 30/40 and true differences 0 and 2 (four scenarios). Define the estimand as the population mean difference, treatment minus control. Distinguish this target from the estimator and one sample estimate. Write the five ADEMP headings before running the study. Explain why normal weight losses are a useful reference scenario, what prior or pilot evidence would support this model in a real project, and one reason to examine a skewed alternative. State the independence assumption and identify the means and SDs as teaching values.
 
 ```{r, eval=FALSE}
 # TODO: write ADEMP in prose above this chunk.
 # Build four rows: n_ctrl = c(10, 30), n_trt = 40,
-# delta = c(0, 6), dgm = "normal". Add scenario = seq_len(nrow(design)).
+# delta = c(0, 2), dgm = "normal". Add scenario = seq_len(nrow(design)).
 ```
 
 Interpret the result and state its limitations.
 
 ## 2. Inspect one replicate
 
-Generate one dataset. Inspect outcome ranges and group summaries to check the generator, allowing for sampling variation. Explain why simulated data cannot establish that real SBP reductions are normal. Compare Welch and pooled results on that same dataset. Verify the estimate direction, result names, and interval ordering. Exercise a failed constant-outcome sample.
+Generate one dataset. Inspect outcome ranges and group summaries to check the generator, allowing for sampling variation. Explain why simulated data cannot establish that real weight losses are normal. Compare Welch and pooled results on that same dataset. Verify the estimate direction, result names, and interval ordering. Exercise a failed constant-outcome sample.
 
 ```{r, eval=FALSE}
 set.seed(1401)
-# TODO: generate d, fit both methods, and write checks.
-# Use analyse_checked() on a constant-outcome example.
+d <- simulate_trial(n_ctrl = 10, n_trt = 40,
+                    sd_ctrl = 4, sd_trt = 2, delta = 2)
+tapply(X = d$y, INDEX = d$arm, FUN = summary)
+welch <- analyse_trial(data = d, pooled = FALSE)
+# TODO: fit the pooled method to d, check both results,
+# and use analyse_checked() on a constant-outcome sample.
 ```
 
 Interpret the result and state its limitations.
@@ -122,7 +138,7 @@ run_study <- function(s, B) {
   rows <- vector("list", 2L * B)
   for (b in seq_len(B)) {
     d <- simulate_dgm(n_ctrl = s$n_ctrl, n_trt = s$n_trt,
-                      sd_ctrl = 12, sd_trt = 4, delta = s$delta, dgm = s$dgm)
+                      sd_ctrl = 4, sd_trt = 2, delta = s$delta, dgm = s$dgm)
     for (j in 1:2) {
       ans <- analyse_checked(data = d, pooled = j == 2L)
       value <- if (is.null(ans$value)) setNames(rep(NA_real_, 5),
@@ -139,8 +155,11 @@ run_study <- function(s, B) {
 
 ```{r, eval=FALSE}
 set.seed(1401)
-# TODO: pilot <- run_study(s = design[1, ], B = 5)
-# Check the number of rows and that methods share each replicate.
+pilot <- run_study(s = design[1, ], B = 5)
+nrow(pilot)
+with(data = pilot, expr = table(replicate, method))
+# TODO: check that both methods have the same estimate in each replicate.
+# Locate the shared dataset and error handling inside run_study().
 ```
 
 Interpret the result and state its limitations.
@@ -151,21 +170,34 @@ Use B = 1000 for this teaching exercise. Assign each scenario a fixed seed and c
 
 ```{r, eval=FALSE}
 B <- 1000L
-# TODO: assign design$seed <- 1400L + design$scenario.
-# Reset to that scenario seed immediately before each run_study() call.
-# Check that inserting runif(100) BEFORE set.seed() leaves its output unchanged.
+design$seed <- 1400L + design$scenario
+results <- vector(mode = "list", length = nrow(design))
+for (i in seq_len(nrow(design))) {
+  set.seed(design$seed[i])
+  results[[i]] <- run_study(s = design[i, ], B = B)
+}
+all_results <- do.call(what = rbind, args = results)
+# TODO: verify the row counts and repeat a scenario after inserting
+# runif(n = 100) BEFORE its set.seed() call. Compare with identical().
 ```
 
 Interpret the result and state its limitations.
 
 ## 5. Summarize performance and failures
 
-For each scenario and method report attempts, failures, bias, coverage, rejection rate, and MCSE for rejection. Use sqrt(p_hat * (1 - p_hat) / B_valid), where B_valid counts successful replicates. Label performance summaries as conditional on success. Interpret rejection rates as type I error when delta = 0 and power when delta = 6.
+For each scenario and method report attempts, failures, bias, coverage, rejection rate, and MCSE for rejection. Use sqrt(p_hat * (1 - p_hat) / B_valid), where B_valid counts successful replicates. Label performance summaries as conditional on success. Interpret rejection rates as type I error when delta = 0 and power when delta = 2.
 
 ```{r, eval=FALSE}
-# TODO: retain attempts and failures, then summarize successful rows.
-# bias = mean(est) - delta; coverage = mean(lo <= delta & delta <= hi)
-# rejection = mean(p < .05); mcse = sqrt(rejection * (1-rejection) / B_valid)
+# Start with one scenario and method; then repeat for every combination.
+one <- subset(x = all_results, subset = scenario == 1 & method == "Welch")
+valid <- subset(x = one, subset = is.na(error))
+B_valid <- nrow(valid)
+rejection <- mean(x = valid$p < 0.05)
+mcse_rejection <- sqrt(rejection * (1 - rejection) / B_valid)
+# TODO: count attempts/failures and calculate bias and coverage.
+# Create performance: one row per scenario/method, retaining n_ctrl,
+# n_trt, delta, valid (= B_valid), rejection, and mcse_rejection.
+# Include your other requested measures; guard against too few valid trials.
 ```
 
 Interpret the result and state its limitations.
@@ -175,29 +207,38 @@ Interpret the result and state its limitations.
 Compare null calibration, power, coverage, and failure counts across allocations. Draw one rejection-rate comparison with approximate Monte Carlo intervals. Explain why 5.2% from 1,000 replicates need not differ meaningfully from 5%, and why more replicates differ from more patients per trial.
 
 ```{r, eval=FALSE}
-# TODO: plot rejection +/- 1.96 * mcse_rejection for each null scenario.
-# Interpret the intervals as simulation uncertainty, not patient-level intervals.
+null <- subset(x = performance, subset = delta == 0)
+plot(x = seq_len(nrow(null)), y = null$rejection,
+     ylim = c(0, 1), xlab = "Scenario / method", ylab = "Null rejection rate")
+abline(h = 0.05, lty = 2)
+# TODO: label the points and add intervals using arrows():
+# lower = pmax(0, rejection - 1.96 * mcse_rejection)
+# upper = pmin(1, rejection + 1.96 * mcse_rejection)
+# Tighten the y-axis limits to show all points and intervals clearly.
 ```
 
 Interpret the result and state its limitations.
 
 ## 7. Power for study planning
 
-Use the existing delta = 6 results to compare Welch power for 10/40 and 30/40 patients. Report the number of rejections, valid trials, estimated power, MCSE, and an approximate 95% Monte Carlo interval. Explain whether the results support at least 80% power, allowing for simulation uncertainty. Distinguish power from coverage, and more patients from more simulation replicates.
+Use the existing delta = 2 results to compare Welch power for 10/40 and 30/40 patients. Report the number of rejections, valid trials, estimated power, MCSE, and an approximate 95% Monte Carlo interval. Explain whether the results support at least 80% power, allowing for simulation uncertainty. Distinguish power from coverage, and more patients from more simulation replicates.
 
 ```{r, eval=FALSE}
-# TODO: select the Welch results with delta == 6.
-# power = mean(p < .05) across valid simulated trials.
-# mcse = sqrt(power * (1 - power) / B_valid)
-# Report power +/- 1.96 * mcse, with endpoints bounded by 0 and 1.
-# Compare n_ctrl = 10 and 30, holding n_trt = 40 fixed.
+power_results <- subset(x = performance,
+                        subset = delta == 2 & method == "Welch")
+power_results$power <- power_results$rejection
+power_results$rejected <- round(power_results$power * power_results$valid)
+power_results$mc_lower <- pmax(0, power_results$power -
+                                1.96 * power_results$mcse_rejection)
+# TODO: add mc_upper (bounded by 1), then report the requested columns.
+# Compare both allocations with the 80% power target.
 ```
 
 Interpret the comparison under the stated normal, independent-patient model.
 
 ## Optional extensions
 
-- Extend the Welch power comparison to more sample sizes or a smaller effect (for example, 3 mmHg). Keep the test rule fixed and refine promising scenarios with more replicates.
+- Extend the Welch power comparison to more sample sizes or a smaller effect (for example, 1 kg). Keep the test rule fixed and refine promising scenarios with more replicates.
 - Add `dgm = "skewed"` to the design using the supplied helper. Explain why it centers errors using the population mean rather than each sample mean. Keep the estimand unchanged.
 - Report empirical SE, mean model SE, RMSE, mean interval width, and MCSE for bias or coverage.
 - Plan B from a target MCSE using `ceiling(p * (1 - p) / target^2)`. Try B = 4000 and explain why MCSE is about half its value at B = 1000.
