@@ -1,123 +1,240 @@
 ---
-title: "Session 15 lab: Bootstrap, permutation, and resampling design"
+title: "Session 15 lab: Resampling the weight-loss trial"
 output: html_document
 ---
 
 ## How to use this starter
 
-The setup runs as supplied. Exercise chunks are disabled with `eval=FALSE` so the
-unfinished starter can render. Replace each TODO, remove that option, and render
-again. A successful render of the untouched starter is not completion.
+Keep `weight-loss-trial.csv` beside this file. The data import and three function
+definitions run as supplied. Exercise chunks use `eval=FALSE`; remove that
+option as you work through the questions in order. Complete the TODOs and
+explanations. No new simulated patient data are needed.
 
-## Supplied synthetic data and helpers
+## One dataset, two questions
+
+We now have **one observed dataset**. We estimate additional weight loss and
+ask how uncertain that estimate is, and whether the observed difference is
+surprising under a specified no-effect null.
+
+`weight-loss-trial.csv` is the same single synthetic trial used in Session 14's
+one-trial example (seed 1403, 10 control and 40 intervention participants).
+`id` identifies a participant, `arm` is `ctrl` or `trt`, and `y` is weight lost
+after 12 weeks in kg. Positive values mean weight loss; negative values mean
+weight gain. For the permutation exercise, treat this as a completely randomized
+trial with exactly 10 control and 40 intervention assignments.
+
+In Session 14 we repeatedly generated new trials from a specified population.
+Here we keep this dataset fixed and resample it. Do not use the known generating
+effect as an input to either analysis. We cannot measure coverage or power from
+this one dataset by treating bootstrap or permutation samples as new real trials.
+
+## Supplied data and functions
 
 ```{r}
-library(ggplot2)
-library(knitr)
-
-# Synthetic teaching data for BIOS 6301. Not real patients.
-set.seed(6301)
-n <- 60
-trial <- data.frame(
-  id        = sprintf("P%03d", 1:n),
-  arm       = rep(c("Placebo", "Treatment"), each = n / 2),
-  site      = sample(1:4, n, replace = TRUE),
-  age       = round(rnorm(n, 61, 9)),
-  sex       = sample(c("F", "M"), n, replace = TRUE),
-  weight_kg = round(rnorm(n, 82, 15), 1),
-  sbp_0     = round(rnorm(n, 148, 14)),
-  stringsAsFactors = FALSE
-)
-trial$sbp_12 <- round(trial$sbp_0 -
-  ifelse(trial$arm == "Treatment", rnorm(n, 14, 8), rnorm(n, 3, 8)))
-
-# Repeated-measures version of the same cohort, for the resampling-unit demo:
-# three visits per patient, a large patient-level random intercept (SD 12) and
-# small within-patient noise (SD 4). Nothing is "broken" here — the data are
-# simply clustered, which is what makes the row bootstrap wrong.
-set.seed(2024)
-patient_effect <- rnorm(n, 0, 12)
-trial_long <- data.frame(
-  id   = rep(trial$id, each = 3),
-  arm  = rep(trial$arm, each = 3),
-  week = rep(c(4, 8, 12), times = n),
-  stringsAsFactors = FALSE
-)
-trial_long$sbp <- round(140 + rep(patient_effect, each = 3) +
-  ifelse(trial_long$arm == "Treatment", -10, 0) + rnorm(n * 3, 0, 4))
-
-theme_set(theme_minimal(base_size = 15))
-gold <- "#CFAE70"
+trial <- read.csv(file = "weight-loss-trial.csv")
 
 mean_diff <- function(data) {
-  mean(data$sbp_12[data$arm == "Treatment"]) -
-    mean(data$sbp_12[data$arm == "Placebo"])
+  mean(x = data$y[data$arm == "trt"]) -
+    mean(x = data$y[data$arm == "ctrl"])
+}
+
+bootstrap_once <- function(data) {
+  ctrl <- which(data$arm == "ctrl")
+  trt <- which(data$arm == "trt")
+  picked_ctrl <- ctrl[sample.int(n = length(ctrl), size = length(ctrl),
+                                 replace = TRUE)]
+  picked_trt <- trt[sample.int(n = length(trt), size = length(trt),
+                              replace = TRUE)]
+  mean_diff(data = data[c(picked_ctrl, picked_trt), ])
+}
+
+permute_once <- function(data) {
+  shuffled <- data
+  shuffled$arm <- sample(x = data$arm, size = nrow(data), replace = FALSE)
+  mean_diff(data = shuffled)
 }
 ```
 
-## Start with the project question
+## 1. Review the functions
 
-We have one dataset. Choose the repeated operation from the question:
-
-| Question | Method | Output |
-|---|---|---|
-| How uncertain is an estimate? | Bootstrap participants | SE and interval |
-| Is the observed difference surprising under a specified null? | Permute allowed assignments | p-value |
-
-The melanoma and promotion-decision projects illustrate these two questions.
-This lab uses a synthetic cohort of 60 participants. Cross-validation is taught
-with regression models in Session 16.
-
-
-## 1. Bootstrap within arms
-
-Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap SE and a percentile interval, and compare the SE with Welch. Basic intervals, bias, and three-seed stability comparisons are optional follow-up.
+For each supplied function, describe its input and output. Trace how
+`bootstrap_once()` and `permute_once()` call the same `mean_diff()` statistic.
+What changes, and what stays fixed, in each operation? Why does the bootstrap
+use replacement but the label permutation does not? Explain why one resample
+returns one number and `replicate()` collects many such numbers.
 
 ```{r, eval=FALSE}
-observed <- mean_diff(trial)
-# TODO: write a within-arm bootstrap and compare interval endpoints.
+mean_diff
+bootstrap_once
+permute_once
+# TODO: explain each function in your own words.
 ```
 
-Interpret the result and state its limitations.
+| Function | Role |
+|---|---|
+| `mean_diff()` | Computes the observed or resampled mean difference |
+| `bootstrap_once()` | Samples participants within arms and returns one estimate |
+| `permute_once()` | Reassigns fixed arm labels and returns one null statistic |
+| `sample()` / `sample.int()` | Samples values / positions, with the stated replacement rule |
+| `replicate()` | Repeats the resampling calculation and collects its results |
 
-## 2. Permutation tests
+Write your explanation here.
 
-For a completely randomized design under the sharp null, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution. The binomial tail-probability interval and exact-enumeration demonstration below are optional follow-up.
+## 2. Choose a resampling plan
+
+Discuss three project questions before coding. For each, state the target,
+method, resampling unit, what stays together, and one assumption.
+
+- **Median tumour thickness:** an observational cohort supplies one thickness
+  per patient. We want an SE and interval for the population median.
+- **Additional weight loss:** a trial randomly assigns 10 control and 40
+  intervention participants. We want an interval for the mean difference and
+  a test of no effect for any participant. Which operation answers each question?
+- **Repeated measurements:** each participant has baseline and follow-up
+  measurements. We want an interval for mean within-person change. What must
+  stay together? Would before/after observations alone justify swapping time labels?
+
+Explain why more resamples cannot fix biased sampling, an inappropriate unit,
+or an unjustified label-shuffling rule. Only the weight-loss trial needs coding.
+
+Write your explanation here.
+
+## 3. Inspect the fixed dataset and observed estimate
+
+Inspect participant counts, the outcome units, and the group summaries.
+Calculate the observed intervention-minus-control mean difference. Compare it
+with the estimate from Session 14's single-trial example. Why do we use this
+observed dataset repeatedly instead of calling `rnorm()` for every resample?
 
 ```{r, eval=FALSE}
-# TODO: keep outcomes fixed, shuffle labels, and compare absolute statistics.
-# Exact enumeration includes the observed assignment; no +1 correction is needed there.
+head(x = trial)
+table(trial$arm)
+tapply(X = trial$y, INDEX = trial$arm, FUN = summary)
+observed <- mean_diff(data = trial)
+observed
+# TODO: calculate each group mean and explain the sign of the difference.
 ```
 
-Interpret the result and state its limitations.
+Write your explanation here.
 
-### Supplied exact-enumeration demonstration
+## 4. Try one within-arm bootstrap
 
-```{r}
-small <- trial[c(1:4, 31:34), ]
-assignment <- combn(8, 4)
-exact_stat <- apply(assignment, 2, function(i)
-  mean(small$sbp_12[i]) - mean(small$sbp_12[-i]))
-stopifnot(length(exact_stat) == 70L)
-mean(abs(exact_stat) >= abs(mean_diff(small)))
-```
-
-## 3. Choose resampling units
-
-Use trial_long to compare row and participant bootstraps. Preserve all visits when sampling participants and retain duplicated sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the rules.
+Run `bootstrap_once()` once. Trace the row indices inside the function.
+Explain why a participant may appear more than once, why their outcome and
+arm must travel together, and why the counts remain 10 and 40. Compare the
+result with the observed estimate. Is one bootstrap draw enough to estimate an SE?
 
 ```{r, eval=FALSE}
-# TODO: split row indices by ID and index sampled IDs with replacement.
+set.seed(1501)
+one_boot <- bootstrap_once(data = trial)
+c(observed = observed, one_bootstrap = one_boot)
+# TODO: inspect the two sample.int() calls and explain their arguments.
 ```
 
-Interpret the result and state its limitations.
+Write your explanation here.
 
-## Paired-data follow-up
+## 5. Repeat the bootstrap and estimate uncertainty
 
-For treatment-arm participants, calculate follow-up minus baseline SBP. Bootstrap
-these paired changes and report the mean, SE, and percentile interval. Explain why
-this does not estimate a causal treatment effect, why independent resampling of the
-two visits is inappropriate, and why time labels cannot automatically be permuted.
+Generate 2,000 bootstrap statistics. Report the bootstrap SE and a 95%
+percentile interval in kg. Why is the SE `sd(boot)` rather than
+`sd(boot) / sqrt(B)`? Explain why the interval is about a population mean
+difference, not a range containing 95% of participants. Compare the bootstrap
+SE with Welch's SE. Does agreement prove that either interval has 95% coverage?
+
+```{r, eval=FALSE}
+set.seed(1501)
+B <- 2000
+boot <- replicate(n = B, expr = bootstrap_once(data = trial))
+boot_se <- sd(x = boot)
+boot_ci <- quantile(x = boot, probs = c(0.025, 0.975))
+welch <- t.test(x = trial$y[trial$arm == "trt"],
+                y = trial$y[trial$arm == "ctrl"], var.equal = FALSE)
+c(estimate = observed, bootstrap_se = boot_se, Welch_se = welch$stderr)
+boot_ci
+# TODO: plot boot with hist() and add the observed estimate with abline().
+```
+
+Write your explanation here.
+
+## 6. Try one allowed permutation
+
+State the sharp null: treatment changes no participant's outcome. Under
+the assumed complete randomization, keep outcomes fixed and reassign the same
+10 control and 40 intervention labels. Trace `permute_once()` and explain why
+jointly shuffling complete rows would not change the statistic. Why is this
+operation different from sampling patients with replacement?
+
+A zero average effect alone does not imply the sharp null. For observational
+data, unrestricted label permutation requires a justified exchangeability
+assumption; it is not automatically valid just because we can shuffle labels.
+
+```{r, eval=FALSE}
+set.seed(1502)
+one_perm <- permute_once(data = trial)
+c(observed = observed, one_permutation = one_perm)
+# TODO: explain which information is kept fixed under the null.
+```
+
+Write your explanation here.
+
+## 7. Repeat permutations and calculate the p-value
+
+Generate 999 independent random label permutations. Count statistics at
+least as extreme as the observed difference in either direction. Calculate
+`(extreme + 1) / (P + 1)` and its minimum reportable value. Explain why the
+reported p-value cannot be zero, what null it tests, and why it is neither the
+probability that the null is true nor an estimate of power.
+
+```{r, eval=FALSE}
+set.seed(1502)
+P <- 999
+perm <- replicate(n = P, expr = permute_once(data = trial))
+extreme <- sum(abs(perm) >= abs(observed) - 1e-12)
+p_value <- (extreme + 1) / (P + 1)
+c(observed = observed, extreme = extreme,
+  p_value = p_value, minimum = 1 / (P + 1))
+# The tiny tolerance includes ties affected by floating-point arithmetic.
+# TODO: plot perm and mark both -abs(observed) and abs(observed).
+```
+
+Write your explanation here.
+
+## 8. Explain the two kinds of uncertainty and report
+
+Write a short report containing the observed difference, bootstrap SE and
+interval, permutation p-value, resampling counts, seeds, and assumptions.
+Explain why the bootstrap distribution is near the observed estimate while
+the full permutation reference distribution is centered at zero.
+
+Repeat the bootstrap with another documented seed. Compare its SE and interval
+with the first run. Does increasing B add participants or make the underlying
+study more informative? Distinguish sampling uncertainty from variation due to
+a finite number of resamples. Why can neither bootstrap resamples nor null
+permutations establish the actual study's coverage or power?
+
+```{r, eval=FALSE}
+set.seed(1503)
+boot_again <- replicate(n = B, expr = bootstrap_once(data = trial))
+rbind(first = c(SE = sd(x = boot),
+                quantile(x = boot, probs = c(0.025, 0.975))),
+      second = c(SE = sd(x = boot_again),
+                 quantile(x = boot_again, probs = c(0.025, 0.975))))
+# TODO: explain any computational variation and report both runs.
+```
+
+Write your explanation here.
+
+## Optional follow-up
+
+- Compare a basic interval with the percentile interval.
+- Use a binomial interval for the permutation tail probability to describe
+  Monte Carlo precision. It is not an interval for the treatment effect.
+- Follow the lecture's paired and clustered examples. Keep all measurements
+  from a sampled participant together, including repeated copies of that person.
+- Study exact enumeration for a small randomized experiment. It has no Monte
+  Carlo error, but the assignment rule must still match the design.
+
+Cross-validation remains in Session 16 with regression and prediction.
 
 ## AI-use disclosure
 

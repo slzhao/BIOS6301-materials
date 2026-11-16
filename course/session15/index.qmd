@@ -2,44 +2,33 @@
 title: "Session 15 · Bootstrap, permutation, and resampling design"
 ---
 
-## The statistical computing sequence
+## From simulation to resampling
 
-| Session | Focus |
-|---|---|
-| 14 | Known-truth simulation: design, performance, failures, and Monte Carlo uncertainty |
-| 15 | Bootstrap, permutation, and resampling design |
-| 16 | Models, cross-validation, broader tools, course recap, and handoff |
-
-## Start with the project question
-
-We have one dataset. Choose the repeated operation from the question:
-
-| Question | Method | Output |
-|---|---|---|
-| How uncertain is an estimate? | Bootstrap participants | SE and interval |
-| Is the observed difference surprising under a specified null? | Permute allowed assignments | p-value |
-
-The melanoma and promotion-decision projects illustrate these two questions.
-This lab uses a synthetic cohort of 60 participants. Cross-validation is taught
+Session 14 specifies a population and generates new trials. Session 15 starts
+with one dataset and uses bootstrap samples for estimation uncertainty and
+allowed label permutations for a null comparison. Cross-validation remains
 with regression models in Session 16.
 
+The lecture retains the melanoma and promotion-study examples and uses SBP
+reduction for its worked trial. The lab reuses the weight-loss dataset from
+Session 14, with a guided function review and one-resample examples before loops.
 
-## Outline and applied practice
+## Lab route
 
-1. **Bootstrap within arms** — Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap SE and a percentile interval, and compare the SE with Welch. Basic intervals, bias, and three-seed stability comparisons are optional follow-up.
-2. **Permutation tests** — Under the sharp null for the supplied completely randomized design, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution. The binomial Monte Carlo interval and supplied enumeration of all 70 assignments for four participants per arm are optional follow-up.
-3. **Choose resampling units** — Use trial_long to compare row and participant bootstraps. Preserve all visits and repeated copies of sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the resampling or reassignment rule.
+1. Review the functions.
+2. Choose a resampling plan.
+3. Inspect the fixed dataset and observed estimate.
+4. Try one within-arm bootstrap.
+5. Repeat the bootstrap and estimate uncertainty.
+6. Try one allowed permutation.
+7. Repeat permutations and calculate the p-value.
+8. Explain the two kinds of uncertainty and report.
 
-
-## Paired-data follow-up
-
-For treatment-arm participants, calculate follow-up minus baseline SBP. Bootstrap
-these paired changes and report the mean, SE, and percentile interval. Explain why
-this does not estimate a causal treatment effect, why independent resampling of the
-two visits is inappropriate, and why time labels cannot automatically be permuted.
+Paired and clustered-data coding and advanced interval details are optional.
 
 ## Materials
 
 - [Lecture slides](slides.qmd)
 - [Guided lab](lab.qmd)
+- [Fixed synthetic dataset](starter/weight-loss-trial.csv)
 - Starter: [Quarto](starter/resampling-lab.qmd) or [R Markdown](starter/resampling-lab.Rmd)
