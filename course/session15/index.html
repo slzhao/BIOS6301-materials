@@ -249,10 +249,8 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
 
   <ul>
-  <li><a href="#the-statistical-computing-sequence" id="toc-the-statistical-computing-sequence" class="nav-link active" data-scroll-target="#the-statistical-computing-sequence">The statistical computing sequence</a></li>
-  <li><a href="#start-with-the-project-question" id="toc-start-with-the-project-question" class="nav-link" data-scroll-target="#start-with-the-project-question">Start with the project question</a></li>
-  <li><a href="#outline-and-applied-practice" id="toc-outline-and-applied-practice" class="nav-link" data-scroll-target="#outline-and-applied-practice">Outline and applied practice</a></li>
-  <li><a href="#paired-data-follow-up" id="toc-paired-data-follow-up" class="nav-link" data-scroll-target="#paired-data-follow-up">Paired-data follow-up</a></li>
+  <li><a href="#from-simulation-to-resampling" id="toc-from-simulation-to-resampling" class="nav-link active" data-scroll-target="#from-simulation-to-resampling">From simulation to resampling</a></li>
+  <li><a href="#lab-route" id="toc-lab-route" class="nav-link" data-scroll-target="#lab-route">Lab route</a></li>
   <li><a href="#materials" id="toc-materials" class="nav-link" data-scroll-target="#materials">Materials</a></li>
   </ul>
 </nav>
@@ -279,83 +277,31 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="the-statistical-computing-sequence" class="level2">
-<h2 class="anchored" data-anchor-id="the-statistical-computing-sequence">The statistical computing sequence</h2>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 50%">
-<col style="width: 50%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Session</th>
-<th>Focus</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>14</td>
-<td>Known-truth simulation: design, performance, failures, and Monte Carlo uncertainty</td>
-</tr>
-<tr class="even">
-<td>15</td>
-<td>Bootstrap, permutation, and resampling design</td>
-</tr>
-<tr class="odd">
-<td>16</td>
-<td>Models, cross-validation, broader tools, course recap, and handoff</td>
-</tr>
-</tbody>
-</table>
+<section id="from-simulation-to-resampling" class="level2">
+<h2 class="anchored" data-anchor-id="from-simulation-to-resampling">From simulation to resampling</h2>
+<p>Session 14 specifies a population and generates new trials. Session 15 starts with one dataset and uses bootstrap samples for estimation uncertainty and allowed label permutations for a null comparison. Cross-validation remains with regression models in Session 16.</p>
+<p>The lecture retains the melanoma and promotion-study examples and uses SBP reduction for its worked trial. The lab reuses the weight-loss dataset from Session 14, with a guided function review and one-resample examples before loops.</p>
 </section>
-<section id="start-with-the-project-question" class="level2">
-<h2 class="anchored" data-anchor-id="start-with-the-project-question">Start with the project question</h2>
-<p>We have one dataset. Choose the repeated operation from the question:</p>
-<table class="caption-top table">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Question</th>
-<th>Method</th>
-<th>Output</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>How uncertain is an estimate?</td>
-<td>Bootstrap participants</td>
-<td>SE and interval</td>
-</tr>
-<tr class="even">
-<td>Is the observed difference surprising under a specified null?</td>
-<td>Permute allowed assignments</td>
-<td>p-value</td>
-</tr>
-</tbody>
-</table>
-<p>The melanoma and promotion-decision projects illustrate these two questions. This lab uses a synthetic cohort of 60 participants. Cross-validation is taught with regression models in Session 16.</p>
-</section>
-<section id="outline-and-applied-practice" class="level2">
-<h2 class="anchored" data-anchor-id="outline-and-applied-practice">Outline and applied practice</h2>
+<section id="lab-route" class="level2">
+<h2 class="anchored" data-anchor-id="lab-route">Lab route</h2>
 <ol type="1">
-<li><strong>Bootstrap within arms</strong> — Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap SE and a percentile interval, and compare the SE with Welch. Basic intervals, bias, and three-seed stability comparisons are optional follow-up.</li>
-<li><strong>Permutation tests</strong> — Under the sharp null for the supplied completely randomized design, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution. The binomial Monte Carlo interval and supplied enumeration of all 70 assignments for four participants per arm are optional follow-up.</li>
-<li><strong>Choose resampling units</strong> — Use trial_long to compare row and participant bootstraps. Preserve all visits and repeated copies of sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the resampling or reassignment rule.</li>
+<li>Review the functions.</li>
+<li>Choose a resampling plan.</li>
+<li>Inspect the fixed dataset and observed estimate.</li>
+<li>Try one within-arm bootstrap.</li>
+<li>Repeat the bootstrap and estimate uncertainty.</li>
+<li>Try one allowed permutation.</li>
+<li>Repeat permutations and calculate the p-value.</li>
+<li>Explain the two kinds of uncertainty and report.</li>
 </ol>
-</section>
-<section id="paired-data-follow-up" class="level2">
-<h2 class="anchored" data-anchor-id="paired-data-follow-up">Paired-data follow-up</h2>
-<p>For treatment-arm participants, calculate follow-up minus baseline SBP. Bootstrap these paired changes and report the mean, SE, and percentile interval. Explain why this does not estimate a causal treatment effect, why independent resampling of the two visits is inappropriate, and why time labels cannot automatically be permuted.</p>
+<p>Paired and clustered-data coding and advanced interval details are optional.</p>
 </section>
 <section id="materials" class="level2">
 <h2 class="anchored" data-anchor-id="materials">Materials</h2>
 <ul>
 <li><a href="../../course/session15/slides.html">Lecture slides</a></li>
 <li><a href="../../course/session15/lab.html">Guided lab</a></li>
+<li><a href="starter/weight-loss-trial.csv">Fixed synthetic dataset</a></li>
 <li>Starter: <a href="starter/resampling-lab.qmd">Quarto</a> or <a href="starter/resampling-lab.Rmd">R Markdown</a></li>
 </ul>
 

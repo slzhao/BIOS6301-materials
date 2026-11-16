@@ -23,6 +23,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -249,10 +284,18 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
 
   <ul>
-  <li><a href="#start-with-the-project-question" id="toc-start-with-the-project-question" class="nav-link active" data-scroll-target="#start-with-the-project-question">Start with the project question</a></li>
-  <li><a href="#tasks-following-the-lecture" id="toc-tasks-following-the-lecture" class="nav-link" data-scroll-target="#tasks-following-the-lecture">Tasks following the lecture</a></li>
-  <li><a href="#paired-data-follow-up" id="toc-paired-data-follow-up" class="nav-link" data-scroll-target="#paired-data-follow-up">Paired-data follow-up</a></li>
-  <li><a href="#in-class-route-and-follow-up" id="toc-in-class-route-and-follow-up" class="nav-link" data-scroll-target="#in-class-route-and-follow-up">In-class route and follow-up</a></li>
+  <li><a href="#one-dataset-two-questions" id="toc-one-dataset-two-questions" class="nav-link active" data-scroll-target="#one-dataset-two-questions">One dataset, two questions</a>
+  <ul class="collapse">
+  <li><a href="#review-the-functions" id="toc-review-the-functions" class="nav-link" data-scroll-target="#review-the-functions">1. Review the functions</a></li>
+  <li><a href="#choose-a-resampling-plan" id="toc-choose-a-resampling-plan" class="nav-link" data-scroll-target="#choose-a-resampling-plan">2. Choose a resampling plan</a></li>
+  <li><a href="#inspect-the-fixed-dataset-and-observed-estimate" id="toc-inspect-the-fixed-dataset-and-observed-estimate" class="nav-link" data-scroll-target="#inspect-the-fixed-dataset-and-observed-estimate">3. Inspect the fixed dataset and observed estimate</a></li>
+  <li><a href="#try-one-within-arm-bootstrap" id="toc-try-one-within-arm-bootstrap" class="nav-link" data-scroll-target="#try-one-within-arm-bootstrap">4. Try one within-arm bootstrap</a></li>
+  <li><a href="#repeat-the-bootstrap-and-estimate-uncertainty" id="toc-repeat-the-bootstrap-and-estimate-uncertainty" class="nav-link" data-scroll-target="#repeat-the-bootstrap-and-estimate-uncertainty">5. Repeat the bootstrap and estimate uncertainty</a></li>
+  <li><a href="#try-one-allowed-permutation" id="toc-try-one-allowed-permutation" class="nav-link" data-scroll-target="#try-one-allowed-permutation">6. Try one allowed permutation</a></li>
+  <li><a href="#repeat-permutations-and-calculate-the-p-value" id="toc-repeat-permutations-and-calculate-the-p-value" class="nav-link" data-scroll-target="#repeat-permutations-and-calculate-the-p-value">7. Repeat permutations and calculate the p-value</a></li>
+  <li><a href="#explain-the-two-kinds-of-uncertainty-and-report" id="toc-explain-the-two-kinds-of-uncertainty-and-report" class="nav-link" data-scroll-target="#explain-the-two-kinds-of-uncertainty-and-report">8. Explain the two kinds of uncertainty and report</a></li>
+  </ul></li>
+  <li><a href="#optional-follow-up" id="toc-optional-follow-up" class="nav-link" data-scroll-target="#optional-follow-up">Optional follow-up</a></li>
   <li><a href="#exit-evidence" id="toc-exit-evidence" class="nav-link" data-scroll-target="#exit-evidence">Exit evidence</a></li>
   </ul>
 </nav>
@@ -263,7 +306,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Session 15 guided lab</h1>
-<p class="subtitle lead">Bootstrap, permutation, and resampling design</p>
+<p class="subtitle lead">Resampling the weight-loss trial</p>
 </div>
 
 
@@ -280,57 +323,144 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Work in <strong>BIOS6301-mywork.Rproj</strong>. Copy the starter from the separate course clone into <code>work/session15/</code>: <a href="starter/resampling-lab.qmd">Quarto</a> or <a href="starter/resampling-lab.Rmd">R Markdown</a>. All inputs are synthetic.</p>
-<section id="start-with-the-project-question" class="level2">
-<h2 class="anchored" data-anchor-id="start-with-the-project-question">Start with the project question</h2>
-<p>We have one dataset. Choose the repeated operation from the question:</p>
+<p>Work in <strong>BIOS6301-mywork.Rproj</strong>. Copy <a href="starter/weight-loss-trial.csv">the dataset</a> and one starter (<a href="starter/resampling-lab.qmd">Quarto</a> or <a href="starter/resampling-lab.Rmd">R Markdown</a>) into <code>work/session15/</code>. Keep the CSV and starter in the same folder. All data are synthetic.</p>
+<section id="one-dataset-two-questions" class="level2">
+<h2 class="anchored" data-anchor-id="one-dataset-two-questions">One dataset, two questions</h2>
+<p>We now have <strong>one observed dataset</strong>. We estimate additional weight loss and ask how uncertain that estimate is, and whether the observed difference is surprising under a specified no-effect null.</p>
+<p><code>weight-loss-trial.csv</code> is the same single synthetic trial used in Session 14’s one-trial example (seed 1403, 10 control and 40 intervention participants). <code>id</code> identifies a participant, <code>arm</code> is <code>ctrl</code> or <code>trt</code>, and <code>y</code> is weight lost after 12 weeks in kg. Positive values mean weight loss; negative values mean weight gain. For the permutation exercise, treat this as a completely randomized trial with exactly 10 control and 40 intervention assignments.</p>
+<p>In Session 14 we repeatedly generated new trials from a specified population. Here we keep this dataset fixed and resample it. Do not use the known generating effect as an input to either analysis. We cannot measure coverage or power from this one dataset by treating bootstrap or permutation samples as new real trials.</p>
+<section id="review-the-functions" class="level3">
+<h3 class="anchored" data-anchor-id="review-the-functions">1. Review the functions</h3>
+<p>For each supplied function, describe its input and output. Trace how <code>bootstrap_once()</code> and <code>permute_once()</code> call the same <code>mean_diff()</code> statistic. What changes, and what stays fixed, in each operation? Why does the bootstrap use replacement but the label permutation does not? Explain why one resample returns one number and <code>replicate()</code> collects many such numbers.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>mean_diff</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>bootstrap_once</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>permute_once</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: explain each function in your own words.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <table class="caption-top table">
 <colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
+<col style="width: 50%">
+<col style="width: 50%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>Question</th>
-<th>Method</th>
-<th>Output</th>
+<th>Function</th>
+<th>Role</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>How uncertain is an estimate?</td>
-<td>Bootstrap participants</td>
-<td>SE and interval</td>
+<td><code>mean_diff()</code></td>
+<td>Computes the observed or resampled mean difference</td>
 </tr>
 <tr class="even">
-<td>Is the observed difference surprising under a specified null?</td>
-<td>Permute allowed assignments</td>
-<td>p-value</td>
+<td><code>bootstrap_once()</code></td>
+<td>Samples participants within arms and returns one estimate</td>
+</tr>
+<tr class="odd">
+<td><code>permute_once()</code></td>
+<td>Reassigns fixed arm labels and returns one null statistic</td>
+</tr>
+<tr class="even">
+<td><code>sample()</code> / <code>sample.int()</code></td>
+<td>Samples values / positions, with the stated replacement rule</td>
+</tr>
+<tr class="odd">
+<td><code>replicate()</code></td>
+<td>Repeats the resampling calculation and collects its results</td>
 </tr>
 </tbody>
 </table>
-<p>The melanoma and promotion-decision projects illustrate these two questions. This lab uses a synthetic cohort of 60 participants. Cross-validation is taught with regression models in Session 16.</p>
 </section>
-<section id="tasks-following-the-lecture" class="level2">
-<h2 class="anchored" data-anchor-id="tasks-following-the-lecture">Tasks following the lecture</h2>
-<ol type="1">
-<li><strong>Bootstrap within arms</strong> — Estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Bootstrap participants within each arm. Report bootstrap SE and a percentile interval, and compare the SE with Welch. Basic intervals, bias, and three-seed stability comparisons are optional follow-up.</li>
-<li><strong>Permutation tests</strong> — Under the sharp null for the supplied completely randomized design, permute arm labels, retain 999 statistics, and compute the adjusted two-sided p-value. Report its resolution. The binomial Monte Carlo interval and supplied enumeration of all 70 assignments for four participants per arm are optional follow-up.</li>
-<li><strong>Choose resampling units</strong> — Use trial_long to compare row and participant bootstraps. Preserve all visits and repeated copies of sampled participants. Explain how paired, site-stratified, or clinic-randomized designs change the resampling or reassignment rule.</li>
-</ol>
+<section id="choose-a-resampling-plan" class="level3">
+<h3 class="anchored" data-anchor-id="choose-a-resampling-plan">2. Choose a resampling plan</h3>
+<p>Discuss three project questions before coding. For each, state the target, method, resampling unit, what stays together, and one assumption.</p>
+<ul>
+<li><strong>Median tumour thickness:</strong> an observational cohort supplies one thickness per patient. We want an SE and interval for the population median.</li>
+<li><strong>Additional weight loss:</strong> a trial randomly assigns 10 control and 40 intervention participants. We want an interval for the mean difference and a test of no effect for any participant. Which operation answers each question?</li>
+<li><strong>Repeated measurements:</strong> each participant has baseline and follow-up measurements. We want an interval for mean within-person change. What must stay together? Would before/after observations alone justify swapping time labels?</li>
+</ul>
+<p>Explain why more resamples cannot fix biased sampling, an inappropriate unit, or an unjustified label-shuffling rule. Only the weight-loss trial needs coding.</p>
 </section>
-<section id="paired-data-follow-up" class="level2">
-<h2 class="anchored" data-anchor-id="paired-data-follow-up">Paired-data follow-up</h2>
-<p>For treatment-arm participants, calculate follow-up minus baseline SBP. Bootstrap these paired changes and report the mean, SE, and percentile interval. Explain why this does not estimate a causal treatment effect, why independent resampling of the two visits is inappropriate, and why time labels cannot automatically be permuted.</p>
+<section id="inspect-the-fixed-dataset-and-observed-estimate" class="level3">
+<h3 class="anchored" data-anchor-id="inspect-the-fixed-dataset-and-observed-estimate">3. Inspect the fixed dataset and observed estimate</h3>
+<p>Inspect participant counts, the outcome units, and the group summaries. Calculate the observed intervention-minus-control mean difference. Compare it with the estimate from Session 14’s single-trial example. Why do we use this observed dataset repeatedly instead of calling <code>rnorm()</code> for every resample?</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="at">x =</span> trial)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(trial<span class="sc">$</span>arm)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tapply</span>(<span class="at">X =</span> trial<span class="sc">$</span>y, <span class="at">INDEX =</span> trial<span class="sc">$</span>arm, <span class="at">FUN =</span> summary)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>observed <span class="ot">&lt;-</span> <span class="fu">mean_diff</span>(<span class="at">data =</span> trial)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>observed</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: calculate each group mean and explain the sign of the difference.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
-<section id="in-class-route-and-follow-up" class="level2">
-<h2 class="anchored" data-anchor-id="in-class-route-and-follow-up">In-class route and follow-up</h2>
-<p>Build one bootstrap and one permutation calculation, then inspect participant and paired resampling. Detailed interval comparisons and exact enumeration are follow-up work.</p>
+<section id="try-one-within-arm-bootstrap" class="level3">
+<h3 class="anchored" data-anchor-id="try-one-within-arm-bootstrap">4. Try one within-arm bootstrap</h3>
+<p>Run <code>bootstrap_once()</code> once. Trace the row indices inside the function. Explain why a participant may appear more than once, why their outcome and arm must travel together, and why the counts remain 10 and 40. Compare the result with the observed estimate. Is one bootstrap draw enough to estimate an SE?</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1501</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>one_boot <span class="ot">&lt;-</span> <span class="fu">bootstrap_once</span>(<span class="at">data =</span> trial)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">observed =</span> observed, <span class="at">one_bootstrap =</span> one_boot)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: inspect the two sample.int() calls and explain their arguments.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="repeat-the-bootstrap-and-estimate-uncertainty" class="level3">
+<h3 class="anchored" data-anchor-id="repeat-the-bootstrap-and-estimate-uncertainty">5. Repeat the bootstrap and estimate uncertainty</h3>
+<p>Generate 2,000 bootstrap statistics. Report the bootstrap SE and a 95% percentile interval in kg. Why is the SE <code>sd(boot)</code> rather than <code>sd(boot) / sqrt(B)</code>? Explain why the interval is about a population mean difference, not a range containing 95% of participants. Compare the bootstrap SE with Welch’s SE. Does agreement prove that either interval has 95% coverage?</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1501</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">2000</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>boot <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> B, <span class="at">expr =</span> <span class="fu">bootstrap_once</span>(<span class="at">data =</span> trial))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>boot_se <span class="ot">&lt;-</span> <span class="fu">sd</span>(<span class="at">x =</span> boot)</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>boot_ci <span class="ot">&lt;-</span> <span class="fu">quantile</span>(<span class="at">x =</span> boot, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>welch <span class="ot">&lt;-</span> <span class="fu">t.test</span>(<span class="at">x =</span> trial<span class="sc">$</span>y[trial<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"trt"</span>],</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">y =</span> trial<span class="sc">$</span>y[trial<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"ctrl"</span>], <span class="at">var.equal =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">estimate =</span> observed, <span class="at">bootstrap_se =</span> boot_se, <span class="at">Welch_se =</span> welch<span class="sc">$</span>stderr)</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>boot_ci</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: plot boot with hist() and add the observed estimate with abline().</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="try-one-allowed-permutation" class="level3">
+<h3 class="anchored" data-anchor-id="try-one-allowed-permutation">6. Try one allowed permutation</h3>
+<p>State the sharp null: treatment changes no participant’s outcome. Under the assumed complete randomization, keep outcomes fixed and reassign the same 10 control and 40 intervention labels. Trace <code>permute_once()</code> and explain why jointly shuffling complete rows would not change the statistic. Why is this operation different from sampling patients with replacement?</p>
+<p>A zero average effect alone does not imply the sharp null. For observational data, unrestricted label permutation requires a justified exchangeability assumption; it is not automatically valid just because we can shuffle labels.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1502</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>one_perm <span class="ot">&lt;-</span> <span class="fu">permute_once</span>(<span class="at">data =</span> trial)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">observed =</span> observed, <span class="at">one_permutation =</span> one_perm)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: explain which information is kept fixed under the null.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="repeat-permutations-and-calculate-the-p-value" class="level3">
+<h3 class="anchored" data-anchor-id="repeat-permutations-and-calculate-the-p-value">7. Repeat permutations and calculate the p-value</h3>
+<p>Generate 999 independent random label permutations. Count statistics at least as extreme as the observed difference in either direction. Calculate <code>(extreme + 1) / (P + 1)</code> and its minimum reportable value. Explain why the reported p-value cannot be zero, what null it tests, and why it is neither the probability that the null is true nor an estimate of power.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1502</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>P <span class="ot">&lt;-</span> <span class="dv">999</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>perm <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> P, <span class="at">expr =</span> <span class="fu">permute_once</span>(<span class="at">data =</span> trial))</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>extreme <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">abs</span>(perm) <span class="sc">&gt;=</span> <span class="fu">abs</span>(observed) <span class="sc">-</span> <span class="fl">1e-12</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>p_value <span class="ot">&lt;-</span> (extreme <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> (P <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">observed =</span> observed, <span class="at">extreme =</span> extreme,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">p_value =</span> p_value, <span class="at">minimum =</span> <span class="dv">1</span> <span class="sc">/</span> (P <span class="sc">+</span> <span class="dv">1</span>))</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="co"># The tiny tolerance includes ties affected by floating-point arithmetic.</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: plot perm and mark both -abs(observed) and abs(observed).</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+<section id="explain-the-two-kinds-of-uncertainty-and-report" class="level3">
+<h3 class="anchored" data-anchor-id="explain-the-two-kinds-of-uncertainty-and-report">8. Explain the two kinds of uncertainty and report</h3>
+<p>Write a short report containing the observed difference, bootstrap SE and interval, permutation p-value, resampling counts, seeds, and assumptions. Explain why the bootstrap distribution is near the observed estimate while the full permutation reference distribution is centered at zero.</p>
+<p>Repeat the bootstrap with another documented seed. Compare its SE and interval with the first run. Does increasing B add participants or make the underlying study more informative? Distinguish sampling uncertainty from variation due to a finite number of resamples. Why can neither bootstrap resamples nor null permutations establish the actual study’s coverage or power?</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1503</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>boot_again <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> B, <span class="at">expr =</span> <span class="fu">bootstrap_once</span>(<span class="at">data =</span> trial))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">first =</span> <span class="fu">c</span>(<span class="at">SE =</span> <span class="fu">sd</span>(<span class="at">x =</span> boot),</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                <span class="fu">quantile</span>(<span class="at">x =</span> boot, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))),</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">second =</span> <span class="fu">c</span>(<span class="at">SE =</span> <span class="fu">sd</span>(<span class="at">x =</span> boot_again),</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">quantile</span>(<span class="at">x =</span> boot_again, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>))))</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="co"># </span><span class="al">TODO</span><span class="co">: explain any computational variation and report both runs.</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</section>
+</section>
+<section id="optional-follow-up" class="level2">
+<h2 class="anchored" data-anchor-id="optional-follow-up">Optional follow-up</h2>
+<ul>
+<li>Compare a basic interval with the percentile interval.</li>
+<li>Use a binomial interval for the permutation tail probability to describe Monte Carlo precision. It is not an interval for the treatment effect.</li>
+<li>Follow the lecture’s paired and clustered examples. Keep all measurements from a sampled participant together, including repeated copies of that person.</li>
+<li>Study exact enumeration for a small randomized experiment. It has no Monte Carlo error, but the assignment rule must still match the design.</li>
+</ul>
+<p>Cross-validation remains in Session 16 with regression and prediction.</p>
 </section>
 <section id="exit-evidence" class="level2">
 <h2 class="anchored" data-anchor-id="exit-evidence">Exit evidence</h2>
-<p>Submit the source and rendered report with results, checks, interpretation, and an AI-use disclosure. Identify the analysis sample or resampling unit for each result.</p>
+<p>Submit source and rendered report with answers to all eight questions, the two resampling plots, results and assumptions, and AI-use disclosure. Identify the participant as the unit, the treatment contrast, and outcome units.</p>
 
 
 </section>

@@ -6731,14 +6731,14 @@
     "href": "course/session15/slides.html#the-same-line-of-code-twice",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "The same line of code, twice",
-    "text": "The same line of code, twice\n\nsbp &lt;- c(150, 142, 168, 131, 155)\n\nset.seed(1)\nsample(sbp, replace = TRUE)   # bootstrap: some values twice, some not at all\n\n[1] 150 131 150 142 155\n\nsample(sbp)                   # permutation: same values, new order\n\n[1] 168 142 131 150 155\n\n\n\n\n\nWith replacement: values may repeat or be omitted.\nWithout replacement: same values, new order. This changes their pairing with labels, arms, or times.\n\n\n\n\n\n\n\n\n\n\nFor length(x) &gt; 1, sample(x) permutes the values. To sample positions in code, prefer sample.int(length(x))."
+    "text": "The same line of code, twice\n\nsbp &lt;- c(150, 142, 168, 131, 155)\n\nset.seed(1)\nsample(x = sbp, size = length(sbp), replace = TRUE)\n\n[1] 150 131 150 142 155\n\nsample(x = sbp, size = length(sbp), replace = FALSE)\n\n[1] 168 142 131 150 155\n\n\n\n\n\nWith replacement: values may repeat or be omitted.\nWithout replacement: same values, new order. This changes their pairing with labels, arms, or times.\n\n\n\n\n\n\n\n\n\n\nFor length(x) &gt; 1, sample(x) permutes the values. To sample positions in code, prefer sample.int(length(x))."
   },
   {
     "objectID": "course/session15/slides.html#why-it-works-at-all",
     "href": "course/session15/slides.html#why-it-works-at-all",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "Why it works at all",
-    "text": "Why it works at all\nThe thing you want is a property of the population: the standard deviation of your estimator across repeated samples from it.\n\nYou do not have the population. You have one sample — which is your best available estimate of it.\n\n\n\n\n\n\n\n\nThe plug-in principle. Wherever the formula says population, substitute the empirical distribution of your sample, and compute.\n\n\n\n\n\n\nSo: resample from your data exactly as nature sampled from the population — same size n, drawn with replacement — and watch how the statistic moves."
+    "text": "Why it works at all\nThe thing you want is a property of the population: the standard deviation of your estimator across repeated samples from it.\n\nYou do not have the population. You have one sample — which is your best available estimate of it.\n\n\n\n\n\n\n\n\nThe plug-in principle. Wherever the formula says population, substitute the empirical distribution of your sample, and compute.\n\n\n\n\n\n\nFor independent observations, draw the same sample size from their empirical distribution, with replacement. Recompute the statistic. Paired or clustered observations require a resampling scheme that preserves their dependence."
   },
   {
     "objectID": "course/session15/slides.html#resample-recompute-collect",
@@ -6752,7 +6752,7 @@
     "href": "course/session15/slides.html#the-statistic-as-a-function",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "The statistic, as a function",
-    "text": "The statistic, as a function\nWe estimate the Treatment-minus-Placebo mean difference in 12-week SBP. Use the same statistic in the lecture, lab, bootstrap, and permutation test. Welch provides an independent standard-error comparison.\n\n# Difference in mean sbp_12, Treatment minus Placebo.\n# Takes a data frame with `arm` and `sbp_12`; returns one number.\nmean_diff &lt;- function(data) {\n  stopifnot(is.data.frame(data), all(c(\"arm\", \"sbp_12\") %in% names(data)))\n  mean(data$sbp_12[data$arm == \"Treatment\"]) -\n    mean(data$sbp_12[data$arm == \"Placebo\"])\n}\n\nobs_mean &lt;- mean_diff(trial)\nobs_mean\n\n[1] -12.43333\n\n\n\n\nStatistic first, resampling second. If the function is wrong, 2000 resamples make it wrong 2000 times."
+    "text": "The statistic, as a function\nEstimate Treatment minus Placebo in SBP reduction (baseline minus 12-week SBP). Use this same statistic for bootstrap and permutation.\n\n# Difference in mean reduction, Treatment minus Placebo.\n# Takes a data frame with `arm` and `reduction`; returns one number.\nmean_diff &lt;- function(data) {\n  mean(x = data$reduction[data$arm == \"Treatment\"]) -\n    mean(x = data$reduction[data$arm == \"Placebo\"])\n}\n\nobs_mean &lt;- mean_diff(data = trial)\nobs_mean\n\n[1] 7.190479\n\n\n\n\nThe lab applies the same mean-difference calculation to weight loss."
   },
   {
     "objectID": "course/session15/slides.html#bootstrap-within-treatment-arms",
@@ -6773,14 +6773,14 @@
     "href": "course/session15/slides.html#what-came-back",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "What came back",
-    "text": "What came back\n\n\nFigure 1: Bootstrap distribution of the difference in mean SBP at 12 weeks.\n\nThe distribution is centered near the observed mean difference. Its spread estimates the sampling uncertainty under this resampling scheme."
+    "text": "What came back\n\n\nFigure 1: Bootstrap distribution of the difference in mean SBP reduction.\n\nThe distribution is centered near the observed mean difference. Its spread estimates the sampling uncertainty under this resampling scheme."
   },
   {
     "objectID": "course/session15/slides.html#the-bootstrap-standard-error",
     "href": "course/session15/slides.html#the-bootstrap-standard-error",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "The bootstrap standard error",
-    "text": "The bootstrap standard error\nThe standard deviation of the resampled statistics is the estimated standard error. That is the whole definition.\n\nse_boot &lt;- sd(boot_mean)\nse_boot\n\n[1] 3.487651\n\n\n\n\nmean(boot_mean) - obs_mean    # bootstrap estimate of bias\n\n[1] 0.1196667\n\n\n\n\n\nThis is bias relative to the empirical distribution of the observed sample. It is not the true bias measured against a known population parameter in Session 14."
+    "text": "The bootstrap standard error\nThe SD of the bootstrap statistics estimates the sampling SE of the observed estimator. Do not divide this SD by sqrt(B).\n\nse_boot &lt;- sd(x = boot_mean)\nse_boot\n\n[1] 2.863028\n\n\n\n\nmean(boot_mean) - obs_mean    # bootstrap estimate of bias\n\n[1] 0.03621151\n\n\n\n\n\nThis is bias relative to the empirical distribution of the observed sample. It is not the true bias measured against a known population parameter in Session 14."
   },
   {
     "objectID": "course/session15/slides.html#percentile-and-basic-intervals",
@@ -6801,7 +6801,7 @@
     "href": "course/session15/slides.html#compare-the-bootstrap-and-welch-standard-errors",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "Compare the bootstrap and Welch standard errors",
-    "text": "Compare the bootstrap and Welch standard errors\n\nc(boot_se = sd(boot_mean),\n  welch_se = t.test(sbp_12 ~ arm, data = trial)$stderr)\n\n boot_se welch_se \n3.487651 3.571884 \n\n\n\n\nAgreement is a useful implementation check. Interval coverage requires a separate evaluation, such as simulation under a known data-generating mechanism."
+    "text": "Compare the bootstrap and Welch standard errors\n\nc(boot_se = sd(x = boot_mean),\n  welch_se = t.test(x = trial$reduction[trial$arm == \"Treatment\"],\n                    y = trial$reduction[trial$arm == \"Placebo\"])$stderr)\n\n boot_se welch_se \n2.863028 2.876504 \n\n\n\n\nAgreement is a useful implementation check. Interval coverage requires a separate evaluation, such as simulation under a known data-generating mechanism."
   },
   {
     "objectID": "course/session15/slides.html#bootstrap-stability",
@@ -6815,7 +6815,7 @@
     "href": "course/session15/slides.html#compare-interval-endpoints-across-seeds",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "Compare interval endpoints across seeds",
-    "text": "Compare interval endpoints across seeds\n\nt(vapply(1501:1503, boot_interval, numeric(2)))\n\n          [,1]      [,2]\n[1,] -19.30083 -5.433333\n[2,] -19.86833 -6.033333\n[3,] -19.66917 -5.731667\n\n\nCheck endpoints across documented seeds and larger B; keep all runs, not the best-looking one."
+    "text": "Compare interval endpoints across seeds\n\nt(vapply(1501:1503, boot_interval, numeric(2)))\n\n         [,1]     [,2]\n[1,] 1.364109 12.69328\n[2,] 1.723648 12.68856\n[3,] 1.653727 12.82486\n\n\nCheck endpoints across documented seeds and larger B; keep all runs, not the best-looking one."
   },
   {
     "objectID": "course/session15/slides.html#limits-of-the-ordinary-bootstrap",
@@ -6829,7 +6829,7 @@
     "href": "course/session15/slides.html#the-maximum-bootstrapped",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "The maximum, bootstrapped",
-    "text": "The maximum, bootstrapped\n\nset.seed(18)\nboot_max &lt;- replicate(B, max(trial$sbp_0[sample(nrow(trial), replace = TRUE)]))\n\nlength(unique(boot_max))                # distinct values across 2000 resamples\n\n[1] 7\n\nmean(boot_max == max(trial$sbp_0))      # how often the resample max is THE max\n\n[1] 0.634\n\n\n\n\nThe resampled maximum can never exceed the observed maximum, and it equals it when a unique largest observed value is drawn at all — probability 1 − (1 − 1/n)n ≈ 0.63.\n\n\n\n\n\n\n\n\n\nThe bootstrap distribution of a maximum is a spike at the observed value with a short left tail. It can be a poor approximation to sampling a new maximum from the population. Increasing B cannot fix that mismatch."
+    "text": "The maximum, bootstrapped\n\nset.seed(18)\nboot_max &lt;- replicate(n = B, expr = max(trial$sbp_0[sample.int(n = nrow(trial), size = nrow(trial), replace = TRUE)]))\n\nlength(unique(boot_max))                # distinct values across 2000 resamples\n\n[1] 7\n\nmean(boot_max == max(trial$sbp_0))      # how often the resample max is THE max\n\n[1] 0.634\n\n\n\n\nThe resampled maximum can never exceed the observed maximum, and it equals it when a unique largest observed value is drawn at all — probability 1 − (1 − 1/n)n ≈ 0.63.\n\n\n\n\n\n\n\n\n\nThe bootstrap distribution of a maximum is a spike at the observed value with a short left tail. It can be a poor approximation to sampling a new maximum from the population. Increasing B cannot fix that mismatch."
   },
   {
     "objectID": "course/session15/slides.html#two-packages-you-should-know-exist",
@@ -6857,7 +6857,7 @@
     "href": "course/session15/slides.html#the-null-distribution",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "The null distribution",
-    "text": "The null distribution\n\n\nFigure 2: Permutation null distribution of the mean difference, with the observed value.\n\nCentred at zero by construction. The p-value is the proportion of this histogram at least as extreme as the line."
+    "text": "The null distribution\n\n\nFigure 2: Permutation null distribution of the mean difference, with the observed value.\n\nThe full reference distribution is centered at zero. A finite set of random permutations need not average exactly zero. Count statistics at least as far from zero as the observed value, including both tails."
   },
   {
     "objectID": "course/session15/slides.html#exact-or-monte-carlo",
@@ -6871,7 +6871,7 @@
     "href": "course/session15/slides.html#a-permutation-p-value-is-never-zero",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "A permutation p-value is never zero",
-    "text": "A permutation p-value is never zero\n\nn_extreme &lt;- sum(abs(perm_stat) &gt;= abs(obs_mean))\nn_extreme                                        # out of 999\n\n[1] 0\n\n\n\n\nc(wrong = n_extreme / P,\n  right = (n_extreme + 1) / (P + 1))\n\nwrong right \n0.000 0.001 \n\n\n\n\n\nThe observed arrangement is one of the possible arrangements. Counting it in both numerator and denominator is not a fudge to avoid zero — it is the correct count.\n\n\n\n\n\n\n\n\n\nWith P = 999 and no sampled statistic as extreme, report the adjusted Monte Carlo p-value 0.001 and its limited resolution. Increase P if finer resolution is needed; do not report p = 0."
+    "text": "A permutation p-value is never zero\n\nn_extreme &lt;- sum(abs(perm_stat) &gt;= abs(obs_mean) - 1e-12)\nn_extreme                                        # out of 999\n\n[1] 13\n\n\n\n\nc(wrong = n_extreme / P,\n  right = (n_extreme + 1) / (P + 1))\n\n     wrong      right \n0.01301301 0.01400000 \n\n\n\n\n\nFor P independent, uniformly sampled allowed assignments, include the observed assignment using (extreme + 1) / (P + 1). Exact enumeration instead counts all assignments, including the observed one, with no extra +1 correction.\n\n\n\n\n\n\n\n\n\nWith P = 999 and no sampled statistic as extreme, report the adjusted Monte Carlo p-value 0.001 and its limited resolution. Increase P if finer resolution is needed; do not report p = 0."
   },
   {
     "objectID": "course/session15/slides.html#interpret-a-permutation-result",
@@ -6899,7 +6899,7 @@
     "href": "course/session15/slides.html#practice-preserve-the-assignment-mechanism",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "Practice: preserve the assignment mechanism",
-    "text": "Practice: preserve the assignment mechanism\nshuffled &lt;- trial$arm\nfor (i in split(seq_len(nrow(trial)), trial$site)) {\n  shuffled[i] &lt;- trial$arm[i][sample.int(length(i))]\n}\nWithin-site assignment counts stay fixed. Use this rule only when it represents the actual randomization; an arbitrary blocking variable does not establish validity."
+    "text": "Practice: preserve the assignment mechanism\nshuffled &lt;- trial$arm\nfor (i in split(seq_len(nrow(trial)), trial$site)) {\n  shuffled[i] &lt;- trial$arm[i][sample.int(n = length(i), size = length(i), replace = FALSE)]\n}\nWithin-site assignment counts stay fixed. Use this rule only when it represents the actual randomization; an arbitrary blocking variable does not establish validity."
   },
   {
     "objectID": "course/session15/slides.html#the-same-cohort-three-visits-each",
@@ -6920,14 +6920,14 @@
     "href": "course/session15/slides.html#the-naive-row-bootstrap",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "The naive row bootstrap",
-    "text": "The naive row bootstrap\n\nset.seed(21)\nboot_row &lt;- replicate(B, {\n  idx &lt;- sample(nrow(trial_long), replace = TRUE)   # 180 rows, independently\n  diff_long(trial_long[idx, ])\n})\n\nc(estimate = obs_long, se = sd(boot_row))\n\n estimate        se \n-7.100000  1.878739 \n\nround(quantile(boot_row, c(0.025, 0.975)), 2)\n\n 2.5% 97.5% \n-10.7  -3.4 \n\n\n\n\nPerfectly reasonable code. Runs without complaint. Produces a clean, symmetric histogram. The interval comfortably excludes zero.\n\n\n\n\n\n\n\n\n\nIt is wrong, and nothing on this slide tells you so."
+    "text": "The naive row bootstrap\n\nset.seed(21)\nboot_row &lt;- replicate(n = B, expr = {\n  groups &lt;- split(x = seq_len(nrow(trial_long)), f = trial_long$arm)\n  idx &lt;- unlist(lapply(X = groups, FUN = function(i)\n    i[sample.int(n = length(i), size = length(i), replace = TRUE)]))\n  diff_long(trial_long[idx, ])\n})\n\nc(estimate = obs_long, se = sd(boot_row))\n\n estimate        se \n-7.100000  1.845853 \n\nround(quantile(boot_row, c(0.025, 0.975)), 2)\n\n  2.5%  97.5% \n-10.43  -3.18 \n\n\n\n\nThis runs, but treats dependent visits as independent observations. Preserving arm sizes alone does not preserve within-person dependence."
   },
   {
     "objectID": "course/session15/slides.html#the-cluster-bootstrap",
     "href": "course/session15/slides.html#the-cluster-bootstrap",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "The cluster bootstrap",
-    "text": "The cluster bootstrap\nResample patients, and take all of each patient’s rows with them.\n\nids &lt;- unique(trial_long$id)\nrows_by_id &lt;- split(seq_len(nrow(trial_long)), trial_long$id)   # id -&gt; row numbers\n\nset.seed(22)\nboot_clu &lt;- replicate(B, {\n  picked &lt;- sample(ids, replace = TRUE)              # 60 patients, with repeats\n  diff_long(trial_long[unlist(rows_by_id[picked]), ])\n})\n\nc(row_se = sd(boot_row), cluster_se = sd(boot_clu),\n  ratio = sd(boot_clu) / sd(boot_row))\n\n    row_se cluster_se      ratio \n  1.878739   3.222562   1.715279 \n\n\n\n\nCompare the two estimated SEs. With strong within-person dependence, independent row resampling understates uncertainty in this example."
+    "text": "The cluster bootstrap\nResample patients within arms, taking all their visits with them.\n\nset.seed(22)\nboot_clu &lt;- replicate(n = B, expr = {\n  picked &lt;- unlist(lapply(X = id_groups, FUN = function(i)\n    sample(x = i, size = length(i), replace = TRUE)))\n  diff_long(trial_long[unlist(rows_by_id[picked]), ])\n})\n\nc(row_se = sd(boot_row), cluster_se = sd(boot_clu),\n  ratio = sd(boot_clu) / sd(boot_row))\n\n    row_se cluster_se      ratio \n  1.845853   3.143283   1.702889 \n\n\n\n\nCompare the two estimated SEs. With strong within-person dependence, independent row resampling understates uncertainty in this example."
   },
   {
     "objectID": "course/session15/slides.html#side-by-side",
@@ -6948,14 +6948,14 @@
     "href": "course/session15/slides.html#permuting-at-the-wrong-level-too",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "Permuting at the wrong level, too",
-    "text": "Permuting at the wrong level, too\nThe same mistake, in the other half of the session:\n\narm_by_id &lt;- trial_long$arm[match(ids, trial_long$id)]\n\nset.seed(32)\np_rows &lt;- replicate(999, {\n  s &lt;- sample(trial_long$arm)                    # shuffles visits, not patients\n  mean(trial_long$sbp[s == \"Treatment\"]) - mean(trial_long$sbp[s == \"Placebo\"])\n})"
+    "text": "Permuting at the wrong level, too\nThe same mistake, in the other half of the session:\n\narm_by_id &lt;- trial_long$arm[match(ids, trial_long$id)]\n\nset.seed(32)\np_rows &lt;- replicate(n = 999, expr = {\n  s &lt;- sample(x = trial_long$arm, size = nrow(trial_long),\n              replace = FALSE)  # wrongly reassigns visits\n  mean(trial_long$sbp[s == \"Treatment\"]) - mean(trial_long$sbp[s == \"Placebo\"])\n})"
   },
   {
     "objectID": "course/session15/slides.html#permute-patient-assignments-then-carry-them-to-visits",
     "href": "course/session15/slides.html#permute-patient-assignments-then-carry-them-to-visits",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "Permute patient assignments, then carry them to visits",
-    "text": "Permute patient assignments, then carry them to visits\n\np_pats &lt;- replicate(999, {\n  assigned &lt;- sample(arm_by_id)\n  s &lt;- assigned[match(trial_long$id, ids)]      # join by ID, not row order\n  mean(trial_long$sbp[s == \"Treatment\"]) - mean(trial_long$sbp[s == \"Placebo\"])\n})\n\nc(p_row_unit = (sum(abs(p_rows) &gt;= abs(obs_long)) + 1) / 1000,\n  p_patient_unit = (sum(abs(p_pats) &gt;= abs(obs_long)) + 1) / 1000)\n\n    p_row_unit p_patient_unit \n         0.001          0.034 \n\n\n\nCompare the results and their resolution. Randomisation happened to patients, so the permutation must too."
+    "text": "Permute patient assignments, then carry them to visits\n\np_pats &lt;- replicate(n = 999, expr = {\n  assigned &lt;- sample(x = arm_by_id, size = length(arm_by_id), replace = FALSE)\n  s &lt;- assigned[match(trial_long$id, ids)]      # join by ID, not row order\n  mean(trial_long$sbp[s == \"Treatment\"]) - mean(trial_long$sbp[s == \"Placebo\"])\n})\n\nc(p_row_unit = (sum(abs(p_rows) &gt;= abs(obs_long)) + 1) / 1000,\n  p_patient_unit = (sum(abs(p_pats) &gt;= abs(obs_long)) + 1) / 1000)\n\n    p_row_unit p_patient_unit \n         0.001          0.034 \n\n\n\nCompare the results and their resolution. Randomisation happened to patients, so the permutation must too."
   },
   {
     "objectID": "course/session15/slides.html#the-resampling-unit",
@@ -7123,7 +7123,7 @@
     "href": "course/session15/slides.html#guided-lab-and-exit-check",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "Guided lab and exit check",
-    "text": "Guided lab and exit check\n\nBootstrap the mean difference within treatment arms.\nReport SE and intervals, and inspect stability across documented seeds.\nPermute treatment labels under the specified randomization scheme.\nPreserve participants when there are repeated visits.\nBootstrap paired changes and explain what the estimate does and does not mean.\n\nExplain: What changes when you increase the number of resamples? Which question calls for bootstrap or permutation? Why must both measurements from a participant stay together?"
+    "text": "Guided lab and exit check\n\nReuse Session 14’s fixed weight-loss dataset; review the three functions.\nChoose a resampling plan and inspect the observed mean difference.\nTry one bootstrap, then repeat and report SE and a percentile interval.\nTry one allowed permutation, then repeat and calculate the adjusted p-value.\nDistinguish sampling uncertainty from computational variation across seeds.\n\nThe lab requires the CSV and one starter. Paired/cluster coding, basic intervals, and exact enumeration are optional follow-up.\nExplain: Why does sd(boot) estimate the effect SE? Why does increasing B not add patients? Why is a permutation rejection fraction not estimated power?"
   },
   {
     "objectID": "course/session15/slides.html#why-do-we-need-resampling",
@@ -7158,21 +7158,21 @@
     "href": "course/session15/slides.html#a-bootstrap-project-in-a-few-lines",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "A bootstrap project in a few lines",
-    "text": "A bootstrap project in a few lines\n\nthickness &lt;- boot::melanoma$thickness\nstopifnot(length(thickness) == 205L, all(is.finite(thickness)))\nset.seed(1500)\nboot_median &lt;- replicate(2000,\n  median(sample(thickness, replace = TRUE)))\nround(c(estimate = median(thickness), SE = sd(boot_median),\n        quantile(boot_median, c(.025, .975))), 2)\n\nestimate       SE     2.5%    97.5% \n    1.94     0.19     1.62     2.26 \n\n\nReport the median, bootstrap SE, and percentile interval in mm. The interval describes sampling uncertainty under the resampling assumptions. It does not show the range containing 95% of individual patients."
+    "text": "A bootstrap project in a few lines\n\nthickness &lt;- boot::melanoma$thickness\nstopifnot(length(thickness) == 205L, all(is.finite(thickness)))\nset.seed(1500)\nboot_median &lt;- replicate(n = 2000, expr =\n  median(x = sample(x = thickness, size = length(thickness), replace = TRUE)))\nround(c(estimate = median(thickness), SE = sd(boot_median),\n        quantile(boot_median, c(.025, .975))), 2)\n\nestimate       SE     2.5%    97.5% \n    1.94     0.19     1.62     2.26 \n\n\nReport the median, bootstrap SE, and percentile interval in mm. The interval describes sampling uncertainty under the resampling assumptions. It does not show the range containing 95% of individual patients."
   },
   {
     "objectID": "course/session15/slides.html#optional-percentile-and-basic-intervals",
     "href": "course/session15/slides.html#optional-percentile-and-basic-intervals",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "Optional: Percentile and basic intervals",
-    "text": "Optional: Percentile and basic intervals\n\nperc &lt;- quantile(boot_mean, c(.025, .975))\nbasic &lt;- 2 * obs_mean - quantile(boot_mean, c(.975, .025))\nrbind(percentile = unname(perc), basic = unname(basic))\n\n                [,1]      [,2]\npercentile -19.13333 -5.663333\nbasic      -19.20333 -5.733333\n\n\n\nPercentile: use quantiles of the bootstrap estimates directly.\nBasic: reflect those quantiles around the observed estimate.\nBoth rely on a suitable bootstrap approximation; neither automatically has 95% coverage in small, biased, or irregular problems.\n\nCompare endpoints and assumptions. Do not choose whichever interval gives a preferred conclusion."
+    "text": "Optional: Percentile and basic intervals\n\nperc &lt;- quantile(x = boot_mean, probs = c(.025, .975))\nbasic &lt;- 2 * obs_mean - quantile(x = boot_mean, probs = c(.975, .025))\nrbind(percentile = unname(perc), basic = unname(basic))\n\n               [,1]     [,2]\npercentile 1.527922 12.74793\nbasic      1.633026 12.85304\n\n\n\nPercentile: use quantiles of the bootstrap estimates directly.\nBasic: reflect those quantiles around the observed estimate.\nBoth rely on a suitable bootstrap approximation; neither automatically has 95% coverage in small, biased, or irregular problems.\n\nCompare endpoints and assumptions. Do not choose whichever interval gives a preferred conclusion."
   },
   {
     "objectID": "course/session15/slides.html#optional-bootstrap-stability",
     "href": "course/session15/slides.html#optional-bootstrap-stability",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "Optional: Bootstrap stability",
-    "text": "Optional: Bootstrap stability\nMore resamples reduce computational variation; they do not add participants or repair an inappropriate bootstrap scheme.\n\nboot_interval &lt;- function(seed, B = 1000) {\n  set.seed(seed)\n  groups &lt;- split(seq_len(nrow(trial)), trial$arm)\n  ans &lt;- replicate(B, {\n    i &lt;- unlist(lapply(groups, function(j)\n      j[sample.int(length(j), replace = TRUE)]))\n    mean_diff(trial[i, ])\n  })\n  unname(quantile(ans, c(.025, .975)))\n}"
+    "text": "Optional: Bootstrap stability\nMore resamples reduce computational variation; they do not add participants or repair an inappropriate bootstrap scheme.\n\nboot_interval &lt;- function(seed, B = 1000) {\n  set.seed(seed)\n  ans &lt;- replicate(n = B, expr = bootstrap_once(data = trial))\n  unname(quantile(x = ans, probs = c(0.025, 0.975)))\n}"
   },
   {
     "objectID": "course/session15/slides.html#real-experiment-promotion-recommendations",
@@ -7186,7 +7186,7 @@
     "href": "course/session15/slides.html#why-permutation-fits-this-project",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "Why permutation fits this project",
-    "text": "Why permutation fits this project\nUnder the sharp null, each supervisor’s decision would be unchanged by the file label. Keep the 48 decisions fixed and randomly assign 24 male labels and 24 female labels again.\n\ndecision &lt;- c(rep(1, 21), rep(0, 3), rep(1, 14), rep(0, 10))\nobserved_gap &lt;- 21/24 - 14/24\nset.seed(1501)\nnull_gap &lt;- replicate(9999, {\n  male &lt;- sample.int(48, 24)\n  mean(decision[male]) - mean(decision[-male])\n})\n(1 + sum(abs(null_gap) &gt;= abs(observed_gap) - 1e-12)) / 10000\n\n[1] 0.0526\n\n\nThis two-sided p-value measures evidence against the null under the assignment scheme. It does not estimate the size or uncertainty of an effect."
+    "text": "Why permutation fits this project\nUnder the sharp null, each supervisor’s decision would be unchanged by the file label. Keep the 48 decisions fixed and randomly assign 24 male labels and 24 female labels again.\n\ndecision &lt;- c(rep(1, 21), rep(0, 3), rep(1, 14), rep(0, 10))\nobserved_gap &lt;- 21/24 - 14/24\nset.seed(1501)\nnull_gap &lt;- replicate(n = 9999, expr = {\n  male &lt;- sample.int(n = 48, size = 24, replace = FALSE)\n  mean(decision[male]) - mean(decision[-male])\n})\n(1 + sum(abs(null_gap) &gt;= abs(observed_gap) - 1e-12)) / 10000\n\n[1] 0.0526\n\n\nThis two-sided p-value measures evidence against the null under the assignment scheme. It does not estimate the size or uncertainty of an effect."
   },
   {
     "objectID": "course/session15/slides.html#which-bootstrap-fits-the-data",
@@ -7200,7 +7200,7 @@
     "href": "course/session15/slides.html#paired-measurements-bootstrap-the-change",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "Paired measurements: bootstrap the change",
-    "text": "Paired measurements: bootstrap the change\nFor the treatment arm, estimate mean 12-week minus baseline SBP. Each participant contributes one paired change.\n\ntreated &lt;- trial[trial$arm == \"Treatment\", ]\nchange &lt;- treated$sbp_12 - treated$sbp_0\nset.seed(1530)\nboot_change &lt;- replicate(2000,\n  mean(sample(change, length(change), replace = TRUE)))\nround(c(mean_change = mean(change), SE = sd(boot_change),\n        quantile(boot_change, c(.025, .975))), 2)\n\nmean_change          SE        2.5%       97.5% \n     -13.37        1.62      -16.60      -10.23 \n\n\nSampling changes preserves the pairing. Sampling baseline and follow-up values separately would break it. This estimates change within one arm, not a causal treatment effect relative to a control group."
+    "text": "Paired measurements: bootstrap the change\nFor the treatment arm, estimate mean baseline minus 12-week SBP. Each participant contributes one paired change.\n\ntreated &lt;- trial[trial$arm == \"Treatment\", ]\nchange &lt;- treated$sbp_0 - treated$sbp_12\nset.seed(1530)\nboot_change &lt;- replicate(n = 2000, expr =\n  mean(x = sample(x = change, size = length(change), replace = TRUE)))\nround(c(mean_change = mean(change), SE = sd(boot_change),\n        quantile(boot_change, c(.025, .975))), 2)\n\nmean_change          SE        2.5%       97.5% \n       5.66        0.82        4.09        7.28 \n\n\nSampling changes preserves the pairing. Sampling baseline and follow-up values separately would break it. This estimates change within one arm, not a causal treatment effect relative to a control group."
   },
   {
     "objectID": "course/session15/slides.html#a-paired-permutation-test-needs-a-justified-rule",
@@ -7215,6 +7215,104 @@
     "title": "Resampling: Bootstrap and Permutation",
     "section": "Choosing and reporting the analysis",
     "text": "Choosing and reporting the analysis\n\n\n\n\n\n\n\nDecision\nWhat to state\n\n\n\n\nStandard method or resampling?\nA t method may suffice for a mean; bootstrap can help with less familiar statistics\n\n\nEstimate uncertainty or test a null?\nReport an interval or a justified p-value for the stated question\n\n\nWhich units and restrictions?\nParticipants, pairs, clusters, and fixed group sizes\n\n\nHow much computation?\nNumber of resamples, seed, and stability or Monte Carlo precision\n\n\nWhat can the result support?\nTarget population, assumptions, missingness, and limits\n\n\n\nMore resamples cannot repair an inappropriate unit, biased sample, or invalid reassignment rule. Choose the analysis before inspecting favorable results."
+  },
+  {
+    "objectID": "course/session15/slides.html#from-session-14-to-session-15",
+    "href": "course/session15/slides.html#from-session-14-to-session-15",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "From Session 14 to Session 15",
+    "text": "From Session 14 to Session 15\n\n\n\n\n\n\n\n\n\nSession 14: simulation\nSession 15: resampling\n\n\n\n\nStarting point\nA specified population model\nOne observed dataset\n\n\nWhat we repeat\nGenerate a new trial and analyse it\nResample participants or reassign labels\n\n\nMain question\nHow does a method perform when truth is known?\nHow uncertain is our estimate, or how surprising under a null?\n\n\n\nWe keep the SBP reduction outcome and the difference in group means. The lab reuses Session 14’s weight-loss dataset.\nNonparametric bootstrap samples come from the observed data, not new normal draws. The resampling unit and the study design still require justification."
+  },
+  {
+    "objectID": "course/session15/slides.html#two-kinds-of-uncertainty",
+    "href": "course/session15/slides.html#two-kinds-of-uncertainty",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Two kinds of uncertainty",
+    "text": "Two kinds of uncertainty\n\n\n\n\n\n\n\n\n\nSampling uncertainty\nMonte Carlo uncertainty\n\n\n\n\nWhat varies?\nThe effect estimate across new studies\nComputed results across resampling runs\n\n\nReported as\nBootstrap SE and effect interval\nStability of endpoints or precision of a simulated p-value\n\n\nWhat helps?\nMore independent participants\nMore resamples, with the data fixed\n\n\n\nsd(bootstrap estimates) estimates the effect’s sampling SE. Do not divide it by the square root of the number of bootstrap resamples.\nMore resamples improve computational precision; they do not create new patients."
+  },
+  {
+    "objectID": "course/session15/slides.html#one-draw-versus-many-repetitions",
+    "href": "course/session15/slides.html#one-draw-versus-many-repetitions",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "One draw versus many repetitions",
+    "text": "One draw versus many repetitions\nsample() draws from observed values; replicate() repeats an expression.\n\nset.seed(1500)\nvalues &lt;- c(1, 2, 4, 7)\none_draw &lt;- sample(x = values, size = length(values), replace = TRUE)\none_draw\n\n[1] 7 7 7 1\n\nreplicate(n = 3, expr = mean(x = sample(\n  x = values, size = length(values), replace = TRUE)))\n\n[1] 4.25 4.25 5.00\n\n\nHere 4 is the number of observations per resample and 3 is the number of repetitions. Set the seed before repeating, not inside the repeated expression."
+  },
+  {
+    "objectID": "course/session15/slides.html#one-within-arm-bootstrap-the-function",
+    "href": "course/session15/slides.html#one-within-arm-bootstrap-the-function",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "One within-arm bootstrap: the function",
+    "text": "One within-arm bootstrap: the function\n\nbootstrap_once &lt;- function(data) {\n  ctrl &lt;- which(data$arm == \"Placebo\")\n  trt &lt;- which(data$arm == \"Treatment\")\n  picked_ctrl &lt;- ctrl[sample.int(n = length(ctrl), size = length(ctrl),\n                                 replace = TRUE)]\n  picked_trt &lt;- trt[sample.int(n = length(trt), size = length(trt),\n                              replace = TRUE)]\n  mean_diff(data = data[c(picked_ctrl, picked_trt), ])\n}\n\nSample row positions within each arm. Keep each participant’s outcome and label together. Arm sizes stay fixed; sampled participants may repeat."
+  },
+  {
+    "objectID": "course/session15/slides.html#try-one-bootstrap-before-repeating",
+    "href": "course/session15/slides.html#try-one-bootstrap-before-repeating",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Try one bootstrap before repeating",
+    "text": "Try one bootstrap before repeating\n\nset.seed(14)\none_boot &lt;- bootstrap_once(data = trial)\nc(observed = obs_mean, one_bootstrap = one_boot)\n\n     observed one_bootstrap \n     7.190479      5.707647 \n\n\nBoth values use the same statistic. The resample changes which participants appear and how often; it does not generate new SBP measurements.\nOne resampled estimate is not a standard error. We need many such estimates to measure their spread."
+  },
+  {
+    "objectID": "course/session15/slides.html#repeat-the-within-arm-bootstrap",
+    "href": "course/session15/slides.html#repeat-the-within-arm-bootstrap",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Repeat the within-arm bootstrap",
+    "text": "Repeat the within-arm bootstrap\n\nset.seed(14)\nB &lt;- 2000\nboot_mean &lt;- replicate(n = B, expr = bootstrap_once(data = trial))\nlength(boot_mean)\n\n[1] 2000\n\nhead(x = round(x = boot_mean, digits = 1))\n\n[1]  5.7  6.4  5.9  2.3  2.9 10.5\n\n\nbootstrap_once() produces one estimate. replicate() returns B estimates. The original dataset and the two arm sizes stay fixed throughout."
+  },
+  {
+    "objectID": "course/session15/slides.html#optional-the-same-bootstrap-with-dplyr",
+    "href": "course/session15/slides.html#optional-the-same-bootstrap-with-dplyr",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Optional: the same bootstrap with dplyr",
+    "text": "Optional: the same bootstrap with dplyr\n\n\n\n\n\n\n\n\nThe tidyverse way — same thing\n\n\npurrr::map_dbl(seq_len(B), \\(i) mean_diff(\n  trial |&gt; dplyr::group_by(arm) |&gt;\n    dplyr::slice_sample(prop = 1, replace = TRUE) |&gt; dplyr::ungroup()))"
+  },
+  {
+    "objectID": "course/session15/slides.html#a-percentile-interval-for-the-effect",
+    "href": "course/session15/slides.html#a-percentile-interval-for-the-effect",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "A percentile interval for the effect",
+    "text": "A percentile interval for the effect\n\nquantile(x = boot_mean, probs = c(0.025, 0.975))\n\n     2.5%     97.5% \n 1.527922 12.747932 \n\n\nTake the 2.5th and 97.5th percentiles of the resampled mean differences. The units are mmHg of additional SBP reduction.\nThis is an approximate interval for the population effect. It is not a range containing 95% of patients, and 95% coverage is not guaranteed."
+  },
+  {
+    "objectID": "course/session15/slides.html#one-allowed-permutation",
+    "href": "course/session15/slides.html#one-allowed-permutation",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "One allowed permutation",
+    "text": "One allowed permutation\nAssume complete randomization with 30 participants per arm. Under the sharp null, each participant’s reduction is unchanged by their treatment assignment.\n\npermute_once &lt;- function(data) {\n  shuffled &lt;- data\n  shuffled$arm &lt;- sample(x = data$arm, size = nrow(data), replace = FALSE)\n  mean_diff(data = shuffled)\n}\nset.seed(19)\nc(observed = obs_mean, one_permutation = permute_once(data = trial))\n\n       observed one_permutation \n      7.1904793       0.3900273 \n\n\nOutcomes stay fixed; labels are reassigned. Jointly shuffling complete rows would preserve the outcome-label pairs and leave the statistic unchanged."
+  },
+  {
+    "objectID": "course/session15/slides.html#repeat-the-label-permutations",
+    "href": "course/session15/slides.html#repeat-the-label-permutations",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Repeat the label permutations",
+    "text": "Repeat the label permutations\n\nset.seed(19)\nP &lt;- 999\nperm_stat &lt;- replicate(n = P, expr = permute_once(data = trial))\nc(observed = obs_mean, perm_mean = mean(x = perm_stat),\n  perm_sd = sd(x = perm_stat))\n\n observed perm_mean   perm_sd \n7.1904793 0.1201733 2.9643539 \n\n\nEvery repetition starts with the same observed outcomes. Each label shuffle preserves the arm sizes and follows the specified randomization scheme.\nThe SD here describes a null reference distribution, not the bootstrap distribution of the estimated effect."
+  },
+  {
+    "objectID": "course/session15/slides.html#optional-exact-enumeration",
+    "href": "course/session15/slides.html#optional-exact-enumeration",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Optional: exact enumeration",
+    "text": "Optional: exact enumeration\nWith 4 patients per arm there are only choose(8, 4) = 70 possible label assignments. You can enumerate all of them:\n\nsmall &lt;- trial[c(1:4, 31:34), c(\"id\", \"arm\", \"reduction\")]\nobs_small &lt;- mean_diff(data = small)\n\ncombos &lt;- combn(8, 4)                    # every way to choose 4 \"Treatment\"\nexact &lt;- apply(combos, 2, function(k) mean(small$reduction[k]) -\n                                      mean(small$reduction[-k]))\n\nncol(combos)                             # the entire reference set\n\n[1] 70\n\nround(mean(abs(exact) &gt;= abs(obs_small) - 1e-12), 4)    # exact two-sided p-value\n\n[1] 0.0286\n\n\n\n\nWith 30 per arm there are choose(60, 30) ≈ 1.2 × 1017. So you sample from them instead — that is all “Monte Carlo permutation” means."
+  },
+  {
+    "objectID": "course/session15/slides.html#optional-monte-carlo-p-value-uncertainty",
+    "href": "course/session15/slides.html#optional-monte-carlo-p-value-uncertainty",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Optional: Monte Carlo p-value uncertainty",
+    "text": "Optional: Monte Carlo p-value uncertainty\n\nextreme &lt;- sum(abs(perm_stat) &gt;= abs(obs_mean) - 1e-12)\nc(adjusted_p = (extreme + 1) / (P + 1),\n  min_reportable = 1 / (P + 1))\n\n    adjusted_p min_reportable \n         0.014          0.001 \n\nbinom.test(extreme, P)$conf.int\n\n[1] 0.006946582 0.022149851\nattr(,\"conf.level\")\n[1] 0.95\n\n\nThe interval describes the tail probability estimated by independent random permutations conditional on the observed data. It is not a confidence interval for the treatment effect. Exact enumeration has no Monte Carlo sampling error."
+  },
+  {
+    "objectID": "course/session15/slides.html#a-repeated-visit-illustration-three-visits-each",
+    "href": "course/session15/slides.html#a-repeated-visit-illustration-three-visits-each",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "A repeated-visit illustration: three visits each",
+    "text": "A repeated-visit illustration: three visits each\n\nhead(x = trial_long, n = 7)\n\n    id     arm week sbp\n1 P001 Placebo    4 158\n2 P001 Placebo    8 155\n3 P001 Placebo   12 154\n4 P002 Placebo    4 146\n5 P002 Placebo    8 152\n6 P002 Placebo   12 145\n7 P003 Placebo    4 131\n\nc(rows = nrow(trial_long), patients = length(unique(trial_long$id)))\n\n    rows patients \n     180       60"
+  },
+  {
+    "objectID": "course/session15/slides.html#keep-each-participants-visits-together",
+    "href": "course/session15/slides.html#keep-each-participants-visits-together",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Keep each participant’s visits together",
+    "text": "Keep each participant’s visits together\n\nids &lt;- unique(trial_long$id)\narm_by_id &lt;- trial_long$arm[match(ids, trial_long$id)]\nid_groups &lt;- split(x = ids, f = arm_by_id)\nrows_by_id &lt;- split(x = seq_len(nrow(trial_long)), f = trial_long$id)\n\nid_groups lists participant IDs in each arm. rows_by_id links each ID to all of that participant’s visits.\nIf an ID is sampled twice, include its visit rows twice. Selecting rows with id %in% picked would lose those repeated copies."
   },
   {
     "objectID": "course/session14/index.html",
@@ -7977,7 +8075,7 @@
     "href": "course/session15/index.html",
     "title": "Session 15 · Bootstrap, permutation, and resampling design",
     "section": "",
-    "text": "Session\nFocus\n\n\n\n\n14\nKnown-truth simulation: design, performance, failures, and Monte Carlo uncertainty\n\n\n15\nBootstrap, permutation, and resampling design\n\n\n16\nModels, cross-validation, broader tools, course recap, and handoff"
+    "text": "Session 14 specifies a population and generates new trials. Session 15 starts with one dataset and uses bootstrap samples for estimation uncertainty and allowed label permutations for a null comparison. Cross-validation remains with regression models in Session 16.\nThe lecture retains the melanoma and promotion-study examples and uses SBP reduction for its worked trial. The lab reuses the weight-loss dataset from Session 14, with a guided function review and one-resample examples before loops."
   },
   {
     "objectID": "course/session15/index.html#the-statistical-computing-sequence",
@@ -7998,7 +8096,7 @@
     "href": "course/session15/index.html#materials",
     "title": "Session 15 · Bootstrap, permutation, and resampling design",
     "section": "Materials",
-    "text": "Materials\n\nLecture slides\nGuided lab\nStarter: Quarto or R Markdown"
+    "text": "Materials\n\nLecture slides\nGuided lab\nFixed synthetic dataset\nStarter: Quarto or R Markdown"
   },
   {
     "objectID": "course/session15/index.html#start-with-the-project-question",
@@ -8015,11 +8113,25 @@
     "text": "Paired-data follow-up\nFor treatment-arm participants, calculate follow-up minus baseline SBP. Bootstrap these paired changes and report the mean, SE, and percentile interval. Explain why this does not estimate a causal treatment effect, why independent resampling of the two visits is inappropriate, and why time labels cannot automatically be permuted."
   },
   {
+    "objectID": "course/session15/index.html#from-simulation-to-resampling",
+    "href": "course/session15/index.html#from-simulation-to-resampling",
+    "title": "Session 15 · Bootstrap, permutation, and resampling design",
+    "section": "",
+    "text": "Session 14 specifies a population and generates new trials. Session 15 starts with one dataset and uses bootstrap samples for estimation uncertainty and allowed label permutations for a null comparison. Cross-validation remains with regression models in Session 16.\nThe lecture retains the melanoma and promotion-study examples and uses SBP reduction for its worked trial. The lab reuses the weight-loss dataset from Session 14, with a guided function review and one-resample examples before loops."
+  },
+  {
+    "objectID": "course/session15/index.html#lab-route",
+    "href": "course/session15/index.html#lab-route",
+    "title": "Session 15 · Bootstrap, permutation, and resampling design",
+    "section": "Lab route",
+    "text": "Lab route\n\nReview the functions.\nChoose a resampling plan.\nInspect the fixed dataset and observed estimate.\nTry one within-arm bootstrap.\nRepeat the bootstrap and estimate uncertainty.\nTry one allowed permutation.\nRepeat permutations and calculate the p-value.\nExplain the two kinds of uncertainty and report.\n\nPaired and clustered-data coding and advanced interval details are optional."
+  },
+  {
     "objectID": "course/session15/lab.html",
     "href": "course/session15/lab.html",
     "title": "Session 15 guided lab",
     "section": "",
-    "text": "Work in BIOS6301-mywork.Rproj. Copy the starter from the separate course clone into work/session15/: Quarto or R Markdown. All inputs are synthetic."
+    "text": "Work in BIOS6301-mywork.Rproj. Copy the dataset and one starter (Quarto or R Markdown) into work/session15/. Keep the CSV and starter in the same folder. All data are synthetic."
   },
   {
     "objectID": "course/session15/lab.html#learning-goals",
@@ -8040,7 +8152,7 @@
     "href": "course/session15/lab.html#exit-evidence",
     "title": "Session 15 guided lab",
     "section": "Exit evidence",
-    "text": "Exit evidence\nSubmit the source and rendered report with results, checks, interpretation, and an AI-use disclosure. Identify the analysis sample or resampling unit for each result."
+    "text": "Exit evidence\nSubmit source and rendered report with answers to all eight questions, the two resampling plots, results and assumptions, and AI-use disclosure. Identify the participant as the unit, the treatment contrast, and outcome units."
   },
   {
     "objectID": "course/session15/lab.html#tasks-following-the-lecture",
@@ -8069,6 +8181,20 @@
     "title": "Session 15 guided lab",
     "section": "Paired-data follow-up",
     "text": "Paired-data follow-up\nFor treatment-arm participants, calculate follow-up minus baseline SBP. Bootstrap these paired changes and report the mean, SE, and percentile interval. Explain why this does not estimate a causal treatment effect, why independent resampling of the two visits is inappropriate, and why time labels cannot automatically be permuted."
+  },
+  {
+    "objectID": "course/session15/lab.html#one-dataset-two-questions",
+    "href": "course/session15/lab.html#one-dataset-two-questions",
+    "title": "Session 15 guided lab",
+    "section": "One dataset, two questions",
+    "text": "One dataset, two questions\nWe now have one observed dataset. We estimate additional weight loss and ask how uncertain that estimate is, and whether the observed difference is surprising under a specified no-effect null.\nweight-loss-trial.csv is the same single synthetic trial used in Session 14’s one-trial example (seed 1403, 10 control and 40 intervention participants). id identifies a participant, arm is ctrl or trt, and y is weight lost after 12 weeks in kg. Positive values mean weight loss; negative values mean weight gain. For the permutation exercise, treat this as a completely randomized trial with exactly 10 control and 40 intervention assignments.\nIn Session 14 we repeatedly generated new trials from a specified population. Here we keep this dataset fixed and resample it. Do not use the known generating effect as an input to either analysis. We cannot measure coverage or power from this one dataset by treating bootstrap or permutation samples as new real trials.\n\n1. Review the functions\nFor each supplied function, describe its input and output. Trace how bootstrap_once() and permute_once() call the same mean_diff() statistic. What changes, and what stays fixed, in each operation? Why does the bootstrap use replacement but the label permutation does not? Explain why one resample returns one number and replicate() collects many such numbers.\nmean_diff\nbootstrap_once\npermute_once\n# TODO: explain each function in your own words.\n\n\n\n\n\n\n\nFunction\nRole\n\n\n\n\nmean_diff()\nComputes the observed or resampled mean difference\n\n\nbootstrap_once()\nSamples participants within arms and returns one estimate\n\n\npermute_once()\nReassigns fixed arm labels and returns one null statistic\n\n\nsample() / sample.int()\nSamples values / positions, with the stated replacement rule\n\n\nreplicate()\nRepeats the resampling calculation and collects its results\n\n\n\n\n\n2. Choose a resampling plan\nDiscuss three project questions before coding. For each, state the target, method, resampling unit, what stays together, and one assumption.\n\nMedian tumour thickness: an observational cohort supplies one thickness per patient. We want an SE and interval for the population median.\nAdditional weight loss: a trial randomly assigns 10 control and 40 intervention participants. We want an interval for the mean difference and a test of no effect for any participant. Which operation answers each question?\nRepeated measurements: each participant has baseline and follow-up measurements. We want an interval for mean within-person change. What must stay together? Would before/after observations alone justify swapping time labels?\n\nExplain why more resamples cannot fix biased sampling, an inappropriate unit, or an unjustified label-shuffling rule. Only the weight-loss trial needs coding.\n\n\n3. Inspect the fixed dataset and observed estimate\nInspect participant counts, the outcome units, and the group summaries. Calculate the observed intervention-minus-control mean difference. Compare it with the estimate from Session 14’s single-trial example. Why do we use this observed dataset repeatedly instead of calling rnorm() for every resample?\nhead(x = trial)\ntable(trial$arm)\ntapply(X = trial$y, INDEX = trial$arm, FUN = summary)\nobserved &lt;- mean_diff(data = trial)\nobserved\n# TODO: calculate each group mean and explain the sign of the difference.\n\n\n4. Try one within-arm bootstrap\nRun bootstrap_once() once. Trace the row indices inside the function. Explain why a participant may appear more than once, why their outcome and arm must travel together, and why the counts remain 10 and 40. Compare the result with the observed estimate. Is one bootstrap draw enough to estimate an SE?\nset.seed(1501)\none_boot &lt;- bootstrap_once(data = trial)\nc(observed = observed, one_bootstrap = one_boot)\n# TODO: inspect the two sample.int() calls and explain their arguments.\n\n\n5. Repeat the bootstrap and estimate uncertainty\nGenerate 2,000 bootstrap statistics. Report the bootstrap SE and a 95% percentile interval in kg. Why is the SE sd(boot) rather than sd(boot) / sqrt(B)? Explain why the interval is about a population mean difference, not a range containing 95% of participants. Compare the bootstrap SE with Welch’s SE. Does agreement prove that either interval has 95% coverage?\nset.seed(1501)\nB &lt;- 2000\nboot &lt;- replicate(n = B, expr = bootstrap_once(data = trial))\nboot_se &lt;- sd(x = boot)\nboot_ci &lt;- quantile(x = boot, probs = c(0.025, 0.975))\nwelch &lt;- t.test(x = trial$y[trial$arm == \"trt\"],\n                y = trial$y[trial$arm == \"ctrl\"], var.equal = FALSE)\nc(estimate = observed, bootstrap_se = boot_se, Welch_se = welch$stderr)\nboot_ci\n# TODO: plot boot with hist() and add the observed estimate with abline().\n\n\n6. Try one allowed permutation\nState the sharp null: treatment changes no participant’s outcome. Under the assumed complete randomization, keep outcomes fixed and reassign the same 10 control and 40 intervention labels. Trace permute_once() and explain why jointly shuffling complete rows would not change the statistic. Why is this operation different from sampling patients with replacement?\nA zero average effect alone does not imply the sharp null. For observational data, unrestricted label permutation requires a justified exchangeability assumption; it is not automatically valid just because we can shuffle labels.\nset.seed(1502)\none_perm &lt;- permute_once(data = trial)\nc(observed = observed, one_permutation = one_perm)\n# TODO: explain which information is kept fixed under the null.\n\n\n7. Repeat permutations and calculate the p-value\nGenerate 999 independent random label permutations. Count statistics at least as extreme as the observed difference in either direction. Calculate (extreme + 1) / (P + 1) and its minimum reportable value. Explain why the reported p-value cannot be zero, what null it tests, and why it is neither the probability that the null is true nor an estimate of power.\nset.seed(1502)\nP &lt;- 999\nperm &lt;- replicate(n = P, expr = permute_once(data = trial))\nextreme &lt;- sum(abs(perm) &gt;= abs(observed) - 1e-12)\np_value &lt;- (extreme + 1) / (P + 1)\nc(observed = observed, extreme = extreme,\n  p_value = p_value, minimum = 1 / (P + 1))\n# The tiny tolerance includes ties affected by floating-point arithmetic.\n# TODO: plot perm and mark both -abs(observed) and abs(observed).\n\n\n8. Explain the two kinds of uncertainty and report\nWrite a short report containing the observed difference, bootstrap SE and interval, permutation p-value, resampling counts, seeds, and assumptions. Explain why the bootstrap distribution is near the observed estimate while the full permutation reference distribution is centered at zero.\nRepeat the bootstrap with another documented seed. Compare its SE and interval with the first run. Does increasing B add participants or make the underlying study more informative? Distinguish sampling uncertainty from variation due to a finite number of resamples. Why can neither bootstrap resamples nor null permutations establish the actual study’s coverage or power?\nset.seed(1503)\nboot_again &lt;- replicate(n = B, expr = bootstrap_once(data = trial))\nrbind(first = c(SE = sd(x = boot),\n                quantile(x = boot, probs = c(0.025, 0.975))),\n      second = c(SE = sd(x = boot_again),\n                 quantile(x = boot_again, probs = c(0.025, 0.975))))\n# TODO: explain any computational variation and report both runs."
+  },
+  {
+    "objectID": "course/session15/lab.html#optional-follow-up",
+    "href": "course/session15/lab.html#optional-follow-up",
+    "title": "Session 15 guided lab",
+    "section": "Optional follow-up",
+    "text": "Optional follow-up\n\nCompare a basic interval with the percentile interval.\nUse a binomial interval for the permutation tail probability to describe Monte Carlo precision. It is not an interval for the treatment effect.\nFollow the lecture’s paired and clustered examples. Keep all measurements from a sampled participant together, including repeated copies of that person.\nStudy exact enumeration for a small randomized experiment. It has no Monte Carlo error, but the assignment rule must still match the design.\n\nCross-validation remains in Session 16 with regression and prediction."
   },
   {
     "objectID": "course/session16/slides.html#the-statistical-computing-sequence",
