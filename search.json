@@ -7599,14 +7599,14 @@
     "href": "course/session14/slides.html#coverage-and-interval-width-in-code",
     "title": "Random Numbers and Simulation",
     "section": "Coverage and interval width in code",
-    "text": "Coverage and interval width in code\n\nset.seed(1402)\ncheck_ci &lt;- run_scenario(n_sim = 1000, n_ctrl = 10, n_trt = 40,\n                         sd_ctrl = 12, sd_trt = 4, delta = 6, pooled = FALSE)\ncovered &lt;- check_ci$lo &lt;= 6 & 6 &lt;= check_ci$hi\nc(bias = mean(check_ci$est) - 6,\n  empirical_se = sd(check_ci$est), mean_model_se = mean(check_ci$se),\n  coverage = mean(covered), width = mean(check_ci$hi - check_ci$lo),\n  coverage_mcse = sqrt(mean(covered) * (1 - mean(covered)) / nrow(check_ci)))\n\n         bias  empirical_se mean_model_se      coverage         width \n  0.124394859   3.742722925   3.757382982   0.953000000  16.849626866 \ncoverage_mcse \n  0.006692608 \n\n\nThe truth is 6, not the estimate from one simulated sample. Wide intervals may cover well while being too imprecise to be useful."
+    "text": "Coverage and interval width in code\n\nset.seed(1402)\ncheck_ci &lt;- run_scenario(n_sim = 1000, n_ctrl = 10, n_trt = 40,\n                         sd_ctrl = 12, sd_trt = 4, delta = 6, pooled = FALSE)\ncovered &lt;- check_ci$lo &lt;= 6 & 6 &lt;= check_ci$hi\nc(bias = mean(check_ci$est) - 6,\n  empirical_se = sd(check_ci$est), mean_model_se = mean(check_ci$se),\n  coverage = mean(covered), width = mean(check_ci$hi - check_ci$lo))\n\n         bias  empirical_se mean_model_se      coverage         width \n    0.1243949     3.7427229     3.7573830     0.9530000    16.8496269 \n\n\nThe truth is 6 mmHg. SE and interval width describe effect-estimate precision. Coverage is how often intervals contain 6; wide intervals can cover well."
   },
   {
     "objectID": "course/session14/slides.html#bias-variance-and-rmse",
     "href": "course/session14/slides.html#bias-variance-and-rmse",
     "title": "Random Numbers and Simulation",
     "section": "Bias, variance, and RMSE",
-    "text": "Bias, variance, and RMSE\n\nerror &lt;- check_ci$est - 6\nc(bias = mean(error), rmse = sqrt(mean(error^2)),\n  mcse_bias = sd(error) / sqrt(length(error)))\n\n     bias      rmse mcse_bias \n0.1243949 3.7429188 0.1183553 \n\n\nRMSE summarizes squared estimation error; coverage evaluates an interval procedure. They answer different questions. A small bias does not imply a calibrated interval."
+    "text": "Bias, variance, and RMSE\n\nerror &lt;- check_ci$est - 6\nc(bias = mean(error), rmse = sqrt(mean(error^2)))\n\n     bias      rmse \n0.1243949 3.7429188 \n\n\nRMSE summarizes squared estimation error; coverage evaluates an interval procedure. They answer different questions. A small bias does not imply a calibrated interval."
   },
   {
     "objectID": "course/session14/slides.html#monte-carlo-uncertainty-at-the-boundary",
@@ -7795,7 +7795,7 @@
     "href": "course/session14/slides.html#two-kinds-of-uncertainty",
     "title": "Random Numbers and Simulation",
     "section": "Two kinds of uncertainty",
-    "text": "Two kinds of uncertainty\n\n\n\n\n\n\n\n\n\nSampling uncertainty\nMonte Carlo uncertainty\n\n\n\n\nWhat varies?\nA treatment effect estimate across trials\nA rejection rate across full simulation runs\n\n\nExample\nEach trial has 50 patients\nEach simulation run contains 1,000 trials\n\n\nWhat helps?\nMore patients per trial\nMore simulated trials per run\n\n\n\nIncreasing patients per trial changes the study we are evaluating. Increasing replicates helps us evaluate that same study more precisely."
+    "text": "Two kinds of uncertainty\n\n\n\n\n\n\n\n\n\nSampling uncertainty\nMonte Carlo uncertainty\n\n\n\n\nWhat varies?\nA treatment effect estimate across trials\nA rejection rate across full simulation runs\n\n\nReported as\nEffect SE and confidence interval (mmHg)\nMCSE and Monte Carlo interval for a rate\n\n\nExample\nEach trial has 50 patients\nEach simulation run contains 1,000 trials\n\n\nWhat helps?\nMore patients per trial\nMore simulated trials per run\n\n\n\nIncreasing patients per trial changes the study we are evaluating. Increasing replicates helps us evaluate that same study more precisely."
   },
   {
     "objectID": "course/session14/slides.html#one-calculation-for-a-simulated-percentage",

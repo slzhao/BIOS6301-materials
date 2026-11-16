@@ -1341,6 +1341,35 @@ pooled 1.116 1.883 0.556 -2.670 4.902</code></pre>
 </div>
 </div>
 </section>
+<section id="coverage-and-interval-width-in-code" class="slide level2 smaller">
+<h2>Coverage and interval width in code</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1402</span>)</span>
+<span id="cb73-2"><a aria-hidden="true" tabindex="-1"></a>check_ci <span class="ot">&lt;-</span> <span class="fu">run_scenario</span>(<span class="at">n_sim =</span> <span class="dv">1000</span>, <span class="at">n_ctrl =</span> <span class="dv">10</span>, <span class="at">n_trt =</span> <span class="dv">40</span>,</span>
+<span id="cb73-3"><a aria-hidden="true" tabindex="-1"></a>                         <span class="at">sd_ctrl =</span> <span class="dv">12</span>, <span class="at">sd_trt =</span> <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">6</span>, <span class="at">pooled =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb73-4"><a aria-hidden="true" tabindex="-1"></a>covered <span class="ot">&lt;-</span> check_ci<span class="sc">$</span>lo <span class="sc">&lt;=</span> <span class="dv">6</span> <span class="sc">&amp;</span> <span class="dv">6</span> <span class="sc">&lt;=</span> check_ci<span class="sc">$</span>hi</span>
+<span id="cb73-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">bias =</span> <span class="fu">mean</span>(check_ci<span class="sc">$</span>est) <span class="sc">-</span> <span class="dv">6</span>,</span>
+<span id="cb73-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">empirical_se =</span> <span class="fu">sd</span>(check_ci<span class="sc">$</span>est), <span class="at">mean_model_se =</span> <span class="fu">mean</span>(check_ci<span class="sc">$</span>se),</span>
+<span id="cb73-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">coverage =</span> <span class="fu">mean</span>(covered), <span class="at">width =</span> <span class="fu">mean</span>(check_ci<span class="sc">$</span>hi <span class="sc">-</span> check_ci<span class="sc">$</span>lo))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         bias  empirical_se mean_model_se      coverage         width
+    0.1243949     3.7427229     3.7573830     0.9530000    16.8496269 </code></pre>
+</div>
+</div>
+<p>The truth is <strong>6 mmHg</strong>. SE and interval width describe effect-estimate precision. <strong>Coverage</strong> is how often intervals contain 6; wide intervals can cover well.</p>
+</section>
+<section id="bias-variance-and-rmse" class="slide level2 smaller">
+<h2>Bias, variance, and RMSE</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a aria-hidden="true" tabindex="-1"></a>error <span class="ot">&lt;-</span> check_ci<span class="sc">$</span>est <span class="sc">-</span> <span class="dv">6</span></span>
+<span id="cb75-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">bias =</span> <span class="fu">mean</span>(error), <span class="at">rmse =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>(error<span class="sc">^</span><span class="dv">2</span>)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     bias      rmse
+0.1243949 3.7429188 </code></pre>
+</div>
+</div>
+<p>RMSE summarizes squared estimation error; coverage evaluates an interval procedure. They answer different questions. A small bias does not imply a calibrated interval.</p>
+</section>
 <section id="why-simulation-results-have-uncertainty" class="slide level2 smaller">
 <h2>Why simulation results have uncertainty</h2>
 <p><strong>Monte Carlo</strong> means using repeated random draws to answer a question.</p>
@@ -1352,104 +1381,23 @@ pooled 1.116 1.883 0.556 -2.670 4.902</code></pre>
 </ul>
 <p>A fixed seed reproduces the same answer. <strong>More replicates</strong> make the answer less sensitive to the particular random draws.</p>
 </section>
-<section id="two-kinds-of-uncertainty" class="slide level2 smaller">
-<h2>Two kinds of uncertainty</h2>
-<table class="caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead>
-<tr class="header">
-<th></th>
-<th>Sampling uncertainty</th>
-<th>Monte Carlo uncertainty</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>What varies?</td>
-<td>A treatment effect estimate across trials</td>
-<td>A rejection rate across full simulation runs</td>
-</tr>
-<tr class="even">
-<td>Example</td>
-<td>Each trial has 50 patients</td>
-<td>Each simulation run contains 1,000 trials</td>
-</tr>
-<tr class="odd">
-<td>What helps?</td>
-<td>More patients per trial</td>
-<td>More simulated trials per run</td>
-</tr>
-</tbody>
-</table>
-<p>Increasing <strong>patients per trial</strong> changes the study we are evaluating. Increasing <strong>replicates</strong> helps us evaluate that same study more precisely.</p>
-</section>
 <section id="one-calculation-for-a-simulated-percentage" class="slide level2 smaller">
 <h2>One calculation for a simulated percentage</h2>
 <p>The <strong>Monte Carlo standard error (MCSE)</strong> describes how much a simulated proportion varies across repeated runs of the simulation.</p>
 <p>For independent replicates, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">M</mi><mi mathvariant="normal">C</mi><mi mathvariant="normal">S</mi><mi mathvariant="normal">E</mi></mrow><mo>=</mo><msqrt><mrow><mover><mi>p</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mover><mi>p</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>B</mi></mrow></msqrt></mrow><annotation encoding="application/x-tex">\mathrm{MCSE} = \sqrt{\hat p(1-\hat p)/B}</annotation></semantics></math>, where <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>p</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat p</annotation></semantics></math> is the observed proportion and <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math> is the number of replicates.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb73"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a aria-hidden="true" tabindex="-1"></a>p_hat <span class="ot">&lt;-</span> <span class="dv">52</span> <span class="sc">/</span> <span class="dv">1000</span></span>
-<span id="cb73-2"><a aria-hidden="true" tabindex="-1"></a>n_sim <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
-<span id="cb73-3"><a aria-hidden="true" tabindex="-1"></a>mcse <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(p_hat <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_hat) <span class="sc">/</span> n_sim)</span>
-<span id="cb73-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="dv">100</span> <span class="sc">*</span> <span class="fu">c</span>(<span class="at">rate =</span> p_hat, <span class="at">MCSE =</span> mcse,</span>
-<span id="cb73-5"><a aria-hidden="true" tabindex="-1"></a>              <span class="at">lower =</span> p_hat <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> mcse,</span>
-<span id="cb73-6"><a aria-hidden="true" tabindex="-1"></a>              <span class="at">upper =</span> p_hat <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> mcse), <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a aria-hidden="true" tabindex="-1"></a>p_hat <span class="ot">&lt;-</span> <span class="dv">52</span> <span class="sc">/</span> <span class="dv">1000</span></span>
+<span id="cb77-2"><a aria-hidden="true" tabindex="-1"></a>n_sim <span class="ot">&lt;-</span> <span class="dv">1000</span></span>
+<span id="cb77-3"><a aria-hidden="true" tabindex="-1"></a>mcse <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(p_hat <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_hat) <span class="sc">/</span> n_sim)</span>
+<span id="cb77-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="dv">100</span> <span class="sc">*</span> <span class="fu">c</span>(<span class="at">rate =</span> p_hat, <span class="at">MCSE =</span> mcse,</span>
+<span id="cb77-5"><a aria-hidden="true" tabindex="-1"></a>              <span class="at">lower =</span> p_hat <span class="sc">-</span> <span class="fl">1.96</span> <span class="sc">*</span> mcse,</span>
+<span id="cb77-6"><a aria-hidden="true" tabindex="-1"></a>              <span class="at">upper =</span> p_hat <span class="sc">+</span> <span class="fl">1.96</span> <span class="sc">*</span> mcse), <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> rate  MCSE lower upper
  5.20  0.70  3.82  6.58 </code></pre>
 </div>
 </div>
 <p>The rate is <strong>5.2%</strong>, with MCSE <strong>0.70 percentage points</strong> and an approximate 95% Monte Carlo interval of <strong>3.82% to 6.58%</strong>. This run gives little evidence that the true rejection rate differs from 5%.</p>
-</section>
-<section id="coverage-and-interval-width-in-code" class="slide level2 smaller">
-<h2>Coverage and interval width in code</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1402</span>)</span>
-<span id="cb75-2"><a aria-hidden="true" tabindex="-1"></a>check_ci <span class="ot">&lt;-</span> <span class="fu">run_scenario</span>(<span class="at">n_sim =</span> <span class="dv">1000</span>, <span class="at">n_ctrl =</span> <span class="dv">10</span>, <span class="at">n_trt =</span> <span class="dv">40</span>,</span>
-<span id="cb75-3"><a aria-hidden="true" tabindex="-1"></a>                         <span class="at">sd_ctrl =</span> <span class="dv">12</span>, <span class="at">sd_trt =</span> <span class="dv">4</span>, <span class="at">delta =</span> <span class="dv">6</span>, <span class="at">pooled =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb75-4"><a aria-hidden="true" tabindex="-1"></a>covered <span class="ot">&lt;-</span> check_ci<span class="sc">$</span>lo <span class="sc">&lt;=</span> <span class="dv">6</span> <span class="sc">&amp;</span> <span class="dv">6</span> <span class="sc">&lt;=</span> check_ci<span class="sc">$</span>hi</span>
-<span id="cb75-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">bias =</span> <span class="fu">mean</span>(check_ci<span class="sc">$</span>est) <span class="sc">-</span> <span class="dv">6</span>,</span>
-<span id="cb75-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">empirical_se =</span> <span class="fu">sd</span>(check_ci<span class="sc">$</span>est), <span class="at">mean_model_se =</span> <span class="fu">mean</span>(check_ci<span class="sc">$</span>se),</span>
-<span id="cb75-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">coverage =</span> <span class="fu">mean</span>(covered), <span class="at">width =</span> <span class="fu">mean</span>(check_ci<span class="sc">$</span>hi <span class="sc">-</span> check_ci<span class="sc">$</span>lo),</span>
-<span id="cb75-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">coverage_mcse =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>(covered) <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fu">mean</span>(covered)) <span class="sc">/</span> <span class="fu">nrow</span>(check_ci)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>         bias  empirical_se mean_model_se      coverage         width
-  0.124394859   3.742722925   3.757382982   0.953000000  16.849626866
-coverage_mcse
-  0.006692608 </code></pre>
-</div>
-</div>
-<p>The truth is <strong>6</strong>, not the estimate from one simulated sample. Wide intervals may cover well while being too imprecise to be useful.</p>
-</section>
-<section id="bias-variance-and-rmse" class="slide level2 smaller">
-<h2>Bias, variance, and RMSE</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a aria-hidden="true" tabindex="-1"></a>error <span class="ot">&lt;-</span> check_ci<span class="sc">$</span>est <span class="sc">-</span> <span class="dv">6</span></span>
-<span id="cb77-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">bias =</span> <span class="fu">mean</span>(error), <span class="at">rmse =</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>(error<span class="sc">^</span><span class="dv">2</span>)),</span>
-<span id="cb77-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">mcse_bias =</span> <span class="fu">sd</span>(error) <span class="sc">/</span> <span class="fu">sqrt</span>(<span class="fu">length</span>(error)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>     bias      rmse mcse_bias
-0.1243949 3.7429188 0.1183553 </code></pre>
-</div>
-</div>
-<p>RMSE summarizes squared estimation error; coverage evaluates an interval procedure. They answer different questions. A small bias does not imply a calibrated interval.</p>
-</section>
-<section id="optional-no-rejections-does-not-mean-zero-probability" class="slide level2 smaller">
-<h2>Optional: no rejections does not mean zero probability</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">binom.test</span>(<span class="dv">0</span>, <span class="dv">1000</span>)<span class="sc">$</span>conf.int</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.000000000 0.003682084
-attr(,"conf.level")
-[1] 0.95</code></pre>
-</div>
-</div>
-<p>Zero rejections out of 1,000 does not establish a true rejection probability of zero. The plug-in MCSE formula gives zero here; a binomial interval exposes the remaining uncertainty.</p>
-<p>Use interval estimates near zero or one, and state the number of valid replicates.</p>
 </section>
 <section id="more-replicates-give-a-steadier-answer" class="slide level2 smaller">
 <h2>More replicates give a steadier answer</h2>
@@ -1483,6 +1431,19 @@ attr(,"conf.level")
 <p><strong>Four times as many replicates halves the MCSE.</strong> More precision costs more computing time.</p>
 <p>Start with a small run to check the code. Then choose a larger, fixed number of replicates and report the MCSE with the final result.</p>
 </section>
+<section id="optional-no-rejections-does-not-mean-zero-probability" class="slide level2 smaller">
+<h2>Optional: no rejections does not mean zero probability</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">binom.test</span>(<span class="dv">0</span>, <span class="dv">1000</span>)<span class="sc">$</span>conf.int</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.000000000 0.003682084
+attr(,"conf.level")
+[1] 0.95</code></pre>
+</div>
+</div>
+<p>Zero rejections out of 1,000 does not establish a true rejection probability of zero. The plug-in MCSE formula gives zero here; a binomial interval exposes the remaining uncertainty.</p>
+<p>Use interval estimates near zero or one, and state the number of valid replicates.</p>
+</section>
 <section id="optional-choosing-replicates-for-a-target-precision" class="slide level2 smaller">
 <h2>Optional: choosing replicates for a target precision</h2>
 <div class="cell">
@@ -1495,6 +1456,46 @@ attr(,"conf.level")
 </div>
 <p>The conservative bound uses <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mn>0.25</mn></mrow><annotation encoding="application/x-tex">p(1-p) \le 0.25</annotation></semantics></math> and covers every probability. A design sized for Type I error near 0.05 can give less precise power estimates.</p>
 <p>Choose the precision target before inspecting favorable results. Use a pilot to debug and estimate computational cost, then run the planned study.</p>
+</section>
+<section id="two-kinds-of-uncertainty" class="slide level2 smaller">
+<h2>Two kinds of uncertainty</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Sampling uncertainty</th>
+<th>Monte Carlo uncertainty</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>What varies?</td>
+<td>A treatment effect estimate across trials</td>
+<td>A rejection rate across full simulation runs</td>
+</tr>
+<tr class="even">
+<td>Reported as</td>
+<td>Effect SE and confidence interval (mmHg)</td>
+<td>MCSE and Monte Carlo interval for a rate</td>
+</tr>
+<tr class="odd">
+<td>Example</td>
+<td>Each trial has 50 patients</td>
+<td>Each simulation run contains 1,000 trials</td>
+</tr>
+<tr class="even">
+<td>What helps?</td>
+<td>More patients per trial</td>
+<td>More simulated trials per run</td>
+</tr>
+</tbody>
+</table>
+<p>Increasing <strong>patients per trial</strong> changes the study we are evaluating. Increasing <strong>replicates</strong> helps us evaluate that same study more precisely.</p>
 </section></section>
 <section>
 <section id="type-i-error-and-power" class="title-slide slide level1 section-divider center">
