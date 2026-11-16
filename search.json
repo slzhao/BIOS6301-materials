@@ -7952,6 +7952,13 @@
     "text": "Check and summarize the combined results\n\ngrid_summary &lt;- grid_results |&gt;\n  group_by(scenario, n_ctrl, n_trt, delta) |&gt;\n  summarise(reject = mean(p &lt; 0.05),\n            bias = mean(est) - first(delta), .groups = \"drop\")\nknitr::kable(grid_summary, digits = 3, align = \"c\")\n\n\n\n\nscenario\nn_ctrl\nn_trt\ndelta\nreject\nbias\n\n\n\n\n1\n25\n25\n0\n0.075\n-0.485\n\n\n2\n10\n40\n0\n0.055\n-0.009\n\n\n3\n40\n10\n0\n0.035\n0.324\n\n\n4\n25\n25\n6\n0.620\n-0.152\n\n\n5\n10\n40\n6\n0.300\n0.266\n\n\n6\n40\n10\n6\n0.735\n0.034\n\n\n\n\n\nChecks confirm 1,200 trials: 200 per scenario. Rejection estimates type I error at delta = 0 and power at delta = 6. Monte Carlo uncertainty comes next."
   },
   {
+    "objectID": "course/session14/slides.html#when-simulation-helps-a-real-project",
+    "href": "course/session14/slides.html#when-simulation-helps-a-real-project",
+    "title": "Random Numbers and Simulation",
+    "section": "When simulation helps a real project",
+    "text": "When simulation helps a real project\n\n\n\n\n\n\n\nProject need\nWhat simulation can evaluate\n\n\n\n\nPlan a study\nPower and precision for different sample sizes, allocations, or measurement schedules\n\n\nCheck confidence intervals\nHow often nominal 95% intervals contain the known true effect\n\n\nCompare analysis methods\nBias, precision, coverage, and failures on the same generated datasets\n\n\nAssess missing data\nComplete-case analysis versus imputation under specified missingness mechanisms\n\n\nCheck robustness\nPerformance with skewness, outliers, unequal variances, or patients grouped within clinics\n\n\nValidate analysis code\nEffect direction, calculations, and difficult cases with a known answer\n\n\n\nConclusions depend on the data-generating assumptions and scenarios we choose."
+  },
+  {
     "objectID": "course/session15/index.html",
     "href": "course/session15/index.html",
     "title": "Session 15 · Bootstrap, permutation, and resampling design",
