@@ -401,7 +401,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="repeat-the-bootstrap-and-estimate-uncertainty" class="level3">
 <h3 class="anchored" data-anchor-id="repeat-the-bootstrap-and-estimate-uncertainty">5. Repeat the bootstrap and estimate uncertainty</h3>
-<p>Generate 2,000 bootstrap statistics. Report the bootstrap SE and a 95% percentile interval in kg. Why is the SE <code>sd(boot)</code> rather than <code>sd(boot) / sqrt(B)</code>? Explain why the interval is about a population mean difference, not a range containing 95% of participants. Compare the bootstrap SE with Welch’s SE. Does agreement prove that either interval has 95% coverage?</p>
+<p>Generate 2,000 bootstrap statistics. Report the bootstrap SE and a 95% percentile interval in kg. Why is the SE <code>sd(boot)</code> rather than <code>sd(boot) / sqrt(B)</code>? Explain why the interval is about a population mean difference, not a range containing 95% of participants. Compare the bootstrap SE with Welch’s SE. Does agreement prove that either interval has 95% coverage? Explain what 95% confidence means across repeated studies, each with a new dataset and a new interval for the same population mean difference.</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1501</span>)</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>B <span class="ot">&lt;-</span> <span class="dv">2000</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>boot <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> B, <span class="at">expr =</span> <span class="fu">bootstrap_once</span>(<span class="at">data =</span> trial))</span>
@@ -451,7 +451,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="optional-follow-up" class="level2">
 <h2 class="anchored" data-anchor-id="optional-follow-up">Optional follow-up</h2>
 <ul>
-<li>Compare a basic interval with the percentile interval.</li>
 <li>Use a binomial interval for the permutation tail probability to describe Monte Carlo precision. It is not an interval for the treatment effect.</li>
 <li>Follow the lecture’s paired and clustered examples. Keep all measurements from a sampled participant together, including repeated copies of that person.</li>
 <li>Study exact enumeration for a small randomized experiment. It has no Monte Carlo error, but the assignment rule must still match the design.</li>
