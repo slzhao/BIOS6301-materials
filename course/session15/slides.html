@@ -834,16 +834,16 @@ Figure&nbsp;1: Bootstrap distribution of the difference in mean SBP reduction.
 <p>Optional package syntax for the same within-arm bootstrap:</p>
 <div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a aria-hidden="true" tabindex="-1"></a><span class="co"># boot: the classical implementation. Statistic takes (data, indices).</span></span>
 <span id="cb36-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(boot)</span>
-<span id="cb36-3"><a aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">boot</span>(trial, <span class="at">statistic =</span> <span class="cf">function</span>(data, i) <span class="fu">mean_diff</span>(data[i, ]),</span>
+<span id="cb36-3"><a aria-hidden="true" tabindex="-1"></a>b <span class="ot">&lt;-</span> <span class="fu">boot</span>(<span class="at">data =</span> trial, <span class="at">statistic =</span> <span class="cf">function</span>(data, i) <span class="fu">mean_diff</span>(<span class="at">data =</span> data[i, ]),</span>
 <span id="cb36-4"><a aria-hidden="true" tabindex="-1"></a>          <span class="at">R =</span> <span class="dv">10000</span>, <span class="at">strata =</span> trial<span class="sc">$</span>arm)</span>
 <span id="cb36-5"><a aria-hidden="true" tabindex="-1"></a><span class="fu">boot.ci</span>(<span class="at">boot.out =</span> b, <span class="at">type =</span> <span class="st">"perc"</span>)</span>
 <span id="cb36-6"><a aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb36-7"><a aria-hidden="true" tabindex="-1"></a><span class="co"># rsample: tidymodels. Resamples as a tibble of splits.</span></span>
 <span id="cb36-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rsample)</span>
-<span id="cb36-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">bootstraps</span>(trial, <span class="at">times =</span> <span class="dv">1000</span>, <span class="at">strata =</span> arm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb36-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">bootstraps</span>(<span class="at">data =</span> trial, <span class="at">times =</span> <span class="dv">1000</span>, <span class="at">strata =</span> arm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="fragment">
 <div class="smaller">
-<p><code>boot.ci()</code> gives you <strong>BCa</strong> intervals — bias-corrected and accelerated — which adjust interval endpoints using bias correction and an acceleration term. They still require a suitable resampling scheme and regularity conditions; they do not repair dependence or an unrepresentative sample.</p>
+<p><code>type = "perc"</code> requests the <strong>percentile interval</strong> taught earlier, using the 2.5th and 97.5th percentiles of the bootstrap estimates for a 95% interval. <code>strata = trial$arm</code> keeps bootstrap sampling within each treatment arm.</p>
 </div>
 </div>
 </section></section>
