@@ -564,45 +564,36 @@ bootstraps(data = trial, times = 1000, strata = arm)
 
 # 4 · Permutation tests {.section-divider}
 
-## Real experiment: promotion recommendations {.smaller}
+## Project example: the SBP treatment trial {.smaller}
 
-Rosen and Jerdee's experiment randomly assigned 48 bank supervisors otherwise
-identical personnel files labelled male or female, 24 of each.
+Return to our **synthetic teaching trial**: 30 participants receive treatment
+and 30 receive placebo, representing complete randomization with fixed arm sizes.
 
-| File label | Recommended promotion | Total |
-|---|---|---|
-| Male | 21 | 24 |
-| Female | 14 | 24 |
+The outcome is **SBP reduction = baseline minus 12-week SBP**. A positive
+treatment-minus-placebo difference means greater reduction with treatment.
 
-The observed difference is $21/24 - 14/24 = 0.292$ (29.2 percentage points).
-**Question:** could an assignment difference this large arise if the label had
-no effect on any supervisor's decision?
+Our observed mean difference is **`r round(obs_mean, 2)` mmHg**.
 
-::: {style="font-size:24px"}
-Rosen & Jerdee (1974), via [OpenIntro data](https://openintrostat.github.io/openintro/reference/sex_discrimination.html)
-and [study design](https://www.openintro.org/go/?id=os2_04).
-:::
+**Project question:** could random treatment assignment produce a difference
+at least this large in either direction if treatment changed nobody's outcome?
+
+Use the same participants, outcomes, and mean-difference statistic as in the
+bootstrap example. Now the question concerns a no-effect hypothesis.
 
 ## Why permutation fits this project {.smaller}
 
-Under the **sharp null**, each supervisor's decision would be unchanged by
-the file label. Keep the 48 decisions fixed and randomly assign 24 male labels
-and 24 female labels again.
+Under the **sharp null**, each participant would have the same SBP reduction
+whether assigned to treatment or placebo.
 
-```{r}
-#| label: promotion-permutation
-decision <- c(rep(1, 21), rep(0, 3), rep(1, 14), rep(0, 10))
-observed_gap <- 21/24 - 14/24
-set.seed(1501)
-null_gap <- replicate(n = 9999, expr = {
-  male <- sample.int(n = 48, size = 24, replace = FALSE)
-  mean(decision[male]) - mean(decision[-male])
-})
-(1 + sum(abs(null_gap) >= abs(observed_gap) - 1e-12)) / 10000
-```
+1. Keep all 60 observed SBP reductions fixed.
+2. Randomly assign 30 treatment labels and 30 placebo labels again.
+3. Recalculate the treatment-minus-placebo mean difference.
+4. Repeat and count differences at least as far from zero as the observed one.
 
-This two-sided p-value measures evidence against the null under the assignment
-scheme. It does not estimate the size or uncertainty of an effect.
+Complete randomization makes these reassignments possible under the study design.
+The resulting p-value asks how unusual the observed difference is under the null.
+
+Next, implement one reassignment before repeating it with `replicate()`.
 
 
 ## The null and the reassignment rule {.smaller}
