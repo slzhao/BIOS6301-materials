@@ -852,52 +852,25 @@ Figure&nbsp;1: Bootstrap distribution of the difference in mean SBP reduction.
 <h1>4 · Permutation tests</h1>
 
 </section>
-<section id="real-experiment-promotion-recommendations" class="slide level2 smaller">
-<h2>Real experiment: promotion recommendations</h2>
-<p>Rosen and Jerdee’s experiment randomly assigned 48 bank supervisors otherwise identical personnel files labelled male or female, 24 of each.</p>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>File label</th>
-<th>Recommended promotion</th>
-<th>Total</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Male</td>
-<td>21</td>
-<td>24</td>
-</tr>
-<tr class="even">
-<td>Female</td>
-<td>14</td>
-<td>24</td>
-</tr>
-</tbody>
-</table>
-<p>The observed difference is <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>21</mn><mi>/</mi><mn>24</mn><mo>−</mo><mn>14</mn><mi>/</mi><mn>24</mn><mo>=</mo><mn>0.292</mn></mrow><annotation encoding="application/x-tex">21/24 - 14/24 = 0.292</annotation></semantics></math> (29.2 percentage points). <strong>Question:</strong> could an assignment difference this large arise if the label had no effect on any supervisor’s decision?</p>
-<div style="font-size:24px">
-<p>Rosen &amp; Jerdee (1974), via <a href="https://openintrostat.github.io/openintro/reference/sex_discrimination.html">OpenIntro data</a> and <a href="https://www.openintro.org/go/?id=os2_04">study design</a>.</p>
-</div>
+<section id="project-example-the-sbp-treatment-trial" class="slide level2 smaller">
+<h2>Project example: the SBP treatment trial</h2>
+<p>Return to our <strong>synthetic teaching trial</strong>: 30 participants receive treatment and 30 receive placebo, representing complete randomization with fixed arm sizes.</p>
+<p>The outcome is <strong>SBP reduction = baseline minus 12-week SBP</strong>. A positive treatment-minus-placebo difference means greater reduction with treatment.</p>
+<p>Our observed mean difference is <strong>7.19 mmHg</strong>.</p>
+<p><strong>Project question:</strong> could random treatment assignment produce a difference at least this large in either direction if treatment changed nobody’s outcome?</p>
+<p>Use the same participants, outcomes, and mean-difference statistic as in the bootstrap example. Now the question concerns a no-effect hypothesis.</p>
 </section>
 <section id="why-permutation-fits-this-project" class="slide level2 smaller">
 <h2>Why permutation fits this project</h2>
-<p>Under the <strong>sharp null</strong>, each supervisor’s decision would be unchanged by the file label. Keep the 48 decisions fixed and randomly assign 24 male labels and 24 female labels again.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a aria-hidden="true" tabindex="-1"></a>decision <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">21</span>), <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">3</span>), <span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">14</span>), <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">10</span>))</span>
-<span id="cb37-2"><a aria-hidden="true" tabindex="-1"></a>observed_gap <span class="ot">&lt;-</span> <span class="dv">21</span><span class="sc">/</span><span class="dv">24</span> <span class="sc">-</span> <span class="dv">14</span><span class="sc">/</span><span class="dv">24</span></span>
-<span id="cb37-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1501</span>)</span>
-<span id="cb37-4"><a aria-hidden="true" tabindex="-1"></a>null_gap <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> <span class="dv">9999</span>, <span class="at">expr =</span> {</span>
-<span id="cb37-5"><a aria-hidden="true" tabindex="-1"></a>  male <span class="ot">&lt;-</span> <span class="fu">sample.int</span>(<span class="at">n =</span> <span class="dv">48</span>, <span class="at">size =</span> <span class="dv">24</span>, <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb37-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(decision[male]) <span class="sc">-</span> <span class="fu">mean</span>(decision[<span class="sc">-</span>male])</span>
-<span id="cb37-7"><a aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb37-8"><a aria-hidden="true" tabindex="-1"></a>(<span class="dv">1</span> <span class="sc">+</span> <span class="fu">sum</span>(<span class="fu">abs</span>(null_gap) <span class="sc">&gt;=</span> <span class="fu">abs</span>(observed_gap) <span class="sc">-</span> <span class="fl">1e-12</span>)) <span class="sc">/</span> <span class="dv">10000</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.0526</code></pre>
-</div>
-</div>
-<p>This two-sided p-value measures evidence against the null under the assignment scheme. It does not estimate the size or uncertainty of an effect.</p>
+<p>Under the <strong>sharp null</strong>, each participant would have the same SBP reduction whether assigned to treatment or placebo.</p>
+<ol type="1">
+<li>Keep all 60 observed SBP reductions fixed.</li>
+<li>Randomly assign 30 treatment labels and 30 placebo labels again.</li>
+<li>Recalculate the treatment-minus-placebo mean difference.</li>
+<li>Repeat and count differences at least as far from zero as the observed one.</li>
+</ol>
+<p>Complete randomization makes these reassignments possible under the study design. The resulting p-value asks how unusual the observed difference is under the null.</p>
+<p>Next, implement one reassignment before repeating it with <code>replicate()</code>.</p>
 </section>
 <section id="the-null-and-the-reassignment-rule" class="slide level2 smaller">
 <h2>The null and the reassignment rule</h2>
@@ -909,13 +882,13 @@ Figure&nbsp;1: Bootstrap distribution of the difference in mean SBP reduction.
 <h2>One allowed permutation</h2>
 <p>Assume complete randomization with 30 participants per arm. Under the sharp null, each participant’s reduction is unchanged by their treatment assignment.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a>permute_once <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
-<span id="cb39-2"><a aria-hidden="true" tabindex="-1"></a>  shuffled <span class="ot">&lt;-</span> data</span>
-<span id="cb39-3"><a aria-hidden="true" tabindex="-1"></a>  shuffled<span class="sc">$</span>arm <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="at">x =</span> data<span class="sc">$</span>arm, <span class="at">size =</span> <span class="fu">nrow</span>(data), <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb39-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean_diff</span>(<span class="at">data =</span> shuffled)</span>
-<span id="cb39-5"><a aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb39-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">19</span>)</span>
-<span id="cb39-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">observed =</span> obs_mean, <span class="at">one_permutation =</span> <span class="fu">permute_once</span>(<span class="at">data =</span> trial))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a aria-hidden="true" tabindex="-1"></a>permute_once <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
+<span id="cb37-2"><a aria-hidden="true" tabindex="-1"></a>  shuffled <span class="ot">&lt;-</span> data</span>
+<span id="cb37-3"><a aria-hidden="true" tabindex="-1"></a>  shuffled<span class="sc">$</span>arm <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="at">x =</span> data<span class="sc">$</span>arm, <span class="at">size =</span> <span class="fu">nrow</span>(data), <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb37-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean_diff</span>(<span class="at">data =</span> shuffled)</span>
+<span id="cb37-5"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb37-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">19</span>)</span>
+<span id="cb37-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">observed =</span> obs_mean, <span class="at">one_permutation =</span> <span class="fu">permute_once</span>(<span class="at">data =</span> trial))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       observed one_permutation
       7.1904793       0.3900273 </code></pre>
@@ -926,11 +899,11 @@ Figure&nbsp;1: Bootstrap distribution of the difference in mean SBP reduction.
 <section id="repeat-the-label-permutations" class="slide level2 smaller">
 <h2>Repeat the label permutations</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">19</span>)</span>
-<span id="cb41-2"><a aria-hidden="true" tabindex="-1"></a>P <span class="ot">&lt;-</span> <span class="dv">999</span></span>
-<span id="cb41-3"><a aria-hidden="true" tabindex="-1"></a>perm_stat <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> P, <span class="at">expr =</span> <span class="fu">permute_once</span>(<span class="at">data =</span> trial))</span>
-<span id="cb41-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">observed =</span> obs_mean, <span class="at">perm_mean =</span> <span class="fu">mean</span>(<span class="at">x =</span> perm_stat),</span>
-<span id="cb41-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">perm_sd =</span> <span class="fu">sd</span>(<span class="at">x =</span> perm_stat))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">19</span>)</span>
+<span id="cb39-2"><a aria-hidden="true" tabindex="-1"></a>P <span class="ot">&lt;-</span> <span class="dv">999</span></span>
+<span id="cb39-3"><a aria-hidden="true" tabindex="-1"></a>perm_stat <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> P, <span class="at">expr =</span> <span class="fu">permute_once</span>(<span class="at">data =</span> trial))</span>
+<span id="cb39-4"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">observed =</span> obs_mean, <span class="at">perm_mean =</span> <span class="fu">mean</span>(<span class="at">x =</span> perm_stat),</span>
+<span id="cb39-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">perm_sd =</span> <span class="fu">sd</span>(<span class="at">x =</span> perm_stat))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> observed perm_mean   perm_sd
 7.1904793 0.1201733 2.9643539 </code></pre>
@@ -952,18 +925,18 @@ Figure&nbsp;2: Permutation null distribution of the mean difference, with the ob
 <h2>Optional: exact enumeration</h2>
 <p>With 4 patients per arm there are only <code>choose(8, 4)</code> = <strong>70</strong> possible label assignments. You can enumerate <strong>all</strong> of them:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a>small <span class="ot">&lt;-</span> trial[<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="dv">31</span><span class="sc">:</span><span class="dv">34</span>), <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"reduction"</span>)]</span>
-<span id="cb43-2"><a aria-hidden="true" tabindex="-1"></a>obs_small <span class="ot">&lt;-</span> <span class="fu">mean_diff</span>(<span class="at">data =</span> small)</span>
-<span id="cb43-3"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-4"><a aria-hidden="true" tabindex="-1"></a>combos <span class="ot">&lt;-</span> <span class="fu">combn</span>(<span class="dv">8</span>, <span class="dv">4</span>)                    <span class="co"># every way to choose 4 "Treatment"</span></span>
-<span id="cb43-5"><a aria-hidden="true" tabindex="-1"></a>exact <span class="ot">&lt;-</span> <span class="fu">apply</span>(combos, <span class="dv">2</span>, <span class="cf">function</span>(k) <span class="fu">mean</span>(small<span class="sc">$</span>reduction[k]) <span class="sc">-</span></span>
-<span id="cb43-6"><a aria-hidden="true" tabindex="-1"></a>                                      <span class="fu">mean</span>(small<span class="sc">$</span>reduction[<span class="sc">-</span>k]))</span>
-<span id="cb43-7"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ncol</span>(combos)                             <span class="co"># the entire reference set</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a aria-hidden="true" tabindex="-1"></a>small <span class="ot">&lt;-</span> trial[<span class="fu">c</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="dv">31</span><span class="sc">:</span><span class="dv">34</span>), <span class="fu">c</span>(<span class="st">"id"</span>, <span class="st">"arm"</span>, <span class="st">"reduction"</span>)]</span>
+<span id="cb41-2"><a aria-hidden="true" tabindex="-1"></a>obs_small <span class="ot">&lt;-</span> <span class="fu">mean_diff</span>(<span class="at">data =</span> small)</span>
+<span id="cb41-3"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-4"><a aria-hidden="true" tabindex="-1"></a>combos <span class="ot">&lt;-</span> <span class="fu">combn</span>(<span class="dv">8</span>, <span class="dv">4</span>)                    <span class="co"># every way to choose 4 "Treatment"</span></span>
+<span id="cb41-5"><a aria-hidden="true" tabindex="-1"></a>exact <span class="ot">&lt;-</span> <span class="fu">apply</span>(combos, <span class="dv">2</span>, <span class="cf">function</span>(k) <span class="fu">mean</span>(small<span class="sc">$</span>reduction[k]) <span class="sc">-</span></span>
+<span id="cb41-6"><a aria-hidden="true" tabindex="-1"></a>                                      <span class="fu">mean</span>(small<span class="sc">$</span>reduction[<span class="sc">-</span>k]))</span>
+<span id="cb41-7"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">ncol</span>(combos)                             <span class="co"># the entire reference set</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 70</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">mean</span>(<span class="fu">abs</span>(exact) <span class="sc">&gt;=</span> <span class="fu">abs</span>(obs_small) <span class="sc">-</span> <span class="fl">1e-12</span>), <span class="dv">4</span>)    <span class="co"># exact two-sided p-value</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">mean</span>(<span class="fu">abs</span>(exact) <span class="sc">&gt;=</span> <span class="fu">abs</span>(obs_small) <span class="sc">-</span> <span class="fl">1e-12</span>), <span class="dv">4</span>)    <span class="co"># exact two-sided p-value</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.0286</code></pre>
 </div>
@@ -977,16 +950,16 @@ Figure&nbsp;2: Permutation null distribution of the mean difference, with the ob
 <section id="a-permutation-p-value-is-never-zero" class="slide level2 smaller">
 <h2>A permutation <em>p</em>-value is never zero</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a>n_extreme <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">abs</span>(perm_stat) <span class="sc">&gt;=</span> <span class="fu">abs</span>(obs_mean) <span class="sc">-</span> <span class="fl">1e-12</span>)</span>
-<span id="cb47-2"><a aria-hidden="true" tabindex="-1"></a>n_extreme                                        <span class="co"># out of 999</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a aria-hidden="true" tabindex="-1"></a>n_extreme <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">abs</span>(perm_stat) <span class="sc">&gt;=</span> <span class="fu">abs</span>(obs_mean) <span class="sc">-</span> <span class="fl">1e-12</span>)</span>
+<span id="cb45-2"><a aria-hidden="true" tabindex="-1"></a>n_extreme                                        <span class="co"># out of 999</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 13</code></pre>
 </div>
 </div>
 <div class="fragment">
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">wrong =</span> n_extreme <span class="sc">/</span> P,</span>
-<span id="cb49-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">right =</span> (n_extreme <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> (P <span class="sc">+</span> <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">wrong =</span> n_extreme <span class="sc">/</span> P,</span>
+<span id="cb47-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">right =</span> (n_extreme <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> (P <span class="sc">+</span> <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     wrong      right
 0.01301301 0.01400000 </code></pre>
@@ -1024,14 +997,14 @@ Figure&nbsp;2: Permutation null distribution of the mean difference, with the ob
 <section id="optional-monte-carlo-p-value-uncertainty" class="slide level2 smaller">
 <h2>Optional: Monte Carlo p-value uncertainty</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a aria-hidden="true" tabindex="-1"></a>extreme <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">abs</span>(perm_stat) <span class="sc">&gt;=</span> <span class="fu">abs</span>(obs_mean) <span class="sc">-</span> <span class="fl">1e-12</span>)</span>
-<span id="cb51-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">adjusted_p =</span> (extreme <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> (P <span class="sc">+</span> <span class="dv">1</span>),</span>
-<span id="cb51-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">min_reportable =</span> <span class="dv">1</span> <span class="sc">/</span> (P <span class="sc">+</span> <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a aria-hidden="true" tabindex="-1"></a>extreme <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">abs</span>(perm_stat) <span class="sc">&gt;=</span> <span class="fu">abs</span>(obs_mean) <span class="sc">-</span> <span class="fl">1e-12</span>)</span>
+<span id="cb49-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">adjusted_p =</span> (extreme <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> (P <span class="sc">+</span> <span class="dv">1</span>),</span>
+<span id="cb49-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">min_reportable =</span> <span class="dv">1</span> <span class="sc">/</span> (P <span class="sc">+</span> <span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    adjusted_p min_reportable
          0.014          0.001 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">binom.test</span>(extreme, P)<span class="sc">$</span>conf.int</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">binom.test</span>(extreme, P)<span class="sc">$</span>conf.int</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 0.006946582 0.022149851
 attr(,"conf.level")
@@ -1047,10 +1020,10 @@ attr(,"conf.level")
 </section>
 <section id="practice-preserve-the-assignment-mechanism" class="slide level2 smaller">
 <h2>Practice: preserve the assignment mechanism</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a aria-hidden="true" tabindex="-1"></a>shuffled <span class="ot">&lt;-</span> trial<span class="sc">$</span>arm</span>
-<span id="cb55-2"><a aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">split</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(trial)), trial<span class="sc">$</span>site)) {</span>
-<span id="cb55-3"><a aria-hidden="true" tabindex="-1"></a>  shuffled[i] <span class="ot">&lt;-</span> trial<span class="sc">$</span>arm[i][<span class="fu">sample.int</span>(<span class="at">n =</span> <span class="fu">length</span>(i), <span class="at">size =</span> <span class="fu">length</span>(i), <span class="at">replace =</span> <span class="cn">FALSE</span>)]</span>
-<span id="cb55-4"><a aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a aria-hidden="true" tabindex="-1"></a>shuffled <span class="ot">&lt;-</span> trial<span class="sc">$</span>arm</span>
+<span id="cb53-2"><a aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">split</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(trial)), trial<span class="sc">$</span>site)) {</span>
+<span id="cb53-3"><a aria-hidden="true" tabindex="-1"></a>  shuffled[i] <span class="ot">&lt;-</span> trial<span class="sc">$</span>arm[i][<span class="fu">sample.int</span>(<span class="at">n =</span> <span class="fu">length</span>(i), <span class="at">size =</span> <span class="fu">length</span>(i), <span class="at">replace =</span> <span class="cn">FALSE</span>)]</span>
+<span id="cb53-4"><a aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Within-site assignment counts stay fixed. Use this rule only when it represents the actual randomization; an arbitrary blocking variable does not establish validity.</p>
 </section></section>
 <section>
@@ -1061,7 +1034,7 @@ attr(,"conf.level")
 <section id="a-repeated-visit-illustration-three-visits-each" class="slide level2 smaller">
 <h2>A repeated-visit illustration: three visits each</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="at">x =</span> trial_long, <span class="at">n =</span> <span class="dv">7</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="at">x =</span> trial_long, <span class="at">n =</span> <span class="dv">7</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    id     arm week sbp
 1 P001 Placebo    4 158
@@ -1072,7 +1045,7 @@ attr(,"conf.level")
 6 P002 Placebo   12 145
 7 P003 Placebo    4 131</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">rows =</span> <span class="fu">nrow</span>(trial_long), <span class="at">patients =</span> <span class="fu">length</span>(<span class="fu">unique</span>(trial_long<span class="sc">$</span>id)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">rows =</span> <span class="fu">nrow</span>(trial_long), <span class="at">patients =</span> <span class="fu">length</span>(<span class="fu">unique</span>(trial_long<span class="sc">$</span>id)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    rows patients
      180       60 </code></pre>
@@ -1082,11 +1055,11 @@ attr(,"conf.level")
 <section id="define-the-statistic-for-repeated-visits" class="slide level2 smaller">
 <h2>Define the statistic for repeated visits</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a aria-hidden="true" tabindex="-1"></a>diff_long <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
-<span id="cb60-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(data<span class="sc">$</span>sbp[data<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"Treatment"</span>]) <span class="sc">-</span> <span class="fu">mean</span>(data<span class="sc">$</span>sbp[data<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"Placebo"</span>])</span>
-<span id="cb60-3"><a aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb60-4"><a aria-hidden="true" tabindex="-1"></a>obs_long <span class="ot">&lt;-</span> <span class="fu">diff_long</span>(trial_long)</span>
-<span id="cb60-5"><a aria-hidden="true" tabindex="-1"></a>obs_long</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a aria-hidden="true" tabindex="-1"></a>diff_long <span class="ot">&lt;-</span> <span class="cf">function</span>(data) {</span>
+<span id="cb58-2"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(data<span class="sc">$</span>sbp[data<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"Treatment"</span>]) <span class="sc">-</span> <span class="fu">mean</span>(data<span class="sc">$</span>sbp[data<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"Placebo"</span>])</span>
+<span id="cb58-3"><a aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb58-4"><a aria-hidden="true" tabindex="-1"></a>obs_long <span class="ot">&lt;-</span> <span class="fu">diff_long</span>(trial_long)</span>
+<span id="cb58-5"><a aria-hidden="true" tabindex="-1"></a>obs_long</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] -7.1</code></pre>
 </div>
@@ -1098,20 +1071,20 @@ attr(,"conf.level")
 <section id="the-naive-row-bootstrap" class="slide level2 smaller">
 <h2>The naive row bootstrap</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">21</span>)</span>
-<span id="cb62-2"><a aria-hidden="true" tabindex="-1"></a>boot_row <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> B, <span class="at">expr =</span> {</span>
-<span id="cb62-3"><a aria-hidden="true" tabindex="-1"></a>  groups <span class="ot">&lt;-</span> <span class="fu">split</span>(<span class="at">x =</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(trial_long)), <span class="at">f =</span> trial_long<span class="sc">$</span>arm)</span>
-<span id="cb62-4"><a aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(<span class="at">X =</span> groups, <span class="at">FUN =</span> <span class="cf">function</span>(i)</span>
-<span id="cb62-5"><a aria-hidden="true" tabindex="-1"></a>    i[<span class="fu">sample.int</span>(<span class="at">n =</span> <span class="fu">length</span>(i), <span class="at">size =</span> <span class="fu">length</span>(i), <span class="at">replace =</span> <span class="cn">TRUE</span>)]))</span>
-<span id="cb62-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">diff_long</span>(trial_long[idx, ])</span>
-<span id="cb62-7"><a aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb62-8"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb62-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">estimate =</span> obs_long, <span class="at">se =</span> <span class="fu">sd</span>(boot_row))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">21</span>)</span>
+<span id="cb60-2"><a aria-hidden="true" tabindex="-1"></a>boot_row <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> B, <span class="at">expr =</span> {</span>
+<span id="cb60-3"><a aria-hidden="true" tabindex="-1"></a>  groups <span class="ot">&lt;-</span> <span class="fu">split</span>(<span class="at">x =</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(trial_long)), <span class="at">f =</span> trial_long<span class="sc">$</span>arm)</span>
+<span id="cb60-4"><a aria-hidden="true" tabindex="-1"></a>  idx <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(<span class="at">X =</span> groups, <span class="at">FUN =</span> <span class="cf">function</span>(i)</span>
+<span id="cb60-5"><a aria-hidden="true" tabindex="-1"></a>    i[<span class="fu">sample.int</span>(<span class="at">n =</span> <span class="fu">length</span>(i), <span class="at">size =</span> <span class="fu">length</span>(i), <span class="at">replace =</span> <span class="cn">TRUE</span>)]))</span>
+<span id="cb60-6"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">diff_long</span>(trial_long[idx, ])</span>
+<span id="cb60-7"><a aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb60-8"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-9"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">estimate =</span> obs_long, <span class="at">se =</span> <span class="fu">sd</span>(boot_row))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> estimate        se
 -7.100000  1.845853 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">quantile</span>(boot_row, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>)), <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">quantile</span>(boot_row, <span class="fu">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>)), <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  2.5%  97.5%
 -10.43  -3.18 </code></pre>
@@ -1126,10 +1099,10 @@ attr(,"conf.level")
 <section id="keep-each-participants-visits-together" class="slide level2 smaller">
 <h2>Keep each participant’s visits together</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a aria-hidden="true" tabindex="-1"></a>ids <span class="ot">&lt;-</span> <span class="fu">unique</span>(trial_long<span class="sc">$</span>id)</span>
-<span id="cb66-2"><a aria-hidden="true" tabindex="-1"></a>arm_by_id <span class="ot">&lt;-</span> trial_long<span class="sc">$</span>arm[<span class="fu">match</span>(ids, trial_long<span class="sc">$</span>id)]</span>
-<span id="cb66-3"><a aria-hidden="true" tabindex="-1"></a>id_groups <span class="ot">&lt;-</span> <span class="fu">split</span>(<span class="at">x =</span> ids, <span class="at">f =</span> arm_by_id)</span>
-<span id="cb66-4"><a aria-hidden="true" tabindex="-1"></a>rows_by_id <span class="ot">&lt;-</span> <span class="fu">split</span>(<span class="at">x =</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(trial_long)), <span class="at">f =</span> trial_long<span class="sc">$</span>id)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a aria-hidden="true" tabindex="-1"></a>ids <span class="ot">&lt;-</span> <span class="fu">unique</span>(trial_long<span class="sc">$</span>id)</span>
+<span id="cb64-2"><a aria-hidden="true" tabindex="-1"></a>arm_by_id <span class="ot">&lt;-</span> trial_long<span class="sc">$</span>arm[<span class="fu">match</span>(ids, trial_long<span class="sc">$</span>id)]</span>
+<span id="cb64-3"><a aria-hidden="true" tabindex="-1"></a>id_groups <span class="ot">&lt;-</span> <span class="fu">split</span>(<span class="at">x =</span> ids, <span class="at">f =</span> arm_by_id)</span>
+<span id="cb64-4"><a aria-hidden="true" tabindex="-1"></a>rows_by_id <span class="ot">&lt;-</span> <span class="fu">split</span>(<span class="at">x =</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(trial_long)), <span class="at">f =</span> trial_long<span class="sc">$</span>id)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p><code>id_groups</code> lists participant IDs in each arm. <code>rows_by_id</code> links each ID to all of that participant’s visits.</p>
 <p>If an ID is sampled twice, include its visit rows twice. Selecting rows with <code>id %in% picked</code> would lose those repeated copies.</p>
@@ -1138,15 +1111,15 @@ attr(,"conf.level")
 <h2>The cluster bootstrap</h2>
 <p>Resample <strong>patients within arms</strong>, taking all their visits with them.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">22</span>)</span>
-<span id="cb67-2"><a aria-hidden="true" tabindex="-1"></a>boot_clu <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> B, <span class="at">expr =</span> {</span>
-<span id="cb67-3"><a aria-hidden="true" tabindex="-1"></a>  picked <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(<span class="at">X =</span> id_groups, <span class="at">FUN =</span> <span class="cf">function</span>(i)</span>
-<span id="cb67-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">sample</span>(<span class="at">x =</span> i, <span class="at">size =</span> <span class="fu">length</span>(i), <span class="at">replace =</span> <span class="cn">TRUE</span>)))</span>
-<span id="cb67-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">diff_long</span>(trial_long[<span class="fu">unlist</span>(rows_by_id[picked]), ])</span>
-<span id="cb67-6"><a aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb67-7"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb67-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">row_se =</span> <span class="fu">sd</span>(boot_row), <span class="at">cluster_se =</span> <span class="fu">sd</span>(boot_clu),</span>
-<span id="cb67-9"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">ratio =</span> <span class="fu">sd</span>(boot_clu) <span class="sc">/</span> <span class="fu">sd</span>(boot_row))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">22</span>)</span>
+<span id="cb65-2"><a aria-hidden="true" tabindex="-1"></a>boot_clu <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> B, <span class="at">expr =</span> {</span>
+<span id="cb65-3"><a aria-hidden="true" tabindex="-1"></a>  picked <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">lapply</span>(<span class="at">X =</span> id_groups, <span class="at">FUN =</span> <span class="cf">function</span>(i)</span>
+<span id="cb65-4"><a aria-hidden="true" tabindex="-1"></a>    <span class="fu">sample</span>(<span class="at">x =</span> i, <span class="at">size =</span> <span class="fu">length</span>(i), <span class="at">replace =</span> <span class="cn">TRUE</span>)))</span>
+<span id="cb65-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">diff_long</span>(trial_long[<span class="fu">unlist</span>(rows_by_id[picked]), ])</span>
+<span id="cb65-6"><a aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb65-7"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb65-8"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">row_se =</span> <span class="fu">sd</span>(boot_row), <span class="at">cluster_se =</span> <span class="fu">sd</span>(boot_clu),</span>
+<span id="cb65-9"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">ratio =</span> <span class="fu">sd</span>(boot_clu) <span class="sc">/</span> <span class="fu">sd</span>(boot_row))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    row_se cluster_se      ratio
   1.845853   3.143283   1.702889 </code></pre>
@@ -1171,9 +1144,9 @@ Figure&nbsp;3: Bootstrap distributions of the same estimate under two resampling
 <h2>Dependence limits information</h2>
 <p>The teaching generator uses a participant intercept with SD 12 and visit noise with SD 4. Within each arm, its known correlation is:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a aria-hidden="true" tabindex="-1"></a>rho <span class="ot">&lt;-</span> <span class="dv">12</span><span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> (<span class="dv">12</span><span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> <span class="dv">4</span><span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb69-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">rho =</span> rho, <span class="at">design_effect =</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">3</span> <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> rho,</span>
-<span id="cb69-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">approximate_se_inflation =</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> rho))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a aria-hidden="true" tabindex="-1"></a>rho <span class="ot">&lt;-</span> <span class="dv">12</span><span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> (<span class="dv">12</span><span class="sc">^</span><span class="dv">2</span> <span class="sc">+</span> <span class="dv">4</span><span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb67-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">rho =</span> rho, <span class="at">design_effect =</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">3</span> <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">*</span> rho,</span>
+<span id="cb67-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">approximate_se_inflation =</span> <span class="fu">sqrt</span>(<span class="dv">1</span> <span class="sc">+</span> <span class="dv">2</span> <span class="sc">*</span> rho))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>                     rho            design_effect approximate_se_inflation
                  0.90000                  2.80000                  1.67332 </code></pre>
@@ -1185,27 +1158,27 @@ Figure&nbsp;3: Bootstrap distributions of the same estimate under two resampling
 <h2>Permuting at the wrong level, too</h2>
 <p>The same mistake, in the other half of the session:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a aria-hidden="true" tabindex="-1"></a>arm_by_id <span class="ot">&lt;-</span> trial_long<span class="sc">$</span>arm[<span class="fu">match</span>(ids, trial_long<span class="sc">$</span>id)]</span>
-<span id="cb71-2"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb71-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">32</span>)</span>
-<span id="cb71-4"><a aria-hidden="true" tabindex="-1"></a>p_rows <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> <span class="dv">999</span>, <span class="at">expr =</span> {</span>
-<span id="cb71-5"><a aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="at">x =</span> trial_long<span class="sc">$</span>arm, <span class="at">size =</span> <span class="fu">nrow</span>(trial_long),</span>
-<span id="cb71-6"><a aria-hidden="true" tabindex="-1"></a>              <span class="at">replace =</span> <span class="cn">FALSE</span>)  <span class="co"># wrongly reassigns visits</span></span>
-<span id="cb71-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(trial_long<span class="sc">$</span>sbp[s <span class="sc">==</span> <span class="st">"Treatment"</span>]) <span class="sc">-</span> <span class="fu">mean</span>(trial_long<span class="sc">$</span>sbp[s <span class="sc">==</span> <span class="st">"Placebo"</span>])</span>
-<span id="cb71-8"><a aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a aria-hidden="true" tabindex="-1"></a>arm_by_id <span class="ot">&lt;-</span> trial_long<span class="sc">$</span>arm[<span class="fu">match</span>(ids, trial_long<span class="sc">$</span>id)]</span>
+<span id="cb69-2"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">32</span>)</span>
+<span id="cb69-4"><a aria-hidden="true" tabindex="-1"></a>p_rows <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> <span class="dv">999</span>, <span class="at">expr =</span> {</span>
+<span id="cb69-5"><a aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="at">x =</span> trial_long<span class="sc">$</span>arm, <span class="at">size =</span> <span class="fu">nrow</span>(trial_long),</span>
+<span id="cb69-6"><a aria-hidden="true" tabindex="-1"></a>              <span class="at">replace =</span> <span class="cn">FALSE</span>)  <span class="co"># wrongly reassigns visits</span></span>
+<span id="cb69-7"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(trial_long<span class="sc">$</span>sbp[s <span class="sc">==</span> <span class="st">"Treatment"</span>]) <span class="sc">-</span> <span class="fu">mean</span>(trial_long<span class="sc">$</span>sbp[s <span class="sc">==</span> <span class="st">"Placebo"</span>])</span>
+<span id="cb69-8"><a aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="permute-patient-assignments-then-carry-them-to-visits" class="slide level2 smaller">
 <h2>Permute patient assignments, then carry them to visits</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a aria-hidden="true" tabindex="-1"></a>p_pats <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> <span class="dv">999</span>, <span class="at">expr =</span> {</span>
-<span id="cb72-2"><a aria-hidden="true" tabindex="-1"></a>  assigned <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="at">x =</span> arm_by_id, <span class="at">size =</span> <span class="fu">length</span>(arm_by_id), <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb72-3"><a aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> assigned[<span class="fu">match</span>(trial_long<span class="sc">$</span>id, ids)]      <span class="co"># join by ID, not row order</span></span>
-<span id="cb72-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(trial_long<span class="sc">$</span>sbp[s <span class="sc">==</span> <span class="st">"Treatment"</span>]) <span class="sc">-</span> <span class="fu">mean</span>(trial_long<span class="sc">$</span>sbp[s <span class="sc">==</span> <span class="st">"Placebo"</span>])</span>
-<span id="cb72-5"><a aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb72-6"><a aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb72-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">p_row_unit =</span> (<span class="fu">sum</span>(<span class="fu">abs</span>(p_rows) <span class="sc">&gt;=</span> <span class="fu">abs</span>(obs_long)) <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">1000</span>,</span>
-<span id="cb72-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">p_patient_unit =</span> (<span class="fu">sum</span>(<span class="fu">abs</span>(p_pats) <span class="sc">&gt;=</span> <span class="fu">abs</span>(obs_long)) <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">1000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a aria-hidden="true" tabindex="-1"></a>p_pats <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> <span class="dv">999</span>, <span class="at">expr =</span> {</span>
+<span id="cb70-2"><a aria-hidden="true" tabindex="-1"></a>  assigned <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="at">x =</span> arm_by_id, <span class="at">size =</span> <span class="fu">length</span>(arm_by_id), <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb70-3"><a aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> assigned[<span class="fu">match</span>(trial_long<span class="sc">$</span>id, ids)]      <span class="co"># join by ID, not row order</span></span>
+<span id="cb70-4"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(trial_long<span class="sc">$</span>sbp[s <span class="sc">==</span> <span class="st">"Treatment"</span>]) <span class="sc">-</span> <span class="fu">mean</span>(trial_long<span class="sc">$</span>sbp[s <span class="sc">==</span> <span class="st">"Placebo"</span>])</span>
+<span id="cb70-5"><a aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb70-6"><a aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-7"><a aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">p_row_unit =</span> (<span class="fu">sum</span>(<span class="fu">abs</span>(p_rows) <span class="sc">&gt;=</span> <span class="fu">abs</span>(obs_long)) <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">1000</span>,</span>
+<span id="cb70-8"><a aria-hidden="true" tabindex="-1"></a>  <span class="at">p_patient_unit =</span> (<span class="fu">sum</span>(<span class="fu">abs</span>(p_pats) <span class="sc">&gt;=</span> <span class="fu">abs</span>(obs_long)) <span class="sc">+</span> <span class="dv">1</span>) <span class="sc">/</span> <span class="dv">1000</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    p_row_unit p_patient_unit
          0.001          0.034 </code></pre>
@@ -1349,13 +1322,13 @@ Figure&nbsp;3: Bootstrap distributions of the same estimate under two resampling
 <h2>Paired measurements: bootstrap the change</h2>
 <p>For the treatment arm, estimate mean <strong>baseline minus 12-week SBP</strong>. Each participant contributes one paired change.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a aria-hidden="true" tabindex="-1"></a>treated <span class="ot">&lt;-</span> trial[trial<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"Treatment"</span>, ]</span>
-<span id="cb74-2"><a aria-hidden="true" tabindex="-1"></a>change <span class="ot">&lt;-</span> treated<span class="sc">$</span>sbp_0 <span class="sc">-</span> treated<span class="sc">$</span>sbp_12</span>
-<span id="cb74-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1530</span>)</span>
-<span id="cb74-4"><a aria-hidden="true" tabindex="-1"></a>boot_change <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> <span class="dv">2000</span>, <span class="at">expr =</span></span>
-<span id="cb74-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(<span class="at">x =</span> <span class="fu">sample</span>(<span class="at">x =</span> change, <span class="at">size =</span> <span class="fu">length</span>(change), <span class="at">replace =</span> <span class="cn">TRUE</span>)))</span>
-<span id="cb74-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">mean_change =</span> <span class="fu">mean</span>(change), <span class="at">SE =</span> <span class="fu">sd</span>(boot_change),</span>
-<span id="cb74-7"><a aria-hidden="true" tabindex="-1"></a>        <span class="fu">quantile</span>(boot_change, <span class="fu">c</span>(.<span class="dv">025</span>, .<span class="dv">975</span>))), <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a aria-hidden="true" tabindex="-1"></a>treated <span class="ot">&lt;-</span> trial[trial<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"Treatment"</span>, ]</span>
+<span id="cb72-2"><a aria-hidden="true" tabindex="-1"></a>change <span class="ot">&lt;-</span> treated<span class="sc">$</span>sbp_0 <span class="sc">-</span> treated<span class="sc">$</span>sbp_12</span>
+<span id="cb72-3"><a aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1530</span>)</span>
+<span id="cb72-4"><a aria-hidden="true" tabindex="-1"></a>boot_change <span class="ot">&lt;-</span> <span class="fu">replicate</span>(<span class="at">n =</span> <span class="dv">2000</span>, <span class="at">expr =</span></span>
+<span id="cb72-5"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mean</span>(<span class="at">x =</span> <span class="fu">sample</span>(<span class="at">x =</span> change, <span class="at">size =</span> <span class="fu">length</span>(change), <span class="at">replace =</span> <span class="cn">TRUE</span>)))</span>
+<span id="cb72-6"><a aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">mean_change =</span> <span class="fu">mean</span>(change), <span class="at">SE =</span> <span class="fu">sd</span>(boot_change),</span>
+<span id="cb72-7"><a aria-hidden="true" tabindex="-1"></a>        <span class="fu">quantile</span>(boot_change, <span class="fu">c</span>(.<span class="dv">025</span>, .<span class="dv">975</span>))), <span class="dv">2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>mean_change          SE        2.5%       97.5%
        5.66        0.82        4.09        7.28 </code></pre>

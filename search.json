@@ -7186,7 +7186,7 @@
     "href": "course/session15/slides.html#why-permutation-fits-this-project",
     "title": "Resampling: Bootstrap and Permutation",
     "section": "Why permutation fits this project",
-    "text": "Why permutation fits this project\nUnder the sharp null, each supervisor’s decision would be unchanged by the file label. Keep the 48 decisions fixed and randomly assign 24 male labels and 24 female labels again.\n\ndecision &lt;- c(rep(1, 21), rep(0, 3), rep(1, 14), rep(0, 10))\nobserved_gap &lt;- 21/24 - 14/24\nset.seed(1501)\nnull_gap &lt;- replicate(n = 9999, expr = {\n  male &lt;- sample.int(n = 48, size = 24, replace = FALSE)\n  mean(decision[male]) - mean(decision[-male])\n})\n(1 + sum(abs(null_gap) &gt;= abs(observed_gap) - 1e-12)) / 10000\n\n[1] 0.0526\n\n\nThis two-sided p-value measures evidence against the null under the assignment scheme. It does not estimate the size or uncertainty of an effect."
+    "text": "Why permutation fits this project\nUnder the sharp null, each participant would have the same SBP reduction whether assigned to treatment or placebo.\n\nKeep all 60 observed SBP reductions fixed.\nRandomly assign 30 treatment labels and 30 placebo labels again.\nRecalculate the treatment-minus-placebo mean difference.\nRepeat and count differences at least as far from zero as the observed one.\n\nComplete randomization makes these reassignments possible under the study design. The resulting p-value asks how unusual the observed difference is under the null.\nNext, implement one reassignment before repeating it with replicate()."
   },
   {
     "objectID": "course/session15/slides.html#which-bootstrap-fits-the-data",
@@ -7327,6 +7327,13 @@
     "title": "Resampling: Bootstrap and Permutation",
     "section": "Another resampling method: the jackknife",
     "text": "Another resampling method: the jackknife\nLeave out one participant at a time and recalculate the estimate. For four independent observations, 2, 4, 6, 8, the full-sample mean is 5:\n\n\n\nOmit\nRemaining observations\nMean\n\n\n\n\n2\n4, 6, 8\n6.00\n\n\n4\n2, 6, 8\n5.33\n\n\n6\n2, 4, 8\n4.67\n\n\n8\n2, 4, 6\n4.00\n\n\n\nThese estimates can assess sensitivity and, with jackknife formulas, estimate bias and SE for suitable statistics such as the mean. Their raw SD is not the SE.\nThere are n leave-one-out estimates and no random draws. The ordinary jackknife can fail for statistics such as the median. Cross-validation in Session 16 uses held-out observations to assess prediction instead."
+  },
+  {
+    "objectID": "course/session15/slides.html#project-example-the-sbp-treatment-trial",
+    "href": "course/session15/slides.html#project-example-the-sbp-treatment-trial",
+    "title": "Resampling: Bootstrap and Permutation",
+    "section": "Project example: the SBP treatment trial",
+    "text": "Project example: the SBP treatment trial\nReturn to our synthetic teaching trial: 30 participants receive treatment and 30 receive placebo, representing complete randomization with fixed arm sizes.\nThe outcome is SBP reduction = baseline minus 12-week SBP. A positive treatment-minus-placebo difference means greater reduction with treatment.\nOur observed mean difference is 7.19 mmHg.\nProject question: could random treatment assignment produce a difference at least this large in either direction if treatment changed nobody’s outcome?\nUse the same participants, outcomes, and mean-difference statistic as in the bootstrap example. Now the question concerns a no-effect hypothesis."
   },
   {
     "objectID": "course/session14/index.html",
@@ -8089,7 +8096,7 @@
     "href": "course/session15/index.html",
     "title": "Session 15 · Bootstrap, permutation, and resampling design",
     "section": "",
-    "text": "Session 14 specifies a population and generates new trials. Session 15 starts with one dataset and uses bootstrap samples for estimation uncertainty and allowed label permutations for a null comparison. Cross-validation remains with regression models in Session 16.\nThe lecture retains the melanoma and promotion-study examples and uses SBP reduction for its worked trial. The lab reuses the weight-loss dataset from Session 14, with a guided function review and one-resample examples before loops."
+    "text": "Session 14 specifies a population and generates new trials. Session 15 starts with one dataset and uses bootstrap samples for estimation uncertainty and allowed label permutations for a null comparison. Cross-validation remains with regression models in Session 16.\nThe lecture uses the melanoma cohort and the synthetic SBP treatment trial, with SBP reduction for its worked trial. The lab reuses the weight-loss dataset from Session 14, with a guided function review and one-resample examples before loops."
   },
   {
     "objectID": "course/session15/index.html#the-statistical-computing-sequence",
@@ -8131,7 +8138,7 @@
     "href": "course/session15/index.html#from-simulation-to-resampling",
     "title": "Session 15 · Bootstrap, permutation, and resampling design",
     "section": "",
-    "text": "Session 14 specifies a population and generates new trials. Session 15 starts with one dataset and uses bootstrap samples for estimation uncertainty and allowed label permutations for a null comparison. Cross-validation remains with regression models in Session 16.\nThe lecture retains the melanoma and promotion-study examples and uses SBP reduction for its worked trial. The lab reuses the weight-loss dataset from Session 14, with a guided function review and one-resample examples before loops."
+    "text": "Session 14 specifies a population and generates new trials. Session 15 starts with one dataset and uses bootstrap samples for estimation uncertainty and allowed label permutations for a null comparison. Cross-validation remains with regression models in Session 16.\nThe lecture uses the melanoma cohort and the synthetic SBP treatment trial, with SBP reduction for its worked trial. The lab reuses the weight-loss dataset from Session 14, with a guided function review and one-resample examples before loops."
   },
   {
     "objectID": "course/session15/index.html#lab-route",
