@@ -121,13 +121,17 @@ Cross-validation follows regression and prediction in Session 16.
 We usually have **one dataset**, but our questions concern what would happen
 with other samples or other assignments.
 
-| Project question | What is hard to observe directly? |
+| Project question | Comparison we need |
 |---|---|
 | How uncertain is our estimated median or mean difference? | The estimate across many new samples |
-| Is this group difference surprising under no effect? | Results under other allowed assignments |
+| Could random assignment alone explain this group difference? | Differences after reassigning treatment labels under no effect |
 
-Resampling reuses the observed data in a deliberate way to approximate these
-comparisons. It does not create new independent information.
+**Example:** 30 participants receive treatment and 30 receive placebo. Assume
+treatment changes nobody's outcome. Keep outcomes fixed, randomly choose a new
+set of 30 treatment labels, and calculate the difference again.
+
+Follow the original randomization: if assignment occurred within hospitals,
+reassign labels within hospitals. Resampling does not add new participants.
 
 ## Two questions, two resampling methods {.smaller}
 
@@ -432,25 +436,26 @@ quantile(x = boot_mean, probs = c(0.025, 0.975))
 ```
 
 Take the 2.5th and 97.5th percentiles of the resampled mean differences.
-The units are **mmHg of additional SBP reduction**.
+These enclose approximately 95% of the **bootstrap estimates** from this dataset.
 
-This is an approximate interval for the population effect. It is not a range
-containing 95% of patients, and 95% coverage is not guaranteed.
+We use them as an approximate confidence interval for the **population mean
+difference** in SBP reduction, measured in mmHg. This is one interval for the
+treatment effect, rather than a separate interval for each group.
 
-## Optional: Percentile and basic intervals {.smaller}
+## What does 95% confidence mean? {.smaller}
 
-```{r}
-perc <- quantile(x = boot_mean, probs = c(.025, .975))
-basic <- 2 * obs_mean - quantile(x = boot_mean, probs = c(.975, .025))
-rbind(percentile = unname(perc), basic = unname(basic))
-```
+Imagine repeating the whole study, collecting new participants and calculating
+a new confidence interval each time.
 
-- **Percentile:** use quantiles of the bootstrap estimates directly.
-- **Basic:** reflect those quantiles around the observed estimate.
-- Both rely on a suitable bootstrap approximation; neither automatically has
-  95% coverage in small, biased, or irregular problems.
+With a well-calibrated 95% procedure, about **95% of those intervals contain
+the same fixed true population mean difference**.
 
-Compare endpoints and assumptions. Do not choose whichever interval gives a preferred conclusion.
+The intervals vary across studies. The population effect stays fixed.
+Our particular interval either contains it or misses it. We do not know which.
+
+This does not mean our interval contains 95% of patients or 95% of future
+trial estimates. Percentile bootstrap coverage is approximate, especially
+with small samples. Session 14 evaluates coverage across simulated trials.
 
 ## Compare the bootstrap and Welch standard errors {.smaller}
 
@@ -541,7 +546,7 @@ Optional package syntax for the same within-arm bootstrap:
 library(boot)
 b <- boot(trial, statistic = function(data, i) mean_diff(data[i, ]),
           R = 10000, strata = trial$arm)
-boot.ci(b, type = c("perc", "basic", "bca"))
+boot.ci(boot.out = b, type = "perc")
 
 # rsample: tidymodels. Resamples as a tibble of splits.
 library(rsample)
@@ -953,6 +958,25 @@ State the rule before using `sample()`.
 
 # 6 · Practical resampling choices {.section-divider}
 
+## Another resampling method: the jackknife {.smaller}
+
+Leave out **one participant at a time** and recalculate the estimate.
+For four independent observations, `2, 4, 6, 8`, the full-sample mean is 5:
+
+| Omit | Remaining observations | Mean |
+|---|---|---|
+| 2 | 4, 6, 8 | 6.00 |
+| 4 | 2, 6, 8 | 5.33 |
+| 6 | 2, 4, 8 | 4.67 |
+| 8 | 2, 4, 6 | 4.00 |
+
+These estimates can assess sensitivity and, with jackknife formulas, estimate
+bias and SE for suitable statistics such as the mean. Their raw SD is not the SE.
+
+There are n leave-one-out estimates and no random draws. The ordinary jackknife
+can fail for statistics such as the median. Cross-validation in Session 16 uses
+held-out observations to assess prediction instead.
+
 ## Which bootstrap fits the data? {.smaller}
 
 | Approach | What is sampled? | Typical use |
@@ -1027,8 +1051,8 @@ reassignment rule. Choose the analysis before inspecting favorable results.
 4. Try one allowed permutation, then repeat and calculate the adjusted p-value.
 5. Distinguish sampling uncertainty from computational variation across seeds.
 
-The lab requires the CSV and one starter. Paired/cluster coding, basic intervals,
-and exact enumeration are optional follow-up.
+The lab requires the CSV and one starter. Paired/cluster coding and exact
+enumeration are optional follow-up.
 
 **Explain:** Why does `sd(boot)` estimate the effect SE? Why does increasing B
 not add patients? Why is a permutation rejection fraction not estimated power?
@@ -1038,6 +1062,8 @@ not add patients? Why is a permutation rejection fraction not estimated power?
 
 - [R bootstrap implementation](https://stat.ethz.ch/R-manual/R-devel/library/boot/html/boot.html)
 - [R bootstrap confidence intervals](https://stat.ethz.ch/R-manual/R-devel/library/boot/html/boot.ci.html)
+- [Confidence interval interpretation (NIST)](https://www.itl.nist.gov/div898/handbook/prc/section1/prc14.htm)
+- [Jackknife estimates (SAS)](https://blogs.sas.com/content/iml/2017/06/21/jackknife-estimate-standard-error-sas.html)
 
 ## Summary {.smaller}
 
